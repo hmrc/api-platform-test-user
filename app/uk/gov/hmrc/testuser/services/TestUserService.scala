@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformtestuser.controllers
+package uk.gov.hmrc.testuser.services
 
-import uk.gov.hmrc.play.microservice.controller.BaseController
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import play.api.mvc._
-import scala.concurrent.Future
+import uk.gov.hmrc.testuser.repository.TestUserRepository
 
-object MicroserviceHelloWorld extends MicroserviceHelloWorld
 
-trait MicroserviceHelloWorld extends BaseController {
+trait TestUserService {
 
-	def hello() = Action.async { implicit request =>
-		Future.successful(Ok("Hello world"))
-	}
+  val generator: Generator
+  val testUserRepository: TestUserRepository
+
+  def createTestIndividual() = testUserRepository.createUser(generator.generateTestIndividual)
+
+  def createTestOrganisation() = testUserRepository.createUser(generator.generateTestOrganisation)
+}
+
+object TestUserService extends TestUserService {
+  override val generator: Generator = Generator
+  override val testUserRepository = TestUserRepository()
 }
