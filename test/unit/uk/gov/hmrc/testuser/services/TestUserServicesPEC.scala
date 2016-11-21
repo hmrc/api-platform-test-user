@@ -19,16 +19,14 @@ package unit.uk.gov.hmrc.testuser.services
 import org.mockito.Mockito.{when, verify}
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.mockito.{Matchers, Mockito, BDDMockito}
+import org.mockito.Matchers
 import org.mockito.BDDMockito.given
 import org.scalatest.mock.MockitoSugar
-import reactivemongo.api.commands.DefaultWriteResult
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.models.{TestOrganisation, TestUser, TestIndividual}
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.services.{Generator, TestUserService}
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
@@ -50,9 +48,9 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
 
     "Generate an individual and save it in the database" in new Setup {
 
-      given(underTest.generator.generateTestIndividual).willReturn(testIndividual)
+      given(underTest.generator.generateTestIndividual()).willReturn(testIndividual)
 
-      val result = await(underTest.createTestIndividual)
+      val result = await(underTest.createTestIndividual())
 
       result shouldBe testIndividual
       verify(underTest.testUserRepository).createUser(testIndividual)
@@ -60,10 +58,10 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
 
     "fail when the repository fails" in new Setup {
 
-      given(underTest.generator.generateTestIndividual).willReturn(testIndividual)
+      given(underTest.generator.generateTestIndividual()).willReturn(testIndividual)
       given(underTest.testUserRepository.createUser(Matchers.any[TestUser]())).willReturn(Future.failed(new RuntimeException()))
 
-      intercept[RuntimeException]{await(underTest.createTestIndividual)}
+      intercept[RuntimeException]{await(underTest.createTestIndividual())}
     }
   }
 
@@ -71,9 +69,9 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
 
     "Generate an organisation and save it in the database" in new Setup {
 
-      given(underTest.generator.generateTestOrganisation).willReturn(testOrganisation)
+      given(underTest.generator.generateTestOrganisation()).willReturn(testOrganisation)
 
-      val result = await(underTest.createTestOrganisation)
+      val result = await(underTest.createTestOrganisation())
 
       result shouldBe testOrganisation
       verify(underTest.testUserRepository).createUser(testOrganisation)
@@ -81,10 +79,10 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
 
     "fail when the repository fails" in new Setup {
 
-      given(underTest.generator.generateTestOrganisation).willReturn(testOrganisation)
+      given(underTest.generator.generateTestOrganisation()).willReturn(testOrganisation)
       given(underTest.testUserRepository.createUser(Matchers.any[TestUser]())).willReturn(Future.failed(new RuntimeException()))
 
-      intercept[RuntimeException]{await(underTest.createTestIndividual)}
+      intercept[RuntimeException]{await(underTest.createTestIndividual())}
     }
   }
 
