@@ -14,28 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformtestuser.controllers
-
-import play.api.http.Status
-import play.api.test.FakeRequest
-import play.api.http.Status
-import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.play.test.WithFakeApplication
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+package uk.gov.hmrc.testuser.models
 
 
-class MicroserviceHelloWorldControllerSpec extends UnitSpec with WithFakeApplication{
+object ErrorCode extends Enumeration {
 
-  val fakeRequest = FakeRequest("GET", "/")
+  type ErrorCode = Value
 
+  val INTERNAL_SERVER_ERROR = Value("INTERNAL_SERVER_ERROR")
+}
 
-  "GET /" should {
-    "return 200" in {
-      val result = MicroserviceHelloWorld.hello()(fakeRequest)
-      status(result) shouldBe Status.OK
-    }
-  }
+case class ErrorResponse(code: ErrorCode.Value, message: String)
 
-
+object ErrorResponse {
+  val internalServerError = ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred")
 }
