@@ -23,7 +23,7 @@ import org.scalatest._
 import play.api.Mode
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.test.{TestServer}
+import play.api.test.TestServer
 import uk.gov.hmrc.mongo.MongoConnector
 import uk.gov.hmrc.testuser.models.{TestOrganisation, TestOrganisationResponse, TestIndividual, TestIndividualResponse}
 import uk.gov.hmrc.testuser.repository.TestUserMongoRepository
@@ -99,7 +99,7 @@ with GivenWhenThen with BeforeAndAfterEach with BeforeAndAfterAll {
   }
 
   def mongoRepository = {
-    implicit val mongo = new MongoConnector("mongodb://localhost:27017/api-platform-test-user-it").db
+    implicit val mongo = MongoConnector("mongodb://localhost:27017/api-platform-test-user-it").db
     new TestUserMongoRepository()
   }
 }

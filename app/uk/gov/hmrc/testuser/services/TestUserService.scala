@@ -24,9 +24,9 @@ trait TestUserService {
   val generator: Generator
   val testUserRepository: TestUserRepository
 
-  def createTestIndividual() = testUserRepository.createUser(generator.generateTestIndividual)
+  def createTestIndividual() = testUserRepository.createUser(generator.generateTestIndividual())
 
-  def createTestOrganisation() = testUserRepository.createUser(generator.generateTestOrganisation)
+  def createTestOrganisation() = testUserRepository.createUser(generator.generateTestOrganisation())
 }
 
 object TestUserService extends TestUserService {

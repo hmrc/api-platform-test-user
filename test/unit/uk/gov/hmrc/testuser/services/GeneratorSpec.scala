@@ -29,8 +29,8 @@ class GeneratorSpec extends UnitSpec {
   "generateTestIndividual" should {
 
     "create a different test individual at every run" in {
-      val individual1 = underTest.generateTestIndividual
-      val individual2 = underTest.generateTestIndividual
+      val individual1 = underTest.generateTestIndividual()
+      val individual2 = underTest.generateTestIndividual()
 
       individual1 should haveDifferentPropertiesThan(individual2)
     }
@@ -39,8 +39,8 @@ class GeneratorSpec extends UnitSpec {
   "generateTestOrganisation" should {
 
     "create a different test organisation at every run" in {
-      val organisation1 = underTest.generateTestOrganisation
-      val organisation2 = underTest.generateTestOrganisation
+      val organisation1 = underTest.generateTestOrganisation()
+      val organisation2 = underTest.generateTestOrganisation()
 
       organisation1 should haveDifferentPropertiesThan(organisation2)
     }

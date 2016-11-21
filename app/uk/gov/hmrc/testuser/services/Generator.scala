@@ -33,9 +33,9 @@ trait Generator {
   } yield EmpRef.fromIdentifiers(s"$taxOfficeNumber/$taxOfficeReference")
   private val vrnGenerator = Gen.chooseNum(666000000, 666999999)
 
-  def generateTestIndividual = TestIndividual(generateUsername, generatePassword, generateSaUtr, generateNino)
+  def generateTestIndividual() = TestIndividual(generateUsername, generatePassword, generateSaUtr, generateNino)
 
-  def generateTestOrganisation =
+  def generateTestOrganisation() =
     TestOrganisation(generateUsername, generatePassword, generateSaUtr, generateEmpRef, generateCtUtr, generateVrn)
 
   private def generateUsername = usernameGenerator.sample.get
