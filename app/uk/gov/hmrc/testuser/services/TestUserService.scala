@@ -16,20 +16,31 @@
 
 package uk.gov.hmrc.testuser.services
 
-import uk.gov.hmrc.testuser.repository.TestUserRepository
+import javax.inject.Inject
 
+import uk.gov.hmrc.testuser.repository.TestUserRepository
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait TestUserService {
 
   val generator: Generator
   val testUserRepository: TestUserRepository
+  val encryptionService: EncryptionService
 
-  def createTestIndividual() = testUserRepository.createUser(generator.generateTestIndividual())
+  def createTestIndividual() = {
+    val individual = generator.generateTestIndividual()
+    val encryptedPassword =  encryptionService.encrypt(individual.password)
+    testUserRepository.createUser(individual.copy(password = encryptedPassword)) map (_ => individual)
+  }
 
-  def createTestOrganisation() = testUserRepository.createUser(generator.generateTestOrganisation())
+  def createTestOrganisation() = {
+    val organisation = generator.generateTestOrganisation()
+    val encryptedPassword =  encryptionService.encrypt(organisation.password)
+    testUserRepository.createUser(organisation.copy(password = encryptedPassword)) map (_ => organisation)
+  }
 }
 
-object TestUserService extends TestUserService {
+class TestUserServiceImpl @Inject()(override val encryptionService: EncryptionServiceImpl) extends TestUserService {
   override val generator: Generator = Generator
   override val testUserRepository = TestUserRepository()
 }

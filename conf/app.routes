@@ -1,5 +1,5 @@
 # microservice specific routes
 
-POST        /individual             uk.gov.hmrc.testuser.controllers.TestUserController.createIndividual
+POST        /individual             @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.createIndividual
 
-POST        /organisation           uk.gov.hmrc.testuser.controllers.TestUserController.createOrganisation
+POST        /organisation           @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.createOrganisation
