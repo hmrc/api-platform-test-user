@@ -33,6 +33,7 @@ import uk.gov.hmrc.testuser.models.JsonFormatters._
 import scala.concurrent.Await._
 import scala.concurrent.duration.Duration
 import scalaj.http.Http
+import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
 
 class CreateTestUserSpec extends FeatureSpec with Matchers
 with GivenWhenThen with BeforeAndAfterEach with BeforeAndAfterAll {
@@ -53,9 +54,10 @@ with GivenWhenThen with BeforeAndAfterEach with BeforeAndAfterAll {
       response.code shouldBe SC_CREATED
       val individualResponse = Json.parse(response.body).as[TestIndividualResponse]
 
-      And("The individual is stored in mongo")
+      And("The individual is stored in mongo with encrypted password")
       val individual = result(mongoRepository.fetchByUsername(individualResponse.username), timeout).get.asInstanceOf[TestIndividual]
-      TestIndividualResponse.from(individual) shouldBe individualResponse
+      TestIndividualResponse.from(individual.copy(password = individualResponse.password)) shouldBe individualResponse
+      validatePassword(individualResponse.password, individual.password) shouldBe true
     }
 
     scenario("Create an organisation") {
@@ -67,9 +69,10 @@ with GivenWhenThen with BeforeAndAfterEach with BeforeAndAfterAll {
       response.code shouldBe SC_CREATED
       val organisationResponse = Json.parse(response.body).as[TestOrganisationResponse]
 
-      And("The organisation is stored in mongo")
+      And("The organisation is stored in mongo with encrypted password")
       val organisation = result(mongoRepository.fetchByUsername(organisationResponse.username), timeout).get.asInstanceOf[TestOrganisation]
-      TestOrganisationResponse.from(organisation) shouldBe organisationResponse
+      TestOrganisationResponse.from(organisation.copy(password = organisationResponse.password)) shouldBe organisationResponse
+      validatePassword(organisationResponse.password, organisation.password) shouldBe true
     }
   }
 
@@ -97,6 +100,8 @@ with GivenWhenThen with BeforeAndAfterEach with BeforeAndAfterAll {
   def stopServer() = {
     server.stop()
   }
+
+  private def validatePassword(password: String, encryptedPassword: String) =  BCryptUtils.checkpw(password, encryptedPassword)
 
   def mongoRepository = {
     implicit val mongo = MongoConnector("mongodb://localhost:27017/api-platform-test-user-it").db

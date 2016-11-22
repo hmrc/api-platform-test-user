@@ -16,13 +16,15 @@
 
 package uk.gov.hmrc.testuser.controllers
 
+import javax.inject.Inject
+
 import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc.{Result, Action}
 import uk.gov.hmrc.play.microservice.controller.BaseController
 import uk.gov.hmrc.testuser.models.{TestOrganisationResponse, TestOrganisation, ErrorResponse, TestIndividualResponse}
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.services.TestUserService
+import uk.gov.hmrc.testuser.services.{TestUserServiceImpl, TestUserService}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait TestUserController extends BaseController {
@@ -48,6 +50,4 @@ trait TestUserController extends BaseController {
   }
 }
 
-object TestUserController extends TestUserController {
-  override val testUserService = TestUserService
-}
+class TestUserControllerImpl @Inject()(override val testUserService: TestUserServiceImpl) extends TestUserController

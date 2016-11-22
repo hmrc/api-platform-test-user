@@ -26,7 +26,7 @@ import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.models.{TestOrganisation, TestUser, TestIndividual}
 import uk.gov.hmrc.testuser.repository.TestUserRepository
-import uk.gov.hmrc.testuser.services.{Generator, TestUserService}
+import uk.gov.hmrc.testuser.services.{EncryptionService, Generator, TestUserService}
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
@@ -40,20 +40,23 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
     val underTest = new TestUserService {
       override val generator: Generator = mock[Generator]
       override val testUserRepository: TestUserRepository = mock[TestUserRepository]
+      override val encryptionService: EncryptionService = mock[EncryptionService]
     }
     when(underTest.testUserRepository.createUser(Matchers.any[TestUser]())).thenAnswer(sameUser)
   }
 
   "createTestIndividual" should {
 
-    "Generate an individual and save it in the database" in new Setup {
+    "Generate an individual and save it with encrypted password in the database" in new Setup {
 
+      val encryptedPassword  = "encryptedPassword"
       given(underTest.generator.generateTestIndividual()).willReturn(testIndividual)
+      given(underTest.encryptionService.encrypt(testIndividual.password)).willReturn(encryptedPassword)
 
       val result = await(underTest.createTestIndividual())
 
       result shouldBe testIndividual
-      verify(underTest.testUserRepository).createUser(testIndividual)
+      verify(underTest.testUserRepository).createUser(testIndividual.copy(password = encryptedPassword))
     }
 
     "fail when the repository fails" in new Setup {
@@ -69,12 +72,14 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
 
     "Generate an organisation and save it in the database" in new Setup {
 
+      val encryptedPassword  = "encryptedPassword"
       given(underTest.generator.generateTestOrganisation()).willReturn(testOrganisation)
+      given(underTest.encryptionService.encrypt(testOrganisation.password)).willReturn(encryptedPassword)
 
       val result = await(underTest.createTestOrganisation())
 
       result shouldBe testOrganisation
-      verify(underTest.testUserRepository).createUser(testOrganisation)
+      verify(underTest.testUserRepository).createUser(testOrganisation.copy(password = encryptedPassword))
     }
 
     "fail when the repository fails" in new Setup {

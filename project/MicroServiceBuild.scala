@@ -30,6 +30,7 @@ private object AppDependencies {
   private val scalaCheckVersion = "1.12.6"
   private val mockitoVersion = "1.9.5"
   private val scalaJVersion = "1.1.5"
+  private val jBcryptVersion = "0.3m"
 
   private val playReactivemongoVersion = "5.1.0"
 
@@ -45,7 +46,8 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "logback-json-logger" % logbackJsonLoggerVersion,
     "uk.gov.hmrc" %% "play-json-union-formatter" % hmrcPlayJsonUnionFormatterVersion,
     "uk.gov.hmrc" %% "domain" % domainVersion,
-    "org.scalacheck" %% "scalacheck" % scalaCheckVersion
+    "org.scalacheck" %% "scalacheck" % scalaCheckVersion,
+    "org.mindrot" % "jbcrypt" % jBcryptVersion
   )
 
   trait TestDependencies {
