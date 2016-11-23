@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/hmrc/api-platform-test-user.svg)](https://travis-ci.org/hmrc/api-platform-test-user) [ ![Download](https://api.bintray.com/packages/hmrc/releases/api-platform-test-user/images/download.svg) ](https://bintray.com/hmrc/releases/api-platform-test-user/_latestVersion)
 
-This is the backend microservice for the creation of test users in the API Platform for the ISV environment.
+This is the backend microservice for the creation of test users in the API Platform for the External Test Environment.
 Test users and organisations are stored in mongo.
 
 ### License
