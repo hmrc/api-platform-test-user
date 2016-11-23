@@ -25,22 +25,22 @@ trait TestUserService {
 
   val generator: Generator
   val testUserRepository: TestUserRepository
-  val encryptionService: EncryptionService
+  val passwordService: PasswordService
 
   def createTestIndividual() = {
     val individual = generator.generateTestIndividual()
-    val encryptedPassword =  encryptionService.encrypt(individual.password)
-    testUserRepository.createUser(individual.copy(password = encryptedPassword)) map (_ => individual)
+    val hashedPassword =  passwordService.hash(individual.password)
+    testUserRepository.createUser(individual.copy(password = hashedPassword)) map (_ => individual)
   }
 
   def createTestOrganisation() = {
     val organisation = generator.generateTestOrganisation()
-    val encryptedPassword =  encryptionService.encrypt(organisation.password)
-    testUserRepository.createUser(organisation.copy(password = encryptedPassword)) map (_ => organisation)
+    val hashedPassword =  passwordService.hash(organisation.password)
+    testUserRepository.createUser(organisation.copy(password = hashedPassword)) map (_ => organisation)
   }
 }
 
-class TestUserServiceImpl @Inject()(override val encryptionService: EncryptionServiceImpl) extends TestUserService {
+class TestUserServiceImpl @Inject()(override val passwordService: PasswordServiceImpl) extends TestUserService {
   override val generator: Generator = Generator
   override val testUserRepository = TestUserRepository()
 }
