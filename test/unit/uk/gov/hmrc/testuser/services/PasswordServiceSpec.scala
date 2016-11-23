@@ -17,39 +17,39 @@
 package unit.uk.gov.hmrc.testuser.services
 
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.services.EncryptionService
+import uk.gov.hmrc.testuser.services.PasswordService
 
-class EncryptionServiceSpec extends UnitSpec{
+class PasswordServiceSpec extends UnitSpec{
 
   trait Setup {
-    val underTest = new EncryptionService {
+    val underTest = new PasswordService {
       override val logRounds: Int = 12
     }
   }
 
-  "encrypt" should {
-    "return the encrypted password" in new Setup {
+  "hash" should {
+    "return the hashed password" in new Setup {
 
-      val encryptedPassword = underTest.encrypt("aPassword")
+      val hashedPassword = underTest.hash("aPassword")
 
-      encryptedPassword should not be "aPassword"
-      underTest.validate("aPassword", encryptedPassword) shouldBe true
+      hashedPassword should not be "aPassword"
+      underTest.validate("aPassword", hashedPassword) shouldBe true
     }
   }
 
   "validate" should {
     "return true when the password is correct" in new Setup {
 
-      val encryptedPassword = underTest.encrypt("aPassword")
+      val hashedPassword = underTest.hash("aPassword")
 
-      underTest.validate("aPassword", encryptedPassword) shouldBe true
+      underTest.validate("aPassword", hashedPassword) shouldBe true
     }
 
     "return false when the password is incorrect" in new Setup {
 
-      val anotherEncryptedPassword = underTest.encrypt("anotherPassword")
+      val anotherHashedPassword = underTest.hash("anotherPassword")
 
-      underTest.validate("aPassword", anotherEncryptedPassword) shouldBe false
+      underTest.validate("aPassword", anotherHashedPassword) shouldBe false
     }
 
   }

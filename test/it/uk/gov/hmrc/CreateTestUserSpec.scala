@@ -54,7 +54,7 @@ with GivenWhenThen with BeforeAndAfterEach with BeforeAndAfterAll {
       response.code shouldBe SC_CREATED
       val individualResponse = Json.parse(response.body).as[TestIndividualResponse]
 
-      And("The individual is stored in mongo with encrypted password")
+      And("The individual is stored in mongo with hashed password")
       val individual = result(mongoRepository.fetchByUsername(individualResponse.username), timeout).get.asInstanceOf[TestIndividual]
       TestIndividualResponse.from(individual.copy(password = individualResponse.password)) shouldBe individualResponse
       validatePassword(individualResponse.password, individual.password) shouldBe true
@@ -69,7 +69,7 @@ with GivenWhenThen with BeforeAndAfterEach with BeforeAndAfterAll {
       response.code shouldBe SC_CREATED
       val organisationResponse = Json.parse(response.body).as[TestOrganisationResponse]
 
-      And("The organisation is stored in mongo with encrypted password")
+      And("The organisation is stored in mongo with hashed password")
       val organisation = result(mongoRepository.fetchByUsername(organisationResponse.username), timeout).get.asInstanceOf[TestOrganisation]
       TestOrganisationResponse.from(organisation.copy(password = organisationResponse.password)) shouldBe organisationResponse
       validatePassword(organisationResponse.password, organisation.password) shouldBe true
@@ -101,7 +101,7 @@ with GivenWhenThen with BeforeAndAfterEach with BeforeAndAfterAll {
     server.stop()
   }
 
-  private def validatePassword(password: String, encryptedPassword: String) =  BCryptUtils.checkpw(password, encryptedPassword)
+  private def validatePassword(password: String, hashedPassword: String) =  BCryptUtils.checkpw(password, hashedPassword)
 
   def mongoRepository = {
     implicit val mongo = MongoConnector("mongodb://localhost:27017/api-platform-test-user-it").db

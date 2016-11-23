@@ -26,7 +26,7 @@ import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.models.{TestOrganisation, TestUser, TestIndividual}
 import uk.gov.hmrc.testuser.repository.TestUserRepository
-import uk.gov.hmrc.testuser.services.{EncryptionService, Generator, TestUserService}
+import uk.gov.hmrc.testuser.services.{PasswordService, Generator, TestUserService}
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
@@ -40,23 +40,23 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
     val underTest = new TestUserService {
       override val generator: Generator = mock[Generator]
       override val testUserRepository: TestUserRepository = mock[TestUserRepository]
-      override val encryptionService: EncryptionService = mock[EncryptionService]
+      override val passwordService: PasswordService = mock[PasswordService]
     }
     when(underTest.testUserRepository.createUser(Matchers.any[TestUser]())).thenAnswer(sameUser)
   }
 
   "createTestIndividual" should {
 
-    "Generate an individual and save it with encrypted password in the database" in new Setup {
+    "Generate an individual and save it with hashed password in the database" in new Setup {
 
-      val encryptedPassword  = "encryptedPassword"
+      val hashedPassword  = "hashedPassword"
       given(underTest.generator.generateTestIndividual()).willReturn(testIndividual)
-      given(underTest.encryptionService.encrypt(testIndividual.password)).willReturn(encryptedPassword)
+      given(underTest.passwordService.hash(testIndividual.password)).willReturn(hashedPassword)
 
       val result = await(underTest.createTestIndividual())
 
       result shouldBe testIndividual
-      verify(underTest.testUserRepository).createUser(testIndividual.copy(password = encryptedPassword))
+      verify(underTest.testUserRepository).createUser(testIndividual.copy(password = hashedPassword))
     }
 
     "fail when the repository fails" in new Setup {
@@ -72,14 +72,14 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
 
     "Generate an organisation and save it in the database" in new Setup {
 
-      val encryptedPassword  = "encryptedPassword"
+      val hashedPassword  = "hashedPassword"
       given(underTest.generator.generateTestOrganisation()).willReturn(testOrganisation)
-      given(underTest.encryptionService.encrypt(testOrganisation.password)).willReturn(encryptedPassword)
+      given(underTest.passwordService.hash(testOrganisation.password)).willReturn(hashedPassword)
 
       val result = await(underTest.createTestOrganisation())
 
       result shouldBe testOrganisation
-      verify(underTest.testUserRepository).createUser(testOrganisation.copy(password = encryptedPassword))
+      verify(underTest.testUserRepository).createUser(testOrganisation.copy(password = hashedPassword))
     }
 
     "fail when the repository fails" in new Setup {

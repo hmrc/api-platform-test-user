@@ -21,14 +21,14 @@ import javax.inject.Inject
 import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
 import uk.gov.hmrc.testuser.config.AppContext
 
-trait EncryptionService {
+trait PasswordService {
   val logRounds: Int
 
-  def encrypt(password: String): String = BCryptUtils.hashpw(password, BCryptUtils.gensalt(logRounds))
+  def hash(password: String): String = BCryptUtils.hashpw(password, BCryptUtils.gensalt(logRounds))
 
-  def validate(password: String, encryptedPassword: String) = BCryptUtils.checkpw(password, encryptedPassword)
+  def validate(password: String, hashedPassword: String) = BCryptUtils.checkpw(password, hashedPassword)
 }
 
-class EncryptionServiceImpl @Inject()(appContext: AppContext) extends EncryptionService {
+class PasswordServiceImpl @Inject()(appContext: AppContext) extends PasswordService {
   override lazy val logRounds = appContext.passwordLogRounds
 }
