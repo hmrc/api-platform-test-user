@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.testuser.services
 
-import org.scalacheck.{Gen, Arbitrary}
+import org.scalacheck.Gen
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.testuser.models.{TestOrganisation, TestIndividual}
 
@@ -28,10 +28,10 @@ trait Generator {
   private val utrGenerator = new SaUtrGenerator()
   private val ninoGenerator = new uk.gov.hmrc.domain.Generator()
   private val employerReferenceGenerator: Gen[EmpRef] = for {
-    taxOfficeNumber <- Gen.chooseNum(100, 999).map(x => x.toString)
+    taxOfficeNumber <- Gen.choose(100, 999).map(x => x.toString)
     taxOfficeReference <- Gen.listOfN(10, Gen.alphaNumChar).map(_.mkString.toUpperCase)
   } yield EmpRef.fromIdentifiers(s"$taxOfficeNumber/$taxOfficeReference")
-  private val vrnGenerator = Gen.chooseNum(666000000, 666999999)
+  private val vrnGenerator = Gen.choose(666000000, 666999999)
 
   def generateTestIndividual() = TestIndividual(generateUsername, generatePassword, generateSaUtr, generateNino)
 

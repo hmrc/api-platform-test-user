@@ -22,9 +22,10 @@ import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc.{Result, Action}
 import uk.gov.hmrc.play.microservice.controller.BaseController
-import uk.gov.hmrc.testuser.models.{TestOrganisationResponse, TestOrganisation, ErrorResponse, TestIndividualResponse}
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.services.{TestUserServiceImpl, TestUserService}
+import uk.gov.hmrc.testuser.services._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait TestUserController extends BaseController {
@@ -33,13 +34,30 @@ trait TestUserController extends BaseController {
 
   def createIndividual() = Action.async { implicit request =>
     testUserService.createTestIndividual() map { individual =>
-      Created(Json.toJson(TestIndividualResponse.from(individual)).toString())
+      Created(Json.toJson(CreateTestIndividualResponse.from(individual)).toString())
     } recover recovery
   }
 
   def createOrganisation() = Action.async { implicit request =>
     testUserService.createTestOrganisation() map { organisation =>
-      Created(Json.toJson(TestOrganisationResponse.from(organisation)).toString())
+      Created(Json.toJson(CreateTestOrganisationResponse.from(organisation)).toString())
+    } recover recovery
+  }
+
+  private def getUser(username: String, password: String) =
+    testUserService.testUserRepository.fetchByUsername(username).map {
+      case None => Unauthorized(Json.toJson(ErrorResponse.usernameNotFoundError(username)))
+      case Some(ind @ TestIndividual(`username`, hashedPass, _, _, _)) if testUserService.passwordService.validate(password, hashedPass) =>
+        Ok(Json.toJson(TestIndividualResponse.from(ind)).toString())
+      case Some(org @ TestOrganisation(`username`, hashedPass, _, _, _, _, _)) if testUserService.passwordService.validate(password, hashedPass) =>
+        Ok(Json.toJson(TestOrganisationResponse.from(org)).toString())
+      case _ => Unauthorized(Json.toJson(ErrorResponse.wrongPasswordError(username)))
+    } recover recovery
+
+  def authenticate() = Action.async(parse.json) {
+    implicit request =>
+      withJsonBody[AuthenticationRequest] {
+        authRequest: AuthenticationRequest => getUser(authRequest.username, authRequest.password)
     } recover recovery
   }
 

@@ -29,13 +29,13 @@ trait TestUserService {
 
   def createTestIndividual() = {
     val individual = generator.generateTestIndividual()
-    val hashedPassword =  passwordService.hash(individual.password)
+    val hashedPassword = passwordService.hash(individual.password)
     testUserRepository.createUser(individual.copy(password = hashedPassword)) map (_ => individual)
   }
 
   def createTestOrganisation() = {
     val organisation = generator.generateTestOrganisation()
-    val hashedPassword =  passwordService.hash(organisation.password)
+    val hashedPassword = passwordService.hash(organisation.password)
     testUserRepository.createUser(organisation.copy(password = hashedPassword)) map (_ => organisation)
   }
 }

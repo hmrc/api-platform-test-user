@@ -18,6 +18,7 @@ package uk.gov.hmrc.testuser.models
 
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.domain._
+import uk.gov.hmrc.testuser.models.UserType.UserType
 
 sealed trait TestUser {
   val username: String
@@ -39,14 +40,40 @@ case class TestOrganisation(override val username: String,
                             vrn: Vrn,
                             override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser
 
-case class TestIndividualResponse(username: String, password: String, saUtr: SaUtr, nino: Nino)
-case class TestOrganisationResponse(username: String, password: String, saUtr: SaUtr, empRef: EmpRef, ctUtr: CtUtr, vrn: Vrn)
+case class CreateTestIndividualResponse(username: String, password: String, saUtr: SaUtr, nino: Nino)
+case class CreateTestOrganisationResponse(username: String, password: String, saUtr: SaUtr, empRef: EmpRef, ctUtr: CtUtr, vrn: Vrn)
+
+object CreateTestIndividualResponse {
+  def from(individual: TestIndividual) = CreateTestIndividualResponse(individual.username, individual.password, individual.saUtr, individual.nino)
+}
+
+object CreateTestOrganisationResponse {
+  def from(organisation: TestOrganisation) = CreateTestOrganisationResponse(organisation.username, organisation.password, organisation.saUtr,
+    organisation.empRef, organisation.ctUtr, organisation.vrn)
+}
+
+sealed trait TestUserResponse {
+  val username: String
+  val saUtr: SaUtr
+  val userType: UserType
+}
+
+case class TestIndividualResponse(override val username: String,
+                                  override val saUtr: SaUtr,
+                                  nino: Nino,
+                                  override val userType: UserType = UserType.INDIVIDUAL) extends TestUserResponse
+case class TestOrganisationResponse(override val username: String,
+                                    override val saUtr: SaUtr,
+                                    empRef: EmpRef,
+                                    ctUtr: CtUtr,
+                                    vrn: Vrn,
+                                    override val userType: UserType = UserType.ORGANISATION) extends TestUserResponse
 
 object TestIndividualResponse {
-  def from(individual: TestIndividual) = TestIndividualResponse(individual.username, individual.password, individual.saUtr, individual.nino)
+  def from(individual: TestIndividual) = TestIndividualResponse(individual.username, individual.saUtr, individual.nino)
 }
 
 object TestOrganisationResponse {
-  def from(organisation: TestOrganisation) = TestOrganisationResponse(organisation.username, organisation.password, organisation.saUtr,
+  def from(organisation: TestOrganisation) = TestOrganisationResponse(organisation.username, organisation.saUtr,
     organisation.empRef, organisation.ctUtr, organisation.vrn)
 }

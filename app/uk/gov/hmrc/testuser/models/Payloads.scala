@@ -16,16 +16,21 @@
 
 package uk.gov.hmrc.testuser.models
 
+case class AuthenticationRequest(username: String, password: String)
 
 object ErrorCode extends Enumeration {
 
   type ErrorCode = Value
 
   val INTERNAL_SERVER_ERROR = Value("INTERNAL_SERVER_ERROR")
+  val WRONG_PASSWORD = Value("WRONG_PASSWORD")
+  val USERNAME_NOT_FOUND = Value("USERNAME_NOT_FOUND")
 }
 
 case class ErrorResponse(code: ErrorCode.Value, message: String)
 
 object ErrorResponse {
   val internalServerError = ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred")
+  def usernameNotFoundError(user: String) = ErrorResponse(ErrorCode.USERNAME_NOT_FOUND, s"Username not found: $user")
+  def wrongPasswordError(user: String) = ErrorResponse(ErrorCode.WRONG_PASSWORD, s"Wrong password for user: $user")
 }
