@@ -18,6 +18,10 @@ package uk.gov.hmrc.testuser.services
 
 import javax.inject.Inject
 
+import play.api.libs.json.Json
+import play.api.mvc.Results.{Ok, Unauthorized}
+import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -38,6 +42,16 @@ trait TestUserService {
     val hashedPassword = passwordService.hash(organisation.password)
     testUserRepository.createUser(organisation.copy(password = hashedPassword)) map (_ => organisation)
   }
+
+  def authenticate(username: String, password: String) =
+    testUserRepository.fetchByUsername(username).map {
+      case None => Unauthorized(Json.toJson(ErrorResponse.usernameNotFoundError(username)))
+      case Some(ind @ TestIndividual(`username`, hashedPass, _, _, _)) if passwordService.validate(password, hashedPass) =>
+        Ok(Json.toJson(TestIndividualResponse.from(ind)).toString())
+      case Some(org @ TestOrganisation(`username`, hashedPass, _, _, _, _, _)) if passwordService.validate(password, hashedPass) =>
+        Ok(Json.toJson(TestOrganisationResponse.from(org)).toString())
+      case _ => Unauthorized(Json.toJson(ErrorResponse.wrongPasswordError(username)))
+    }
 }
 
 class TestUserServiceImpl @Inject()(override val passwordService: PasswordServiceImpl) extends TestUserService {

@@ -44,20 +44,10 @@ trait TestUserController extends BaseController {
     } recover recovery
   }
 
-  private def getUser(username: String, password: String) =
-    testUserService.testUserRepository.fetchByUsername(username).map {
-      case None => Unauthorized(Json.toJson(ErrorResponse.usernameNotFoundError(username)))
-      case Some(ind @ TestIndividual(`username`, hashedPass, _, _, _)) if testUserService.passwordService.validate(password, hashedPass) =>
-        Ok(Json.toJson(TestIndividualResponse.from(ind)).toString())
-      case Some(org @ TestOrganisation(`username`, hashedPass, _, _, _, _, _)) if testUserService.passwordService.validate(password, hashedPass) =>
-        Ok(Json.toJson(TestOrganisationResponse.from(org)).toString())
-      case _ => Unauthorized(Json.toJson(ErrorResponse.wrongPasswordError(username)))
-    } recover recovery
-
   def authenticate() = Action.async(parse.json) {
     implicit request =>
       withJsonBody[AuthenticationRequest] {
-        authRequest: AuthenticationRequest => getUser(authRequest.username, authRequest.password)
+        authRequest: AuthenticationRequest => testUserService.authenticate(authRequest.username, authRequest.password)
     } recover recovery
   }
 
