@@ -18,12 +18,12 @@ package uk.gov.hmrc.testuser.services
 
 import javax.inject.Inject
 
-import play.api.libs.json.Json
-import play.api.mvc.Results.{Ok, Unauthorized}
+import play.api.Logger
 import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
+
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 trait TestUserService {
 
@@ -43,14 +43,16 @@ trait TestUserService {
     testUserRepository.createUser(organisation.copy(password = hashedPassword)) map (_ => organisation)
   }
 
-  def authenticate(username: String, password: String) =
-    testUserRepository.fetchByUsername(username).map {
-      case None => Unauthorized(Json.toJson(ErrorResponse.usernameNotFoundError(username)))
-      case Some(ind @ TestIndividual(`username`, hashedPass, _, _, _)) if passwordService.validate(password, hashedPass) =>
-        Ok(Json.toJson(TestIndividualResponse.from(ind)).toString())
-      case Some(org @ TestOrganisation(`username`, hashedPass, _, _, _, _, _)) if passwordService.validate(password, hashedPass) =>
-        Ok(Json.toJson(TestOrganisationResponse.from(org)).toString())
-      case _ => Unauthorized(Json.toJson(ErrorResponse.wrongPasswordError(username)))
+  def authenticate(authReq: AuthenticationRequest): Future[Option[TestUser]] =
+    testUserRepository.fetchByUsername(authReq.username).map {
+      case None =>
+        Logger.error(s"Username does not exist: ${authReq.username}")
+        None
+      case Some(u: TestUser) if passwordService.validate(authReq.password, u.password) =>
+        Some(u)
+      case _ =>
+        Logger.error(s"Invalid password for username: ${authReq.username}")
+        None
     }
 }
 

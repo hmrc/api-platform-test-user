@@ -40,15 +40,15 @@ case class TestOrganisation(override val username: String,
                             vrn: Vrn,
                             override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser
 
-case class CreateTestIndividualResponse(username: String, password: String, saUtr: SaUtr, nino: Nino)
-case class CreateTestOrganisationResponse(username: String, password: String, saUtr: SaUtr, empRef: EmpRef, ctUtr: CtUtr, vrn: Vrn)
+case class TestIndividualCreatedResponse(username: String, password: String, saUtr: SaUtr, nino: Nino)
+case class TestOrganisationCreatedResponse(username: String, password: String, saUtr: SaUtr, empRef: EmpRef, ctUtr: CtUtr, vrn: Vrn)
 
-object CreateTestIndividualResponse {
-  def from(individual: TestIndividual) = CreateTestIndividualResponse(individual.username, individual.password, individual.saUtr, individual.nino)
+object TestIndividualCreatedResponse {
+  def from(individual: TestIndividual) = TestIndividualCreatedResponse(individual.username, individual.password, individual.saUtr, individual.nino)
 }
 
-object CreateTestOrganisationResponse {
-  def from(organisation: TestOrganisation) = CreateTestOrganisationResponse(organisation.username, organisation.password, organisation.saUtr,
+object TestOrganisationCreatedResponse {
+  def from(organisation: TestOrganisation) = TestOrganisationCreatedResponse(organisation.username, organisation.password, organisation.saUtr,
     organisation.empRef, organisation.ctUtr, organisation.vrn)
 }
 

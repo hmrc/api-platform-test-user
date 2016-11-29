@@ -32,8 +32,8 @@ object JsonFormatters {
     .and[TestOrganisation](UserType.ORGANISATION.toString)
     .format
 
-  implicit val formatCreateTestIndividualResponse = Json.format[CreateTestIndividualResponse]
-  implicit val formatCreateTestOrganisationResponse = Json.format[CreateTestOrganisationResponse]
+  implicit val formatCreateTestIndividualResponse = Json.format[TestIndividualCreatedResponse]
+  implicit val formatCreateTestOrganisationResponse = Json.format[TestOrganisationCreatedResponse]
 
   implicit val formatAuthenticationRequest = Json.format[AuthenticationRequest]
 

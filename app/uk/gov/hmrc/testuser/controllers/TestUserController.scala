@@ -34,21 +34,29 @@ trait TestUserController extends BaseController {
 
   def createIndividual() = Action.async { implicit request =>
     testUserService.createTestIndividual() map { individual =>
-      Created(Json.toJson(CreateTestIndividualResponse.from(individual)).toString())
+      Created(Json.toJson(TestIndividualCreatedResponse.from(individual)).toString())
     } recover recovery
   }
 
   def createOrganisation() = Action.async { implicit request =>
     testUserService.createTestOrganisation() map { organisation =>
-      Created(Json.toJson(CreateTestOrganisationResponse.from(organisation)).toString())
+      Created(Json.toJson(TestOrganisationCreatedResponse.from(organisation)).toString())
     } recover recovery
   }
 
-  def authenticate() = Action.async(parse.json) {
-    implicit request =>
+  def authenticate() = {
+
+    def authenticateUser(authReq: AuthenticationRequest) = testUserService.authenticate(authReq) map {
+      case Some(ind: TestIndividual) =>  Ok(Json.toJson(TestIndividualResponse.from(ind)).toString())
+      case Some(org: TestOrganisation) =>  Ok(Json.toJson(TestOrganisationResponse.from(org)).toString())
+      case _ => Unauthorized(Json.toJson(ErrorResponse.invalidCredentialsError))
+    }
+
+    Action.async(parse.json) { implicit request =>
       withJsonBody[AuthenticationRequest] {
-        authRequest: AuthenticationRequest => testUserService.authenticate(authRequest.username, authRequest.password)
-    } recover recovery
+        authRequest: AuthenticationRequest => authenticateUser(authRequest)
+      } recover recovery
+    }
   }
 
   private def recovery: PartialFunction[Throwable, Result] = {

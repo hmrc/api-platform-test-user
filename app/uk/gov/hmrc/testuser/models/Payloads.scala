@@ -23,14 +23,12 @@ object ErrorCode extends Enumeration {
   type ErrorCode = Value
 
   val INTERNAL_SERVER_ERROR = Value("INTERNAL_SERVER_ERROR")
-  val WRONG_PASSWORD = Value("WRONG_PASSWORD")
-  val USERNAME_NOT_FOUND = Value("USERNAME_NOT_FOUND")
+  val INVALID_CREDENTIALS = Value("INVALID_CREDENTIALS")
 }
 
 case class ErrorResponse(code: ErrorCode.Value, message: String)
 
 object ErrorResponse {
   val internalServerError = ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred")
-  def usernameNotFoundError(user: String) = ErrorResponse(ErrorCode.USERNAME_NOT_FOUND, s"Username not found: $user")
-  def wrongPasswordError(user: String) = ErrorResponse(ErrorCode.WRONG_PASSWORD, s"Wrong password for user: $user")
+  val invalidCredentialsError = ErrorResponse(ErrorCode.INVALID_CREDENTIALS, "Invalid Authentication information provided")
 }

@@ -16,7 +16,7 @@
 
 package unit.uk.gov.hmrc.testuser.services
 
-import org.mockito.Mockito.{when, verify}
+import org.mockito.Mockito.{verify, when}
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.mockito.Matchers
@@ -24,16 +24,19 @@ import org.mockito.BDDMockito.given
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.models.{TestOrganisation, TestUser, TestIndividual}
+import uk.gov.hmrc.testuser.models.{AuthenticationRequest, TestIndividual, TestOrganisation, TestUser}
 import uk.gov.hmrc.testuser.repository.TestUserRepository
-import uk.gov.hmrc.testuser.services.{PasswordService, Generator, TestUserService}
+import uk.gov.hmrc.testuser.services.{Generator, PasswordService, TestUserService}
+
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
 class TestUserServiceSpec extends UnitSpec with MockitoSugar {
 
-  val testIndividual = TestIndividual("user", "password", SaUtr("1555369052"), Nino("CC333333C"))
-  val testOrganisation = TestOrganisation("user", "password", SaUtr("1555369052"), EmpRef("555","EIA000"),
+  val username = "user"
+  val password = "password"
+  val testIndividual = TestIndividual(username, password, SaUtr("1555369052"), Nino("CC333333C"))
+  val testOrganisation = TestOrganisation(username, password, SaUtr("1555369052"), EmpRef("555","EIA000"),
     CtUtr("1555369053"), Vrn("999902541"))
 
   trait Setup {
@@ -42,7 +45,11 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
       override val testUserRepository: TestUserRepository = mock[TestUserRepository]
       override val passwordService: PasswordService = mock[PasswordService]
     }
-    when(underTest.testUserRepository.createUser(Matchers.any[TestUser]())).thenAnswer(sameUser)
+    when(underTest.testUserRepository.createUser(Matchers.any[TestUser]())).thenAnswer(sameUserCreated)
+    when(underTest.testUserRepository.fetchByUsername(Matchers.anyString())).thenReturn(Future.successful(None))
+    when(underTest.testUserRepository.fetchByUsername(username)).thenReturn(Future.successful(Some(testOrganisation)))
+    when(underTest.passwordService.validate(Matchers.anyString(), Matchers.anyString())).thenReturn(false)
+    when(underTest.passwordService.validate(password, testOrganisation.password)).thenReturn(true)
   }
 
   "createTestIndividual" should {
@@ -91,7 +98,26 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
     }
   }
 
-  val sameUser = new Answer[Future[TestUser]] {
+  // considering the organisation case only because the individual case is similar
+  "authenticate" should {
+
+    "Give the correct organisation if I use the correct credentials" in new Setup {
+      val org = await(underTest.authenticate(AuthenticationRequest(username, password)))
+      org shouldBe Some(testOrganisation)
+    }
+
+    "Give None if the username does not exist" in new Setup {
+      val org = await(underTest.authenticate(AuthenticationRequest("U", password)))
+      org shouldBe None
+    }
+
+    "Give None if the password does not match" in new Setup {
+      val org = await(underTest.authenticate(AuthenticationRequest(username, "P")))
+      org shouldBe None
+    }
+  }
+
+  val sameUserCreated = new Answer[Future[TestUser]] {
     override def answer(invocationOnMock: InvocationOnMock): Future[TestUser] = {
       successful(invocationOnMock.getArguments.head.asInstanceOf[TestUser])
     }

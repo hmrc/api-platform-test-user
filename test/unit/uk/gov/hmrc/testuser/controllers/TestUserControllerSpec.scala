@@ -17,8 +17,9 @@
 package unit.uk.gov.hmrc.testuser.controllers
 
 import org.apache.http.HttpStatus.{SC_CREATED, SC_INTERNAL_SERVER_ERROR, SC_OK, SC_UNAUTHORIZED}
+import org.mockito.Mockito.when
 import org.mockito.BDDMockito.given
-import org.mockito.Matchers
+import org.mockito.Matchers.any
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
 import play.api.test._
@@ -27,10 +28,9 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.controllers.TestUserController
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.repository.TestUserRepository
-import uk.gov.hmrc.testuser.services.{Generator, PasswordService, TestUserService}
+import uk.gov.hmrc.testuser.services.TestUserService
 
-import scala.concurrent.Future.failed
+import scala.concurrent.Future.{failed, successful}
 
 class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
@@ -63,33 +63,25 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
     }
 
     val underTest = new TestUserController {
-      override val testUserService = new TestUserService {
-        override val generator: Generator = mock[Generator]
-        override val testUserRepository: TestUserRepository = mock[TestUserRepository]
-        override val passwordService: PasswordService = mock[PasswordService]
-      }
+      override val testUserService: TestUserService = mock[TestUserService]
+
+      when(testUserService.authenticate(any[AuthenticationRequest])).thenReturn(successful(None))
     }
   }
 
   "createIndividual" should {
 
     "return 201 (Created) with the created individual" in new Setup {
-      given(underTest.testUserService.generator.generateTestIndividual()).willReturn(testIndividual)
-      given(underTest.testUserService.passwordService.hash(Matchers.anyString())).willReturn("")
-      given(underTest.testUserService.testUserRepository.createUser(Matchers.any(classOf[TestIndividual]))).willReturn(testIndividual)
 
       given(underTest.testUserService.createTestIndividual()).willReturn(testIndividual)
 
       val result = await(underTest.createIndividual()(createRequest))
 
       status(result) shouldBe SC_CREATED
-      jsonBodyOf(result) shouldBe Json.toJson(CreateTestIndividualResponse(user, password, saUtr, nino))
+      jsonBodyOf(result) shouldBe Json.toJson(TestIndividualCreatedResponse(user, password, saUtr, nino))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
-      given(underTest.testUserService.generator.generateTestIndividual()).willReturn(testIndividual)
-      given(underTest.testUserService.passwordService.hash(Matchers.anyString())).willReturn("")
-      given(underTest.testUserService.testUserRepository.createUser(Matchers.any(classOf[TestIndividual]))).willReturn(testIndividual)
 
       given(underTest.testUserService.createTestIndividual()).willReturn(failed(new RuntimeException()))
 
@@ -104,22 +96,16 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   "createOrganisation" should {
 
     "return 201 (Created) with the created organisation" in new Setup {
-      given(underTest.testUserService.generator.generateTestOrganisation()).willReturn(testOrganisation)
-      given(underTest.testUserService.passwordService.hash(Matchers.anyString())).willReturn("")
-      given(underTest.testUserService.testUserRepository.createUser(Matchers.any(classOf[TestOrganisation]))).willReturn(testOrganisation)
 
       given(underTest.testUserService.createTestOrganisation()).willReturn(testOrganisation)
 
       val result = await(underTest.createOrganisation()(createRequest))
 
       status(result) shouldBe SC_CREATED
-      jsonBodyOf(result) shouldBe Json.toJson(CreateTestOrganisationResponse(user, password, saUtr, empRef, ctUtr, vrn))
+      jsonBodyOf(result) shouldBe Json.toJson(TestOrganisationCreatedResponse(user, password, saUtr, empRef, ctUtr, vrn))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
-      given(underTest.testUserService.generator.generateTestOrganisation()).willReturn(testOrganisation)
-      given(underTest.testUserService.passwordService.hash(Matchers.anyString())).willReturn("")
-      given(underTest.testUserService.testUserRepository.createUser(Matchers.any(classOf[TestOrganisation]))).willReturn(testOrganisation)
 
       given(underTest.testUserService.createTestOrganisation()).willReturn(failed(new RuntimeException()))
 
@@ -134,11 +120,8 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   "authenticate" should {
 
     "return 200, with the right individual, when both username and password are correct" in new Setup {
-      given(underTest.testUserService.passwordService.hash(password)).willReturn(hashedPassword)
-      given(underTest.testUserService.passwordService.validate(password, hashedPassword)).willReturn(true)
-      given(underTest.testUserService.generator.generateTestIndividual()).willReturn(testIndividual)
-      given(underTest.testUserService.testUserRepository.createUser(testIndividual)).willReturn(testHashedIndividual)
-      given(underTest.testUserService.testUserRepository.fetchByUsername(user)).willReturn(Some(testHashedIndividual))
+
+      when(underTest.testUserService.authenticate(AuthenticationRequest(user, password))).thenReturn(successful(Some(testIndividual)))
 
       val result = await(underTest.authenticate()(authenticationRequest(user, password)))
 
@@ -147,11 +130,8 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
     }
 
     "return 200, with the right organisation, when both username and password are correct" in new Setup {
-      given(underTest.testUserService.passwordService.hash(password)).willReturn(hashedPassword)
-      given(underTest.testUserService.passwordService.validate(password, hashedPassword)).willReturn(true)
-      given(underTest.testUserService.generator.generateTestOrganisation()).willReturn(testOrganisation)
-      given(underTest.testUserService.testUserRepository.createUser(testOrganisation)).willReturn(testHashedOrganisation)
-      given(underTest.testUserService.testUserRepository.fetchByUsername(user)).willReturn(Some(testHashedOrganisation))
+
+      when(underTest.testUserService.authenticate(AuthenticationRequest(user, password))).thenReturn(successful(Some(testOrganisation)))
 
       val result = await(underTest.authenticate()(authenticationRequest(user, password)))
 
@@ -160,21 +140,19 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
     }
 
     "return 401, if the username does not exist in the users repository" in new Setup {
-      given(underTest.testUserService.testUserRepository.fetchByUsername(wrongUser)).willReturn(None)
 
       val result = await(underTest.authenticate()(authenticationRequest(wrongUser, password)))
 
       status(result) shouldBe SC_UNAUTHORIZED
-      jsonBodyOf(result) shouldBe Json.toJson(ErrorResponse(ErrorCode.USERNAME_NOT_FOUND, s"Username not found: $wrongUser"))
+      jsonBodyOf(result) shouldBe Json.toJson(ErrorResponse.invalidCredentialsError)
     }
 
     "return 401, if the given username exists, but the password does not match" in new Setup {
-      given(underTest.testUserService.testUserRepository.fetchByUsername(user)).willReturn(Some(testHashedOrganisation))
 
       val result = await(underTest.authenticate()(authenticationRequest(user, wrongPassword)))
 
       status(result) shouldBe SC_UNAUTHORIZED
-      jsonBodyOf(result) shouldBe Json.toJson(ErrorResponse(ErrorCode.WRONG_PASSWORD, s"Wrong password for user: $user"))
+      jsonBodyOf(result) shouldBe Json.toJson(ErrorResponse.invalidCredentialsError)
     }
 
   }
