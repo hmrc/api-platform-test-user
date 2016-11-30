@@ -19,7 +19,7 @@ package unit.uk.gov.hmrc.testuser.services
 import org.mockito.Mockito.{verify, when}
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.mockito.Matchers
+import org.mockito.Matchers.{any, anyString}
 import org.mockito.BDDMockito.given
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.domain._
@@ -29,7 +29,7 @@ import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.services.{Generator, PasswordService, TestUserService}
 
 import scala.concurrent.Future
-import scala.concurrent.Future.successful
+import scala.concurrent.Future.{failed, successful}
 
 class TestUserServiceSpec extends UnitSpec with MockitoSugar {
 
@@ -45,10 +45,10 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
       override val testUserRepository: TestUserRepository = mock[TestUserRepository]
       override val passwordService: PasswordService = mock[PasswordService]
     }
-    when(underTest.testUserRepository.createUser(Matchers.any[TestUser]())).thenAnswer(sameUserCreated)
-    when(underTest.testUserRepository.fetchByUsername(Matchers.anyString())).thenReturn(Future.successful(None))
-    when(underTest.testUserRepository.fetchByUsername(username)).thenReturn(Future.successful(Some(testOrganisation)))
-    when(underTest.passwordService.validate(Matchers.anyString(), Matchers.anyString())).thenReturn(false)
+    when(underTest.testUserRepository.createUser(any[TestUser]())).thenAnswer(sameUserCreated)
+    when(underTest.testUserRepository.fetchByUsername(anyString())).thenReturn(successful(None))
+    when(underTest.testUserRepository.fetchByUsername(username)).thenReturn(successful(Some(testOrganisation)))
+    when(underTest.passwordService.validate(anyString(), anyString())).thenReturn(false)
     when(underTest.passwordService.validate(password, testOrganisation.password)).thenReturn(true)
   }
 
@@ -69,7 +69,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
     "fail when the repository fails" in new Setup {
 
       given(underTest.generator.generateTestIndividual()).willReturn(testIndividual)
-      given(underTest.testUserRepository.createUser(Matchers.any[TestUser]())).willReturn(Future.failed(new RuntimeException()))
+      given(underTest.testUserRepository.createUser(any[TestUser]())).willReturn(failed(new RuntimeException()))
 
       intercept[RuntimeException]{await(underTest.createTestIndividual())}
     }
@@ -92,7 +92,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
     "fail when the repository fails" in new Setup {
 
       given(underTest.generator.generateTestOrganisation()).willReturn(testOrganisation)
-      given(underTest.testUserRepository.createUser(Matchers.any[TestUser]())).willReturn(Future.failed(new RuntimeException()))
+      given(underTest.testUserRepository.createUser(any[TestUser]())).willReturn(failed(new RuntimeException()))
 
       intercept[RuntimeException]{await(underTest.createTestIndividual())}
     }
@@ -106,12 +106,12 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
       org shouldBe Some(testOrganisation)
     }
 
-    "Give None if the username does not exist" in new Setup {
+    "Give `None` if the username was not found" in new Setup {
       val org = await(underTest.authenticate(AuthenticationRequest("U", password)))
       org shouldBe None
     }
 
-    "Give None if the password does not match" in new Setup {
+    "Give `None` if the password does not match" in new Setup {
       val org = await(underTest.authenticate(AuthenticationRequest(username, "P")))
       org shouldBe None
     }

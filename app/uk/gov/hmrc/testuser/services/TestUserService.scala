@@ -46,12 +46,12 @@ trait TestUserService {
   def authenticate(authReq: AuthenticationRequest): Future[Option[TestUser]] =
     testUserRepository.fetchByUsername(authReq.username).map {
       case None =>
-        Logger.error(s"Username does not exist: ${authReq.username}")
+        Logger.debug(s"Username not found: ${authReq.username}")
         None
       case Some(u: TestUser) if passwordService.validate(authReq.password, u.password) =>
         Some(u)
       case _ =>
-        Logger.error(s"Invalid password for username: ${authReq.username}")
+        Logger.debug(s"Invalid password for username: ${authReq.username}")
         None
     }
 }

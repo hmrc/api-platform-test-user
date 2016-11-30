@@ -99,63 +99,69 @@ with GivenWhenThen with BeforeAndAfterEach with BeforeAndAfterAll {
     // considering the case of individual only, as for organisations it is similar
     scenario("Valid credentials") {
 
-      When("An individual is created")
+      Given("An individual")
       val individualCreatedResponse = Http(s"$serviceUrl/individual").postForm.asString
       val individualCreated = Json.parse(individualCreatedResponse.body).as[TestIndividualCreatedResponse]
       val individualFromMongo = result(mongoRepository.fetchByUsername(individualCreated.username), timeout).get.asInstanceOf[TestIndividual]
 
-      And("If I login with the individual's credentials")
+      When("I authenticate with the individual's credentials")
       val loginIndividualResponse = authenticate(individualCreated.username, individualCreated.password)
 
-      Then("The response contains the details of the individual created previously")
+      Then("The response contains the details of the individual")
       loginIndividualResponse.code shouldBe SC_OK
+
       val individual = Json.parse(loginIndividualResponse.body).as[TestIndividualResponse]
       val expectedIndividual = TestIndividualResponse.from(individualFromMongo)
       individual shouldBe expectedIndividual
 
-      And("The response does not contain the password")
       loginIndividualResponse.body.toLowerCase shouldNot include("password")
 
-      And("The response contains 'individual' as user type")
-      val expectedIndividualResponse = Json.parse(
-        s"""
-          |{
-          |  "username":"${expectedIndividual.username}",
-          |  "saUtr":"${expectedIndividual.saUtr}",
-          |  "nino":"${expectedIndividual.nino}",
-          |  "userType":"INDIVIDUAL"
-          |}
-        """.stripMargin
-      ).toString()
-
+      val expectedIndividualJson = s"""
+                                      |{
+                                      |  "username":"${expectedIndividual.username}",
+                                      |  "saUtr":"${expectedIndividual.saUtr}",
+                                      |  "nino":"${expectedIndividual.nino}",
+                                      |  "userType":"INDIVIDUAL"
+                                      |}
+                                    """
+      val expectedIndividualResponse = Json.parse(expectedIndividualJson.stripMargin).toString()
       loginIndividualResponse.body shouldBe expectedIndividualResponse
     }
 
     // considering the case of individual only, as for organisations it is similar
-    scenario("Invalid credentials") {
+    scenario("Username not found") {
 
       val wrongUsername = "WrongUsername"
-      val wrongPassword = "WrongPassword"
 
-      When("An individual is created")
+      Given("An individual")
       val individualCreatedResponse = Http(s"$serviceUrl/individual").postForm.asString
       val individualCreated = Json.parse(individualCreatedResponse.body).as[TestIndividualCreatedResponse]
 
-      And("If I login with a wrong username")
-      val wrongUsernameLoginResponse = authenticate(wrongUsername, individualCreated.password)
+      When("I authenticate with a username that does not exist")
+      val response = authenticate(wrongUsername, individualCreated.password)
 
       Then("The response says that the credentials are invalid")
-      wrongUsernameLoginResponse.code shouldBe SC_UNAUTHORIZED
-      val error1 = Json.parse(wrongUsernameLoginResponse.body).as[ErrorResponse]
-      error1 shouldBe ErrorResponse.invalidCredentialsError
+      response.code shouldBe SC_UNAUTHORIZED
+      val error = Json.parse(response.body).as[ErrorResponse]
+      error shouldBe ErrorResponse.invalidCredentialsError
+    }
 
-      And("If I login with a wrong password")
-      val wrongPasswordLoginResponse = authenticate(individualCreated.username, wrongPassword)
+    // considering the case of individual only, as for organisations it is similar
+    scenario("Invalid password") {
+
+      val wrongPassword = "WrongPassword"
+
+      Given("An individual")
+      val individualCreatedResponse = Http(s"$serviceUrl/individual").postForm.asString
+      val individualCreated = Json.parse(individualCreatedResponse.body).as[TestIndividualCreatedResponse]
+
+      When("I authenticate with a wrong password")
+      val response = authenticate(individualCreated.username, wrongPassword)
 
       Then("The response says that the credentials are invalid")
-      wrongPasswordLoginResponse.code shouldBe SC_UNAUTHORIZED
-      val error2 = Json.parse(wrongPasswordLoginResponse.body).as[ErrorResponse]
-      error2 shouldBe ErrorResponse.invalidCredentialsError
+      response.code shouldBe SC_UNAUTHORIZED
+      val error = Json.parse(response.body).as[ErrorResponse]
+      error shouldBe ErrorResponse.invalidCredentialsError
     }
   }
 

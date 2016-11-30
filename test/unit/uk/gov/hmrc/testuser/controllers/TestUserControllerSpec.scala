@@ -139,7 +139,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       jsonBodyOf(result) shouldBe Json.toJson(TestOrganisationResponse(user, saUtr, empRef, ctUtr, vrn))
     }
 
-    "return 401, if the username does not exist in the users repository" in new Setup {
+    "return 401, if the username was not found in the users repository" in new Setup {
 
       val result = await(underTest.authenticate()(authenticationRequest(wrongUser, password)))
 
