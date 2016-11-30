@@ -47,8 +47,8 @@ trait TestUserController extends BaseController {
   def authenticate() = {
 
     def authenticateUser(authReq: AuthenticationRequest) = testUserService.authenticate(authReq) map {
-      case Some(ind: TestIndividual) =>  Ok(Json.toJson(TestIndividualResponse.from(ind)).toString())
-      case Some(org: TestOrganisation) =>  Ok(Json.toJson(TestOrganisationResponse.from(org)).toString())
+      case Some(ind: TestIndividual) => Ok(Json.toJson(TestIndividualResponse.from(ind)).toString())
+      case Some(org: TestOrganisation) => Ok(Json.toJson(TestOrganisationResponse.from(org)).toString())
       case _ => Unauthorized(Json.toJson(ErrorResponse.invalidCredentialsError))
     }
 
