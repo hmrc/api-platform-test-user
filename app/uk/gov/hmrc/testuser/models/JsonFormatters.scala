@@ -32,8 +32,14 @@ object JsonFormatters {
     .and[TestOrganisation](UserType.ORGANISATION.toString)
     .format
 
+  implicit val formatCreateTestIndividualResponse = Json.format[TestIndividualCreatedResponse]
+  implicit val formatCreateTestOrganisationResponse = Json.format[TestOrganisationCreatedResponse]
+
+  implicit val formatAuthenticationRequest = Json.format[AuthenticationRequest]
+
   implicit val formatTestIndividualResponse = Json.format[TestIndividualResponse]
   implicit val formatTestOrganisationResponse = Json.format[TestOrganisationResponse]
+
   implicit val formatErrorCode = EnumJson.enumFormat(ErrorCode)
   implicit val formatErrorResponse = Json.format[ErrorResponse]
 }

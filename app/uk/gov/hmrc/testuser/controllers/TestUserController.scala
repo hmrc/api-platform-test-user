@@ -22,9 +22,10 @@ import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc.{Result, Action}
 import uk.gov.hmrc.play.microservice.controller.BaseController
-import uk.gov.hmrc.testuser.models.{TestOrganisationResponse, TestOrganisation, ErrorResponse, TestIndividualResponse}
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.services.{TestUserServiceImpl, TestUserService}
+import uk.gov.hmrc.testuser.services._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait TestUserController extends BaseController {
@@ -33,14 +34,29 @@ trait TestUserController extends BaseController {
 
   def createIndividual() = Action.async { implicit request =>
     testUserService.createTestIndividual() map { individual =>
-      Created(Json.toJson(TestIndividualResponse.from(individual)).toString())
+      Created(Json.toJson(TestIndividualCreatedResponse.from(individual)).toString())
     } recover recovery
   }
 
   def createOrganisation() = Action.async { implicit request =>
     testUserService.createTestOrganisation() map { organisation =>
-      Created(Json.toJson(TestOrganisationResponse.from(organisation)).toString())
+      Created(Json.toJson(TestOrganisationCreatedResponse.from(organisation)).toString())
     } recover recovery
+  }
+
+  def authenticate() = {
+
+    def authenticateUser(authReq: AuthenticationRequest) = testUserService.authenticate(authReq) map {
+      case Some(ind: TestIndividual) =>  Ok(Json.toJson(TestIndividualResponse.from(ind)).toString())
+      case Some(org: TestOrganisation) =>  Ok(Json.toJson(TestOrganisationResponse.from(org)).toString())
+      case _ => Unauthorized(Json.toJson(ErrorResponse.invalidCredentialsError))
+    }
+
+    Action.async(parse.json) { implicit request =>
+      withJsonBody[AuthenticationRequest] {
+        authRequest: AuthenticationRequest => authenticateUser(authRequest)
+      } recover recovery
+    }
   }
 
   private def recovery: PartialFunction[Throwable, Result] = {

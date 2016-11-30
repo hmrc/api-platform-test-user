@@ -16,16 +16,19 @@
 
 package uk.gov.hmrc.testuser.models
 
+case class AuthenticationRequest(username: String, password: String)
 
 object ErrorCode extends Enumeration {
 
   type ErrorCode = Value
 
   val INTERNAL_SERVER_ERROR = Value("INTERNAL_SERVER_ERROR")
+  val INVALID_CREDENTIALS = Value("INVALID_CREDENTIALS")
 }
 
 case class ErrorResponse(code: ErrorCode.Value, message: String)
 
 object ErrorResponse {
   val internalServerError = ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred")
+  val invalidCredentialsError = ErrorResponse(ErrorCode.INVALID_CREDENTIALS, "Invalid Authentication information provided")
 }
