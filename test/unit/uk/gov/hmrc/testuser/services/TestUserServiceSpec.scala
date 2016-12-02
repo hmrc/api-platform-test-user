@@ -24,7 +24,8 @@ import org.mockito.BDDMockito.given
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.models.{AuthenticationRequest, TestIndividual, TestOrganisation, TestUser}
+import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.models.LegacySandboxUser._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.services.{Generator, PasswordService, TestUserService}
 
@@ -114,6 +115,12 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
     "Give `None` if the password does not match" in new Setup {
       val org = await(underTest.authenticate(AuthenticationRequest(username, "P")))
       org shouldBe None
+    }
+
+    // legacy sandbox user (user1/password1)
+    "Give the legacy sandbox user details if I authenticate with the legacy sandbox credentials" in new Setup {
+      val individual = await(underTest.authenticate(sandboxAuthenticationRequest))
+      individual shouldBe Some(sandboxUser)
     }
   }
 

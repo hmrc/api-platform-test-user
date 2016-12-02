@@ -20,6 +20,7 @@ import javax.inject.Inject
 
 import play.api.Logger
 import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.models.LegacySandboxUser._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -43,8 +44,9 @@ trait TestUserService {
     testUserRepository.createUser(organisation.copy(password = hashedPassword)) map (_ => organisation)
   }
 
-  def authenticate(authReq: AuthenticationRequest): Future[Option[TestUser]] =
-    testUserRepository.fetchByUsername(authReq.username).map {
+  def authenticate(authReq: AuthenticationRequest): Future[Option[TestUser]] = authReq match {
+    case `sandboxAuthenticationRequest` => Future.successful(Some(sandboxUser))
+    case _ => testUserRepository.fetchByUsername(authReq.username).map {
       case None =>
         Logger.debug(s"Username not found: ${authReq.username}")
         None
@@ -54,6 +56,7 @@ trait TestUserService {
         Logger.debug(s"Invalid password for username: ${authReq.username}")
         None
     }
+  }
 }
 
 class TestUserServiceImpl @Inject()(override val passwordService: PasswordServiceImpl) extends TestUserService {
