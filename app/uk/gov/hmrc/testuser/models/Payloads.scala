@@ -16,7 +16,16 @@
 
 package uk.gov.hmrc.testuser.models
 
+import uk.gov.hmrc.domain.{Nino, SaUtr}
+
 case class AuthenticationRequest(username: String, password: String)
+
+object LegacySandboxUser {
+  private val username = "user1"
+  private val password = "password1"
+  val sandboxAuthenticationRequest = AuthenticationRequest(username, password)
+  val sandboxUser = TestIndividual(username, password, SaUtr("1700000000"), Nino("AA000017A"), null)
+}
 
 object ErrorCode extends Enumeration {
 

@@ -81,15 +81,14 @@ with GivenWhenThen with BeforeAndAfterEach with BeforeAndAfterAll {
   feature("Authenticate test user") {
 
     def authenticate(usr: String, pwd: String): HttpResponse[String] = {
-      val payload = Json.parse(
-        s"""
-           |{
-           |  "username": "$usr",
-           |  "password" :"$pwd"
-           |}
-           |
-        """.stripMargin
-      ).toString
+      val prettyPayload = s"""
+                            |{
+                            |  "username": "$usr",
+                            |  "password" :"$pwd"
+                            |}
+                            |
+                           """
+      val payload = Json.parse(prettyPayload.stripMargin).toString
 
       Http(s"$serviceUrl/authenticate")
         .headers("Content-type" -> "application/json")
