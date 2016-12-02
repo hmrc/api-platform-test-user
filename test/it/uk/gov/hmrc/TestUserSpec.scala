@@ -80,20 +80,10 @@ with GivenWhenThen with BeforeAndAfterEach with BeforeAndAfterAll {
 
   feature("Authenticate test user") {
 
-    def authenticate(usr: String, pwd: String): HttpResponse[String] = {
-      val prettyPayload = s"""
-                            |{
-                            |  "username": "$usr",
-                            |  "password" :"$pwd"
-                            |}
-                            |
-                           """
-      val payload = Json.parse(prettyPayload.stripMargin).toString
-
+    def authenticate(usr: String, pwd: String): HttpResponse[String] =
       Http(s"$serviceUrl/authenticate")
         .headers("Content-type" -> "application/json")
-        .postData(payload).asString
-    }
+        .postData(s""" {"username": "$usr", "password" :"$pwd"} """).asString
 
     // considering the case of individual only, as for organisations it is similar
     scenario("Valid credentials") {

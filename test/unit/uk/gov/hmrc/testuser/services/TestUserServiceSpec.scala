@@ -119,8 +119,8 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
 
     // legacy sandbox user (user1/password1)
     "Give the legacy sandbox user details if I authenticate with the legacy sandbox credentials" in new Setup {
-      val org = await(underTest.authenticate(sandboxAuthenticationRequest))
-      org shouldBe Some(sandboxUser)
+      val individual = await(underTest.authenticate(sandboxAuthenticationRequest))
+      individual shouldBe Some(sandboxUser)
     }
   }
 
