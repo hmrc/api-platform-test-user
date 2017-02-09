@@ -1,0 +1,47 @@
+#%RAML 1.0
+---
+
+title: API Platform Test User
+version: 1.0
+protocols: [ HTTPS ]
+baseUri: https://api.service.hmrc.gov.uk/
+
+documentation:
+ - title: Overview
+   content: !include docs/overview.md
+ - title: Versioning
+   content: !include http://api-documentation-raml-frontend.service/api-documentation/assets/common/docs/versioning.md
+ - title: Errors
+   content: !include http://api-documentation-raml-frontend.service/api-documentation/assets/common/docs/errors.md
+
+mediaType: [ application/json, application/hal+json ]
+
+uses:
+  sec: http://api-documentation-raml-frontend.service/api-documentation/assets/common/modules/securitySchemes.raml
+  headers: http://api-documentation-raml-frontend.service/api-documentation/assets/common/modules/headers.raml
+  annotations: http://api-documentation-raml-frontend.service/api-documentation/assets/common/modules/annotations.raml
+  types: http://api-documentation-raml-frontend.service/api-documentation/assets/common/modules/types.raml
+
+/api-platform-test-user:
+  /individual:
+    post:
+      displayName: Create a test user which is an individual
+      description: This resource creates and returns a test user which is an individual
+      responses:
+        201:
+          description: The individual test user resource has been created.
+          body:
+            application/json:
+              example: !include examples/individual-response.json
+  /organisation:
+    post:
+      displayName: Create a test user which is an organisation
+      description: This resource creates and returns a test user which is an organisation
+      responses:
+        201:
+          description: The organisation test user resource has been created.
+          body:
+            application/json:
+              example: !include examples/organisation-response.json
+
+

@@ -1,0 +1,13 @@
+{
+  "api": {
+    "name": "API Platform Test User",
+    "description": "The API Platform Test User API is responsible for creating API Platform test users on the external test environment.",
+    "context": "api-platform-test-user",
+    "versions": [
+      {
+        "version": "1.0",
+        "status": "PUBLISHED"
+      }
+    ]
+  }
+}
