@@ -16,14 +16,15 @@
 
 package unit.uk.gov.hmrc.testuser.controllers
 
-import org.apache.http.HttpStatus.{SC_CREATED, SC_INTERNAL_SERVER_ERROR, SC_OK, SC_UNAUTHORIZED}
-import org.mockito.Mockito.when
 import org.mockito.BDDMockito.given
-import org.mockito.Matchers.any
+import org.mockito.Matchers.{refEq, any}
 import org.scalatest.mock.MockitoSugar
+import play.api.http.HeaderNames
+import play.api.http.Status.{CREATED, UNAUTHORIZED, INTERNAL_SERVER_ERROR}
 import play.api.libs.json.{JsValue, Json}
 import play.api.test._
 import uk.gov.hmrc.domain._
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.controllers.TestUserController
 import uk.gov.hmrc.testuser.models.JsonFormatters._
@@ -35,10 +36,7 @@ import scala.concurrent.Future.{failed, successful}
 class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
   val user = "user"
-  val wrongUser = "wrong-usr"
   val password = "password"
-  val hashedPassword = "_(pwd)"
-  val wrongPassword = "wrong-pwd"
 
   val saUtr = SaUtr("1555369052")
   val nino = Nino("CC333333C")
@@ -47,13 +45,13 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   val empRef = EmpRef("555","EIA000")
 
   val testIndividual = TestIndividual(user, password, saUtr, nino)
-  val testHashedIndividual = TestIndividual(user, hashedPassword, saUtr, nino)
-
   val testOrganisation = TestOrganisation(user, password, saUtr, empRef, ctUtr, vrn)
-  val testHashedOrganisation = TestOrganisation(user, hashedPassword, saUtr, empRef, ctUtr, vrn)
+
+  val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345")
 
   trait Setup {
     implicit lazy val materializer = fakeApplication.materializer
+    implicit val hc = HeaderCarrier()
 
     val createRequest = FakeRequest()
 
@@ -64,8 +62,6 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     val underTest = new TestUserController {
       override val testUserService: TestUserService = mock[TestUserService]
-
-      when(testUserService.authenticate(any[AuthenticationRequest])).thenReturn(successful(None))
     }
   }
 
@@ -77,7 +73,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
       val result = await(underTest.createIndividual()(createRequest))
 
-      status(result) shouldBe SC_CREATED
+      status(result) shouldBe CREATED
       jsonBodyOf(result) shouldBe Json.toJson(TestIndividualCreatedResponse(user, password, saUtr, nino))
     }
 
@@ -87,7 +83,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
       val result = await(underTest.createIndividual()(createRequest))
 
-      status(result) shouldBe SC_INTERNAL_SERVER_ERROR
+      status(result) shouldBe INTERNAL_SERVER_ERROR
       jsonBodyOf(result) shouldBe Json.toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
     }
 
@@ -101,7 +97,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
       val result = await(underTest.createOrganisation()(createRequest))
 
-      status(result) shouldBe SC_CREATED
+      status(result) shouldBe CREATED
       jsonBodyOf(result) shouldBe Json.toJson(TestOrganisationCreatedResponse(user, password, saUtr, empRef, ctUtr, vrn))
     }
 
@@ -111,49 +107,42 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
       val result = await(underTest.createOrganisation()(createRequest))
 
-      status(result) shouldBe SC_INTERNAL_SERVER_ERROR
+      status(result) shouldBe INTERNAL_SERVER_ERROR
       jsonBodyOf(result) shouldBe Json.toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
     }
-
   }
 
   "authenticate" should {
 
-    "return 200, with the right individual, when both username and password are correct" in new Setup {
+    "return 201 (Created), with the auth session, when both username and password are correct" in new Setup {
 
-      when(underTest.testUserService.authenticate(AuthenticationRequest(user, password))).thenReturn(successful(Some(testIndividual)))
-
-      val result = await(underTest.authenticate()(authenticationRequest(user, password)))
-
-      status(result) shouldBe SC_OK
-      jsonBodyOf(result) shouldBe Json.toJson(TestIndividualResponse(user, saUtr, nino))
-    }
-
-    "return 200, with the right organisation, when both username and password are correct" in new Setup {
-
-      when(underTest.testUserService.authenticate(AuthenticationRequest(user, password))).thenReturn(successful(Some(testOrganisation)))
+      given(underTest.testUserService.authenticate(refEq(AuthenticationRequest(user, password)))(any())).willReturn(successful(authSession))
 
       val result = await(underTest.authenticate()(authenticationRequest(user, password)))
 
-      status(result) shouldBe SC_OK
-      jsonBodyOf(result) shouldBe Json.toJson(TestOrganisationResponse(user, saUtr, empRef, ctUtr, vrn))
+      status(result) shouldBe CREATED
+      result.header.headers(HeaderNames.AUTHORIZATION) shouldBe authSession.authBearerToken
+      result.header.headers(HeaderNames.LOCATION) shouldBe authSession.authorityUri
     }
 
-    "return 401, if the username was not found in the users repository" in new Setup {
+    "return 401 (Unauthorized) when the credentials are not valid" in new Setup {
 
-      val result = await(underTest.authenticate()(authenticationRequest(wrongUser, password)))
+      given(underTest.testUserService.authenticate(refEq(AuthenticationRequest(user, password)))(any())).willReturn(failed(InvalidCredentials("")))
 
-      status(result) shouldBe SC_UNAUTHORIZED
+      val result = await(underTest.authenticate()(authenticationRequest(user, password)))
+
+      status(result) shouldBe UNAUTHORIZED
       jsonBodyOf(result) shouldBe Json.toJson(ErrorResponse.invalidCredentialsError)
     }
 
-    "return 401, if the given username exists, but the password does not match" in new Setup {
+    "fail with 500 (Internal Server Error) when an error occured " in new Setup {
 
-      val result = await(underTest.authenticate()(authenticationRequest(user, wrongPassword)))
+      given(underTest.testUserService.authenticate(refEq(AuthenticationRequest(user, password)))(any())).willReturn(failed(new RuntimeException("test error")))
 
-      status(result) shouldBe SC_UNAUTHORIZED
-      jsonBodyOf(result) shouldBe Json.toJson(ErrorResponse.invalidCredentialsError)
+      val result = await(underTest.authenticate()(authenticationRequest(user, password)))
+
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+      jsonBodyOf(result) shouldBe Json.toJson(ErrorResponse.internalServerError)
     }
-
   }
 }

@@ -19,6 +19,7 @@ package uk.gov.hmrc.testuser.controllers
 import javax.inject.Inject
 
 import play.api.Logger
+import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.mvc.{Result, Action}
 import uk.gov.hmrc.play.microservice.controller.BaseController
@@ -45,16 +46,14 @@ trait TestUserController extends BaseController {
   }
 
   def authenticate() = {
-
-    def authenticateUser(authReq: AuthenticationRequest) = testUserService.authenticate(authReq) map {
-      case Some(ind: TestIndividual) => Ok(Json.toJson(TestIndividualResponse.from(ind)).toString())
-      case Some(org: TestOrganisation) => Ok(Json.toJson(TestOrganisationResponse.from(org)).toString())
-      case _ => Unauthorized(Json.toJson(ErrorResponse.invalidCredentialsError))
-    }
-
     Action.async(parse.json) { implicit request =>
-      withJsonBody[AuthenticationRequest] {
-        authRequest: AuthenticationRequest => authenticateUser(authRequest)
+      withJsonBody[AuthenticationRequest] { testUserService.authenticate(_) map { authSession =>
+          Created.withHeaders(
+            HeaderNames.AUTHORIZATION -> authSession.authBearerToken,
+            HeaderNames.LOCATION -> authSession.authorityUri)
+        }
+      } recover {
+        case e: InvalidCredentials => Unauthorized(Json.toJson(ErrorResponse.invalidCredentialsError))
       } recover recovery
     }
   }

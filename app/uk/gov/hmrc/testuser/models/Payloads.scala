@@ -20,12 +20,16 @@ import uk.gov.hmrc.domain.{Nino, SaUtr}
 
 case class AuthenticationRequest(username: String, password: String)
 
+case class AuthSession(authBearerToken: String, authorityUri: String)
+
 object LegacySandboxUser {
   private val username = "user1"
   private val password = "password1"
   val sandboxAuthenticationRequest = AuthenticationRequest(username, password)
   val sandboxUser = TestIndividual(username, password, SaUtr("1700000000"), Nino("AA000017A"), null)
 }
+
+case class InvalidCredentials(msg: String) extends Exception
 
 object ErrorCode extends Enumeration {
 
