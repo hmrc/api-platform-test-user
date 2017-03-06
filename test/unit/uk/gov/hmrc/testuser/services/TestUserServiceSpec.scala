@@ -42,7 +42,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
   val testIndividual = TestIndividual(username, password, SaUtr("1555369052"), Nino("CC333333C"))
   val testOrganisation = TestOrganisation(username, password, SaUtr("1555369052"), EmpRef("555","EIA000"),
     CtUtr("1555369053"), Vrn("999902541"))
-  val authSession = AuthSession("Bearer AUTH_TOKEN", "/auth/oid/12345")
+  val authSession = AuthSession("Bearer AUTH_TOKEN", "/auth/oid/12345", "gatewayToken")
   val storedTestIndividual = TestIndividual(username, hashedPassword, SaUtr("1555369052"), Nino("CC333333C"))
 
   trait Setup {
@@ -108,23 +108,23 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
 
   "authenticate" should {
 
-    "return the auth session when the credentials are valid" in new Setup {
+    "return the user and auth session when the credentials are valid" in new Setup {
 
       given(underTest.testUserRepository.fetchByUsername(username)).willReturn(Some(storedTestIndividual))
       given(underTest.authLoginApiConnector.createSession(storedTestIndividual)).willReturn(authSession)
 
       val result = await(underTest.authenticate(AuthenticationRequest(username, password)))
 
-      result shouldBe authSession
+      result shouldBe (storedTestIndividual, authSession)
     }
 
-    "return an auth session for the sandbox user when I authenticate with user1/password1" in new Setup {
+    "return the user and auth session for the sandbox user when I authenticate with user1/password1" in new Setup {
 
       given(underTest.authLoginApiConnector.createSession(sandboxUser)).willReturn(authSession)
 
       val result = await(underTest.authenticate(AuthenticationRequest("user1", "password1")))
 
-      result shouldBe authSession
+      result shouldBe (sandboxUser, authSession)
     }
 
     "fail with InvalidCredentials when the user does not exist" in new Setup {

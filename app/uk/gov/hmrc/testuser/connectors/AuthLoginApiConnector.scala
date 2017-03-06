@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.testuser.config.WSHttp
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models.{AuthSession, TestOrganisation, TestIndividual, TestUser}
+import uk.gov.hmrc.testuser.models._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -36,8 +36,10 @@ class AuthLoginApiConnector extends ServicesConfig {
 
   def createSession(testUser: TestUser)(implicit hc: HeaderCarrier): Future[AuthSession] = {
     WSHttp.POST(s"$serviceUrl/government-gateway/legacy/login", GovernmentGatewayLogin(testUser)) map { response =>
+      val gatewayToken = (response.json \ "gatewayToken").as[String]
+
       (response.header(AUTHORIZATION), response.header(LOCATION)) match {
-        case (Some(authBearerToken), Some(authorityUri)) => AuthSession(authBearerToken, authorityUri)
+        case (Some(authBearerToken), Some(authorityUri)) => AuthSession(authBearerToken, authorityUri, gatewayToken)
         case _ =>  throw new RuntimeException(s"Authorization and Location header must be present in response.")
       }
     }

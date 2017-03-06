@@ -20,7 +20,9 @@ import uk.gov.hmrc.domain.{Nino, SaUtr}
 
 case class AuthenticationRequest(username: String, password: String)
 
-case class AuthSession(authBearerToken: String, authorityUri: String)
+case class AuthenticationResponse(gatewayToken: String, affinityGroup: String)
+
+case class AuthSession(authBearerToken: String, authorityUri: String, gatewayToken: String)
 
 object LegacySandboxUser {
   private val username = "user1"

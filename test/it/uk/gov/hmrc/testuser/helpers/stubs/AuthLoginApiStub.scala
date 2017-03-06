@@ -28,6 +28,7 @@ object AuthLoginApiStub extends MockHost(11111) {
     mock.register(post(urlPathEqualTo("/government-gateway/legacy/login"))
       .willReturn(aResponse()
         .withStatus(CREATED)
+        .withBody(s"""{"gatewayToken": "${session.gatewayToken}"}""")
         .withHeader(AUTHORIZATION, session.authBearerToken)
         .withHeader(LOCATION, session.authorityUri)))
   }

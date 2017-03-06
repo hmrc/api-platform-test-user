@@ -31,7 +31,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
   val testOrganisation = TestOrganisation("organisationUser", "password", SaUtr("1555369052"), EmpRef("555","EIA000"),
     CtUtr("1555369053"), Vrn("999902541"))
 
-  val authSession = AuthSession("Bearer 12345", "/auth/oid/12345")
+  val authSession = AuthSession("Bearer 12345", "/auth/oid/12345", "ggToken")
 
   trait Setup {
     implicit val hc = HeaderCarrier()

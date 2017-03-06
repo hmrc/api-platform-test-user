@@ -21,6 +21,7 @@ import org.mockito.Matchers.{refEq, any}
 import org.scalatest.mock.MockitoSugar
 import play.api.http.HeaderNames
 import play.api.http.Status.{CREATED, UNAUTHORIZED, INTERNAL_SERVER_ERROR}
+import play.api.libs.json.Json.toJson
 import play.api.libs.json.{JsValue, Json}
 import play.api.test._
 import uk.gov.hmrc.domain._
@@ -47,7 +48,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   val testIndividual = TestIndividual(user, password, saUtr, nino)
   val testOrganisation = TestOrganisation(user, password, saUtr, empRef, ctUtr, vrn)
 
-  val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345")
+  val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
 
   trait Setup {
     implicit lazy val materializer = fakeApplication.materializer
@@ -74,7 +75,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       val result = await(underTest.createIndividual()(createRequest))
 
       status(result) shouldBe CREATED
-      jsonBodyOf(result) shouldBe Json.toJson(TestIndividualCreatedResponse(user, password, saUtr, nino))
+      jsonBodyOf(result) shouldBe toJson(TestIndividualCreatedResponse(user, password, saUtr, nino))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
@@ -84,7 +85,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       val result = await(underTest.createIndividual()(createRequest))
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
-      jsonBodyOf(result) shouldBe Json.toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
+      jsonBodyOf(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
     }
 
   }
@@ -98,7 +99,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       val result = await(underTest.createOrganisation()(createRequest))
 
       status(result) shouldBe CREATED
-      jsonBodyOf(result) shouldBe Json.toJson(TestOrganisationCreatedResponse(user, password, saUtr, empRef, ctUtr, vrn))
+      jsonBodyOf(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, saUtr, empRef, ctUtr, vrn))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
@@ -108,19 +109,20 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       val result = await(underTest.createOrganisation()(createRequest))
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
-      jsonBodyOf(result) shouldBe Json.toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
+      jsonBodyOf(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
     }
   }
 
   "authenticate" should {
 
-    "return 201 (Created), with the auth session, when both username and password are correct" in new Setup {
+    "return 201 (Created), with the auth session and affinity group, when both username and password are correct" in new Setup {
 
-      given(underTest.testUserService.authenticate(refEq(AuthenticationRequest(user, password)))(any())).willReturn(successful(authSession))
+      given(underTest.testUserService.authenticate(refEq(AuthenticationRequest(user, password)))(any())).willReturn(successful((testIndividual, authSession)))
 
       val result = await(underTest.authenticate()(authenticationRequest(user, password)))
 
       status(result) shouldBe CREATED
+      jsonBodyOf(result) shouldBe toJson(AuthenticationResponse(authSession.gatewayToken, testIndividual.affinityGroup))
       result.header.headers(HeaderNames.AUTHORIZATION) shouldBe authSession.authBearerToken
       result.header.headers(HeaderNames.LOCATION) shouldBe authSession.authorityUri
     }
@@ -132,7 +134,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       val result = await(underTest.authenticate()(authenticationRequest(user, password)))
 
       status(result) shouldBe UNAUTHORIZED
-      jsonBodyOf(result) shouldBe Json.toJson(ErrorResponse.invalidCredentialsError)
+      jsonBodyOf(result) shouldBe toJson(ErrorResponse.invalidCredentialsError)
     }
 
     "fail with 500 (Internal Server Error) when an error occured " in new Setup {
@@ -142,7 +144,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       val result = await(underTest.authenticate()(authenticationRequest(user, password)))
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
-      jsonBodyOf(result) shouldBe Json.toJson(ErrorResponse.internalServerError)
+      jsonBodyOf(result) shouldBe toJson(ErrorResponse.internalServerError)
     }
   }
 }

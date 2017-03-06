@@ -71,20 +71,40 @@ class TestUserSpec extends BaseSpec {
 
   feature("Authenticate a user") {
 
-    scenario("Valid credentials") {
+    scenario("Valid credentials for an individual") {
 
       Given("An individual")
       val individual = createIndividual()
 
       And("The creation of auth session for the individual is successful")
-      val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345")
+      val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
       AuthLoginApiStub.willReturnTheSession(authSession)
 
       When("I authenticate with the individual's credentials")
       val response = authenticate(individual.username, individual.password)
 
-      Then("The response contains the auth session")
+      Then("The response contains the auth session and the 'Individual' affinity group")
       response.code shouldBe CREATED
+      Json.parse(response.body).as[AuthenticationResponse] shouldBe AuthenticationResponse(authSession.gatewayToken, "Individual")
+      response.headers(HeaderNames.LOCATION) shouldBe authSession.authorityUri
+      response.headers(HeaderNames.AUTHORIZATION) shouldBe authSession.authBearerToken
+    }
+
+    scenario("Valid credentials for an organisation") {
+
+      Given("An organisation")
+      val organisation = createOrganisation()
+
+      And("The creation of auth session for the organisation is successful")
+      val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
+      AuthLoginApiStub.willReturnTheSession(authSession)
+
+      When("I authenticate with the organisation's credentials")
+      val response = authenticate(organisation.username, organisation.password)
+
+      Then("The response contains the auth session and the 'Organisation' affinity group")
+      response.code shouldBe CREATED
+      Json.parse(response.body).as[AuthenticationResponse] shouldBe AuthenticationResponse(authSession.gatewayToken, "Organisation")
       response.headers(HeaderNames.LOCATION) shouldBe authSession.authorityUri
       response.headers(HeaderNames.AUTHORIZATION) shouldBe authSession.authBearerToken
     }
@@ -116,6 +136,11 @@ class TestUserSpec extends BaseSpec {
   private def createIndividual() = {
     val individualCreatedResponse = Http(s"$serviceUrl/individual").postForm.asString
     Json.parse(individualCreatedResponse.body).as[TestIndividualCreatedResponse]
+  }
+
+  private def createOrganisation() = {
+    val organisationCreatedResponse = Http(s"$serviceUrl/organisation").postForm.asString
+    Json.parse(organisationCreatedResponse.body).as[TestOrganisationCreatedResponse]
   }
 
   private def authenticate(username: String, password: String) = {

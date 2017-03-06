@@ -47,7 +47,7 @@ trait TestUserService {
     testUserRepository.createUser(organisation.copy(password = hashedPassword)) map (_ => organisation)
   }
 
-  def authenticate(authReq: AuthenticationRequest)(implicit hc: HeaderCarrier): Future[AuthSession] = {
+  def authenticate(authReq: AuthenticationRequest)(implicit hc: HeaderCarrier): Future[(TestUser, AuthSession)] = {
     val userFuture = authReq match {
       case `sandboxAuthenticationRequest` => successful(sandboxUser)
       case _ => testUserRepository.fetchByUsername(authReq.username).map {
@@ -61,7 +61,7 @@ trait TestUserService {
     for {
       user <- userFuture
       authSession <- authLoginApiConnector.createSession(user)
-    } yield authSession
+    } yield (user, authSession)
   }
 }
 
