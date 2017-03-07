@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import uk.gov.hmrc.testuser.models.UserType.UserType
 sealed trait TestUser {
   val username: String
   val password: String
+  val affinityGroup: String
   val _id: BSONObjectID
 }
 
@@ -30,7 +31,9 @@ case class TestIndividual(override val username: String,
                           override val password: String,
                           saUtr: SaUtr,
                           nino: Nino,
-                          override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser
+                          override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
+  override val affinityGroup = "Individual"
+}
 
 case class TestOrganisation(override val username: String,
                             override val password: String,
@@ -38,7 +41,9 @@ case class TestOrganisation(override val username: String,
                             empRef: EmpRef,
                             ctUtr: CtUtr,
                             vrn: Vrn,
-                            override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser
+                            override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
+  override val affinityGroup = "Organisation"
+}
 
 case class TestIndividualCreatedResponse(username: String, password: String, saUtr: SaUtr, nino: Nino)
 case class TestOrganisationCreatedResponse(username: String, password: String, saUtr: SaUtr, empRef: EmpRef, ctUtr: CtUtr, vrn: Vrn)
