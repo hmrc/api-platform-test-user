@@ -41,7 +41,7 @@ private object AppDependencies {
   private val hmrcTestVersion = "2.1.0"
   private val scalaTestVersion = "2.2.6"
   private val pegdownVersion = "1.6.0"
-  private val scalaTestPlusVersion = "1.2.0"
+  private val scalaTestPlusVersion = "1.5.1"
   private val hmrcPlayJsonUnionFormatterVersion = "1.0.0"
   private val scalaCheckVersion = "1.12.6"
   private val mockitoVersion = "1.9.5"
@@ -78,11 +78,12 @@ private object AppDependencies {
         "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope,
         "uk.gov.hmrc" %% "reactivemongo-test" % hmrcReactiveMongoTestVersion % scope,
         "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
-        "org.scalatestplus" %% "play" % scalaTestPlusVersion %  scope,
+        "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusVersion %  scope,
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "org.mockito" % "mockito-core" % mockitoVersion % scope,
-      "org.scalaj" %% "scalaj-http" % scalaJVersion % scope
+        "org.scalaj" %% "scalaj-http" % scalaJVersion % scope,
+        "com.github.tomakehurst" % "wiremock" % "1.57" % "test,it"
       )
     }.test
   }
