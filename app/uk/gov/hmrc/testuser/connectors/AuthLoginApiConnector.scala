@@ -61,13 +61,13 @@ object GovernmentGatewayLogin {
   def apply(testUser: TestUser): GovernmentGatewayLogin = testUser match {
     case individual: TestIndividual =>
       GovernmentGatewayLogin(individual.username, testUser.affinityGroup, Some(individual.nino.value), Seq(
-        Enrolment("IR-SA", Seq(TaxIdentifier("UTR", individual.saUtr.toString())))))
+        Enrolment("IR-SA", utr(individual.saUtr.toString))))
 
     case organisation: TestOrganisation =>
       GovernmentGatewayLogin(organisation.username, testUser.affinityGroup, None, Seq(
-        Enrolment("IR-SA", utr(organisation.saUtr.toString())),
-        Enrolment("IR-CT", utr(organisation.ctUtr.toString())),
-        Enrolment("HMCE-VATDEC-ORG", vrn(organisation.vrn.toString())),
+        Enrolment("IR-SA", utr(organisation.saUtr.toString)),
+        Enrolment("IR-CT", utr(organisation.ctUtr.toString)),
+        Enrolment("HMCE-VATDEC-ORG", vrn(organisation.vrn.toString)),
         Enrolment("IR-PAYE", paye(organisation.empRef))))
   }
 

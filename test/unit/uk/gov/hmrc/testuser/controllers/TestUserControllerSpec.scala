@@ -80,7 +80,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
 
-      given(underTest.testUserService.createTestIndividual()).willReturn(failed(new RuntimeException()))
+      given(underTest.testUserService.createTestIndividual()).willReturn(failed(new RuntimeException("test error")))
 
       val result = await(underTest.createIndividual()(createRequest))
 
@@ -104,7 +104,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
 
-      given(underTest.testUserService.createTestOrganisation()).willReturn(failed(new RuntimeException()))
+      given(underTest.testUserService.createTestOrganisation()).willReturn(failed(new RuntimeException("test error")))
 
       val result = await(underTest.createOrganisation()(createRequest))
 

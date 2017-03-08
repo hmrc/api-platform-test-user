@@ -1,4 +1,4 @@
-API Platform Test User is responsible for creating API Platform test users on the external test environment.
+Create Test User is responsible for creating test users on the external test environment.
 
 ### What is this API for?
 

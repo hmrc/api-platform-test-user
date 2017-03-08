@@ -77,7 +77,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
     "fail when the repository fails" in new Setup {
 
       given(underTest.generator.generateTestIndividual()).willReturn(testIndividual)
-      given(underTest.testUserRepository.createUser(any[TestUser]())).willReturn(failed(new RuntimeException()))
+      given(underTest.testUserRepository.createUser(any[TestUser]())).willReturn(failed(new RuntimeException("test error")))
 
       intercept[RuntimeException]{await(underTest.createTestIndividual())}
     }
@@ -100,7 +100,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
     "fail when the repository fails" in new Setup {
 
       given(underTest.generator.generateTestOrganisation()).willReturn(testOrganisation)
-      given(underTest.testUserRepository.createUser(any[TestUser]())).willReturn(failed(new RuntimeException()))
+      given(underTest.testUserRepository.createUser(any[TestUser]())).willReturn(failed(new RuntimeException("test error")))
 
       intercept[RuntimeException]{await(underTest.createTestIndividual())}
     }
