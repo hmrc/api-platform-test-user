@@ -19,6 +19,7 @@ package uk.gov.hmrc.testuser.config
 import com.typesafe.config.Config
 import net.ceedubs.ficus.Ficus._
 import play.api._
+import uk.gov.hmrc.api.connector.ServiceLocatorConnector
 import uk.gov.hmrc.play.audit.filters.AuditFilter
 import uk.gov.hmrc.play.auth.controllers.AuthParamsControllerConfig
 import uk.gov.hmrc.play.auth.microservice.filters.AuthorisationFilter
@@ -27,8 +28,6 @@ import uk.gov.hmrc.play.filters.MicroserviceFilterSupport
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.http.logging.filters.LoggingFilter
 import uk.gov.hmrc.play.microservice.bootstrap.DefaultMicroserviceGlobal
-
-import scala.concurrent.Future
 
 object ControllerConfiguration extends ControllerConfig {
   lazy val controllerConfigs = Play.current.configuration.underlying.as[Config]("controllers")
@@ -50,13 +49,13 @@ object MicroserviceLoggingFilter extends LoggingFilter with MicroserviceFilterSu
 object MicroserviceAuthFilter extends AuthorisationFilter with MicroserviceFilterSupport {
   override lazy val authParamsConfig = AuthParamsControllerConfiguration
   override lazy val authConnector = MicroserviceAuthConnector
-  override def controllerNeedsAuth(controllerName: String): Boolean = ControllerConfiguration.paramsForController(controllerName).needsAuth
+  override def controllerNeedsAuth(controllerName: String) = ControllerConfiguration.paramsForController(controllerName).needsAuth
 }
 
 object MicroserviceGlobal extends DefaultMicroserviceGlobal with ServiceLocatorRegistration with RunMode with MicroserviceFilterSupport {
   override val auditConnector = MicroserviceAuditConnector
 
-  override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] = app.configuration.getConfig(s"microservice.metrics")
+  override def microserviceMetricsConfig(implicit app: Application) = app.configuration.getConfig(s"microservice.metrics")
 
   override val loggingFilter = MicroserviceLoggingFilter
 
@@ -67,26 +66,6 @@ object MicroserviceGlobal extends DefaultMicroserviceGlobal with ServiceLocatorR
 
 case class RegistrationRequest(serviceName: String, serviceUrl: String, metadata: Option[Map[String, String]] = None)
 
-object ServiceLocatorConnector extends ServicesConfig {
-
-  import uk.gov.hmrc.testuser.models.JsonFormatters.formatRegistrationRequest
-
-  import scala.concurrent.ExecutionContext.Implicits.global
-
-  private lazy val serviceLocatorUrl = baseUrl("service-locator")
-  private implicit val hc = new HeaderCarrier()
-
-  def register(registrationRequest: RegistrationRequest): Future[Boolean] = {
-    val registrationUrl: String = s"$serviceLocatorUrl/registration"
-    WSHttp.POST(registrationUrl, registrationRequest) map {
-      httpResponse =>
-        Logger.info(s"POST [$registrationRequest] [$registrationUrl] [${httpResponse.status}]")
-        true
-    } recover {
-      case t: Throwable => false
-    }
-  }
-}
 
 trait ServiceLocatorRegistration extends GlobalSettings with ServicesConfig {
 
@@ -97,9 +76,10 @@ trait ServiceLocatorRegistration extends GlobalSettings with ServicesConfig {
   override def onStart(app: Application) = {
     super.onStart(app)
     if (registrationEnabled)
-      ServiceLocatorConnector.register(RegistrationRequest(appName, appUrl, Some(Map("third-party-api" -> "true"))))
+      ServiceLocatorConnector(WSHttp).register(HeaderCarrier())
     else
       Logger.warn("service locator registration is disabled")
+
   }
 
 }
