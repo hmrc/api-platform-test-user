@@ -27,6 +27,8 @@ uses:
     post:
       displayName: Create a test user which is an individual
       description: This resource creates and returns a test user which is an individual
+      is: [headers.acceptHeader]
+      securedBy: [ sec.x-application ]
       responses:
         201:
           description: The individual test user resource has been created.
@@ -37,6 +39,8 @@ uses:
     post:
       displayName: Create a test user which is an organisation
       description: This resource creates and returns a test user which is an organisation
+      is: [headers.acceptHeader]
+      securedBy: [ sec.x-application ]
       responses:
         201:
           description: The organisation test user resource has been created.
