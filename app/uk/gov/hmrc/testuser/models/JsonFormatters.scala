@@ -19,7 +19,6 @@ package uk.gov.hmrc.testuser.models
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.play.json.Union
-import uk.gov.hmrc.testuser.config.RegistrationRequest
 import uk.gov.hmrc.testuser.connectors.{TaxIdentifier, Enrolment, GovernmentGatewayLogin}
 
 object JsonFormatters {
@@ -45,7 +44,6 @@ object JsonFormatters {
 
   implicit val formatErrorCode = EnumJson.enumFormat(ErrorCode)
   implicit val formatErrorResponse = Json.format[ErrorResponse]
-  implicit val formatRegistrationRequest = Json.format[RegistrationRequest]
 
   implicit val formatTaxIdentifier = Json.format[TaxIdentifier]
   implicit val formatEnrolment = Json.format[Enrolment]
