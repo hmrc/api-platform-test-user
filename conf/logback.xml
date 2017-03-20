@@ -45,7 +45,6 @@
 
     <logger name="com.google.inject" level="INFO"/>
     <logger name="org.asynchttpclient.netty.channel.DefaultChannelPool" level="INFO"/>
-    <logger name="application" level="DEBUG"/>
     <logger name="io.netty" level="INFO"/>
 
     <logger name="connector" level="TRACE">
