@@ -77,7 +77,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
     "fail when the repository fails" in new Setup {
 
       given(underTest.generator.generateTestIndividual()).willReturn(testIndividual)
-      given(underTest.testUserRepository.createUser(any[TestUser]())).willReturn(failed(new RuntimeException()))
+      given(underTest.testUserRepository.createUser(any[TestUser]())).willReturn(failed(new RuntimeException("test error")))
 
       intercept[RuntimeException]{await(underTest.createTestIndividual())}
     }
@@ -100,7 +100,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
     "fail when the repository fails" in new Setup {
 
       given(underTest.generator.generateTestOrganisation()).willReturn(testOrganisation)
-      given(underTest.testUserRepository.createUser(any[TestUser]())).willReturn(failed(new RuntimeException()))
+      given(underTest.testUserRepository.createUser(any[TestUser]())).willReturn(failed(new RuntimeException("test error")))
 
       intercept[RuntimeException]{await(underTest.createTestIndividual())}
     }
@@ -115,7 +115,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
 
       val result = await(underTest.authenticate(AuthenticationRequest(username, password)))
 
-      result shouldBe (storedTestIndividual, authSession)
+      result shouldBe storedTestIndividual -> authSession
     }
 
     "return the user and auth session for the sandbox user when I authenticate with user1/password1" in new Setup {
@@ -124,7 +124,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
 
       val result = await(underTest.authenticate(AuthenticationRequest("user1", "password1")))
 
-      result shouldBe (sandboxUser, authSession)
+      result shouldBe sandboxUser -> authSession
     }
 
     "fail with InvalidCredentials when the user does not exist" in new Setup {

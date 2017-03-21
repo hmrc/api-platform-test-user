@@ -1,0 +1,13 @@
+{
+  "api": {
+    "name": "Create Test User",
+    "description": "The Create Test User API is responsible for creating test users on the external test environment.",
+    "context": "create-test-user",
+    "versions": [
+      {
+        "version": "1.0",
+        "status": "PUBLISHED"
+      }
+    ]
+  }
+}
