@@ -35,13 +35,13 @@ trait TestUserController extends BaseController {
 
   def createIndividual() = Action.async { implicit request =>
     testUserService.createTestIndividual() map { individual =>
-      Created(toJson(TestIndividualCreatedResponse.from(individual)).toString())
+      Created(toJson(TestIndividualCreatedResponse.from(individual)))
     } recover recovery
   }
 
   def createOrganisation() = Action.async { implicit request =>
     testUserService.createTestOrganisation() map { organisation =>
-      Created(toJson(TestOrganisationCreatedResponse.from(organisation)).toString())
+      Created(toJson(TestOrganisationCreatedResponse.from(organisation)))
     } recover recovery
   }
 
@@ -53,7 +53,7 @@ trait TestUserController extends BaseController {
             HeaderNames.LOCATION -> authSession.authorityUri)
         }
       } recover {
-        case e: InvalidCredentials => Unauthorized(toJson(ErrorResponse.invalidCredentialsError))
+        case _: InvalidCredentials => Unauthorized(toJson(ErrorResponse.invalidCredentialsError))
       } recover recovery
     }
   }
