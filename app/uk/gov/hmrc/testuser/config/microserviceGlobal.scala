@@ -62,9 +62,9 @@ object MicroserviceGlobal extends DefaultMicroserviceGlobal with ServiceLocatorR
   override val hc = HeaderCarrier()
   override val slConnector = ServiceLocatorConnector(WSHttp)
   override val auditConnector = MicroserviceAuditConnector
-  override lazy val registrationEnabled = current.configuration.getBoolean(s"microservice.services.service-locator.enabled").getOrElse(false)
+  override lazy val registrationEnabled = current.configuration.getBoolean("microservice.services.service-locator.enabled").getOrElse(false)
 
-  override def microserviceMetricsConfig(implicit app: Application) = app.configuration.getConfig(s"microservice.metrics")
+  override def microserviceMetricsConfig(implicit app: Application) = app.configuration.getConfig("microservice.metrics")
 
   override val loggingFilter = MicroserviceLoggingFilter
   override val microserviceAuditFilter = MicroserviceAuditFilter

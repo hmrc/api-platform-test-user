@@ -57,6 +57,7 @@ trait MicroService {
       testOptions in Test := Seq(Tests.Filter(unitFilter)),
       routesGenerator := StaticRoutesGenerator
     )
+    .settings(unmanagedResourceDirectories in Compile += baseDirectory.value / "resources")
     .configs(IntegrationTest)
     .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
     .settings(
