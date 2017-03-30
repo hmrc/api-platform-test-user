@@ -50,12 +50,12 @@ trait TestUserService {
   def authenticate(authReq: AuthenticationRequest)(implicit hc: HeaderCarrier): Future[(TestUser, AuthSession)] = {
     val userFuture = authReq match {
       case `sandboxAuthenticationRequest` => successful(sandboxUser)
-      case _ => testUserRepository.fetchByUsername(authReq.username).map {
+      case _ => testUserRepository.fetchByUserId(authReq.userId).map {
         case Some(u: TestUser) if passwordService.validate(authReq.password, u.password) => u
         case None =>
-          throw InvalidCredentials(s"Username not found: ${authReq.username}")
+          throw InvalidCredentials(s"UserId not found: ${authReq.userId}")
         case _ =>
-          throw InvalidCredentials(s"Invalid password for username: ${authReq.username}")
+          throw InvalidCredentials(s"Invalid password for userId: ${authReq.userId}")
       }
     }
     for {

@@ -23,7 +23,7 @@ import uk.gov.hmrc.testuser.models.{TestOrganisation, TestIndividual}
 
 trait Generator {
 
-  private val usernameGenerator = Gen.listOfN(12, Gen.numChar).map(_.mkString)
+  private val userIdGenerator = Gen.listOfN(12, Gen.numChar).map(_.mkString)
   private val passwordGenerator = Gen.listOfN(12, Gen.alphaNumChar).map(_.mkString)
   private val utrGenerator = new SaUtrGenerator()
   private val ninoGenerator = new uk.gov.hmrc.domain.Generator()
@@ -33,12 +33,12 @@ trait Generator {
   } yield EmpRef.fromIdentifiers(s"$taxOfficeNumber/$taxOfficeReference")
   private val vrnGenerator = Gen.choose(666000000, 666999999)
 
-  def generateTestIndividual() = TestIndividual(generateUsername, generatePassword, generateSaUtr, generateNino)
+  def generateTestIndividual() = TestIndividual(generateUserId, generatePassword, generateSaUtr, generateNino)
 
   def generateTestOrganisation() =
-    TestOrganisation(generateUsername, generatePassword, generateSaUtr, generateEmpRef, generateCtUtr, generateVrn)
+    TestOrganisation(generateUserId, generatePassword, generateSaUtr, generateEmpRef, generateCtUtr, generateVrn)
 
-  private def generateUsername = usernameGenerator.sample.get
+  private def generateUserId = userIdGenerator.sample.get
   private def generatePassword = passwordGenerator.sample.get
   private def generateEmpRef: EmpRef = employerReferenceGenerator.sample.get
   private def generateSaUtr: SaUtr = utrGenerator.nextSaUtr
