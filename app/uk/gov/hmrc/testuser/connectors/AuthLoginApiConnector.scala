@@ -60,11 +60,11 @@ case class GovernmentGatewayLogin(credId: String,
 object GovernmentGatewayLogin {
   def apply(testUser: TestUser): GovernmentGatewayLogin = testUser match {
     case individual: TestIndividual =>
-      GovernmentGatewayLogin(individual.username, testUser.affinityGroup, Some(individual.nino.value), Seq(
+      GovernmentGatewayLogin(individual.userId, testUser.affinityGroup, Some(individual.nino.value), Seq(
         Enrolment("IR-SA", utr(individual.saUtr.toString))))
 
     case organisation: TestOrganisation =>
-      GovernmentGatewayLogin(organisation.username, testUser.affinityGroup, None, Seq(
+      GovernmentGatewayLogin(organisation.userId, testUser.affinityGroup, None, Seq(
         Enrolment("IR-SA", utr(organisation.saUtr.toString)),
         Enrolment("IR-CT", utr(organisation.ctUtr.toString)),
         Enrolment("HMCE-VATDEC-ORG", vrn(organisation.vrn.toString)),

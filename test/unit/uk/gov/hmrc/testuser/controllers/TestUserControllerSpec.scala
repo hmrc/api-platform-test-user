@@ -57,7 +57,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
     val createRequest = FakeRequest()
 
     def authenticationRequest(usr: String, pwd: String) = {
-      val jsonPayload: JsValue = Json.parse(s"""{ "username": "$usr", "password" :"$pwd" }""")
+      val jsonPayload: JsValue = Json.parse(s"""{ "userId": "$usr", "password" :"$pwd" }""")
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
@@ -115,7 +115,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
   "authenticate" should {
 
-    "return 201 (Created), with the auth session and affinity group, when both username and password are correct" in new Setup {
+    "return 201 (Created), with the auth session and affinity group, when both userId and password are correct" in new Setup {
 
       given(underTest.testUserService.authenticate(refEq(AuthenticationRequest(user, password)))(any())).willReturn(successful((testIndividual, authSession)))
 

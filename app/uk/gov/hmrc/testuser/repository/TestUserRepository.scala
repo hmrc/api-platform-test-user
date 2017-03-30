@@ -31,7 +31,7 @@ trait TestUserRepository extends Repository[TestUser, BSONObjectID] {
 
   def createUser[T <: TestUser](testUser:T): Future[T]
 
-  def fetchByUsername(username: String): Future[Option[TestUser]]
+  def fetchByUserId(userId: String): Future[Option[TestUser]]
 }
 
 class TestUserMongoRepository(implicit mongo: () => DB)
@@ -39,14 +39,14 @@ class TestUserMongoRepository(implicit mongo: () => DB)
     JsonFormatters.formatTestUser, ReactiveMongoFormats.objectIdFormats)
   with TestUserRepository {
 
-  ensureIndex("username", "usernameIndex")
+  ensureIndex("userId", "userIdIndex")
 
   override def createUser[T <: TestUser](testUser: T): Future[T] = {
     insert(testUser) map {_ => testUser}
   }
 
-  override def fetchByUsername(username: String): Future[Option[TestUser]] = {
-    find("username" -> username) map(_.headOption)
+  override def fetchByUserId(userId: String): Future[Option[TestUser]] = {
+    find("userId" -> userId) map(_.headOption)
   }
 
   private def ensureIndex(field: String, indexName: String, isUnique: Boolean = true): Future[Boolean] = {

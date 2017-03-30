@@ -46,7 +46,7 @@ class TestUserSpec extends BaseSpec {
       val individualCreated = Json.parse(createdResponse.body).as[TestIndividualCreatedResponse]
 
       And("The individual is stored in Mongo with hashed password")
-      val individualFromMongo = result(mongoRepository.fetchByUsername(individualCreated.username), timeout).get.asInstanceOf[TestIndividual]
+      val individualFromMongo = result(mongoRepository.fetchByUserId(individualCreated.userId), timeout).get.asInstanceOf[TestIndividual]
       val expectedIndividualCreated = TestIndividualCreatedResponse.from(individualFromMongo.copy(password = individualCreated.password))
       individualCreated shouldBe expectedIndividualCreated
       validatePassword(individualCreated.password, individualFromMongo.password) shouldBe true
@@ -62,7 +62,7 @@ class TestUserSpec extends BaseSpec {
       val organisationCreated = Json.parse(createdResponse.body).as[TestOrganisationCreatedResponse]
 
       And("The organisation is stored in Mongo with hashed password")
-      val organisationFromMongo = result(mongoRepository.fetchByUsername(organisationCreated.username), timeout).get.asInstanceOf[TestOrganisation]
+      val organisationFromMongo = result(mongoRepository.fetchByUserId(organisationCreated.userId), timeout).get.asInstanceOf[TestOrganisation]
       val expectedOrganisationCreated = TestOrganisationCreatedResponse.from(organisationFromMongo.copy(password = organisationCreated.password))
       organisationCreated shouldBe expectedOrganisationCreated
       validatePassword(organisationCreated.password, organisationFromMongo.password) shouldBe true
@@ -81,7 +81,7 @@ class TestUserSpec extends BaseSpec {
       AuthLoginApiStub.willReturnTheSession(authSession)
 
       When("I authenticate with the individual's credentials")
-      val response = authenticate(individual.username, individual.password)
+      val response = authenticate(individual.userId, individual.password)
 
       Then("The response contains the auth session and the 'Individual' affinity group")
       response.code shouldBe CREATED
@@ -100,7 +100,7 @@ class TestUserSpec extends BaseSpec {
       AuthLoginApiStub.willReturnTheSession(authSession)
 
       When("I authenticate with the organisation's credentials")
-      val response = authenticate(organisation.username, organisation.password)
+      val response = authenticate(organisation.userId, organisation.password)
 
       Then("The response contains the auth session and the 'Organisation' affinity group")
       response.code shouldBe CREATED
@@ -109,9 +109,9 @@ class TestUserSpec extends BaseSpec {
       response.headers(HeaderNames.AUTHORIZATION) shouldBe authSession.authBearerToken
     }
 
-    scenario("Username not found") {
+    scenario("UserId not found") {
 
-      When("I authenticate with a username that does not exist")
+      When("I authenticate with a userId that does not exist")
       val response = authenticate("unknown_user", "password")
 
       Then("The response says that the credentials are invalid")
@@ -125,7 +125,7 @@ class TestUserSpec extends BaseSpec {
       val individualCreated = createIndividual()
 
       When("I authenticate with a wrong password")
-      val response = authenticate(individualCreated.username, "wrongPassword")
+      val response = authenticate(individualCreated.userId, "wrongPassword")
 
       Then("The response says that the credentials are invalid")
       response.code shouldBe UNAUTHORIZED
@@ -143,9 +143,9 @@ class TestUserSpec extends BaseSpec {
     Json.parse(organisationCreatedResponse.body).as[TestOrganisationCreatedResponse]
   }
 
-  private def authenticate(username: String, password: String) = {
+  private def authenticate(userId: String, password: String) = {
     Http(s"$serviceUrl/session")
-      .postData(stringify(obj("username" -> username, "password" -> password)))
+      .postData(stringify(obj("userId" -> userId, "password" -> password)))
       .header(HeaderNames.CONTENT_TYPE, "application/json").asString
   }
 
