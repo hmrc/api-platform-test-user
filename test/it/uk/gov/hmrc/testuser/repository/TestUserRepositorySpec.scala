@@ -59,29 +59,29 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
     }
   }
 
-  "fetchByUsername" should {
+  "fetchByUserId" should {
 
-    "return an individual when the individual exists for the username" in {
+    "return an individual when the individual exists for the userId" in {
 
       await(repository.createUser(testIndividual))
 
-      val result = await(repository.fetchByUsername(testIndividual.username))
+      val result = await(repository.fetchByUserId(testIndividual.userId))
 
       result shouldBe Some(testIndividual)
     }
 
-    "return an organisation when the organisation exists for the username" in {
+    "return an organisation when the organisation exists for the userId" in {
 
       await(repository.createUser(testOrganisation))
 
-      val result = await(repository.fetchByUsername(testOrganisation.username))
+      val result = await(repository.fetchByUserId(testOrganisation.userId))
 
       result shouldBe Some(testOrganisation)
     }
 
-    "return None when no user matches the username" in {
+    "return None when no user matches the userId" in {
 
-      val result = await(repository.fetchByUsername("unknown"))
+      val result = await(repository.fetchByUserId("unknown"))
 
       result shouldBe None
     }
