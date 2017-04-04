@@ -47,6 +47,12 @@ trait TestUserService {
     testUserRepository.createUser(organisation.copy(password = hashedPassword)) map (_ => organisation)
   }
 
+  def createTestAgent() = {
+    val agent = generator.generateTestAgent()
+    val hashedPassword = passwordService.hash(agent.password)
+    testUserRepository.createUser(agent.copy(password = hashedPassword)) map (_ => agent)
+  }
+
   def authenticate(authReq: AuthenticationRequest)(implicit hc: HeaderCarrier): Future[(TestUser, AuthSession)] = {
     val userFuture = authReq match {
       case `sandboxAuthenticationRequest` => successful(sandboxUser)

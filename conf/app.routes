@@ -2,5 +2,6 @@
 
 POST        /individual             @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.createIndividual
 POST        /organisation           @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.createOrganisation
+POST        /agent                  @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.createAgent
 
 POST        /session                @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.authenticate

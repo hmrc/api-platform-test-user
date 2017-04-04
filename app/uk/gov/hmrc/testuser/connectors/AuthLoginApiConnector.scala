@@ -69,6 +69,11 @@ object GovernmentGatewayLogin {
         Enrolment("IR-CT", utr(organisation.ctUtr.toString)),
         Enrolment("HMCE-VATDEC-ORG", vrn(organisation.vrn.toString)),
         Enrolment("IR-PAYE", paye(organisation.empRef))))
+
+    case agent: TestAgent =>
+      GovernmentGatewayLogin(agent.userId, testUser.affinityGroup, None, Seq(
+        Enrolment("HMRC-AS-AGENT", arn(agent.arn.toString()))
+      ))
   }
 
   private def utr(saUtr: String) = Seq(TaxIdentifier("UTR", saUtr))
@@ -76,4 +81,7 @@ object GovernmentGatewayLogin {
   private def paye(empRef: EmpRef) = Seq(
     TaxIdentifier("TaxOfficeNumber", empRef.taxOfficeNumber),
     TaxIdentifier("TaxOfficeReference", empRef.taxOfficeReference))
+
+  // TODO - check what the key should be
+  private def arn(arn: String) = Seq(TaxIdentifier("AgentBusinessUtr", arn))
 }

@@ -45,6 +45,12 @@ trait TestUserController extends BaseController {
     } recover recovery
   }
 
+  def createAgent() = Action.async { implicit request =>
+    testUserService.createTestAgent() map { agent =>
+      Created(toJson(TestAgentCreatedResponse.from(agent)))
+    } recover recovery
+  }
+
   def authenticate() = {
     Action.async(parse.json) { implicit request =>
       withJsonBody[AuthenticationRequest] { testUserService.authenticate(_) map { case (testUser, authSession) =>
