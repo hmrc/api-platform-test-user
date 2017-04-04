@@ -42,6 +42,8 @@ object JsonFormatters {
   implicit val formatAuthenticationRequest = Json.format[AuthenticationRequest]
   implicit val formatAuthenticationResponse = Json.format[AuthenticationResponse]
 
+  implicit val formatCreateUserServicesRequest = Json.format[CreateUserRequest]
+
   implicit val formatTestIndividualResponse = Json.format[TestIndividualResponse]
   implicit val formatTestOrganisationResponse = Json.format[TestOrganisationResponse]
   implicit val formatTestAgentResponse = Json.format[TestAgentResponse]
