@@ -47,5 +47,20 @@ uses:
           body:
             application/json:
               example: !include examples/organisation-response.json
+  /agents:
+    post:
+      displayName: Create a test user which is an agent
+      description: This resource creates and returns a test user which is an agent
+      is: [headers.acceptHeader]
+      securedBy: [ sec.x-application ]
+      body:
+        application/json:
+          example: !include examples/agent-request.json
+      responses:
+              201:
+                description: The agent test user resource has been created.
+                body:
+                  application/json:
+                    example: !include examples/agent-response.json
 
 
