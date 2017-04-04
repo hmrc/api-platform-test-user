@@ -27,20 +27,24 @@ object JsonFormatters {
   implicit val formatUserType = EnumJson.enumFormat(UserType)
   implicit val formatTestIndividual = Json.format[TestIndividual]
   implicit val formatTestOrganisation = Json.format[TestOrganisation]
+  implicit val formatTestAgent = Json.format[TestAgent]
 
   implicit val formatTestUser: Format[TestUser] = Union.from[TestUser]("userType")
     .and[TestIndividual](UserType.INDIVIDUAL.toString)
     .and[TestOrganisation](UserType.ORGANISATION.toString)
+    .and[TestAgent](UserType.AGENT.toString)
     .format
 
   implicit val formatCreateTestIndividualResponse = Json.format[TestIndividualCreatedResponse]
   implicit val formatCreateTestOrganisationResponse = Json.format[TestOrganisationCreatedResponse]
+  implicit val formatCreateTestAgentResponse = Json.format[TestAgentCreatedResponse]
 
   implicit val formatAuthenticationRequest = Json.format[AuthenticationRequest]
   implicit val formatAuthenticationResponse = Json.format[AuthenticationResponse]
 
   implicit val formatTestIndividualResponse = Json.format[TestIndividualResponse]
   implicit val formatTestOrganisationResponse = Json.format[TestOrganisationResponse]
+  implicit val formatTestAgentResponse = Json.format[TestAgentResponse]
 
   implicit val formatErrorCode = EnumJson.enumFormat(ErrorCode)
   implicit val formatErrorResponse = Json.format[ErrorResponse]
