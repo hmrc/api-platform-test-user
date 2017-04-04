@@ -39,7 +39,7 @@ class TestUserSpec extends BaseSpec {
     scenario("Create an individual") {
 
       When("I request the creation of an individual")
-      val createdResponse = Http(s"$serviceUrl/individual").postForm.asString
+      val createdResponse = Http(s"$serviceUrl/individuals").postForm.asString
 
       Then("The response contains the details of the individual created")
       createdResponse.code shouldBe SC_CREATED
@@ -55,7 +55,7 @@ class TestUserSpec extends BaseSpec {
     scenario("Create an organisation") {
 
       When("I request the creation of an organisation")
-      val createdResponse = Http(s"$serviceUrl/organisation").postForm.asString
+      val createdResponse = Http(s"$serviceUrl/organisations").postForm.asString
 
       Then("The response contains the details of the organisation created")
       createdResponse.code shouldBe SC_CREATED
@@ -134,12 +134,12 @@ class TestUserSpec extends BaseSpec {
   }
 
   private def createIndividual() = {
-    val individualCreatedResponse = Http(s"$serviceUrl/individual").postForm.asString
+    val individualCreatedResponse = Http(s"$serviceUrl/individuals").postForm.asString
     Json.parse(individualCreatedResponse.body).as[TestIndividualCreatedResponse]
   }
 
   private def createOrganisation() = {
-    val organisationCreatedResponse = Http(s"$serviceUrl/organisation").postForm.asString
+    val organisationCreatedResponse = Http(s"$serviceUrl/organisations").postForm.asString
     Json.parse(organisationCreatedResponse.body).as[TestOrganisationCreatedResponse]
   }
 
