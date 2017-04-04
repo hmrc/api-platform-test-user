@@ -47,8 +47,8 @@ trait TestUserService {
     testUserRepository.createUser(organisation.copy(password = hashedPassword)) map (_ => organisation)
   }
 
-  def createTestAgent() = {
-    val agent = generator.generateTestAgent()
+  def createTestAgent(request: CreateUserRequest) = {
+    val agent = generator.generateTestAgent(request.serviceNames)
     val hashedPassword = passwordService.hash(agent.password)
     testUserRepository.createUser(agent.copy(password = hashedPassword)) map (_ => agent)
   }

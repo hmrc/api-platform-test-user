@@ -24,7 +24,7 @@ import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
 import play.api.http.HeaderNames
 import play.api.http.Status.{CREATED, UNAUTHORIZED}
 import play.api.libs.json.Json
-import play.api.libs.json.Json.{obj, stringify}
+import play.api.libs.json.Json.{obj, stringify, toJson}
 import uk.gov.hmrc.testuser.models.ErrorResponse.invalidCredentialsError
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models._
@@ -71,7 +71,7 @@ class TestUserSpec extends BaseSpec {
     scenario("Create an agent") {
 
       When("I request the creation of an agent")
-      val createdResponse = Http(s"$serviceUrl/agent").postForm.asString
+      val createdResponse = createAgentResponse
 
       Then("The response contains the details of the agent created")
       createdResponse.code shouldBe SC_CREATED
@@ -178,8 +178,12 @@ class TestUserSpec extends BaseSpec {
     Json.parse(organisationCreatedResponse.body).as[TestOrganisationCreatedResponse]
   }
 
+  private def createAgentResponse() = Http(s"$serviceUrl/agent")
+    .postData(stringify(toJson(CreateUserRequest(Seq("agent-services")))))
+    .header(HeaderNames.CONTENT_TYPE, "application/json").asString
+
   private def createAgent() = {
-    val agentCreatedResponse = Http(s"$serviceUrl/agent").postForm.asString
+    val agentCreatedResponse = createAgentResponse
     Json.parse(agentCreatedResponse.body).as[TestAgentCreatedResponse]
   }
 

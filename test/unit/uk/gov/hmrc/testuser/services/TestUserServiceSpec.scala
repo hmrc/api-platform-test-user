@@ -112,10 +112,10 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
     "Generate an agent and save it in the database" in new Setup {
 
       val hashedPassword  = "hashedPassword"
-      given(underTest.generator.generateTestAgent()).willReturn(testAgent)
+      given(underTest.generator.generateTestAgent(any())).willReturn(testAgent)
       given(underTest.passwordService.hash(testAgent.password)).willReturn(hashedPassword)
 
-      val result = await(underTest.createTestAgent())
+      val result = await(underTest.createTestAgent(CreateUserRequest(Seq("some-service"))))
 
       result shouldBe testAgent
       verify(underTest.testUserRepository).createUser(testAgent.copy(password = hashedPassword))
