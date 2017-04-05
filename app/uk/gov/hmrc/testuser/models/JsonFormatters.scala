@@ -48,4 +48,8 @@ object JsonFormatters {
   implicit val formatTaxIdentifier = Json.format[TaxIdentifier]
   implicit val formatEnrolment = Json.format[Enrolment]
   implicit val formatGovernmentGatewayLogin = Json.format[GovernmentGatewayLogin]
+
+  implicit val formatDesSimulatorTestIndividual = Json.format[DesSimulatorTestIndividual]
+  implicit val formatDesSimulatorTestOrganisation = Json.format[DesSimulatorTestOrganisation]
+
 }

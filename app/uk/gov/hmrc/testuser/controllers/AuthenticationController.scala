@@ -19,29 +19,32 @@ package uk.gov.hmrc.testuser.controllers
 import javax.inject.Inject
 
 import play.api.Logger
-import play.api.libs.json.Json.toJson
+import play.api.http.HeaderNames
+import play.api.libs.json.Json._
 import play.api.mvc.{Action, Result}
 import uk.gov.hmrc.play.microservice.controller.BaseController
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.services._
+import uk.gov.hmrc.testuser.models.{AuthenticationRequest, AuthenticationResponse, ErrorResponse, InvalidCredentials}
+import uk.gov.hmrc.testuser.services.{AuthenticationService, AuthenticationServiceImpl}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait TestUserController extends BaseController {
+trait AuthenticationController extends BaseController {
 
-  val testUserService: TestUserService
+  val authenticationService: AuthenticationService
 
-  def createIndividual() = Action.async { implicit request =>
-    testUserService.createTestIndividual() map { individual =>
-      Created(toJson(TestIndividualCreatedResponse.from(individual)))
-    } recover recovery
-  }
-
-  def createOrganisation() = Action.async { implicit request =>
-    testUserService.createTestOrganisation() map { organisation =>
-      Created(toJson(TestOrganisationCreatedResponse.from(organisation)))
-    } recover recovery
+  def authenticate() = {
+    Action.async(parse.json) { implicit request =>
+      withJsonBody[AuthenticationRequest] {
+        authenticationService.authenticate(_) map { case (testUser, authSession) =>
+          Created(toJson(AuthenticationResponse(authSession.gatewayToken, testUser.affinityGroup))).withHeaders(
+            HeaderNames.AUTHORIZATION -> authSession.authBearerToken,
+            HeaderNames.LOCATION -> authSession.authorityUri)
+        }
+      } recover {
+        case _: InvalidCredentials => Unauthorized(toJson(ErrorResponse.invalidCredentialsError))
+      } recover recovery
+    }
   }
 
   private def recovery: PartialFunction[Throwable, Result] = {
@@ -51,4 +54,5 @@ trait TestUserController extends BaseController {
   }
 }
 
-class TestUserControllerImpl @Inject()(override val testUserService: TestUserServiceImpl) extends TestUserController
+class AuthenticationControllerImpl @Inject()(override val authenticationService: AuthenticationServiceImpl)
+  extends AuthenticationController
