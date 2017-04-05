@@ -179,7 +179,7 @@ class TestUserSpec extends BaseSpec {
   }
 
   private def createAgentResponse() = Http(s"$serviceUrl/agents")
-    .postData(stringify(toJson(CreateUserRequest(Seq("agent-services")))))
+    .postData("{}")
     .header(HeaderNames.CONTENT_TYPE, "application/json").asString
 
   private def createAgent() = {
