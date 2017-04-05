@@ -24,7 +24,7 @@ import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
 import play.api.http.HeaderNames
 import play.api.http.Status.{CREATED, UNAUTHORIZED}
 import play.api.libs.json.Json
-import play.api.libs.json.Json.{obj, stringify}
+import play.api.libs.json.Json.{obj, stringify, toJson}
 import uk.gov.hmrc.testuser.models.ErrorResponse.invalidCredentialsError
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models._
@@ -67,7 +67,28 @@ class TestUserSpec extends BaseSpec {
       organisationCreated shouldBe expectedOrganisationCreated
       validatePassword(organisationCreated.password, organisationFromMongo.password) shouldBe true
     }
+
+    scenario("Create an agent") {
+
+      When("I request the creation of an agent")
+      val createdResponse = createAgentResponse
+
+      Then("The response contains the details of the agent created")
+      createdResponse.code shouldBe SC_CREATED
+      val agentCreated = Json.parse(createdResponse.body).as[TestAgentCreatedResponse]
+
+      And("The agent is stored in Mongo with hashed password")
+      val agentFromMongo = result(mongoRepository.fetchByUserId(agentCreated.userId), timeout).get.asInstanceOf[TestAgent]
+      val expectedAgentCreated = TestAgentCreatedResponse.from(agentFromMongo.copy(password = agentCreated.password))
+      agentCreated shouldBe expectedAgentCreated
+      validatePassword(agentCreated.password, agentFromMongo.password) shouldBe true
+    }
   }
+
+
+  private def createAgentResponse() = Http(s"$serviceUrl/agents")
+    .postData("{}")
+    .header(HeaderNames.CONTENT_TYPE, "application/json").asString
 
   private def validatePassword(password: String, hashedPassword: String) =  BCryptUtils.checkpw(password, hashedPassword)
 }

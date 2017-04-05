@@ -18,5 +18,5 @@ package uk.gov.hmrc.testuser.models
 
 object UserType extends Enumeration {
   type UserType = Value
-  val INDIVIDUAL, ORGANISATION = Value
+  val INDIVIDUAL, ORGANISATION, AGENT = Value
 }

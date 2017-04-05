@@ -73,9 +73,28 @@ class AuthenticationSpec extends BaseSpec {
       response.headers(HeaderNames.AUTHORIZATION) shouldBe authSession.authBearerToken
     }
 
-    scenario("Username not found") {
+    scenario("Valid credentials for an agent") {
 
-      When("I authenticate with a username that does not exist")
+      Given("An agent")
+      val agent = createAgent()
+
+      And("The creation of auth session for the agent is successful")
+      val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
+      AuthLoginApiStub.willReturnTheSession(authSession)
+
+      When("I authenticate with the agents's credentials")
+      val response = authenticate(agent.userId, agent.password)
+
+      Then("The response contains the auth session and the 'Agent' affinity group")
+      response.code shouldBe CREATED
+      Json.parse(response.body).as[AuthenticationResponse] shouldBe AuthenticationResponse(authSession.gatewayToken, "Agent")
+      response.headers(HeaderNames.LOCATION) shouldBe authSession.authorityUri
+      response.headers(HeaderNames.AUTHORIZATION) shouldBe authSession.authBearerToken
+    }
+
+    scenario("UserId not found") {
+
+      When("I authenticate with a userId that does not exist")
       val response = authenticate("unknown_user", "password")
 
       Then("The response says that the credentials are invalid")
@@ -105,6 +124,15 @@ class AuthenticationSpec extends BaseSpec {
   private def createOrganisation() = {
     val organisationCreatedResponse = Http(s"$serviceUrl/organisations").postForm.asString
     Json.parse(organisationCreatedResponse.body).as[TestOrganisationCreatedResponse]
+  }
+
+  private def createAgentResponse() = Http(s"$serviceUrl/agents")
+    .postData("{}")
+    .header(HeaderNames.CONTENT_TYPE, "application/json").asString
+  
+  private def createAgent() = {
+    val agentCreatedResponse = createAgentResponse
+    Json.parse(agentCreatedResponse.body).as[TestAgentCreatedResponse]
   }
 
   private def authenticate(userId: String, password: String) = {

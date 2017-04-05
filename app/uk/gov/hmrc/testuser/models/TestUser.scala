@@ -25,7 +25,7 @@ sealed trait TestUser {
   val userId: String
   val password: String
   val affinityGroup: String
-  val mtdId: MtdId
+  val services: Option[Seq[String]]
   val _id: BSONObjectID
 }
 
@@ -34,6 +34,7 @@ case class TestIndividual(override val userId: String,
                           saUtr: SaUtr,
                           nino: Nino,
                           mtdId:MtdId,
+                          override val services: Option[Seq[String]] = None,
                           override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Individual"
 }
@@ -46,12 +47,22 @@ case class TestOrganisation(override val userId: String,
                             empRef: EmpRef,
                             ctUtr: CtUtr,
                             vrn: Vrn,
+                            override val services: Option[Seq[String]] = None,
                             override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Organisation"
 }
 
+case class TestAgent(override val userId: String,
+                            override val password: String,
+                            arn: AgentBusinessUtr,
+                            override val services: Option[Seq[String]] = None,
+                            override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
+  override val affinityGroup = "Agent"
+}
+
 case class TestIndividualCreatedResponse(userId: String, password: String, saUtr: SaUtr, nino: Nino)
 case class TestOrganisationCreatedResponse(userId: String, password: String, saUtr: SaUtr, empRef: EmpRef, ctUtr: CtUtr, vrn: Vrn)
+case class TestAgentCreatedResponse(userId: String, password: String, arn: AgentBusinessUtr)
 
 object TestIndividualCreatedResponse {
   def from(individual: TestIndividual) = TestIndividualCreatedResponse(individual.userId, individual.password, individual.saUtr, individual.nino)
@@ -60,6 +71,10 @@ object TestIndividualCreatedResponse {
 object TestOrganisationCreatedResponse {
   def from(organisation: TestOrganisation) = TestOrganisationCreatedResponse(organisation.userId, organisation.password, organisation.saUtr,
     organisation.empRef, organisation.ctUtr, organisation.vrn)
+}
+
+object TestAgentCreatedResponse {
+  def from(agent: TestAgent) = TestAgentCreatedResponse(agent.userId, agent.password, agent.arn)
 }
 
 sealed trait TestUserResponse {
@@ -83,6 +98,9 @@ case class TestOrganisationResponse(override val userId: String,
                                     ctUtr: CtUtr,
                                     vrn: Vrn,
                                     override val userType: UserType = UserType.ORGANISATION) extends TestUserResponse
+case class TestAgentResponse(userId: String,
+                            arn: AgentBusinessUtr,
+                            userType: UserType = UserType.AGENT)
 
 object TestIndividualResponse {
   def from(individual: TestIndividual) = TestIndividualResponse(individual.userId, individual.saUtr, individual.nino,
@@ -92,6 +110,10 @@ object TestIndividualResponse {
 object TestOrganisationResponse {
   def from(organisation: TestOrganisation) = TestOrganisationResponse(organisation.userId, organisation.saUtr,
     organisation.nino, organisation.mtdId, organisation.empRef, organisation.ctUtr, organisation.vrn)
+}
+
+object TestAgentResponse {
+  def from(agent: TestAgent) = TestAgentResponse(agent.userId, agent.arn)
 }
 
 case class DesSimulatorTestIndividual(val mtdId: MtdId, val nino: Nino, val saUtr: SaUtr)
@@ -120,6 +142,7 @@ case class MtdId(mtdId: String) extends TaxIdentifier with SimpleName {
   def formatted = value
 }
 
+
 object MtdId extends Modulus23Check with (String => MtdId) {
   implicit val mtdIdWrite: Writes[MtdId] = new SimpleObjectWrites[MtdId](_.value)
   implicit val mtdIdRead: Reads[MtdId] = new SimpleObjectReads[MtdId]("mtdId", MtdId.apply)
@@ -130,11 +153,4 @@ object MtdId extends Modulus23Check with (String => MtdId) {
   def isValid(mtdId: String) = {
     mtdId.matches(validMtdIdFormat) && isCheckCorrect(mtdId, 1)
   }
-
-  def generate(baseId: String) = {
-    val checkChar = calculateCheckCharacter(baseId)
-    val fullId = s"X$checkChar$baseId"
-    fullId
-  }
-
 }
