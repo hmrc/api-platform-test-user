@@ -18,7 +18,7 @@ package unit.uk.gov.hmrc.testuser.services
 
 import org.scalatest.matchers.{MatchResult, Matcher}
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.models.{TestOrganisation, TestIndividual, TestUser}
+import uk.gov.hmrc.testuser.models.{TestAgent, TestIndividual, TestOrganisation, TestUser}
 import uk.gov.hmrc.testuser.services.Generator
 import unit.uk.gov.hmrc.testuser.services.CustomMatchers.haveDifferentPropertiesThan
 
@@ -43,6 +43,16 @@ class GeneratorSpec extends UnitSpec {
       val organisation2 = underTest.generateTestOrganisation()
 
       organisation1 should haveDifferentPropertiesThan(organisation2)
+    }
+  }
+
+  "generateTestAgent" should {
+
+    "create a different test agent at every run" in {
+      val agent1 = underTest.generateTestAgent()
+      val agent2 = underTest.generateTestAgent()
+
+      agent1 should haveDifferentPropertiesThan(agent2)
     }
   }
 }
@@ -72,6 +82,10 @@ object CustomMatchers {
           o1.ctUtr != o2.ctUtr &&
           o1.empRef != o2.empRef &&
           o1.vrn != o2.vrn
+        case (a1: TestAgent, a2: TestAgent) => a1._id != a2._id &&
+          a1.userId != a2.userId &&
+          a1.password != a2.password &&
+          a1.arn != a2.arn
         case _ => false
       }
     }

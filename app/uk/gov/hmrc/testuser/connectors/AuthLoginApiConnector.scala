@@ -40,13 +40,14 @@ class AuthLoginApiConnector extends ServicesConfig {
 
       (response.header(AUTHORIZATION), response.header(LOCATION)) match {
         case (Some(authBearerToken), Some(authorityUri)) => AuthSession(authBearerToken, authorityUri, gatewayToken)
-        case _ =>  throw new RuntimeException(s"Authorization and Location header must be present in response.")
+        case _ => throw new RuntimeException(s"Authorization and Location header must be present in response.")
       }
     }
   }
 }
 
 case class TaxIdentifier(key: String, value: String)
+
 case class Enrolment(key: String, identifiers: Seq[TaxIdentifier], state: String = "Activated")
 
 case class GovernmentGatewayLogin(credId: String,
@@ -69,11 +70,36 @@ object GovernmentGatewayLogin {
         Enrolment("IR-CT", utr(organisation.ctUtr.toString)),
         Enrolment("HMCE-VATDEC-ORG", vrn(organisation.vrn.toString)),
         Enrolment("IR-PAYE", paye(organisation.empRef))))
+
+    case agent: TestAgent =>
+      GovernmentGatewayLogin(agent.userId, testUser.affinityGroup, None, enrolments(agent))
+  }
+
+
+  private def enrolments(user: TestUser): Seq[Enrolment] = {
+
+    def agentEnrolment(service: String, agent: TestAgent): Enrolment = {
+      service match {
+        case "agent-services" => Enrolment("HMRC-AS-AGENT", arn(agent.arn.toString()))
+      }
+    }
+
+    def defaultEnrolments(user: TestUser): Seq[String] = user match {
+      case agent: TestAgent => Seq("agent-services")
+    }
+
+    user match {
+      case agent: TestAgent => agent.services.getOrElse(defaultEnrolments(agent)).map(s => agentEnrolment(s, agent))
+    }
   }
 
   private def utr(saUtr: String) = Seq(TaxIdentifier("UTR", saUtr))
+
   private def vrn(vrn: String) = Seq(TaxIdentifier("VATRegNo", vrn))
+
   private def paye(empRef: EmpRef) = Seq(
     TaxIdentifier("TaxOfficeNumber", empRef.taxOfficeNumber),
     TaxIdentifier("TaxOfficeReference", empRef.taxOfficeReference))
+
+  private def arn(arn: String) = Seq(TaxIdentifier("AgentReferenceNumber", arn))
 }

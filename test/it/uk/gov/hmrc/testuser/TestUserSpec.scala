@@ -24,7 +24,7 @@ import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
 import play.api.http.HeaderNames
 import play.api.http.Status.{CREATED, UNAUTHORIZED}
 import play.api.libs.json.Json
-import play.api.libs.json.Json.{obj, stringify}
+import play.api.libs.json.Json.{obj, stringify, toJson}
 import uk.gov.hmrc.testuser.models.ErrorResponse.invalidCredentialsError
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models._
@@ -66,6 +66,22 @@ class TestUserSpec extends BaseSpec {
       val expectedOrganisationCreated = TestOrganisationCreatedResponse.from(organisationFromMongo.copy(password = organisationCreated.password))
       organisationCreated shouldBe expectedOrganisationCreated
       validatePassword(organisationCreated.password, organisationFromMongo.password) shouldBe true
+    }
+
+    scenario("Create an agent") {
+
+      When("I request the creation of an agent")
+      val createdResponse = createAgentResponse
+
+      Then("The response contains the details of the agent created")
+      createdResponse.code shouldBe SC_CREATED
+      val agentCreated = Json.parse(createdResponse.body).as[TestAgentCreatedResponse]
+
+      And("The agent is stored in Mongo with hashed password")
+      val agentFromMongo = result(mongoRepository.fetchByUserId(agentCreated.userId), timeout).get.asInstanceOf[TestAgent]
+      val expectedAgentCreated = TestAgentCreatedResponse.from(agentFromMongo.copy(password = agentCreated.password))
+      agentCreated shouldBe expectedAgentCreated
+      validatePassword(agentCreated.password, agentFromMongo.password) shouldBe true
     }
   }
 
@@ -109,6 +125,25 @@ class TestUserSpec extends BaseSpec {
       response.headers(HeaderNames.AUTHORIZATION) shouldBe authSession.authBearerToken
     }
 
+    scenario("Valid credentials for an agent") {
+
+      Given("An agent")
+      val agent = createAgent()
+
+      And("The creation of auth session for the agent is successful")
+      val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
+      AuthLoginApiStub.willReturnTheSession(authSession)
+
+      When("I authenticate with the agents's credentials")
+      val response = authenticate(agent.userId, agent.password)
+
+      Then("The response contains the auth session and the 'Agent' affinity group")
+      response.code shouldBe CREATED
+      Json.parse(response.body).as[AuthenticationResponse] shouldBe AuthenticationResponse(authSession.gatewayToken, "Agent")
+      response.headers(HeaderNames.LOCATION) shouldBe authSession.authorityUri
+      response.headers(HeaderNames.AUTHORIZATION) shouldBe authSession.authBearerToken
+    }
+
     scenario("UserId not found") {
 
       When("I authenticate with a userId that does not exist")
@@ -141,6 +176,15 @@ class TestUserSpec extends BaseSpec {
   private def createOrganisation() = {
     val organisationCreatedResponse = Http(s"$serviceUrl/organisations").postForm.asString
     Json.parse(organisationCreatedResponse.body).as[TestOrganisationCreatedResponse]
+  }
+
+  private def createAgentResponse() = Http(s"$serviceUrl/agents")
+    .postData("{}")
+    .header(HeaderNames.CONTENT_TYPE, "application/json").asString
+
+  private def createAgent() = {
+    val agentCreatedResponse = createAgentResponse
+    Json.parse(agentCreatedResponse.body).as[TestAgentCreatedResponse]
   }
 
   private def authenticate(userId: String, password: String) = {

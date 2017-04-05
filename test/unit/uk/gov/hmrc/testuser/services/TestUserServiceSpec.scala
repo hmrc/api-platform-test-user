@@ -42,6 +42,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
   val testIndividual = TestIndividual(userId, password, SaUtr("1555369052"), Nino("CC333333C"))
   val testOrganisation = TestOrganisation(userId, password, SaUtr("1555369052"), EmpRef("555","EIA000"),
     CtUtr("1555369053"), Vrn("999902541"))
+  val testAgent = TestAgent(userId, password, AgentBusinessUtr("NARN0396245"))
   val authSession = AuthSession("Bearer AUTH_TOKEN", "/auth/oid/12345", "gatewayToken")
   val storedTestIndividual = TestIndividual(userId, hashedPassword, SaUtr("1555369052"), Nino("CC333333C"))
 
@@ -95,6 +96,29 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
 
       result shouldBe testOrganisation
       verify(underTest.testUserRepository).createUser(testOrganisation.copy(password = hashedPassword))
+    }
+
+    "fail when the repository fails" in new Setup {
+
+      given(underTest.generator.generateTestOrganisation()).willReturn(testOrganisation)
+      given(underTest.testUserRepository.createUser(any[TestUser]())).willReturn(failed(new RuntimeException("test error")))
+
+      intercept[RuntimeException]{await(underTest.createTestIndividual())}
+    }
+  }
+
+  "createTestAgent" should {
+
+    "Generate an agent and save it in the database" in new Setup {
+
+      val hashedPassword  = "hashedPassword"
+      given(underTest.generator.generateTestAgent(any())).willReturn(testAgent)
+      given(underTest.passwordService.hash(testAgent.password)).willReturn(hashedPassword)
+
+      val result = await(underTest.createTestAgent(CreateUserRequest(Some(Seq("some-service")))))
+
+      result shouldBe testAgent
+      verify(underTest.testUserRepository).createUser(testAgent.copy(password = hashedPassword))
     }
 
     "fail when the repository fails" in new Setup {

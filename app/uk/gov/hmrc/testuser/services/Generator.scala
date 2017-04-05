@@ -18,7 +18,9 @@ package uk.gov.hmrc.testuser.services
 
 import org.scalacheck.Gen
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.testuser.models.{TestOrganisation, TestIndividual}
+import uk.gov.hmrc.testuser.models.{TestAgent, TestIndividual, TestOrganisation}
+
+import scala.util.Random
 
 
 trait Generator {
@@ -32,11 +34,14 @@ trait Generator {
     taxOfficeReference <- Gen.listOfN(10, Gen.alphaNumChar).map(_.mkString.toUpperCase)
   } yield EmpRef.fromIdentifiers(s"$taxOfficeNumber/$taxOfficeReference")
   private val vrnGenerator = Gen.choose(666000000, 666999999)
+  private val arnGenerator = new ArnGenerator()
 
-  def generateTestIndividual() = TestIndividual(generateUserId, generatePassword, generateSaUtr, generateNino)
+  def generateTestIndividual(services: Option[Seq[String]] = None) = TestIndividual(generateUserId, generatePassword, generateSaUtr, generateNino, services)
 
-  def generateTestOrganisation() =
-    TestOrganisation(generateUserId, generatePassword, generateSaUtr, generateEmpRef, generateCtUtr, generateVrn)
+  def generateTestOrganisation(services: Option[Seq[String]] = None) =
+    TestOrganisation(generateUserId, generatePassword, generateSaUtr, generateEmpRef, generateCtUtr, generateVrn, services)
+
+  def generateTestAgent(services: Option[Seq[String]] = None) = TestAgent(generateUserId, generatePassword, generateArn, services)
 
   private def generateUserId = userIdGenerator.sample.get
   private def generatePassword = passwordGenerator.sample.get
@@ -45,6 +50,17 @@ trait Generator {
   private def generateNino: Nino = ninoGenerator.nextNino
   private def generateCtUtr: CtUtr = CtUtr(utrGenerator.nextSaUtr.value)
   private def generateVrn: Vrn = Vrn(vrnGenerator.sample.get.toString)
+  private def generateArn: AgentBusinessUtr = arnGenerator.nextArn
 }
 
 object Generator extends Generator
+
+class ArnGenerator(random: Random = new Random) extends Modulus23Check {
+  def this(seed: Int) = this(new scala.util.Random(seed))
+
+  def nextArn: AgentBusinessUtr = {
+    val randomCode = "ARN" + f"${random.nextInt(1000000)}%07d"
+    val checkCharacter  = calculateCheckCharacter(randomCode)
+    AgentBusinessUtr(s"$checkCharacter$randomCode")
+  }
+}

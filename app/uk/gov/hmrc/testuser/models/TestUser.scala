@@ -24,6 +24,7 @@ sealed trait TestUser {
   val userId: String
   val password: String
   val affinityGroup: String
+  val services: Option[Seq[String]]
   val _id: BSONObjectID
 }
 
@@ -31,6 +32,7 @@ case class TestIndividual(override val userId: String,
                           override val password: String,
                           saUtr: SaUtr,
                           nino: Nino,
+                          override val services: Option[Seq[String]] = None,
                           override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Individual"
 }
@@ -41,12 +43,22 @@ case class TestOrganisation(override val userId: String,
                             empRef: EmpRef,
                             ctUtr: CtUtr,
                             vrn: Vrn,
+                            override val services: Option[Seq[String]] = None,
                             override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Organisation"
 }
 
+case class TestAgent(override val userId: String,
+                            override val password: String,
+                            arn: AgentBusinessUtr,
+                            override val services: Option[Seq[String]] = None,
+                            override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
+  override val affinityGroup = "Agent"
+}
+
 case class TestIndividualCreatedResponse(userId: String, password: String, saUtr: SaUtr, nino: Nino)
 case class TestOrganisationCreatedResponse(userId: String, password: String, saUtr: SaUtr, empRef: EmpRef, ctUtr: CtUtr, vrn: Vrn)
+case class TestAgentCreatedResponse(userId: String, password: String, arn: AgentBusinessUtr)
 
 object TestIndividualCreatedResponse {
   def from(individual: TestIndividual) = TestIndividualCreatedResponse(individual.userId, individual.password, individual.saUtr, individual.nino)
@@ -55,6 +67,10 @@ object TestIndividualCreatedResponse {
 object TestOrganisationCreatedResponse {
   def from(organisation: TestOrganisation) = TestOrganisationCreatedResponse(organisation.userId, organisation.password, organisation.saUtr,
     organisation.empRef, organisation.ctUtr, organisation.vrn)
+}
+
+object TestAgentCreatedResponse {
+  def from(agent: TestAgent) = TestAgentCreatedResponse(agent.userId, agent.password, agent.arn)
 }
 
 sealed trait TestUserResponse {
@@ -73,6 +89,9 @@ case class TestOrganisationResponse(override val userId: String,
                                     ctUtr: CtUtr,
                                     vrn: Vrn,
                                     override val userType: UserType = UserType.ORGANISATION) extends TestUserResponse
+case class TestAgentResponse(userId: String,
+                            arn: AgentBusinessUtr,
+                            userType: UserType = UserType.AGENT)
 
 object TestIndividualResponse {
   def from(individual: TestIndividual) = TestIndividualResponse(individual.userId, individual.saUtr, individual.nino)
@@ -81,4 +100,8 @@ object TestIndividualResponse {
 object TestOrganisationResponse {
   def from(organisation: TestOrganisation) = TestOrganisationResponse(organisation.userId, organisation.saUtr,
     organisation.empRef, organisation.ctUtr, organisation.vrn)
+}
+
+object TestAgentResponse{
+  def from(agent: TestAgent) = TestAgentResponse(agent.userId, agent.arn)
 }
