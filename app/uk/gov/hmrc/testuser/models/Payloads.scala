@@ -24,7 +24,7 @@ case class AuthenticationResponse(gatewayToken: String, affinityGroup: String)
 
 case class AuthSession(authBearerToken: String, authorityUri: String, gatewayToken: String)
 
-case class CreateUserRequest(serviceNames: Seq[String])
+case class CreateUserRequest(serviceNames: Option[Seq[String]])
 
 object LegacySandboxUser {
   private val userId = "user1"

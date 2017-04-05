@@ -72,22 +72,26 @@ object GovernmentGatewayLogin {
         Enrolment("IR-PAYE", paye(organisation.empRef))))
 
     case agent: TestAgent =>
-      GovernmentGatewayLogin(agent.userId, testUser.affinityGroup, None, enrolements(agent))
+      GovernmentGatewayLogin(agent.userId, testUser.affinityGroup, None, enrolments(agent))
   }
 
 
-  private def enrolements(user: TestUser): Seq[Enrolment] = {
-    def agentEnrolement(service: String, agent: TestAgent): Enrolment = {
+  private def enrolments(user: TestUser): Seq[Enrolment] = {
+
+    def agentEnrolment(service: String, agent: TestAgent): Enrolment = {
       service match {
         case "agent-services" => Enrolment("HMRC-AS-AGENT", arn(agent.arn.toString()))
       }
     }
 
+    def defaultEnrolments(user: TestUser): Seq[String] = user match {
+      case agent: TestAgent => Seq("agent-services")
+    }
+
     user match {
-      case agent: TestAgent => agent.services.map(s => agentEnrolement(s, agent))
+      case agent: TestAgent => agent.services.getOrElse(defaultEnrolments(agent)).map(s => agentEnrolment(s, agent))
     }
   }
-
 
   private def utr(saUtr: String) = Seq(TaxIdentifier("UTR", saUtr))
 
@@ -97,6 +101,5 @@ object GovernmentGatewayLogin {
     TaxIdentifier("TaxOfficeNumber", empRef.taxOfficeNumber),
     TaxIdentifier("TaxOfficeReference", empRef.taxOfficeReference))
 
-  // TODO - check what the key should be
-  private def arn(arn: String) = Seq(TaxIdentifier("AgentBusinessUtr", arn))
+  private def arn(arn: String) = Seq(TaxIdentifier("AgentReferenceNumber", arn))
 }

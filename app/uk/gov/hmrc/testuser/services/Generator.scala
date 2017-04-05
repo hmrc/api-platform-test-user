@@ -36,12 +36,12 @@ trait Generator {
   private val vrnGenerator = Gen.choose(666000000, 666999999)
   private val arnGenerator = new ArnGenerator()
 
-  def generateTestIndividual(services: Seq[String] = Seq.empty) = TestIndividual(generateUserId, generatePassword, generateSaUtr, generateNino, services)
+  def generateTestIndividual(services: Option[Seq[String]] = None) = TestIndividual(generateUserId, generatePassword, generateSaUtr, generateNino, services)
 
-  def generateTestOrganisation(services: Seq[String] = Seq.empty) =
+  def generateTestOrganisation(services: Option[Seq[String]] = None) =
     TestOrganisation(generateUserId, generatePassword, generateSaUtr, generateEmpRef, generateCtUtr, generateVrn, services)
 
-  def generateTestAgent(services: Seq[String] = Seq.empty) = TestAgent(generateUserId, generatePassword, generateArn, services)
+  def generateTestAgent(services: Option[Seq[String]] = None) = TestAgent(generateUserId, generatePassword, generateArn, services)
 
   private def generateUserId = userIdGenerator.sample.get
   private def generatePassword = passwordGenerator.sample.get

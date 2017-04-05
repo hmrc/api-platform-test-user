@@ -49,7 +49,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   val testIndividual = TestIndividual(user, password, saUtr, nino)
   val testOrganisation = TestOrganisation(user, password, saUtr, empRef, ctUtr, vrn)
   val testAgent = TestAgent(user, password, arn)
-  val createUserServices = CreateUserRequest(Seq("service1"))
+  val createUserServices = CreateUserRequest(Some(Seq("service1")))
 
   val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
 
