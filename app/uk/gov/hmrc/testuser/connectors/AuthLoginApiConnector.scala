@@ -84,12 +84,8 @@ object GovernmentGatewayLogin {
       }
     }
 
-    def defaultEnrolments(user: TestUser): Seq[String] = user match {
-      case agent: TestAgent => Seq("agent-services")
-    }
-
     user match {
-      case agent: TestAgent => agent.services.getOrElse(defaultEnrolments(agent)).map(s => agentEnrolment(s, agent))
+      case agent: TestAgent => agent.services.getOrElse(Seq.empty).map(s => agentEnrolment(s, agent))
     }
   }
 
