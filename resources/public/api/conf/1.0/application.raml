@@ -56,16 +56,7 @@ uses:
       body:
         application/json:
           schema: !include schemas/create-request.json
-          examples:
-            defaultServices:
-              description: Request for default service enrolments
-              value: !include examples/create-default-request.json
-            withServices:
-              description: Request for defined service enrolments
-              value: !include examples/create-service-request.json
-            noServices:
-               description: Request for no service enrolments
-               value: !include examples/create-no-service-request.json
+          example: !include examples/create-request.json
       responses:
               201:
                 description: The agent test user resource has been created.
