@@ -129,7 +129,7 @@ class AuthenticationSpec extends BaseSpec {
   private def createAgentResponse() = Http(s"$serviceUrl/agents")
     .postData("{}")
     .header(HeaderNames.CONTENT_TYPE, "application/json").asString
-  
+
   private def createAgent() = {
     val agentCreatedResponse = createAgentResponse
     Json.parse(agentCreatedResponse.body).as[TestAgentCreatedResponse]
