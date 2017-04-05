@@ -45,7 +45,7 @@ class AuthenticationSpec extends BaseSpec {
       AuthLoginApiStub.willReturnTheSession(authSession)
 
       When("I authenticate with the individual's credentials")
-      val response = authenticate(individual.username, individual.password)
+      val response = authenticate(individual.userId, individual.password)
 
       Then("The response contains the auth session and the 'Individual' affinity group")
       response.code shouldBe CREATED
@@ -64,7 +64,7 @@ class AuthenticationSpec extends BaseSpec {
       AuthLoginApiStub.willReturnTheSession(authSession)
 
       When("I authenticate with the organisation's credentials")
-      val response = authenticate(organisation.username, organisation.password)
+      val response = authenticate(organisation.userId, organisation.password)
 
       Then("The response contains the auth session and the 'Organisation' affinity group")
       response.code shouldBe CREATED
@@ -89,7 +89,7 @@ class AuthenticationSpec extends BaseSpec {
       val individualCreated = createIndividual()
 
       When("I authenticate with a wrong password")
-      val response = authenticate(individualCreated.username, "wrongPassword")
+      val response = authenticate(individualCreated.userId, "wrongPassword")
 
       Then("The response says that the credentials are invalid")
       response.code shouldBe UNAUTHORIZED
@@ -98,18 +98,18 @@ class AuthenticationSpec extends BaseSpec {
   }
 
   private def createIndividual() = {
-    val individualCreatedResponse = Http(s"$serviceUrl/individual").postForm.asString
+    val individualCreatedResponse = Http(s"$serviceUrl/individuals").postForm.asString
     Json.parse(individualCreatedResponse.body).as[TestIndividualCreatedResponse]
   }
 
   private def createOrganisation() = {
-    val organisationCreatedResponse = Http(s"$serviceUrl/organisation").postForm.asString
+    val organisationCreatedResponse = Http(s"$serviceUrl/organisations").postForm.asString
     Json.parse(organisationCreatedResponse.body).as[TestOrganisationCreatedResponse]
   }
 
-  private def authenticate(username: String, password: String) = {
+  private def authenticate(userId: String, password: String) = {
     Http(s"$serviceUrl/session")
-      .postData(stringify(obj("username" -> username, "password" -> password)))
+      .postData(stringify(obj("userId" -> userId, "password" -> password)))
       .header(HeaderNames.CONTENT_TYPE, "application/json").asString
   }
 }

@@ -61,12 +61,12 @@ object CustomMatchers {
     private def allFieldsDifferent(leftUser: TestUser) = {
       (leftUser, right) match {
         case (i1: TestIndividual, i2: TestIndividual) => i1._id != i2._id  &&
-            i1.username != i2.username &&
+            i1.userId != i2.userId &&
             i1.password != i2.password &&
             i1.nino != i2.nino &&
             i1.saUtr != i2.saUtr
         case (o1: TestOrganisation, o2: TestOrganisation) => o1._id != o2._id &&
-          o1.username != o2.username &&
+          o1.userId != o2.userId &&
           o1.password != o2.password &&
           o1.saUtr != o2.saUtr &&
           o1.ctUtr != o2.ctUtr &&
