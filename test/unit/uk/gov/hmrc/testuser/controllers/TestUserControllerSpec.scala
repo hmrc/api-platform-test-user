@@ -47,15 +47,23 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   val ctUtr = CtUtr("1555369053")
   val vrn = Vrn("999902541")
   val empRef = EmpRef("555","EIA000")
+  val arn = AgentBusinessUtr("NARN0396245")
 
   val testIndividual = TestIndividual(user, password, saUtr, nino, mtdId)
   val testOrganisation = TestOrganisation(user, password, saUtr, nino, mtdId, empRef, ctUtr, vrn)
+  val testAgent = TestAgent(user, password, arn)
+  val createUserServices = CreateUserRequest(Some(Seq("service1")))
 
   trait Setup {
     implicit lazy val materializer = fakeApplication.materializer
     implicit val hc = HeaderCarrier()
 
     val createRequest = FakeRequest()
+
+    def createAgentRequest = {
+      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["service1"]}""")
+      FakeRequest().withBody[JsValue](jsonPayload)
+    }
 
     def authenticationRequest(usr: String, pwd: String) = {
       val jsonPayload: JsValue = Json.parse(s"""{ "userId": "$usr", "password" :"$pwd" }""")
@@ -115,6 +123,29 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
         status(result) shouldBe INTERNAL_SERVER_ERROR
         jsonBodyOf(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
       }
+    }
+  }
+
+  "createAgent" should {
+
+    "return 201 (Created) with the created agent" in new Setup {
+
+      given(underTest.testUserService.createTestAgent(createUserServices)).willReturn(testAgent)
+
+      val result = await(underTest.createAgent()(createAgentRequest))
+
+      status(result) shouldBe CREATED
+      jsonBodyOf(result) shouldBe toJson(TestAgentCreatedResponse(user, password, arn))
+    }
+
+    "fail with 500 (Internal Server Error) when the creation of the agent failed" in new Setup {
+
+      given(underTest.testUserService.createTestAgent(any[CreateUserRequest])).willReturn(failed(new RuntimeException("test error")))
+
+      val result = await(underTest.createAgent()(createAgentRequest))
+
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+      jsonBodyOf(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
     }
   }
 }

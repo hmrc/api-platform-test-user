@@ -44,6 +44,14 @@ trait TestUserController extends BaseController {
     } recover recovery
   }
 
+  def createAgent() = Action.async(parse.json) { implicit request =>
+    withJsonBody[CreateUserRequest] {
+      testUserService.createTestAgent(_) map { agent =>
+        Created(toJson(TestAgentCreatedResponse.from(agent)))
+      }
+    } recover recovery
+  }
+
   private def recovery: PartialFunction[Throwable, Result] = {
     case e =>
       Logger.error(s"An unexpected error occurred: ${e.getMessage}", e)

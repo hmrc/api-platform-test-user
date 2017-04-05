@@ -55,6 +55,12 @@ trait TestUserService {
       _ => organisation
     }
   }
+
+  def createTestAgent(request: CreateUserRequest) = {
+    val agent = generator.generateTestAgent(request.serviceNames)
+    val hashedPassword = passwordService.hash(agent.password)
+    testUserRepository.createUser(agent.copy(password = hashedPassword)) map (_ => agent)
+  }
 }
 
 class TestUserServiceImpl @Inject()(override val passwordService: PasswordServiceImpl,
