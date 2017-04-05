@@ -18,7 +18,9 @@ package uk.gov.hmrc.testuser.services
 
 import org.scalacheck.Gen
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.testuser.models.{TestOrganisation, TestIndividual}
+import uk.gov.hmrc.testuser.models.{MtdId, TestIndividual, TestOrganisation}
+
+import scala.util.Random
 
 
 trait Generator {
@@ -32,11 +34,12 @@ trait Generator {
     taxOfficeReference <- Gen.listOfN(10, Gen.alphaNumChar).map(_.mkString.toUpperCase)
   } yield EmpRef.fromIdentifiers(s"$taxOfficeNumber/$taxOfficeReference")
   private val vrnGenerator = Gen.choose(666000000, 666999999)
+  private val mtdIdGenerator = new MtdIdGenerator()
 
-  def generateTestIndividual() = TestIndividual(generateUsername, generatePassword, generateSaUtr, generateNino)
+  def generateTestIndividual() = TestIndividual(generateUsername, generatePassword, generateSaUtr, generateNino, generateMtdId)
 
   def generateTestOrganisation() =
-    TestOrganisation(generateUsername, generatePassword, generateSaUtr, generateEmpRef, generateCtUtr, generateVrn)
+    TestOrganisation(generateUsername, generatePassword, generateSaUtr, generateNino, generateMtdId, generateEmpRef, generateCtUtr, generateVrn)
 
   private def generateUsername = usernameGenerator.sample.get
   private def generatePassword = passwordGenerator.sample.get
@@ -45,6 +48,17 @@ trait Generator {
   private def generateNino: Nino = ninoGenerator.nextNino
   private def generateCtUtr: CtUtr = CtUtr(utrGenerator.nextSaUtr.value)
   private def generateVrn: Vrn = Vrn(vrnGenerator.sample.get.toString)
+  private def generateMtdId: MtdId = mtdIdGenerator.nextMtdId
 }
 
 object Generator extends Generator
+
+class MtdIdGenerator(random: Random = new Random) extends Modulus23Check {
+  def this(seed: Int) = this(new scala.util.Random(seed))
+
+  def nextMtdId = {
+    val randomCode = "IT" + f"${random.nextInt(1000000)}%011d"
+    val checkCharacter = calculateCheckCharacter(randomCode)
+    MtdId(s"X$checkCharacter$randomCode")
+  }
+}

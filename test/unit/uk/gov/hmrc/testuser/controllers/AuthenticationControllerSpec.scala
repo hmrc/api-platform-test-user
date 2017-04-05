@@ -29,14 +29,14 @@ import play.api.test._
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import uk.gov.hmrc.testuser.controllers.TestUserController
+import uk.gov.hmrc.testuser.controllers.{AuthenticationController, TestUserController}
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.services.TestUserService
+import uk.gov.hmrc.testuser.services.{AuthenticationService, TestUserService}
 
 import scala.concurrent.Future.{failed, successful}
 
-class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with LogSuppressing {
+class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with LogSuppressing {
 
   val user = "user"
   val password = "password"
@@ -51,6 +51,8 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   val testIndividual = TestIndividual(user, password, saUtr, nino, mtdId)
   val testOrganisation = TestOrganisation(user, password, saUtr, nino, mtdId, empRef, ctUtr, vrn)
 
+  val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
+
   trait Setup {
     implicit lazy val materializer = fakeApplication.materializer
     implicit val hc = HeaderCarrier()
@@ -62,58 +64,46 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
-    val underTest = new TestUserController {
-      override val testUserService: TestUserService = mock[TestUserService]
+    val underTest = new AuthenticationController {
+      override val authenticationService: AuthenticationService = mock[AuthenticationService]
     }
   }
 
-  "createIndividual" should {
+  "authenticate" should {
 
-    "return 201 (Created) with the created individual" in new Setup {
+    "return 201 (Created), with the auth session and affinity group, when both username and password are correct" in new Setup {
 
-      given(underTest.testUserService.createTestIndividual()(any())).willReturn(testIndividual)
+      given(underTest.authenticationService.authenticate(refEq(AuthenticationRequest(user, password)))(any()))
+        .willReturn(successful((testIndividual, authSession)))
 
-      val result = await(underTest.createIndividual()(createRequest))
-
-      status(result) shouldBe CREATED
-      jsonBodyOf(result) shouldBe toJson(TestIndividualCreatedResponse(user, password, saUtr, nino))
-    }
-
-    "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        given(underTest.testUserService.createTestIndividual()(any()))
-          .willReturn(failed(new RuntimeException("expected test error")))
-
-        val result = await(underTest.createIndividual()(createRequest))
-
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        jsonBodyOf(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
-      }
-    }
-
-  }
-
-  "createOrganisation" should {
-
-    "return 201 (Created) with the created organisation" in new Setup {
-
-      given(underTest.testUserService.createTestOrganisation()(any())).willReturn(testOrganisation)
-
-      val result = await(underTest.createOrganisation()(createRequest))
+      val result = await(underTest.authenticate()(authenticationRequest(user, password)))
 
       status(result) shouldBe CREATED
-      jsonBodyOf(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, saUtr, empRef, ctUtr, vrn))
+      jsonBodyOf(result) shouldBe toJson(AuthenticationResponse(authSession.gatewayToken, testIndividual.affinityGroup))
+      result.header.headers(HeaderNames.AUTHORIZATION) shouldBe authSession.authBearerToken
+      result.header.headers(HeaderNames.LOCATION) shouldBe authSession.authorityUri
     }
 
-    "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
+    "return 401 (Unauthorized) when the credentials are not valid" in new Setup {
+
+      given(underTest.authenticationService.authenticate(refEq(AuthenticationRequest(user, password)))(any()))
+        .willReturn(failed(InvalidCredentials("")))
+
+      val result = await(underTest.authenticate()(authenticationRequest(user, password)))
+
+      status(result) shouldBe UNAUTHORIZED
+      jsonBodyOf(result) shouldBe toJson(ErrorResponse.invalidCredentialsError)
+    }
+
+    "fail with 500 (Internal Server Error) when an error occured " in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        given(underTest.testUserService.createTestOrganisation()(any()))
+        given(underTest.authenticationService.authenticate(refEq(AuthenticationRequest(user, password)))(any()))
           .willReturn(failed(new RuntimeException("expected test error")))
 
-        val result = await(underTest.createOrganisation()(createRequest))
+        val result = await(underTest.authenticate()(authenticationRequest(user, password)))
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
-        jsonBodyOf(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
+        jsonBodyOf(result) shouldBe toJson(ErrorResponse.internalServerError)
       }
     }
   }

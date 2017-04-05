@@ -19,7 +19,7 @@ package uk.gov.hmrc.testuser.services
 import javax.inject.Inject
 
 import uk.gov.hmrc.play.http.HeaderCarrier
-import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
+import uk.gov.hmrc.testuser.connectors.{AuthLoginApiConnector, DesSimulatorConnector, DesSimulatorConnectorImpl}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.LegacySandboxUser._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
@@ -33,40 +33,32 @@ trait TestUserService {
   val generator: Generator
   val testUserRepository: TestUserRepository
   val passwordService: PasswordService
-  val authLoginApiConnector: AuthLoginApiConnector
+  val desSimulatorConnector: DesSimulatorConnector
 
-  def createTestIndividual() = {
+  def createTestIndividual()(implicit hc: HeaderCarrier) = {
     val individual = generator.generateTestIndividual()
     val hashedPassword = passwordService.hash(individual.password)
-    testUserRepository.createUser(individual.copy(password = hashedPassword)) map (_ => individual)
+
+    testUserRepository.createUser(individual.copy(password = hashedPassword)) map {
+      desSimulatorConnector.createIndividual(_)
+    } map {
+      _ => individual
+    }
   }
 
-  def createTestOrganisation() = {
+  def createTestOrganisation()(implicit hc: HeaderCarrier) = {
     val organisation = generator.generateTestOrganisation()
     val hashedPassword = passwordService.hash(organisation.password)
-    testUserRepository.createUser(organisation.copy(password = hashedPassword)) map (_ => organisation)
-  }
-
-  def authenticate(authReq: AuthenticationRequest)(implicit hc: HeaderCarrier): Future[(TestUser, AuthSession)] = {
-    val userFuture = authReq match {
-      case `sandboxAuthenticationRequest` => successful(sandboxUser)
-      case _ => testUserRepository.fetchByUsername(authReq.username).map {
-        case Some(u: TestUser) if passwordService.validate(authReq.password, u.password) => u
-        case None =>
-          throw InvalidCredentials(s"Username not found: ${authReq.username}")
-        case _ =>
-          throw InvalidCredentials(s"Invalid password for username: ${authReq.username}")
-      }
+    testUserRepository.createUser(organisation.copy(password = hashedPassword)) map {
+      desSimulatorConnector.createOrganisation(_)
+    } map {
+      _ => organisation
     }
-    for {
-      user <- userFuture
-      authSession <- authLoginApiConnector.createSession(user)
-    } yield (user, authSession)
   }
 }
 
 class TestUserServiceImpl @Inject()(override val passwordService: PasswordServiceImpl,
-                                    override val authLoginApiConnector: AuthLoginApiConnector) extends TestUserService {
+                                    override val desSimulatorConnector: DesSimulatorConnectorImpl) extends TestUserService {
   override val generator: Generator = Generator
   override val testUserRepository = TestUserRepository()
 }

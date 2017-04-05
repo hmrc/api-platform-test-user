@@ -25,7 +25,7 @@ import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
+import uk.gov.hmrc.testuser.connectors.{AuthLoginApiConnector, DesSimulatorConnector}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.LegacySandboxUser._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
@@ -39,11 +39,10 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
   val username = "user"
   val password = "password"
   val hashedPassword = "hashedPassword"
-  val testIndividual = TestIndividual(username, password, SaUtr("1555369052"), Nino("CC333333C"))
-  val testOrganisation = TestOrganisation(username, password, SaUtr("1555369052"), EmpRef("555","EIA000"),
-    CtUtr("1555369053"), Vrn("999902541"))
-  val authSession = AuthSession("Bearer AUTH_TOKEN", "/auth/oid/12345", "gatewayToken")
-  val storedTestIndividual = TestIndividual(username, hashedPassword, SaUtr("1555369052"), Nino("CC333333C"))
+  val testIndividual = TestIndividual(username, password, SaUtr("1555369052"), Nino("CC333333C"),
+    MtdId("XGIT00000000054"))
+  val testOrganisation = TestOrganisation(username, password, SaUtr("1555369052"), Nino("CC333333C"),
+    MtdId("XGIT00000000054"), EmpRef("555","EIA000"), CtUtr("1555369053"), Vrn("999902541"))
 
   trait Setup {
     implicit val hc = HeaderCarrier()
@@ -52,7 +51,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
       override val generator: Generator = mock[Generator]
       override val testUserRepository: TestUserRepository = mock[TestUserRepository]
       override val passwordService: PasswordService = mock[PasswordService]
-      override val authLoginApiConnector = mock[AuthLoginApiConnector]
+      override val desSimulatorConnector: DesSimulatorConnector = mock[DesSimulatorConnector]
     }
     when(underTest.testUserRepository.createUser(any[TestUser]())).thenAnswer(sameUserCreated)
     when(underTest.testUserRepository.fetchByUsername(anyString())).thenReturn(successful(None))
@@ -71,7 +70,10 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
       val result = await(underTest.createTestIndividual())
 
       result shouldBe testIndividual
-      verify(underTest.testUserRepository).createUser(testIndividual.copy(password = hashedPassword))
+
+      val testIndividualWithHashedPassword = testIndividual.copy(password = hashedPassword)
+      verify(underTest.testUserRepository).createUser(testIndividualWithHashedPassword)
+      verify(underTest.desSimulatorConnector).createIndividual(testIndividualWithHashedPassword)
     }
 
     "fail when the repository fails" in new Setup {
@@ -94,7 +96,10 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
       val result = await(underTest.createTestOrganisation())
 
       result shouldBe testOrganisation
-      verify(underTest.testUserRepository).createUser(testOrganisation.copy(password = hashedPassword))
+
+      val testOrgWithHashedPassword = testOrganisation.copy(password = hashedPassword)
+      verify(underTest.testUserRepository).createUser(testOrgWithHashedPassword)
+      verify(underTest.desSimulatorConnector).createOrganisation(testOrgWithHashedPassword)
     }
 
     "fail when the repository fails" in new Setup {
@@ -104,43 +109,6 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
 
       intercept[RuntimeException]{await(underTest.createTestIndividual())}
     }
-  }
-
-  "authenticate" should {
-
-    "return the user and auth session when the credentials are valid" in new Setup {
-
-      given(underTest.testUserRepository.fetchByUsername(username)).willReturn(Some(storedTestIndividual))
-      given(underTest.authLoginApiConnector.createSession(storedTestIndividual)).willReturn(authSession)
-
-      val result = await(underTest.authenticate(AuthenticationRequest(username, password)))
-
-      result shouldBe storedTestIndividual -> authSession
-    }
-
-    "return the user and auth session for the sandbox user when I authenticate with user1/password1" in new Setup {
-
-      given(underTest.authLoginApiConnector.createSession(sandboxUser)).willReturn(authSession)
-
-      val result = await(underTest.authenticate(AuthenticationRequest("user1", "password1")))
-
-      result shouldBe sandboxUser -> authSession
-    }
-
-    "fail with InvalidCredentials when the user does not exist" in new Setup {
-
-      given(underTest.testUserRepository.fetchByUsername(username)).willReturn(None)
-
-      intercept[InvalidCredentials]{await(underTest.authenticate(AuthenticationRequest(username, password)))}
-    }
-
-    "fail with InvalidCredentials when the password is invalid" in new Setup {
-      given(underTest.testUserRepository.fetchByUsername(username)).willReturn(Some(storedTestIndividual))
-      given(underTest.authLoginApiConnector.createSession(storedTestIndividual)).willReturn(authSession)
-
-      intercept[InvalidCredentials]{await(underTest.authenticate(AuthenticationRequest(username, "wrong password")))}
-    }
-
   }
 
   val sameUserCreated = new Answer[Future[TestUser]] {
