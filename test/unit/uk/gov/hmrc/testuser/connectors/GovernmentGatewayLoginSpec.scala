@@ -29,12 +29,10 @@ class GovernmentGatewayLoginSpec extends UnitSpec{
   val arn = AgentBusinessUtr("NARN0396245")
 
   "Create TestAgent with no services" should {
-    "contain default enrolments" in {
+    "contain no enrolments" in {
 
       val testAgent = TestAgent(user, password, arn, None)
-      val enrolments = GovernmentGatewayLogin(testAgent).enrolments
-      enrolments.size shouldBe 1
-      enrolments.head shouldBe Enrolment("HMRC-AS-AGENT", Seq(TaxIdentifier("AgentReferenceNumber", arn.utr)), "Activated")
+      GovernmentGatewayLogin(testAgent).enrolments shouldBe empty
     }
   }
 
