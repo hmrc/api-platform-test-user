@@ -58,7 +58,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
     val createRequest = FakeRequest()
 
     def authenticationRequest(usr: String, pwd: String) = {
-      val jsonPayload: JsValue = Json.parse(s"""{ "username": "$usr", "password" :"$pwd" }""")
+      val jsonPayload: JsValue = Json.parse(s"""{ "userId": "$usr", "password" :"$pwd" }""")
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 

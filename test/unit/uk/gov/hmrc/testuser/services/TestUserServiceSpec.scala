@@ -36,12 +36,12 @@ import scala.concurrent.Future.{failed, successful}
 
 class TestUserServiceSpec extends UnitSpec with MockitoSugar {
 
-  val username = "user"
+  val userId = "user"
   val password = "password"
   val hashedPassword = "hashedPassword"
-  val testIndividual = TestIndividual(username, password, SaUtr("1555369052"), Nino("CC333333C"),
+  val testIndividual = TestIndividual(userId, password, SaUtr("1555369052"), Nino("CC333333C"),
     MtdId("XGIT00000000054"))
-  val testOrganisation = TestOrganisation(username, password, SaUtr("1555369052"), Nino("CC333333C"),
+  val testOrganisation = TestOrganisation(userId, password, SaUtr("1555369052"), Nino("CC333333C"),
     MtdId("XGIT00000000054"), EmpRef("555","EIA000"), CtUtr("1555369053"), Vrn("999902541"))
 
   trait Setup {
@@ -54,7 +54,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
       override val desSimulatorConnector: DesSimulatorConnector = mock[DesSimulatorConnector]
     }
     when(underTest.testUserRepository.createUser(any[TestUser]())).thenAnswer(sameUserCreated)
-    when(underTest.testUserRepository.fetchByUsername(anyString())).thenReturn(successful(None))
+    when(underTest.testUserRepository.fetchByUserId(anyString())).thenReturn(successful(None))
     when(underTest.passwordService.validate(anyString(), anyString())).thenReturn(false)
     when(underTest.passwordService.validate(password, hashedPassword)).thenReturn(true)
   }

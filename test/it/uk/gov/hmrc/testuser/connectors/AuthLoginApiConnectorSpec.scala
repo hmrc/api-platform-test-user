@@ -68,7 +68,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
         .withRequestBody(equalToJson(
         s"""
           |{
-          |   "credId": "${testIndividual.username}",
+          |   "credId": "${testIndividual.userId}",
           |   "affinityGroup": "Individual",
           |   "nino": "${testIndividual.nino}",
           |   "confidenceLevel": 200,
@@ -97,7 +97,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
       AuthLoginApiStub.mock.verifyThat(postRequestedFor(urlPathEqualTo("/government-gateway/legacy/login")).withRequestBody(equalToJson(
         s"""
            |{
-           |   "credId": "${testOrganisation.username}",
+           |   "credId": "${testOrganisation.userId}",
            |   "affinityGroup": "Organisation",
            |   "confidenceLevel": 200,
            |   "credentialStrength": "strong",

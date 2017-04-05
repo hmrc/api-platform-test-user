@@ -39,14 +39,14 @@ class TestUserSpec extends BaseSpec {
     scenario("Create an individual") {
 
       When("I request the creation of an individual")
-      val createdResponse = Http(s"$serviceUrl/individual").postForm.asString
+      val createdResponse = Http(s"$serviceUrl/individuals").postForm.asString
 
       Then("The response contains the details of the individual created")
       createdResponse.code shouldBe SC_CREATED
       val individualCreated = Json.parse(createdResponse.body).as[TestIndividualCreatedResponse]
 
       And("The individual is stored in Mongo with hashed password")
-      val individualFromMongo = result(mongoRepository.fetchByUsername(individualCreated.username), timeout).get.asInstanceOf[TestIndividual]
+      val individualFromMongo = result(mongoRepository.fetchByUserId(individualCreated.userId), timeout).get.asInstanceOf[TestIndividual]
       val expectedIndividualCreated = TestIndividualCreatedResponse.from(individualFromMongo.copy(password = individualCreated.password))
       individualCreated shouldBe expectedIndividualCreated
       validatePassword(individualCreated.password, individualFromMongo.password) shouldBe true
@@ -55,14 +55,14 @@ class TestUserSpec extends BaseSpec {
     scenario("Create an organisation") {
 
       When("I request the creation of an organisation")
-      val createdResponse = Http(s"$serviceUrl/organisation").postForm.asString
+      val createdResponse = Http(s"$serviceUrl/organisations").postForm.asString
 
       Then("The response contains the details of the organisation created")
       createdResponse.code shouldBe SC_CREATED
       val organisationCreated = Json.parse(createdResponse.body).as[TestOrganisationCreatedResponse]
 
       And("The organisation is stored in Mongo with hashed password")
-      val organisationFromMongo = result(mongoRepository.fetchByUsername(organisationCreated.username), timeout).get.asInstanceOf[TestOrganisation]
+      val organisationFromMongo = result(mongoRepository.fetchByUserId(organisationCreated.userId), timeout).get.asInstanceOf[TestOrganisation]
       val expectedOrganisationCreated = TestOrganisationCreatedResponse.from(organisationFromMongo.copy(password = organisationCreated.password))
       organisationCreated shouldBe expectedOrganisationCreated
       validatePassword(organisationCreated.password, organisationFromMongo.password) shouldBe true

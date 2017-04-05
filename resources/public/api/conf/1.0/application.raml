@@ -1,7 +1,7 @@
 #%RAML 1.0
 ---
 
-title: API Platform Test User
+title: Create Test User
 version: 1.0
 protocols: [ HTTPS ]
 baseUri: https://api.service.hmrc.gov.uk/
@@ -23,7 +23,7 @@ uses:
   types: https://developer.service.hmrc.gov.uk/api-documentation/assets/common/modules/types.raml
 
 /api-platform-test-user:
-  /individual:
+  /individuals:
     post:
       displayName: Create a test user which is an individual
       description: This resource creates and returns a test user which is an individual
@@ -35,7 +35,7 @@ uses:
           body:
             application/json:
               example: !include examples/individual-response.json
-  /organisation:
+  /organisations:
     post:
       displayName: Create a test user which is an organisation
       description: This resource creates and returns a test user which is an organisation
