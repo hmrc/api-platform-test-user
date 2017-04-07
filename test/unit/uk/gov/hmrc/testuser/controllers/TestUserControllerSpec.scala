@@ -43,16 +43,18 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
   val saUtr = SaUtr("1555369052")
   val nino = Nino("CC333333C")
-  val mtdId = MtdId("XGIT00000000054")
+  val mtdItId = MtdItId("XGIT00000000054")
   val ctUtr = CtUtr("1555369053")
   val vrn = Vrn("999902541")
   val empRef = EmpRef("555","EIA000")
   val arn = AgentBusinessUtr("NARN0396245")
 
-  val testIndividual = TestIndividual(user, password, saUtr, nino, mtdId)
-  val testOrganisation = TestOrganisation(user, password, saUtr, nino, mtdId, empRef, ctUtr, vrn)
+  val testIndividual = TestIndividual(user, password, saUtr, nino, mtdItId)
+  val testOrganisation = TestOrganisation(user, password, saUtr, nino, mtdItId, empRef, ctUtr, vrn)
   val testAgent = TestAgent(user, password, arn)
-  val createUserServices = CreateUserRequest(Some(Seq("service1")))
+  val createIndividualServices = Seq(ServiceName.NATIONAL_INSURANCE)
+  val createOrganisationServices = Seq(ServiceName.NATIONAL_INSURANCE)
+  val createAgentServices = Seq(ServiceName.AGENT_SERVICES)
 
   trait Setup {
     implicit lazy val materializer = fakeApplication.materializer
@@ -60,8 +62,18 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     val createRequest = FakeRequest()
 
+    def createIndividualRequest = {
+      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["national-insurance"]}""")
+      FakeRequest().withBody[JsValue](jsonPayload)
+    }
+
+    def createOrganisationRequest = {
+      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["national-insurance"]}""")
+      FakeRequest().withBody[JsValue](jsonPayload)
+    }
+
     def createAgentRequest = {
-      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["service1"]}""")
+      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["agent-services"]}""")
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
@@ -79,9 +91,9 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     "return 201 (Created) with the created individual" in new Setup {
 
-      given(underTest.testUserService.createTestIndividual()(any())).willReturn(testIndividual)
+      given(underTest.testUserService.createTestIndividual(refEq(createIndividualServices))(any())).willReturn(testIndividual)
 
-      val result = await(underTest.createIndividual()(createRequest))
+      val result = await(underTest.createIndividual()(createIndividualRequest))
 
       status(result) shouldBe CREATED
       jsonBodyOf(result) shouldBe toJson(TestIndividualCreatedResponse(user, password, saUtr, nino))
@@ -89,10 +101,10 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        given(underTest.testUserService.createTestIndividual()(any()))
+        given(underTest.testUserService.createTestIndividual(any())(any()))
           .willReturn(failed(new RuntimeException("expected test error")))
 
-        val result = await(underTest.createIndividual()(createRequest))
+        val result = await(underTest.createIndividual()(createIndividualRequest))
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
         jsonBodyOf(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
@@ -105,9 +117,9 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     "return 201 (Created) with the created organisation" in new Setup {
 
-      given(underTest.testUserService.createTestOrganisation()(any())).willReturn(testOrganisation)
+      given(underTest.testUserService.createTestOrganisation(refEq(createOrganisationServices))(any())).willReturn(testOrganisation)
 
-      val result = await(underTest.createOrganisation()(createRequest))
+      val result = await(underTest.createOrganisation()(createOrganisationRequest))
 
       status(result) shouldBe CREATED
       jsonBodyOf(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, saUtr, empRef, ctUtr, vrn))
@@ -115,10 +127,10 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        given(underTest.testUserService.createTestOrganisation()(any()))
+        given(underTest.testUserService.createTestOrganisation(any())(any()))
           .willReturn(failed(new RuntimeException("expected test error")))
 
-        val result = await(underTest.createOrganisation()(createRequest))
+        val result = await(underTest.createOrganisation()(createOrganisationRequest))
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
         jsonBodyOf(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
@@ -130,7 +142,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     "return 201 (Created) with the created agent" in new Setup {
 
-      given(underTest.testUserService.createTestAgent(createUserServices)).willReturn(testAgent)
+      given(underTest.testUserService.createTestAgent(createAgentServices)).willReturn(testAgent)
 
       val result = await(underTest.createAgent()(createAgentRequest))
 
@@ -139,13 +151,15 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
     }
 
     "fail with 500 (Internal Server Error) when the creation of the agent failed" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
+        given(underTest.testUserService.createTestAgent(any()))
+          .willReturn(failed(new RuntimeException("expected test error")))
 
-      given(underTest.testUserService.createTestAgent(any[CreateUserRequest])).willReturn(failed(new RuntimeException("test error")))
+        val result = await(underTest.createAgent()(createAgentRequest))
 
-      val result = await(underTest.createAgent()(createAgentRequest))
-
-      status(result) shouldBe INTERNAL_SERVER_ERROR
-      jsonBodyOf(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        jsonBodyOf(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
+      }
     }
   }
 }

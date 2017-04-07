@@ -17,20 +17,20 @@
 package unit.uk.gov.hmrc.testuser.models
 
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.models.MtdId
+import uk.gov.hmrc.testuser.models.MtdItId
 
 class TestUserSpec extends UnitSpec {
 
   "MTD ID should accept a valid ID" in {
 
-    val mtdId = MtdId("XGIT00000000054")
+    val mtdItId = MtdItId("XGIT00000000054")
 
-    mtdId.toString shouldBe "XGIT00000000054"
+    mtdItId.toString shouldBe "XGIT00000000054"
   }
 
   "MTD ID should not accept an ID with invalid checksum" in {
     intercept[IllegalArgumentException] {
-      MtdId("XXIT00000000054")
+      MtdItId("XXIT00000000054")
     }
   }
 }

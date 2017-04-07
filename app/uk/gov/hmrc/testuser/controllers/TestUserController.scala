@@ -32,21 +32,25 @@ trait TestUserController extends BaseController {
 
   val testUserService: TestUserService
 
-  def createIndividual() = Action.async { implicit request =>
-    testUserService.createTestIndividual() map { individual =>
-      Created(toJson(TestIndividualCreatedResponse.from(individual)))
-    } recover recovery
+  def createIndividual() = Action.async(parse.json) { implicit request =>
+    withJsonBody[CreateUserRequest] { createUserRequest =>
+      testUserService.createTestIndividual(createUserRequest.serviceNames.getOrElse(Seq.empty)) map { individual =>
+        Created(toJson(TestIndividualCreatedResponse.from(individual)))
+      }
+    }recover recovery
   }
 
-  def createOrganisation() = Action.async { implicit request =>
-    testUserService.createTestOrganisation() map { organisation =>
-      Created(toJson(TestOrganisationCreatedResponse.from(organisation)))
-    } recover recovery
+  def createOrganisation() = Action.async(parse.json) { implicit request =>
+    withJsonBody[CreateUserRequest] { createUserRequest =>
+      testUserService.createTestOrganisation(createUserRequest.serviceNames.getOrElse(Seq.empty)) map { organisation =>
+        Created(toJson(TestOrganisationCreatedResponse.from(organisation)))
+      }
+    }recover recovery
   }
 
   def createAgent() = Action.async(parse.json) { implicit request =>
-    withJsonBody[CreateUserRequest] {
-      testUserService.createTestAgent(_) map { agent =>
+    withJsonBody[CreateUserRequest] { createUserRequest =>
+      testUserService.createTestAgent(createUserRequest.serviceNames.getOrElse(Seq.empty)) map { agent =>
         Created(toJson(TestAgentCreatedResponse.from(agent)))
       }
     } recover recovery

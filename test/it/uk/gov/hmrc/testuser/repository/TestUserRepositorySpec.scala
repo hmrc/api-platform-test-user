@@ -28,9 +28,9 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
 
   private val repository = new TestUserMongoRepository
   val testIndividual = TestIndividual("individualUser", "password", SaUtr("1555369052"), Nino("CC333333C"),
-    MtdId("XGIT00000000054"))
+    MtdItId("XGIT00000000054"))
   val testOrganisation = TestOrganisation("organisationUser", "password", SaUtr("1555369052"), Nino("CC333333C"),
-    MtdId("XGIT00000000054"), EmpRef("555","EIA000"), CtUtr("1555369053"), Vrn("999902541"))
+    MtdItId("XGIT00000000054"), EmpRef("555","EIA000"), CtUtr("1555369053"), Vrn("999902541"))
 
   override def beforeEach() {
     await(repository.drop)

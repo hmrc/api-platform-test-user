@@ -117,23 +117,24 @@ class AuthenticationSpec extends BaseSpec {
   }
 
   private def createIndividual() = {
-    val individualCreatedResponse = Http(s"$serviceUrl/individuals").postForm.asString
+    val individualCreatedResponse = createUser("individuals", Seq("national-insurance"))
     Json.parse(individualCreatedResponse.body).as[TestIndividualCreatedResponse]
   }
 
   private def createOrganisation() = {
-    val organisationCreatedResponse = Http(s"$serviceUrl/organisations").postForm.asString
+    val organisationCreatedResponse = createUser("organisations", Seq("national-insurance", "mtd-income-tax"))
     Json.parse(organisationCreatedResponse.body).as[TestOrganisationCreatedResponse]
   }
 
-  private def createAgentResponse() = Http(s"$serviceUrl/agents")
-    .postData("{}")
-    .header(HeaderNames.CONTENT_TYPE, "application/json").asString
-
   private def createAgent() = {
-    val agentCreatedResponse = createAgentResponse
+    val agentCreatedResponse = createUser("agents", Seq("agent-services"))
     Json.parse(agentCreatedResponse.body).as[TestAgentCreatedResponse]
   }
+
+  private def createUser(endpoint: String, serviceNames: Seq[String]) =
+    Http(s"$serviceUrl/$endpoint")
+      .postData(s"""{ "serviceNames": [${serviceNames.mkString("\"", "\",\"", "\"")}] }""")
+      .header(HeaderNames.CONTENT_TYPE, "application/json").asString
 
   private def authenticate(userId: String, password: String) = {
     Http(s"$serviceUrl/session")

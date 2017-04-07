@@ -25,20 +25,17 @@ import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 trait DesSimulatorConnector extends ServicesConfig {
   lazy val serviceUrl: String = baseUrl("des-simulator")
 
-  def createIndividual(individual: TestIndividual)(implicit hc:HeaderCarrier) = {
-    WSHttp.POST(s"$serviceUrl/test-users/individuals", DesSimulatorTestIndividual.from(individual)) map { response =>
-      true
-    }
+  def createIndividual(individual: TestIndividual)(implicit hc:HeaderCarrier): Future[TestIndividual] = {
+    WSHttp.POST(s"$serviceUrl/test-users/individuals", DesSimulatorTestIndividual.from(individual)) map { request => individual }
   }
 
-  def createOrganisation(organisation: TestOrganisation)(implicit hc:HeaderCarrier) = {
-    WSHttp.POST(s"$serviceUrl/test-users/organisations", DesSimulatorTestOrganisation.from(organisation)) map { response =>
-      true
-    }
+  def createOrganisation(organisation: TestOrganisation)(implicit hc:HeaderCarrier): Future[TestOrganisation] = {
+    WSHttp.POST(s"$serviceUrl/test-users/organisations", DesSimulatorTestOrganisation.from(organisation)) map { request => organisation }
   }
 }
 

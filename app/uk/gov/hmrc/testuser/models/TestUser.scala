@@ -19,13 +19,25 @@ package uk.gov.hmrc.testuser.models
 import play.api.libs.json.{Format, Reads, Writes}
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.domain._
+import uk.gov.hmrc.testuser.models.ServiceName.ServiceName
 import uk.gov.hmrc.testuser.models.UserType.UserType
+
+object ServiceName extends Enumeration {
+  type ServiceName = Value
+  val NATIONAL_INSURANCE = Value("national-insurance")
+  val SELF_ASSESSMENT = Value("self-assessment")
+  val CORPORATION_TAX = Value("corporation-tax")
+  val PAYE_FOR_EMPLOYERS = Value("paye-for-employers")
+  val SUBMIT_VAT_RETURNS = Value("submit-vat-returns")
+  val MTD_INCOME_TAX = Value("mtd-income-tax")
+  val AGENT_SERVICES = Value("agent-services")
+}
 
 sealed trait TestUser {
   val userId: String
   val password: String
   val affinityGroup: String
-  val services: Option[Seq[String]]
+  val services: Seq[ServiceName]
   val _id: BSONObjectID
 }
 
@@ -33,8 +45,8 @@ case class TestIndividual(override val userId: String,
                           override val password: String,
                           saUtr: SaUtr,
                           nino: Nino,
-                          mtdId:MtdId,
-                          override val services: Option[Seq[String]] = None,
+                          mtdItId:MtdItId,
+                          override val services: Seq[ServiceName] = Seq.empty,
                           override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Individual"
 }
@@ -43,11 +55,11 @@ case class TestOrganisation(override val userId: String,
                             override val password: String,
                             saUtr: SaUtr,
                             nino: Nino,
-                            mtdId: MtdId,
+                            mtdItId: MtdItId,
                             empRef: EmpRef,
                             ctUtr: CtUtr,
                             vrn: Vrn,
-                            override val services: Option[Seq[String]] = None,
+                            override val services: Seq[ServiceName] = Seq.empty,
                             override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Organisation"
 }
@@ -55,7 +67,7 @@ case class TestOrganisation(override val userId: String,
 case class TestAgent(override val userId: String,
                             override val password: String,
                             arn: AgentBusinessUtr,
-                            override val services: Option[Seq[String]] = None,
+                            override val services: Seq[ServiceName] = Seq.empty,
                             override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Agent"
 }
@@ -81,19 +93,19 @@ sealed trait TestUserResponse {
   val userId: String
   val saUtr: SaUtr
   val nino: Nino
-  val mtdId: MtdId
+  val mtdItId: MtdItId
   val userType: UserType
 }
 
 case class TestIndividualResponse(override val userId: String,
                                   override val saUtr: SaUtr,
                                   override val nino: Nino,
-                                  override val mtdId: MtdId,
+                                  override val mtdItId: MtdItId,
                                   override val userType: UserType = UserType.INDIVIDUAL) extends TestUserResponse
 case class TestOrganisationResponse(override val userId: String,
                                     override val saUtr: SaUtr,
                                     override val nino: Nino,
-                                    override val mtdId: MtdId,
+                                    override val mtdItId: MtdItId,
                                     empRef: EmpRef,
                                     ctUtr: CtUtr,
                                     vrn: Vrn,
@@ -104,53 +116,53 @@ case class TestAgentResponse(userId: String,
 
 object TestIndividualResponse {
   def from(individual: TestIndividual) = TestIndividualResponse(individual.userId, individual.saUtr, individual.nino,
-    individual.mtdId)
+    individual.mtdItId)
 }
 
 object TestOrganisationResponse {
   def from(organisation: TestOrganisation) = TestOrganisationResponse(organisation.userId, organisation.saUtr,
-    organisation.nino, organisation.mtdId, organisation.empRef, organisation.ctUtr, organisation.vrn)
+    organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn)
 }
 
 object TestAgentResponse {
   def from(agent: TestAgent) = TestAgentResponse(agent.userId, agent.arn)
 }
 
-case class DesSimulatorTestIndividual(val mtdId: MtdId, val nino: Nino, val saUtr: SaUtr)
+case class DesSimulatorTestIndividual(val mtdItId: MtdItId, val nino: Nino, val saUtr: SaUtr)
 
 object DesSimulatorTestIndividual {
-  def from(individual: TestIndividual) = DesSimulatorTestIndividual(individual.mtdId, individual.nino, individual.saUtr)
+  def from(individual: TestIndividual) = DesSimulatorTestIndividual(individual.mtdItId, individual.nino, individual.saUtr)
 }
 
-case class DesSimulatorTestOrganisation(val mtdId: MtdId, val nino: Nino,
-                               val saUtr: SaUtr, val ctUtr: CtUtr,
-                               val empRef: EmpRef, val vrn: Vrn)
+case class DesSimulatorTestOrganisation(val mtdItId: MtdItId, val nino: Nino,
+                                        val saUtr: SaUtr, val ctUtr: CtUtr,
+                                        val empRef: EmpRef, val vrn: Vrn)
 
 object DesSimulatorTestOrganisation {
-  def from(organisation: TestOrganisation) = DesSimulatorTestOrganisation(organisation.mtdId,
+  def from(organisation: TestOrganisation) = DesSimulatorTestOrganisation(organisation.mtdItId,
     organisation.nino, organisation.saUtr, organisation.ctUtr, organisation.empRef, organisation.vrn)
 }
 
-case class MtdId(mtdId: String) extends TaxIdentifier with SimpleName {
-  require(MtdId.isValid(mtdId), s"$mtdId is not a valid MTD ID.")
-  override def toString = mtdId
+case class MtdItId(mtdItId: String) extends TaxIdentifier with SimpleName {
+  require(MtdItId.isValid(mtdItId), s"$mtdItId is not a valid MTDITID.")
+  override def toString = mtdItId
 
-  def value = mtdId
+  def value = mtdItId
 
-  val name = "mtdId"
+  val name = "mtdItId"
 
   def formatted = value
 }
 
 
-object MtdId extends Modulus23Check with (String => MtdId) {
-  implicit val mtdIdWrite: Writes[MtdId] = new SimpleObjectWrites[MtdId](_.value)
-  implicit val mtdIdRead: Reads[MtdId] = new SimpleObjectReads[MtdId]("mtdId", MtdId.apply)
-  implicit val mtdIdFormat: Format[MtdId] = Format(mtdIdRead, mtdIdWrite)
+object MtdItId extends Modulus23Check with (String => MtdItId) {
+  implicit val mtdItIdWrite: Writes[MtdItId] = new SimpleObjectWrites[MtdItId](_.value)
+  implicit val mtdItIdRead: Reads[MtdItId] = new SimpleObjectReads[MtdItId]("mtdItId", MtdItId.apply)
+  implicit val mtdItIdFormat: Format[MtdItId] = Format(mtdItIdRead, mtdItIdWrite)
 
-  private val validMtdIdFormat = "^X[A-Z]IT[0-9]{11}$"
+  private val validMtdItIdFormat = "^X[A-Z]IT[0-9]{11}$"
 
-  def isValid(mtdId: String) = {
-    mtdId.matches(validMtdIdFormat) && isCheckCorrect(mtdId, 1)
+  def isValid(mtdItId: String) = {
+    mtdItId.matches(validMtdItIdFormat) && isCheckCorrect(mtdItId, 1)
   }
 }
