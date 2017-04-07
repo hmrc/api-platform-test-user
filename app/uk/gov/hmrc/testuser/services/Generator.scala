@@ -18,7 +18,7 @@ package uk.gov.hmrc.testuser.services
 
 import org.scalacheck.Gen
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.testuser.models.ServiceName.ServiceName
+import uk.gov.hmrc.testuser.models.ServiceName._
 import uk.gov.hmrc.testuser.models.{MtdItId, TestAgent, TestIndividual, TestOrganisation}
 
 import scala.util.Random
@@ -38,12 +38,29 @@ trait Generator {
   private val arnGenerator = new ArnGenerator()
   private val mtdItIdGenerator = new MtdItIdGenerator()
 
-  def generateTestIndividual(services: Seq[ServiceName] = Seq.empty) = TestIndividual(generateUserId, generatePassword, generateSaUtr, generateNino, generateMtdId, services)
+  def generateTestIndividual(services: Seq[ServiceName] = Seq.empty) = {
+    val saUtr = if (services.contains(SELF_ASSESSMENT)) Some(generateSaUtr) else None
+    val nino = if (services.contains(NATIONAL_INSURANCE)) Some(generateNino) else None
+    val mtdItId = if(services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
 
-  def generateTestOrganisation(services: Seq[ServiceName] = Seq.empty) =
-    TestOrganisation(generateUserId, generatePassword, generateSaUtr, generateNino, generateMtdId, generateEmpRef, generateCtUtr, generateVrn, services)
+    TestIndividual(generateUserId, generatePassword, saUtr, nino, mtdItId, services)
+  }
 
-  def generateTestAgent(services: Seq[ServiceName] = Seq.empty) = TestAgent(generateUserId, generatePassword, generateArn, services)
+  def generateTestOrganisation(services: Seq[ServiceName] = Seq.empty) = {
+    val saUtr = if (services.contains(SELF_ASSESSMENT)) Some(generateSaUtr) else None
+    val nino = if (services.contains(NATIONAL_INSURANCE)) Some(generateNino) else None
+    val mtdItId = if (services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
+    val empRef = if (services.contains(PAYE_FOR_EMPLOYERS)) Some(generateEmpRef) else None
+    val ctUtr = if (services.contains(CORPORATION_TAX)) Some(generateCtUtr) else None
+    val vrn = if (services.contains(SUBMIT_VAT_RETURNS)) Some(generateVrn) else None
+
+    TestOrganisation(generateUserId, generatePassword, saUtr, nino, mtdItId, empRef, ctUtr, vrn, services)
+  }
+
+  def generateTestAgent(services: Seq[ServiceName] = Seq.empty) = {
+    val arn = if (services.contains(AGENT_SERVICES)) Some(generateArn) else None
+    TestAgent(generateUserId, generatePassword, arn, services)
+  }
 
   private def generateUserId = userIdGenerator.sample.get
   private def generatePassword = passwordGenerator.sample.get

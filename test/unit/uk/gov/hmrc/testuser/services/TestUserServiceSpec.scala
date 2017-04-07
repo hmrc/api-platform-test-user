@@ -19,7 +19,7 @@ package unit.uk.gov.hmrc.testuser.services
 import common.LogSuppressing
 import org.mockito.BDDMockito.given
 import org.mockito.Matchers.{any, anyString}
-import org.mockito.Mockito.{verify, when, times}
+import org.mockito.Mockito.{times, verify, when}
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.scalatest.mock.MockitoSugar
@@ -28,8 +28,10 @@ import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
+import uk.gov.hmrc.testuser.models.ServiceName.{ServiceName => _, _}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
+import uk.gov.hmrc.testuser.services.Generator._
 import uk.gov.hmrc.testuser.services.{Generator, PasswordService, TestUserService}
 
 import scala.concurrent.Future
@@ -42,20 +44,15 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   val hashedPassword = "hashedPassword"
 
   val individualServices = Seq(ServiceName.NATIONAL_INSURANCE, ServiceName.MTD_INCOME_TAX)
-  val testIndividualWithNoServices = TestIndividual(userId, password, SaUtr("1555369052"), Nino("CC333333C"),
-    MtdItId("XGIT00000000054"))
+  val testIndividualWithNoServices = generateTestIndividual().copy(userId = userId, password = password)
   val testIndividual = testIndividualWithNoServices.copy(services = individualServices)
 
   val organisationServices = Seq(ServiceName.NATIONAL_INSURANCE, ServiceName.MTD_INCOME_TAX)
-  val testOrganisationWithNoServices = TestOrganisation(userId, password, SaUtr("1555369052"), Nino("CC333333C"),
-    MtdItId("XGIT00000000054"), EmpRef("555","EIA000"), CtUtr("1555369053"), Vrn("999902541"))
+  val testOrganisationWithNoServices = generateTestOrganisation().copy(userId = userId, password = password)
   val testOrganisation = testOrganisationWithNoServices.copy(services = organisationServices)
 
   val agentServices = Seq(ServiceName.AGENT_SERVICES)
-  val testAgent = TestAgent(userId, password, AgentBusinessUtr("NARN0396245"), agentServices)
-
-  val authSession = AuthSession("Bearer AUTH_TOKEN", "/auth/oid/12345", "gatewayToken")
-  val storedTestIndividual = TestIndividual(userId, hashedPassword, SaUtr("1555369052"), Nino("CC333333C"), MtdItId("XGIT00000000054"))
+  val testAgent = generateTestAgent(agentServices).copy(userId = userId, password = password)
 
   trait Setup {
     implicit val hc = HeaderCarrier()

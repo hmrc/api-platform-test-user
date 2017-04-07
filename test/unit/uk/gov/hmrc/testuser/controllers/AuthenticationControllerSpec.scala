@@ -32,6 +32,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.controllers.{AuthenticationController, TestUserController}
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.models.ServiceName._
 import uk.gov.hmrc.testuser.services.{AuthenticationService, TestUserService}
 
 import scala.concurrent.Future.{failed, successful}
@@ -48,8 +49,11 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with WithF
   val vrn = Vrn("999902541")
   val empRef = EmpRef("555","EIA000")
 
-  val testIndividual = TestIndividual(user, password, saUtr, nino, mtdItId)
-  val testOrganisation = TestOrganisation(user, password, saUtr, nino, mtdItId, empRef, ctUtr, vrn)
+  val testIndividual = TestIndividual(user, password, Some(saUtr), Some(nino), Some(mtdItId),
+    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX))
+
+  val testOrganisation = TestOrganisation(user, password, Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn),
+    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, PAYE_FOR_EMPLOYERS, CORPORATION_TAX, SUBMIT_VAT_RETURNS))
 
   val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
 
