@@ -5,4 +5,4 @@ POST        /organisations          @uk.gov.hmrc.testuser.controllers.TestUserCo
 POST        /agents                 @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.createAgent
 
 
-POST        /session                @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.authenticate
+POST        /session                @uk.gov.hmrc.testuser.controllers.AuthenticationControllerImpl.authenticate

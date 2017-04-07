@@ -20,16 +20,18 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.mongo.MongoSpecSupport
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.testuser.models.ServiceName._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserMongoRepository
+import uk.gov.hmrc.testuser.services.Generator._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with BeforeAndAfterAll with MongoSpecSupport {
 
   private val repository = new TestUserMongoRepository
-  val testIndividual = TestIndividual("individualUser", "password", SaUtr("1555369052"), Nino("CC333333C"))
-  val testOrganisation = TestOrganisation("organisationUser", "password", SaUtr("1555369052"), EmpRef("555","EIA000"),
-    CtUtr("1555369053"), Vrn("999902541"))
+  val testIndividual = generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE))
+  val testOrganisation = generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX))
 
   override def beforeEach() {
     await(repository.drop)
