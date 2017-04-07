@@ -24,6 +24,7 @@ import uk.gov.hmrc.testuser.connectors.{TaxIdentifier, Enrolment, GovernmentGate
 object JsonFormatters {
 
   implicit val formatObjectId = ReactiveMongoFormats.objectIdFormats
+  implicit val formatServiceName = EnumJson.enumFormat(ServiceName)
   implicit val formatUserType = EnumJson.enumFormat(UserType)
   implicit val formatTestIndividual = Json.format[TestIndividual]
   implicit val formatTestOrganisation = Json.format[TestOrganisation]

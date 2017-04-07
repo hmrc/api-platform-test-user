@@ -23,14 +23,16 @@ import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
-import uk.gov.hmrc.testuser.models.{AuthSession, MtdId, TestIndividual, TestOrganisation}
+import uk.gov.hmrc.testuser.models.{AuthSession, MtdItId, TestIndividual, TestOrganisation}
+import uk.gov.hmrc.testuser.models.ServiceName._
 
 class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with WithFakeApplication {
 
   val testIndividual = TestIndividual("individualUser", "password", SaUtr("1555369052"), Nino("CC333333C"),
-    MtdId("XGIT00000000054"))
+    MtdItId("XGIT00000000054"), Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE))
   val testOrganisation = TestOrganisation("organisationUser", "password", SaUtr("1555369052"), Nino("CC333333C"),
-    MtdId("XGIT00000000054"), EmpRef("555","EIA000"), CtUtr("1555369053"), Vrn("999902541"))
+    MtdItId("XGIT00000000054"), EmpRef("555","EIA000"), CtUtr("1555369053"), Vrn("999902541"),
+    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS))
 
   val authSession = AuthSession("Bearer 12345", "/auth/oid/12345", "ggToken")
 

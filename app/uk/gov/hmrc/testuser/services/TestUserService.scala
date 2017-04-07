@@ -22,6 +22,7 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.testuser.connectors.{AuthLoginApiConnector, DesSimulatorConnector, DesSimulatorConnectorImpl}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.LegacySandboxUser._
+import uk.gov.hmrc.testuser.models.ServiceName._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,29 +36,31 @@ trait TestUserService {
   val passwordService: PasswordService
   val desSimulatorConnector: DesSimulatorConnector
 
-  def createTestIndividual()(implicit hc: HeaderCarrier) = {
-    val individual = generator.generateTestIndividual()
+  def createTestIndividual(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier) = {
+    val individual = generator.generateTestIndividual(serviceNames)
     val hashedPassword = passwordService.hash(individual.password)
 
     testUserRepository.createUser(individual.copy(password = hashedPassword)) map {
-      desSimulatorConnector.createIndividual(_)
+      case createdIndividual if createdIndividual.services.contains(ServiceName.MTD_INCOME_TAX) => desSimulatorConnector.createIndividual(createdIndividual)
+      case _ => Future.successful(individual)
     } map {
       _ => individual
     }
   }
 
-  def createTestOrganisation()(implicit hc: HeaderCarrier) = {
-    val organisation = generator.generateTestOrganisation()
+  def createTestOrganisation(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier) = {
+    val organisation = generator.generateTestOrganisation(serviceNames)
     val hashedPassword = passwordService.hash(organisation.password)
     testUserRepository.createUser(organisation.copy(password = hashedPassword)) map {
-      desSimulatorConnector.createOrganisation(_)
+      case createdOrganisation if createdOrganisation.services.contains(ServiceName.MTD_INCOME_TAX) => desSimulatorConnector.createOrganisation(createdOrganisation)
+      case _ => Future.successful(organisation)
     } map {
       _ => organisation
     }
   }
 
-  def createTestAgent(request: CreateUserRequest) = {
-    val agent = generator.generateTestAgent(request.serviceNames)
+  def createTestAgent(serviceNames: Seq[ServiceName]) = {
+    val agent = generator.generateTestAgent(serviceNames)
     val hashedPassword = passwordService.hash(agent.password)
     testUserRepository.createUser(agent.copy(password = hashedPassword)) map (_ => agent)
   }

@@ -43,13 +43,13 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with WithF
 
   val saUtr = SaUtr("1555369052")
   val nino = Nino("CC333333C")
-  val mtdId = MtdId("XGIT00000000054")
+  val mtdItId = MtdItId("XGIT00000000054")
   val ctUtr = CtUtr("1555369053")
   val vrn = Vrn("999902541")
   val empRef = EmpRef("555","EIA000")
 
-  val testIndividual = TestIndividual(user, password, saUtr, nino, mtdId)
-  val testOrganisation = TestOrganisation(user, password, saUtr, nino, mtdId, empRef, ctUtr, vrn)
+  val testIndividual = TestIndividual(user, password, saUtr, nino, mtdItId)
+  val testOrganisation = TestOrganisation(user, password, saUtr, nino, mtdItId, empRef, ctUtr, vrn)
 
   val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
 

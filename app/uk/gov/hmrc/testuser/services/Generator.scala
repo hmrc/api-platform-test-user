@@ -18,7 +18,8 @@ package uk.gov.hmrc.testuser.services
 
 import org.scalacheck.Gen
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.testuser.models.{MtdId, TestAgent, TestIndividual, TestOrganisation}
+import uk.gov.hmrc.testuser.models.ServiceName.ServiceName
+import uk.gov.hmrc.testuser.models.{MtdItId, TestAgent, TestIndividual, TestOrganisation}
 
 import scala.util.Random
 
@@ -35,14 +36,14 @@ trait Generator {
   } yield EmpRef.fromIdentifiers(s"$taxOfficeNumber/$taxOfficeReference")
   private val vrnGenerator = Gen.choose(666000000, 666999999)
   private val arnGenerator = new ArnGenerator()
+  private val mtdItIdGenerator = new MtdItIdGenerator()
 
-  def generateTestIndividual(services: Option[Seq[String]] = None) = TestIndividual(generateUserId, generatePassword, generateSaUtr, generateNino, generateMtdId, services)
-  private val mtdIdGenerator = new MtdIdGenerator()
+  def generateTestIndividual(services: Seq[ServiceName] = Seq.empty) = TestIndividual(generateUserId, generatePassword, generateSaUtr, generateNino, generateMtdId, services)
 
-  def generateTestOrganisation(services: Option[Seq[String]] = None) =
+  def generateTestOrganisation(services: Seq[ServiceName] = Seq.empty) =
     TestOrganisation(generateUserId, generatePassword, generateSaUtr, generateNino, generateMtdId, generateEmpRef, generateCtUtr, generateVrn, services)
 
-  def generateTestAgent(services: Option[Seq[String]] = None) = TestAgent(generateUserId, generatePassword, generateArn, services)
+  def generateTestAgent(services: Seq[ServiceName] = Seq.empty) = TestAgent(generateUserId, generatePassword, generateArn, services)
 
   private def generateUserId = userIdGenerator.sample.get
   private def generatePassword = passwordGenerator.sample.get
@@ -52,7 +53,7 @@ trait Generator {
   private def generateCtUtr: CtUtr = CtUtr(utrGenerator.nextSaUtr.value)
   private def generateVrn: Vrn = Vrn(vrnGenerator.sample.get.toString)
   private def generateArn: AgentBusinessUtr = arnGenerator.nextArn
-  private def generateMtdId: MtdId = mtdIdGenerator.nextMtdId
+  private def generateMtdId: MtdItId = mtdItIdGenerator.nextMtdId
 }
 
 object Generator extends Generator
@@ -67,12 +68,12 @@ class ArnGenerator(random: Random = new Random) extends Modulus23Check {
   }
 }
 
-class MtdIdGenerator(random: Random = new Random) extends Modulus23Check {
+class MtdItIdGenerator(random: Random = new Random) extends Modulus23Check {
   def this(seed: Int) = this(new scala.util.Random(seed))
 
   def nextMtdId = {
     val randomCode = "IT" + f"${random.nextInt(1000000)}%011d"
     val checkCharacter = calculateCheckCharacter(randomCode)
-    MtdId(s"X$checkCharacter$randomCode")
+    MtdItId(s"X$checkCharacter$randomCode")
   }
 }

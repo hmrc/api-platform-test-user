@@ -17,6 +17,7 @@
 package uk.gov.hmrc.testuser.models
 
 import uk.gov.hmrc.domain.{Nino, SaUtr}
+import uk.gov.hmrc.testuser.models.ServiceName.ServiceName
 
 case class AuthenticationRequest(userId: String, password: String)
 
@@ -24,7 +25,8 @@ case class AuthenticationResponse(gatewayToken: String, affinityGroup: String)
 
 case class AuthSession(authBearerToken: String, authorityUri: String, gatewayToken: String)
 
-case class CreateUserRequest(serviceNames: Option[Seq[String]])
+case class CreateUserRequest(serviceNames: Option[Seq[ServiceName]])
+
 
 object LegacySandboxUser {
   private val userId = "user1"

@@ -18,15 +18,12 @@ package it.uk.gov.hmrc.testuser
 
 
 import it.uk.gov.hmrc.testuser.helpers.BaseSpec
-import it.uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import org.apache.http.HttpStatus._
 import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
 import play.api.http.HeaderNames
-import play.api.http.Status.{CREATED, UNAUTHORIZED}
 import play.api.libs.json.Json
-import play.api.libs.json.Json.{obj, stringify, toJson}
-import uk.gov.hmrc.testuser.models.ErrorResponse.invalidCredentialsError
 import uk.gov.hmrc.testuser.models.JsonFormatters._
+import uk.gov.hmrc.testuser.models.ServiceName._
 import uk.gov.hmrc.testuser.models._
 
 import scala.concurrent.Await._
@@ -39,7 +36,7 @@ class TestUserSpec extends BaseSpec {
     scenario("Create an individual") {
 
       When("I request the creation of an individual")
-      val createdResponse = Http(s"$serviceUrl/individuals").postForm.asString
+      val createdResponse = createIndividual(Seq("national-insurance"))
 
       Then("The response contains the details of the individual created")
       createdResponse.code shouldBe SC_CREATED
@@ -50,12 +47,15 @@ class TestUserSpec extends BaseSpec {
       val expectedIndividualCreated = TestIndividualCreatedResponse.from(individualFromMongo.copy(password = individualCreated.password))
       individualCreated shouldBe expectedIndividualCreated
       validatePassword(individualCreated.password, individualFromMongo.password) shouldBe true
+
+      And("The individual has the expected services")
+      individualFromMongo.services shouldBe Seq(NATIONAL_INSURANCE)
     }
 
     scenario("Create an organisation") {
 
       When("I request the creation of an organisation")
-      val createdResponse = Http(s"$serviceUrl/organisations").postForm.asString
+      val createdResponse = createOrganisation(Seq("national-insurance", "mtd-income-tax"))
 
       Then("The response contains the details of the organisation created")
       createdResponse.code shouldBe SC_CREATED
@@ -66,12 +66,15 @@ class TestUserSpec extends BaseSpec {
       val expectedOrganisationCreated = TestOrganisationCreatedResponse.from(organisationFromMongo.copy(password = organisationCreated.password))
       organisationCreated shouldBe expectedOrganisationCreated
       validatePassword(organisationCreated.password, organisationFromMongo.password) shouldBe true
+
+      And("The organisation has the expected services")
+      organisationFromMongo.services shouldBe Seq(NATIONAL_INSURANCE, MTD_INCOME_TAX)
     }
 
     scenario("Create an agent") {
 
       When("I request the creation of an agent")
-      val createdResponse = createAgentResponse
+      val createdResponse = createAgent(Seq("agent-services"))
 
       Then("The response contains the details of the agent created")
       createdResponse.code shouldBe SC_CREATED
@@ -82,13 +85,23 @@ class TestUserSpec extends BaseSpec {
       val expectedAgentCreated = TestAgentCreatedResponse.from(agentFromMongo.copy(password = agentCreated.password))
       agentCreated shouldBe expectedAgentCreated
       validatePassword(agentCreated.password, agentFromMongo.password) shouldBe true
+
+      And("The agent has the expected services")
+      agentFromMongo.services shouldBe Seq(AGENT_SERVICES)
     }
   }
 
 
-  private def createAgentResponse() = Http(s"$serviceUrl/agents")
-    .postData("{}")
-    .header(HeaderNames.CONTENT_TYPE, "application/json").asString
+  private def createIndividual(serviceNames: Seq[String]) = callEndpoint("individuals", serviceNames)
+
+  private def createOrganisation(serviceNames: Seq[String]) = callEndpoint("organisations", serviceNames)
+
+  private def createAgent(serviceNames: Seq[String]) = callEndpoint("agents", serviceNames)
+
+  private def callEndpoint(endpoint: String, serviceNames: Seq[String]) =
+    Http(s"$serviceUrl/$endpoint")
+      .postData(s"""{ "serviceNames": [${serviceNames.mkString("\"", "\",\"", "\"")}] }""")
+      .header(HeaderNames.CONTENT_TYPE, "application/json").asString
 
   private def validatePassword(password: String, hashedPassword: String) =  BCryptUtils.checkpw(password, hashedPassword)
 }
