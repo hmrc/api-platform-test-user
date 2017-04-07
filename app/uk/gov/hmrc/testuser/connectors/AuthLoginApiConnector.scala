@@ -19,7 +19,7 @@ package uk.gov.hmrc.testuser.connectors
 import javax.inject.Singleton
 
 import play.api.http.HeaderNames.{AUTHORIZATION, LOCATION}
-import uk.gov.hmrc.domain.EmpRef
+import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.auth.microservice.connectors.ConfidenceLevel
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -47,9 +47,9 @@ class AuthLoginApiConnector extends ServicesConfig {
   }
 }
 
-case class TaxIdentifier(key: String, value: String)
+case class Identifier(key: String, value: String)
 
-case class Enrolment(key: String, identifiers: Seq[TaxIdentifier], state: String = "Activated")
+case class Enrolment(key: String, identifiers: Seq[Identifier], state: String = "Activated")
 
 case class GovernmentGatewayLogin(credId: String,
                                   affinityGroup: String,
@@ -69,36 +69,36 @@ object GovernmentGatewayLogin {
   private def fromIndividual(individual: TestIndividual) = {
     def asEnrolment(serviceName: ServiceName) = {
       serviceName match {
-        case SELF_ASSESSMENT => Some(Enrolment("IR-SA", utr(individual.saUtr.toString)))
-        case MTD_INCOME_TAX => Some(Enrolment("HMRC-MTD-IT", mtdItId(individual.mtdItId)))
+        case SELF_ASSESSMENT => individual.saUtr map {saUtr => Enrolment("IR-SA", taxIdentifier(saUtr))}
+        case MTD_INCOME_TAX => individual.mtdItId map {mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId))}
         case _ => None
       }
     }
 
-    GovernmentGatewayLogin(individual.userId, individual.affinityGroup, Some(individual.nino.value),
+    GovernmentGatewayLogin(individual.userId, individual.affinityGroup, individual.nino.map(_.value),
       individual.services.map(asEnrolment(_)).flatten)
   }
 
   private def fromOrganisation(organisation: TestOrganisation) = {
     def asEnrolment(serviceName: ServiceName) = {
       serviceName match {
-        case SELF_ASSESSMENT => Some(Enrolment("IR-SA", utr(organisation.saUtr.toString)))
-        case CORPORATION_TAX => Some(Enrolment("IR-CT", utr(organisation.ctUtr.toString)))
-        case SUBMIT_VAT_RETURNS => Some(Enrolment("HMCE-VATDEC-ORG", vrn(organisation.vrn.toString)))
-        case PAYE_FOR_EMPLOYERS => Some(Enrolment("IR-PAYE", paye(organisation.empRef)))
-        case MTD_INCOME_TAX => Some(Enrolment("HMRC-MTD-IT", mtdItId(organisation.mtdItId)))
+        case SELF_ASSESSMENT => organisation.saUtr map {saUtr => Enrolment("IR-SA", taxIdentifier(saUtr))}
+        case CORPORATION_TAX => organisation.ctUtr map {ctUtr => Enrolment("IR-CT", taxIdentifier(ctUtr))}
+        case SUBMIT_VAT_RETURNS => organisation.vrn map {vrn => Enrolment("HMCE-VATDEC-ORG", taxIdentifier(vrn))}
+        case PAYE_FOR_EMPLOYERS => organisation.empRef map {empRef => Enrolment("IR-PAYE", taxIdentifier(empRef))}
+        case MTD_INCOME_TAX => organisation.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId))}
         case _ => None
       }
     }
 
-    GovernmentGatewayLogin(organisation.userId, organisation.affinityGroup, None,
+    GovernmentGatewayLogin(organisation.userId, organisation.affinityGroup, organisation.nino.map(_.value),
       organisation.services.map(asEnrolment(_)).flatten)
   }
 
   private def fromAgent(agent: TestAgent) = {
     def asEnrolment(serviceName: ServiceName) = {
       serviceName match {
-        case AGENT_SERVICES => Some(Enrolment("HMRC-AS-AGENT", arn(agent.arn.toString())))
+        case AGENT_SERVICES => agent.arn map {arn => Enrolment("HMRC-AS-AGENT", taxIdentifier(arn))}
         case _ => None
       }
     }
@@ -106,15 +106,16 @@ object GovernmentGatewayLogin {
     GovernmentGatewayLogin(agent.userId, agent.affinityGroup, None, agent.services.map(asEnrolment(_)).flatten)
   }
 
-  private def utr(saUtr: String) = Seq(TaxIdentifier("UTR", saUtr))
-
-  private def vrn(vrn: String) = Seq(TaxIdentifier("VATRegNo", vrn))
-
-  private def paye(empRef: EmpRef) = Seq(
-    TaxIdentifier("TaxOfficeNumber", empRef.taxOfficeNumber),
-    TaxIdentifier("TaxOfficeReference", empRef.taxOfficeReference))
-
-  private def arn(arn: String) = Seq(TaxIdentifier("AgentReferenceNumber", arn))
-
-  private def mtdItId(mtdItId: MtdItId) = Seq(TaxIdentifier("MTDITID", mtdItId.toString))
+  private def taxIdentifier(taxIdentifier: TaxIdentifier) = {
+    taxIdentifier match {
+      case saUtr: SaUtr => Seq(Identifier("UTR", saUtr.toString))
+      case ctUtr: CtUtr => Seq(Identifier("UTR", ctUtr.toString))
+      case vrn: Vrn => Seq(Identifier("VATRegNo", vrn.toString))
+      case empRef: EmpRef => Seq(Identifier("TaxOfficeNumber", empRef.taxOfficeNumber),
+        Identifier("TaxOfficeReference", empRef.taxOfficeReference))
+      case arn: AgentBusinessUtr => Seq(Identifier("AgentReferenceNumber", arn.toString))
+      case mtdItId: MtdItId => Seq(Identifier("MTDITID", mtdItId.toString))
+      case _ => Seq.empty
+    }
+  }
 }

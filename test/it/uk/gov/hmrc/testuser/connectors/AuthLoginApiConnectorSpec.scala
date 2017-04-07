@@ -28,11 +28,11 @@ import uk.gov.hmrc.testuser.models.ServiceName._
 
 class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with WithFakeApplication {
 
-  val testIndividual = TestIndividual("individualUser", "password", SaUtr("1555369052"), Nino("CC333333C"),
-    MtdItId("XGIT00000000054"), Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE))
-  val testOrganisation = TestOrganisation("organisationUser", "password", SaUtr("1555369052"), Nino("CC333333C"),
-    MtdItId("XGIT00000000054"), EmpRef("555","EIA000"), CtUtr("1555369053"), Vrn("999902541"),
-    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS))
+  val testIndividual = TestIndividual("individualUser", "password", Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
+    Some(MtdItId("XGIT00000000054")), Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX))
+  val testOrganisation = TestOrganisation("organisationUser", "password", Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
+    Some(MtdItId("XGIT00000000054")), Some(EmpRef("555","EIA000")), Some(CtUtr("1555369053")), Some(Vrn("999902541")),
+    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX))
 
   val authSession = AuthSession("Bearer 12345", "/auth/oid/12345", "ggToken")
 
@@ -72,7 +72,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
           |{
           |   "credId": "${testIndividual.userId}",
           |   "affinityGroup": "Individual",
-          |   "nino": "${testIndividual.nino}",
+          |   "nino": "${testIndividual.nino.get}",
           |   "confidenceLevel": 200,
           |   "credentialStrength": "strong",
           |   "enrolments": [
@@ -82,7 +82,16 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
           |       "identifiers": [
           |       {
           |         "key":"UTR",
-          |         "value":"${testIndividual.saUtr.value}"
+          |         "value":"${testIndividual.saUtr.get.value}"
+          |       }]
+          |     },
+          |     {
+          |       "key": "HMRC-MTD-IT",
+          |       "state": "Activated",
+          |       "identifiers": [
+          |       {
+          |         "key":"MTDITID",
+          |         "value":"${testIndividual.mtdItId.get.value}"
           |       }]
           |     }
           |   ]
@@ -101,6 +110,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |{
            |   "credId": "${testOrganisation.userId}",
            |   "affinityGroup": "Organisation",
+           |   "nino": "${testOrganisation.nino.get}",
            |   "confidenceLevel": 200,
            |   "credentialStrength": "strong",
            |   "enrolments": [
@@ -110,7 +120,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "identifiers": [
            |       {
            |         "key":"UTR",
-           |         "value":"${testOrganisation.saUtr.value}"
+           |         "value":"${testOrganisation.saUtr.get.value}"
            |       }]
            |     },
            |     {
@@ -119,7 +129,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "identifiers": [
            |       {
            |         "key":"UTR",
-           |         "value":"${testOrganisation.ctUtr.value}"
+           |         "value":"${testOrganisation.ctUtr.get.value}"
            |       }]
            |     },
            |     {
@@ -128,7 +138,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "identifiers": [
            |       {
            |         "key":"VATRegNo",
-           |         "value":"${testOrganisation.vrn.value}"
+           |         "value":"${testOrganisation.vrn.get.value}"
            |       }]
            |     },
            |     {
@@ -137,11 +147,20 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "identifiers": [
            |       {
            |         "key":"TaxOfficeNumber",
-           |         "value":"${testOrganisation.empRef.taxOfficeNumber}"
+           |         "value":"${testOrganisation.empRef.get.taxOfficeNumber}"
            |       },
            |       {
            |         "key":"TaxOfficeReference",
-           |         "value":"${testOrganisation.empRef.taxOfficeReference}"
+           |         "value":"${testOrganisation.empRef.get.taxOfficeReference}"
+           |       }]
+           |     },
+           |     {
+           |       "key": "HMRC-MTD-IT",
+           |       "state": "Activated",
+           |       "identifiers": [
+           |       {
+           |         "key":"MTDITID",
+           |         "value":"${testOrganisation.mtdItId.get.value}"
            |       }]
            |     }
            |   ]

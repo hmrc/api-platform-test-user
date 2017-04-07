@@ -43,9 +43,9 @@ sealed trait TestUser {
 
 case class TestIndividual(override val userId: String,
                           override val password: String,
-                          saUtr: SaUtr,
-                          nino: Nino,
-                          mtdItId:MtdItId,
+                          saUtr: Option[SaUtr] = None,
+                          nino: Option[Nino] = None,
+                          mtdItId: Option[MtdItId] = None,
                           override val services: Seq[ServiceName] = Seq.empty,
                           override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Individual"
@@ -53,12 +53,12 @@ case class TestIndividual(override val userId: String,
 
 case class TestOrganisation(override val userId: String,
                             override val password: String,
-                            saUtr: SaUtr,
-                            nino: Nino,
-                            mtdItId: MtdItId,
-                            empRef: EmpRef,
-                            ctUtr: CtUtr,
-                            vrn: Vrn,
+                            saUtr: Option[SaUtr] = None,
+                            nino: Option[Nino] = None,
+                            mtdItId: Option [MtdItId] = None,
+                            empRef: Option[EmpRef] = None,
+                            ctUtr: Option[CtUtr] = None,
+                            vrn: Option[Vrn] = None,
                             override val services: Seq[ServiceName] = Seq.empty,
                             override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Organisation"
@@ -66,22 +66,25 @@ case class TestOrganisation(override val userId: String,
 
 case class TestAgent(override val userId: String,
                             override val password: String,
-                            arn: AgentBusinessUtr,
+                            arn: Option[AgentBusinessUtr] = None,
                             override val services: Seq[ServiceName] = Seq.empty,
                             override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Agent"
 }
 
-case class TestIndividualCreatedResponse(userId: String, password: String, saUtr: SaUtr, nino: Nino)
-case class TestOrganisationCreatedResponse(userId: String, password: String, saUtr: SaUtr, empRef: EmpRef, ctUtr: CtUtr, vrn: Vrn)
-case class TestAgentCreatedResponse(userId: String, password: String, arn: AgentBusinessUtr)
+case class TestIndividualCreatedResponse(userId: String, password: String, saUtr: Option[SaUtr], nino: Option[Nino], mtdItId: Option[MtdItId])
+case class TestOrganisationCreatedResponse(userId: String, password: String, saUtr: Option[SaUtr], nino: Option[Nino], mtdItId: Option[MtdItId],
+                                           empRef: Option[EmpRef], ctUtr: Option[CtUtr], vrn: Option[Vrn])
+case class TestAgentCreatedResponse(userId: String, password: String, arn: Option[AgentBusinessUtr])
 
 object TestIndividualCreatedResponse {
-  def from(individual: TestIndividual) = TestIndividualCreatedResponse(individual.userId, individual.password, individual.saUtr, individual.nino)
+  def from(individual: TestIndividual) = TestIndividualCreatedResponse(individual.userId, individual.password,
+    individual.saUtr, individual.nino, individual.mtdItId)
 }
 
 object TestOrganisationCreatedResponse {
-  def from(organisation: TestOrganisation) = TestOrganisationCreatedResponse(organisation.userId, organisation.password, organisation.saUtr,
+  def from(organisation: TestOrganisation) = TestOrganisationCreatedResponse(organisation.userId, organisation.password,
+    organisation.saUtr, organisation.nino, organisation.mtdItId,
     organisation.empRef, organisation.ctUtr, organisation.vrn)
 }
 
@@ -91,27 +94,29 @@ object TestAgentCreatedResponse {
 
 sealed trait TestUserResponse {
   val userId: String
-  val saUtr: SaUtr
-  val nino: Nino
-  val mtdItId: MtdItId
+  val saUtr: Option[SaUtr]
+  val nino: Option[Nino]
+  val mtdItId: Option[MtdItId]
   val userType: UserType
 }
 
 case class TestIndividualResponse(override val userId: String,
-                                  override val saUtr: SaUtr,
-                                  override val nino: Nino,
-                                  override val mtdItId: MtdItId,
+                                  override val saUtr: Option[SaUtr] = None,
+                                  override val nino: Option[Nino] = None,
+                                  override val mtdItId: Option[MtdItId] = None,
                                   override val userType: UserType = UserType.INDIVIDUAL) extends TestUserResponse
+
 case class TestOrganisationResponse(override val userId: String,
-                                    override val saUtr: SaUtr,
-                                    override val nino: Nino,
-                                    override val mtdItId: MtdItId,
-                                    empRef: EmpRef,
-                                    ctUtr: CtUtr,
-                                    vrn: Vrn,
+                                    override val saUtr: Option[SaUtr] = None,
+                                    override val nino: Option[Nino] = None,
+                                    override val mtdItId: Option[MtdItId] = None,
+                                    empRef: Option[EmpRef] = None,
+                                    ctUtr: Option[CtUtr] = None,
+                                    vrn: Option[Vrn] = None,
                                     override val userType: UserType = UserType.ORGANISATION) extends TestUserResponse
+
 case class TestAgentResponse(userId: String,
-                            arn: AgentBusinessUtr,
+                            arn: Option[AgentBusinessUtr] = None,
                             userType: UserType = UserType.AGENT)
 
 object TestIndividualResponse {
@@ -128,15 +133,15 @@ object TestAgentResponse {
   def from(agent: TestAgent) = TestAgentResponse(agent.userId, agent.arn)
 }
 
-case class DesSimulatorTestIndividual(val mtdItId: MtdItId, val nino: Nino, val saUtr: SaUtr)
+case class DesSimulatorTestIndividual(val mtdItId: Option[MtdItId], val nino: Option[Nino], val saUtr: Option[SaUtr])
 
 object DesSimulatorTestIndividual {
   def from(individual: TestIndividual) = DesSimulatorTestIndividual(individual.mtdItId, individual.nino, individual.saUtr)
 }
 
-case class DesSimulatorTestOrganisation(val mtdItId: MtdItId, val nino: Nino,
-                                        val saUtr: SaUtr, val ctUtr: CtUtr,
-                                        val empRef: EmpRef, val vrn: Vrn)
+case class DesSimulatorTestOrganisation(val mtdItId: Option[MtdItId], val nino: Option[Nino],
+                                        val saUtr: Option[SaUtr], val ctUtr: Option[CtUtr],
+                                        val empRef: Option[EmpRef], val vrn: Option[Vrn])
 
 object DesSimulatorTestOrganisation {
   def from(organisation: TestOrganisation) = DesSimulatorTestOrganisation(organisation.mtdItId,

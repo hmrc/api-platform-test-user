@@ -17,35 +17,29 @@
 package unit.uk.gov.hmrc.testuser.services
 
 import org.mockito.BDDMockito.given
-import org.mockito.Matchers.{any, anyString}
-import org.mockito.Mockito.{verify, when}
-import org.mockito.invocation.InvocationOnMock
-import org.mockito.stubbing.Answer
+import org.mockito.Matchers.anyString
+import org.mockito.Mockito.when
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
 import uk.gov.hmrc.testuser.models.LegacySandboxUser._
+import uk.gov.hmrc.testuser.models.ServiceName._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
-import uk.gov.hmrc.testuser.services.{AuthenticationService, Generator, PasswordService, TestUserService}
+import uk.gov.hmrc.testuser.services.{AuthenticationService, PasswordService}
 
-import scala.concurrent.Future
-import scala.concurrent.Future.{failed, successful}
+import scala.concurrent.Future.successful
 
 class AuthenticationServiceSpec extends UnitSpec with MockitoSugar {
 
   val userId = "user"
   val password = "password"
   val hashedPassword = "hashedPassword"
-  val testIndividual = TestIndividual(userId, password, SaUtr("1555369052"), Nino("CC333333C"),
-    MtdItId("XGIT00000000054"))
-  val testOrganisation = TestOrganisation(userId, password, SaUtr("1555369052"), Nino("CC333333C"),
-    MtdItId("XGIT00000000054"), EmpRef("555","EIA000"), CtUtr("1555369053"), Vrn("999902541"))
   val authSession = AuthSession("Bearer AUTH_TOKEN", "/auth/oid/12345", "gatewayToken")
-  val storedTestIndividual = TestIndividual(userId, hashedPassword, SaUtr("1555369052"), Nino("CC333333C"),
-    MtdItId("XGIT00000000054"))
+  val storedTestIndividual = TestIndividual(userId, hashedPassword, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
+    Some(MtdItId("XGIT00000000054")), Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
 
   trait Setup {
     implicit val hc = HeaderCarrier()

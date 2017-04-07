@@ -16,21 +16,18 @@
 
 package it.uk.gov.hmrc.testuser.connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequestedFor, urlPathEqualTo}
 import it.uk.gov.hmrc.testuser.helpers.stubs.DesSimulatorStub
 import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
-import uk.gov.hmrc.testuser.models.{MtdItId, TestIndividual, TestOrganisation}
+import uk.gov.hmrc.testuser.models.ServiceName._
+import uk.gov.hmrc.testuser.services.Generator._
 
 class DesSimulatorConnectorSpec extends UnitSpec with BeforeAndAfterEach with WithFakeApplication {
 
-  val testIndividual = TestIndividual("individualUser", "password", SaUtr("1555369052"), Nino("CC333333C"),
-    MtdItId("XGIT00000000054"))
-  val testOrganisation = TestOrganisation("organisationUser", "password", SaUtr("1555369052"), Nino("CC333333C"),
-    MtdItId("XGIT00000000054"), EmpRef("555","EIA000"), CtUtr("1555369053"), Vrn("999902541"))
+  val testIndividual = generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE))
+  val testOrganisation = generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX))
 
   trait Setup {
     implicit val hc = HeaderCarrier()
