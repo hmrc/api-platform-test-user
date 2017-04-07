@@ -19,12 +19,11 @@ package uk.gov.hmrc.testuser.controllers
 import javax.inject.Inject
 
 import play.api.Logger
-import play.api.http.HeaderNames
 import play.api.libs.json.Json.toJson
-import play.api.mvc.{Result, Action}
+import play.api.mvc.{Action, Result}
 import uk.gov.hmrc.play.microservice.controller.BaseController
-import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.JsonFormatters._
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.services._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -33,38 +32,28 @@ trait TestUserController extends BaseController {
 
   val testUserService: TestUserService
 
-  def createIndividual() = Action.async { implicit request =>
-    testUserService.createTestIndividual() map { individual =>
-      Created(toJson(TestIndividualCreatedResponse.from(individual)))
-    } recover recovery
+  def createIndividual() = Action.async(parse.json) { implicit request =>
+    withJsonBody[CreateUserRequest] { createUserRequest =>
+      testUserService.createTestIndividual(createUserRequest.serviceNames.getOrElse(Seq.empty)) map { individual =>
+        Created(toJson(TestIndividualCreatedResponse.from(individual)))
+      }
+    }recover recovery
   }
 
-  def createOrganisation() = Action.async { implicit request =>
-    testUserService.createTestOrganisation() map { organisation =>
-      Created(toJson(TestOrganisationCreatedResponse.from(organisation)))
-    } recover recovery
+  def createOrganisation() = Action.async(parse.json) { implicit request =>
+    withJsonBody[CreateUserRequest] { createUserRequest =>
+      testUserService.createTestOrganisation(createUserRequest.serviceNames.getOrElse(Seq.empty)) map { organisation =>
+        Created(toJson(TestOrganisationCreatedResponse.from(organisation)))
+      }
+    }recover recovery
   }
 
   def createAgent() = Action.async(parse.json) { implicit request =>
-    withJsonBody[CreateUserRequest] {
-      testUserService.createTestAgent(_) map { agent =>
+    withJsonBody[CreateUserRequest] { createUserRequest =>
+      testUserService.createTestAgent(createUserRequest.serviceNames.getOrElse(Seq.empty)) map { agent =>
         Created(toJson(TestAgentCreatedResponse.from(agent)))
       }
     } recover recovery
-  }
-
-  def authenticate() = {
-    Action.async(parse.json) { implicit request =>
-      withJsonBody[AuthenticationRequest] {
-        testUserService.authenticate(_) map { case (testUser, authSession) =>
-          Created(toJson(AuthenticationResponse(authSession.gatewayToken, testUser.affinityGroup))).withHeaders(
-            HeaderNames.AUTHORIZATION -> authSession.authBearerToken,
-            HeaderNames.LOCATION -> authSession.authorityUri)
-        }
-      } recover {
-        case _: InvalidCredentials => Unauthorized(toJson(ErrorResponse.invalidCredentialsError))
-      } recover recovery
-    }
   }
 
   private def recovery: PartialFunction[Throwable, Result] = {

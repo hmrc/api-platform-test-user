@@ -19,9 +19,10 @@ package uk.gov.hmrc.testuser.services
 import javax.inject.Inject
 
 import uk.gov.hmrc.play.http.HeaderCarrier
-import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
+import uk.gov.hmrc.testuser.connectors.{AuthLoginApiConnector, DesSimulatorConnector, DesSimulatorConnectorImpl}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.LegacySandboxUser._
+import uk.gov.hmrc.testuser.models.ServiceName._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -33,46 +34,40 @@ trait TestUserService {
   val generator: Generator
   val testUserRepository: TestUserRepository
   val passwordService: PasswordService
-  val authLoginApiConnector: AuthLoginApiConnector
+  val desSimulatorConnector: DesSimulatorConnector
 
-  def createTestIndividual() = {
-    val individual = generator.generateTestIndividual()
+  def createTestIndividual(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier) = {
+    val individual = generator.generateTestIndividual(serviceNames)
     val hashedPassword = passwordService.hash(individual.password)
-    testUserRepository.createUser(individual.copy(password = hashedPassword)) map (_ => individual)
+
+    testUserRepository.createUser(individual.copy(password = hashedPassword)) map {
+      case createdIndividual if createdIndividual.services.contains(ServiceName.MTD_INCOME_TAX) => desSimulatorConnector.createIndividual(createdIndividual)
+      case _ => Future.successful(individual)
+    } map {
+      _ => individual
+    }
   }
 
-  def createTestOrganisation() = {
-    val organisation = generator.generateTestOrganisation()
+  def createTestOrganisation(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier) = {
+    val organisation = generator.generateTestOrganisation(serviceNames)
     val hashedPassword = passwordService.hash(organisation.password)
-    testUserRepository.createUser(organisation.copy(password = hashedPassword)) map (_ => organisation)
+    testUserRepository.createUser(organisation.copy(password = hashedPassword)) map {
+      case createdOrganisation if createdOrganisation.services.contains(ServiceName.MTD_INCOME_TAX) => desSimulatorConnector.createOrganisation(createdOrganisation)
+      case _ => Future.successful(organisation)
+    } map {
+      _ => organisation
+    }
   }
 
-  def createTestAgent(request: CreateUserRequest) = {
-    val agent = generator.generateTestAgent(request.serviceNames)
+  def createTestAgent(serviceNames: Seq[ServiceName]) = {
+    val agent = generator.generateTestAgent(serviceNames)
     val hashedPassword = passwordService.hash(agent.password)
     testUserRepository.createUser(agent.copy(password = hashedPassword)) map (_ => agent)
-  }
-
-  def authenticate(authReq: AuthenticationRequest)(implicit hc: HeaderCarrier): Future[(TestUser, AuthSession)] = {
-    val userFuture = authReq match {
-      case `sandboxAuthenticationRequest` => successful(sandboxUser)
-      case _ => testUserRepository.fetchByUserId(authReq.userId).map {
-        case Some(u: TestUser) if passwordService.validate(authReq.password, u.password) => u
-        case None =>
-          throw InvalidCredentials(s"UserId not found: ${authReq.userId}")
-        case _ =>
-          throw InvalidCredentials(s"Invalid password for userId: ${authReq.userId}")
-      }
-    }
-    for {
-      user <- userFuture
-      authSession <- authLoginApiConnector.createSession(user)
-    } yield (user, authSession)
   }
 }
 
 class TestUserServiceImpl @Inject()(override val passwordService: PasswordServiceImpl,
-                                    override val authLoginApiConnector: AuthLoginApiConnector) extends TestUserService {
+                                    override val desSimulatorConnector: DesSimulatorConnectorImpl) extends TestUserService {
   override val generator: Generator = Generator
   override val testUserRepository = TestUserRepository()
 }

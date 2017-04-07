@@ -17,6 +17,7 @@
 package uk.gov.hmrc.testuser.models
 
 import uk.gov.hmrc.domain.{Nino, SaUtr}
+import uk.gov.hmrc.testuser.models.ServiceName._
 
 case class AuthenticationRequest(userId: String, password: String)
 
@@ -24,13 +25,15 @@ case class AuthenticationResponse(gatewayToken: String, affinityGroup: String)
 
 case class AuthSession(authBearerToken: String, authorityUri: String, gatewayToken: String)
 
-case class CreateUserRequest(serviceNames: Option[Seq[String]])
+case class CreateUserRequest(serviceNames: Option[Seq[ServiceName]])
+
 
 object LegacySandboxUser {
   private val userId = "user1"
   private val password = "password1"
   val sandboxAuthenticationRequest = AuthenticationRequest(userId, password)
-  val sandboxUser = TestIndividual(userId, password, SaUtr("1700000000"), Nino("AA000017A"), null)
+  val sandboxUser = TestIndividual(userId, password, Some(SaUtr("1700000000")), Some(Nino("AA000017A")), None,
+    Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT))
 }
 
 case class InvalidCredentials(msg: String) extends Exception

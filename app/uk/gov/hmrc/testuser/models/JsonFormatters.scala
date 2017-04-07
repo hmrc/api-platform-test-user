@@ -19,11 +19,12 @@ package uk.gov.hmrc.testuser.models
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.play.json.Union
-import uk.gov.hmrc.testuser.connectors.{TaxIdentifier, Enrolment, GovernmentGatewayLogin}
+import uk.gov.hmrc.testuser.connectors.{Identifier, Enrolment, GovernmentGatewayLogin}
 
 object JsonFormatters {
 
   implicit val formatObjectId = ReactiveMongoFormats.objectIdFormats
+  implicit val formatServiceName = EnumJson.enumFormat(ServiceName)
   implicit val formatUserType = EnumJson.enumFormat(UserType)
   implicit val formatTestIndividual = Json.format[TestIndividual]
   implicit val formatTestOrganisation = Json.format[TestOrganisation]
@@ -51,7 +52,11 @@ object JsonFormatters {
   implicit val formatErrorCode = EnumJson.enumFormat(ErrorCode)
   implicit val formatErrorResponse = Json.format[ErrorResponse]
 
-  implicit val formatTaxIdentifier = Json.format[TaxIdentifier]
+  implicit val formatTaxIdentifier = Json.format[Identifier]
   implicit val formatEnrolment = Json.format[Enrolment]
   implicit val formatGovernmentGatewayLogin = Json.format[GovernmentGatewayLogin]
+
+  implicit val formatDesSimulatorTestIndividual = Json.format[DesSimulatorTestIndividual]
+  implicit val formatDesSimulatorTestOrganisation = Json.format[DesSimulatorTestOrganisation]
+
 }

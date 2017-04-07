@@ -16,35 +16,43 @@
 
 package unit.uk.gov.hmrc.testuser.services
 
-import org.mockito.Mockito.{verify, when}
+import common.LogSuppressing
+import org.mockito.BDDMockito.given
+import org.mockito.Matchers.{any, anyString}
+import org.mockito.Mockito.{times, verify, when}
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.mockito.Matchers.{any, anyString}
-import org.mockito.BDDMockito.given
 import org.scalatest.mock.MockitoSugar
+import play.api.Logger
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
+import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
+import uk.gov.hmrc.testuser.models.ServiceName.{ServiceName => _, _}
 import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.models.LegacySandboxUser._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
+import uk.gov.hmrc.testuser.services.Generator._
 import uk.gov.hmrc.testuser.services.{Generator, PasswordService, TestUserService}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}
 
-class TestUserServiceSpec extends UnitSpec with MockitoSugar {
+class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing {
 
   val userId = "user"
   val password = "password"
   val hashedPassword = "hashedPassword"
-  val testIndividual = TestIndividual(userId, password, SaUtr("1555369052"), Nino("CC333333C"))
-  val testOrganisation = TestOrganisation(userId, password, SaUtr("1555369052"), EmpRef("555","EIA000"),
-    CtUtr("1555369053"), Vrn("999902541"))
-  val testAgent = TestAgent(userId, password, AgentBusinessUtr("NARN0396245"))
-  val authSession = AuthSession("Bearer AUTH_TOKEN", "/auth/oid/12345", "gatewayToken")
-  val storedTestIndividual = TestIndividual(userId, hashedPassword, SaUtr("1555369052"), Nino("CC333333C"))
+
+  val individualServices = Seq(ServiceName.NATIONAL_INSURANCE, ServiceName.MTD_INCOME_TAX)
+  val testIndividualWithNoServices = generateTestIndividual().copy(userId = userId, password = password)
+  val testIndividual = testIndividualWithNoServices.copy(services = individualServices)
+
+  val organisationServices = Seq(ServiceName.NATIONAL_INSURANCE, ServiceName.MTD_INCOME_TAX)
+  val testOrganisationWithNoServices = generateTestOrganisation().copy(userId = userId, password = password)
+  val testOrganisation = testOrganisationWithNoServices.copy(services = organisationServices)
+
+  val agentServices = Seq(ServiceName.AGENT_SERVICES)
+  val testAgent = generateTestAgent(agentServices).copy(userId = userId, password = password)
 
   trait Setup {
     implicit val hc = HeaderCarrier()
@@ -53,7 +61,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
       override val generator: Generator = mock[Generator]
       override val testUserRepository: TestUserRepository = mock[TestUserRepository]
       override val passwordService: PasswordService = mock[PasswordService]
-      override val authLoginApiConnector = mock[AuthLoginApiConnector]
+      override val desSimulatorConnector: DesSimulatorConnector = mock[DesSimulatorConnector]
     }
     when(underTest.testUserRepository.createUser(any[TestUser]())).thenAnswer(sameUserCreated)
     when(underTest.testUserRepository.fetchByUserId(anyString())).thenReturn(successful(None))
@@ -66,21 +74,42 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
     "Generate an individual and save it with hashed password in the database" in new Setup {
 
       val hashedPassword  = "hashedPassword"
-      given(underTest.generator.generateTestIndividual()).willReturn(testIndividual)
+      given(underTest.generator.generateTestIndividual(individualServices)).willReturn(testIndividual)
       given(underTest.passwordService.hash(testIndividual.password)).willReturn(hashedPassword)
 
-      val result = await(underTest.createTestIndividual())
+      val result = await(underTest.createTestIndividual(individualServices))
 
       result shouldBe testIndividual
-      verify(underTest.testUserRepository).createUser(testIndividual.copy(password = hashedPassword))
+
+      val testIndividualWithHashedPassword = testIndividual.copy(password = hashedPassword)
+      verify(underTest.testUserRepository).createUser(testIndividualWithHashedPassword)
+      verify(underTest.desSimulatorConnector).createIndividual(testIndividualWithHashedPassword)
+    }
+
+    "Not call the DES simulator when the individual does not have the mtd-income-tax service" in new Setup {
+      val hashedPassword  = "hashedPassword"
+      given(underTest.generator.generateTestIndividual(Seq.empty)).willReturn(testIndividualWithNoServices)
+      given(underTest.passwordService.hash(testIndividualWithNoServices.password)).willReturn(hashedPassword)
+
+      val result = await(underTest.createTestIndividual(Seq.empty))
+
+      result shouldBe testIndividualWithNoServices
+
+      val testIndividualWithHashedPassword = testIndividualWithNoServices.copy(password = hashedPassword)
+      verify(underTest.testUserRepository).createUser(testIndividualWithHashedPassword)
+      verify(underTest.desSimulatorConnector, times(0)).createIndividual(testIndividualWithHashedPassword)
     }
 
     "fail when the repository fails" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
+        given(underTest.generator.generateTestIndividual(individualServices)).willReturn(testIndividual)
+        given(underTest.testUserRepository.createUser(any[TestUser]()))
+          .willReturn(failed(new RuntimeException("expected test error")))
 
-      given(underTest.generator.generateTestIndividual()).willReturn(testIndividual)
-      given(underTest.testUserRepository.createUser(any[TestUser]())).willReturn(failed(new RuntimeException("test error")))
-
-      intercept[RuntimeException]{await(underTest.createTestIndividual())}
+        intercept[RuntimeException] {
+          await(underTest.createTestIndividual(individualServices))
+        }
+      }
     }
   }
 
@@ -89,21 +118,43 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
     "Generate an organisation and save it in the database" in new Setup {
 
       val hashedPassword  = "hashedPassword"
-      given(underTest.generator.generateTestOrganisation()).willReturn(testOrganisation)
+      given(underTest.generator.generateTestOrganisation(organisationServices)).willReturn(testOrganisation)
       given(underTest.passwordService.hash(testOrganisation.password)).willReturn(hashedPassword)
 
-      val result = await(underTest.createTestOrganisation())
+      val result = await(underTest.createTestOrganisation(organisationServices))
 
       result shouldBe testOrganisation
-      verify(underTest.testUserRepository).createUser(testOrganisation.copy(password = hashedPassword))
+
+      val testOrgWithHashedPassword = testOrganisation.copy(password = hashedPassword)
+      verify(underTest.testUserRepository).createUser(testOrgWithHashedPassword)
+      verify(underTest.desSimulatorConnector).createOrganisation(testOrgWithHashedPassword)
+    }
+
+    "Not call the DES simulator when the organisation does not have the mtd-income-tax service" in new Setup {
+
+      val hashedPassword  = "hashedPassword"
+      given(underTest.generator.generateTestOrganisation(Seq.empty)).willReturn(testOrganisationWithNoServices)
+      given(underTest.passwordService.hash(testOrganisationWithNoServices.password)).willReturn(hashedPassword)
+
+      val result = await(underTest.createTestOrganisation(Seq.empty))
+
+      result shouldBe testOrganisationWithNoServices
+
+      val testOrgWithHashedPassword = testOrganisationWithNoServices.copy(password = hashedPassword)
+      verify(underTest.testUserRepository).createUser(testOrgWithHashedPassword)
+      verify(underTest.desSimulatorConnector, times(0)).createOrganisation(testOrgWithHashedPassword)
     }
 
     "fail when the repository fails" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
+        given(underTest.generator.generateTestOrganisation(organisationServices)).willReturn(testOrganisation)
+        given(underTest.testUserRepository.createUser(any[TestUser]()))
+          .willReturn(failed(new RuntimeException("expected test error")))
 
-      given(underTest.generator.generateTestOrganisation()).willReturn(testOrganisation)
-      given(underTest.testUserRepository.createUser(any[TestUser]())).willReturn(failed(new RuntimeException("test error")))
-
-      intercept[RuntimeException]{await(underTest.createTestIndividual())}
+        intercept[RuntimeException] {
+          await(underTest.createTestOrganisation(organisationServices))
+        }
+      }
     }
   }
 
@@ -112,59 +163,26 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar {
     "Generate an agent and save it in the database" in new Setup {
 
       val hashedPassword  = "hashedPassword"
-      given(underTest.generator.generateTestAgent(any())).willReturn(testAgent)
+      given(underTest.generator.generateTestAgent(agentServices)).willReturn(testAgent)
       given(underTest.passwordService.hash(testAgent.password)).willReturn(hashedPassword)
 
-      val result = await(underTest.createTestAgent(CreateUserRequest(Some(Seq("some-service")))))
+      val result = await(underTest.createTestAgent(agentServices))
 
       result shouldBe testAgent
       verify(underTest.testUserRepository).createUser(testAgent.copy(password = hashedPassword))
     }
 
     "fail when the repository fails" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
+        given(underTest.generator.generateTestAgent(any())).willReturn(testAgent)
+        given(underTest.testUserRepository.createUser(any[TestUser]()))
+          .willReturn(failed(new RuntimeException("expected test error")))
 
-      given(underTest.generator.generateTestOrganisation()).willReturn(testOrganisation)
-      given(underTest.testUserRepository.createUser(any[TestUser]())).willReturn(failed(new RuntimeException("test error")))
-
-      intercept[RuntimeException]{await(underTest.createTestIndividual())}
+        intercept[RuntimeException] {
+          await(underTest.createTestAgent(agentServices))
+        }
+      }
     }
-  }
-
-  "authenticate" should {
-
-    "return the user and auth session when the credentials are valid" in new Setup {
-
-      given(underTest.testUserRepository.fetchByUserId(userId)).willReturn(Some(storedTestIndividual))
-      given(underTest.authLoginApiConnector.createSession(storedTestIndividual)).willReturn(authSession)
-
-      val result = await(underTest.authenticate(AuthenticationRequest(userId, password)))
-
-      result shouldBe storedTestIndividual -> authSession
-    }
-
-    "return the user and auth session for the sandbox user when I authenticate with user1/password1" in new Setup {
-
-      given(underTest.authLoginApiConnector.createSession(sandboxUser)).willReturn(authSession)
-
-      val result = await(underTest.authenticate(AuthenticationRequest("user1", "password1")))
-
-      result shouldBe sandboxUser -> authSession
-    }
-
-    "fail with InvalidCredentials when the user does not exist" in new Setup {
-
-      given(underTest.testUserRepository.fetchByUserId(userId)).willReturn(None)
-
-      intercept[InvalidCredentials]{await(underTest.authenticate(AuthenticationRequest(userId, password)))}
-    }
-
-    "fail with InvalidCredentials when the password is invalid" in new Setup {
-      given(underTest.testUserRepository.fetchByUserId(userId)).willReturn(Some(storedTestIndividual))
-      given(underTest.authLoginApiConnector.createSession(storedTestIndividual)).willReturn(authSession)
-
-      intercept[InvalidCredentials]{await(underTest.authenticate(AuthenticationRequest(userId, "wrong password")))}
-    }
-
   }
 
   val sameUserCreated = new Answer[Future[TestUser]] {

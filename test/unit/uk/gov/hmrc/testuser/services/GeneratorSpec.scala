@@ -19,6 +19,7 @@ package unit.uk.gov.hmrc.testuser.services
 import org.scalatest.matchers.{MatchResult, Matcher}
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.models.{TestAgent, TestIndividual, TestOrganisation, TestUser}
+import uk.gov.hmrc.testuser.models.ServiceName._
 import uk.gov.hmrc.testuser.services.Generator
 import unit.uk.gov.hmrc.testuser.services.CustomMatchers.haveDifferentPropertiesThan
 
@@ -29,8 +30,8 @@ class GeneratorSpec extends UnitSpec {
   "generateTestIndividual" should {
 
     "create a different test individual at every run" in {
-      val individual1 = underTest.generateTestIndividual()
-      val individual2 = underTest.generateTestIndividual()
+      val individual1 = underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
+      val individual2 = underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
 
       individual1 should haveDifferentPropertiesThan(individual2)
     }
@@ -39,8 +40,10 @@ class GeneratorSpec extends UnitSpec {
   "generateTestOrganisation" should {
 
     "create a different test organisation at every run" in {
-      val organisation1 = underTest.generateTestOrganisation()
-      val organisation2 = underTest.generateTestOrganisation()
+      val organisation1 = underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX,
+        CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS))
+      val organisation2 = underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX,
+        CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS))
 
       organisation1 should haveDifferentPropertiesThan(organisation2)
     }
@@ -49,8 +52,8 @@ class GeneratorSpec extends UnitSpec {
   "generateTestAgent" should {
 
     "create a different test agent at every run" in {
-      val agent1 = underTest.generateTestAgent()
-      val agent2 = underTest.generateTestAgent()
+      val agent1 = underTest.generateTestAgent(Seq(AGENT_SERVICES))
+      val agent2 = underTest.generateTestAgent(Seq(AGENT_SERVICES))
 
       agent1 should haveDifferentPropertiesThan(agent2)
     }
