@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Create Organisation Request",
+  "type": "object",
+  "properties": {
+    "serviceNames": {
+      "type": "array",
+      "description": "List of services that the user should be enrolled for",
+      "minItems": 0,
+      "items": {
+        "type": "string",
+        "oneOf": [
+          { "enum": ["corporation-tax"] },
+          { "enum": ["paye-for-employers"] },
+          { "enum": ["submit-vat-returns"] },
+          { "enum": ["national-insurance"] },
+          { "enum": ["self-assessment"] },
+          { "enum": ["mtd-income-tax"] }
+        ]
+      },
+      "uniqueItems": true
+    }
+  }
+}
