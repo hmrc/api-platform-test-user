@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Create Agent Response",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "ID for the generated user"
+    },
+    "password": {
+      "type": "string",
+      "description": "Password for the generated user"
+    },
+    "arn": {
+      "type": "string",
+      "description": "Agent Reference Number"
+    }
+  },
+  "required": ["userId", "password"]
+}

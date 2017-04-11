@@ -1,0 +1,10 @@
+{
+  "serviceNames": [
+    "corporation-tax",
+    "paye-for-employers",
+    "submit-vat-returns",
+    "national-insurance",
+    "self-assessment",
+    "mtd-income-tax"
+  ]
+}
