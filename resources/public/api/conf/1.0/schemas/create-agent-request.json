@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Create Agent Request",
+  "type": "object",
+  "properties": {
+    "serviceNames": {
+      "type": "array",
+      "description": "List of services that the user should be enrolled for",
+      "minItems": 0,
+      "items": {
+        "type": "string",
+        "oneOf": [
+          { "enum": ["agent-services"] }
+        ]
+      },
+      "uniqueItems": true
+    }
+  }
+}

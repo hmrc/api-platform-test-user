@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Create Organisation Response",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "ID for the generated user"
+    },
+    "password": {
+      "type": "string",
+      "description": "Password for the generated user"
+    },
+    "saUtr": {
+      "type": "string",
+      "description": "Self Assessment UTR"
+    },
+    "nino": {
+      "type": "string",
+      "description": "National Insurance number"
+    },
+    "mtdItId": {
+      "type": "string",
+      "description": "MTD income tax ID"
+    },
+    "empRef": {
+      "type": "string",
+      "description": "Employer reference"
+    },
+    "ctUtr": {
+      "type": "string",
+      "description": "Corporation Tax UTR"
+    },
+    "vrn": {
+      "type": "string",
+      "description": "VAT registration number"
+    }
+  },
+  "required": ["userId", "password"]
+}
