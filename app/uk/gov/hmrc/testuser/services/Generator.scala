@@ -40,7 +40,7 @@ trait Generator {
 
   def generateTestIndividual(services: Seq[ServiceName] = Seq.empty) = {
     val saUtr = if (services.contains(SELF_ASSESSMENT)) Some(generateSaUtr) else None
-    val nino = if (services.contains(NATIONAL_INSURANCE)) Some(generateNino) else None
+    val nino = if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) Some(generateNino) else None
     val mtdItId = if(services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
 
     TestIndividual(generateUserId, generatePassword, saUtr, nino, mtdItId, services)
@@ -48,7 +48,7 @@ trait Generator {
 
   def generateTestOrganisation(services: Seq[ServiceName] = Seq.empty) = {
     val saUtr = if (services.contains(SELF_ASSESSMENT)) Some(generateSaUtr) else None
-    val nino = if (services.contains(NATIONAL_INSURANCE)) Some(generateNino) else None
+    val nino = if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) Some(generateNino) else None
     val mtdItId = if (services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
     val empRef = if (services.contains(PAYE_FOR_EMPLOYERS)) Some(generateEmpRef) else None
     val ctUtr = if (services.contains(CORPORATION_TAX)) Some(generateCtUtr) else None
