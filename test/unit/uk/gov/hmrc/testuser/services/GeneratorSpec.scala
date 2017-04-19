@@ -35,6 +35,31 @@ class GeneratorSpec extends UnitSpec {
 
       individual1 should haveDifferentPropertiesThan(individual2)
     }
+
+    "generate a NINO and MTD IT ID when MTD_INCOME_TAX service is included" in {
+      val individual = underTest.generateTestIndividual(Seq(MTD_INCOME_TAX))
+
+      individual.mtdItId shouldBe defined
+      individual.nino shouldBe defined
+      individual.saUtr shouldBe empty
+    }
+
+    "generate a NINO when NATIONAL_INSURANCE service is included" in {
+      val individual = underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE))
+
+      individual.nino shouldBe defined
+      individual.mtdItId shouldBe empty
+      individual.saUtr shouldBe empty
+    }
+
+    "generate a SA UTR when SELF_ASSESSMENT service is included" in {
+      val individual = underTest.generateTestIndividual(Seq(SELF_ASSESSMENT))
+
+      individual.saUtr shouldBe defined
+      individual.nino shouldBe empty
+      individual.mtdItId shouldBe empty
+    }
+
   }
 
   "generateTestOrganisation" should {
@@ -47,6 +72,74 @@ class GeneratorSpec extends UnitSpec {
 
       organisation1 should haveDifferentPropertiesThan(organisation2)
     }
+
+    "generate a NINO and MTD IT ID when MTD_INCOME_TAX service is included" in {
+      val org = underTest.generateTestOrganisation(Seq(MTD_INCOME_TAX))
+
+      org.mtdItId shouldBe defined
+      org.nino shouldBe defined
+      org.empRef shouldBe empty
+      org.ctUtr shouldBe empty
+      org.saUtr shouldBe empty
+      org.vrn shouldBe empty
+    }
+
+    "generate a NINO when NATIONAL_INSURANCE service is included" in {
+      val org = underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE))
+
+      org.nino shouldBe defined
+      org.mtdItId shouldBe empty
+      org.empRef shouldBe empty
+      org.ctUtr shouldBe empty
+      org.saUtr shouldBe empty
+      org.vrn shouldBe empty
+    }
+
+    "generate a EMPREF when PAYE_FOR_EMPLOYERS service is included" in {
+      val org = underTest.generateTestOrganisation(Seq(PAYE_FOR_EMPLOYERS))
+
+      org.empRef shouldBe defined
+      org.nino shouldBe empty
+      org.mtdItId shouldBe empty
+      org.ctUtr shouldBe empty
+      org.saUtr shouldBe empty
+      org.vrn shouldBe empty
+    }
+
+    "generate a CT UTR when CORPORATION_TAX service is included" in {
+      val org = underTest.generateTestOrganisation(Seq(CORPORATION_TAX))
+
+      org.ctUtr shouldBe defined
+      org.nino shouldBe empty
+      org.mtdItId shouldBe empty
+      org.empRef shouldBe empty
+      org.saUtr shouldBe empty
+      org.vrn shouldBe empty
+    }
+
+    "generate a SA UTR when SELF_ASSESSMENT service is included" in {
+      val org = underTest.generateTestOrganisation(Seq(SELF_ASSESSMENT))
+
+      org.saUtr shouldBe defined
+      org.nino shouldBe empty
+      org.mtdItId shouldBe empty
+      org.empRef shouldBe empty
+      org.ctUtr shouldBe empty
+      org.vrn shouldBe empty
+    }
+
+    "generate a VRN when SUBMIT_VAT_RETURNS service is included" in {
+      val org = underTest.generateTestOrganisation(Seq(SUBMIT_VAT_RETURNS))
+
+      org.vrn shouldBe defined
+      org.nino shouldBe empty
+      org.mtdItId shouldBe empty
+      org.empRef shouldBe empty
+      org.ctUtr shouldBe empty
+      org.saUtr shouldBe empty
+    }
+
+
   }
 
   "generateTestAgent" should {
