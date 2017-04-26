@@ -18,6 +18,7 @@ package uk.gov.hmrc.testuser.connectors
 
 import javax.inject.Singleton
 
+import play.api.Logger
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.testuser.config.WSHttp
@@ -31,10 +32,12 @@ trait DesSimulatorConnector extends ServicesConfig {
   lazy val serviceUrl: String = baseUrl("des-simulator")
 
   def createIndividual(individual: TestIndividual)(implicit hc:HeaderCarrier): Future[TestIndividual] = {
+    Logger.info(s"Calling des-simulator ($serviceUrl) to create individual $individual")
     WSHttp.POST(s"$serviceUrl/test-users/individuals", DesSimulatorTestIndividual.from(individual)) map { request => individual }
   }
 
   def createOrganisation(organisation: TestOrganisation)(implicit hc:HeaderCarrier): Future[TestOrganisation] = {
+    Logger.info(s"Calling des-simulator ($serviceUrl) to create organisation $organisation")
     WSHttp.POST(s"$serviceUrl/test-users/organisations", DesSimulatorTestOrganisation.from(organisation)) map { request => organisation }
   }
 }
