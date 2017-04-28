@@ -9,8 +9,4 @@ Each test user is given:
 * a unique set of tax identifiers, which can be used as appropriate when calling
   the various APIs
 
-Currently, this API can be used to create individual and organisation test users 
-with a default set of service enrolments and associated tax identifiers, as per 
-the [Create Test User online service](/api-test-user). In the future it will be 
-possible to create test users with specific enrolments. It will also be possible
-to create agent test users.
+This API can be used to create test users with a variety of service enrolments and the corresponding tax identifiers for individuals, organisations and agents. 

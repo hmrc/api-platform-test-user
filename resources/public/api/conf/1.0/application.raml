@@ -60,7 +60,7 @@ uses:
   /agents:
     post:
       displayName: Create a test user which is an agent
-      description: This resource creates and returns a test user which is an agent
+      description: This resource creates and returns a test user which is an agent. The caller can specify the required service enrolments in the request body. If no request body is supplied, the test user is created with no service enrolments.
       is: [headers.acceptHeader]
       securedBy: [ sec.x-application ]
       body:
