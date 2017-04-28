@@ -5,11 +5,11 @@
   "properties": {
     "userId": {
       "type": "string",
-      "description": "ID for the generated user"
+      "description": "Government Gateway ID for the generated user"
     },
     "password": {
       "type": "string",
-      "description": "Password for the generated user"
+      "description": "Government Gateway password for the generated user"
     },
     "saUtr": {
       "type": "string",
