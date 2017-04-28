@@ -7,14 +7,7 @@
     "versions": [
       {
         "version": "1.0",
-        "status": "PUBLISHED",
-        "access": {
-          "type": "PRIVATE",
-          "whitelistedApplicationIds": [
-            "ab349380-17cc-4de0-a7ac-c76baedd7133",
-            "943889f5-6bfb-4829-b3ef-18d7c2b65d5d"
-          ]
-        }
+        "status": "PUBLISHED"      
       }
     ]
   }
