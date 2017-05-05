@@ -13,27 +13,27 @@
     },
     "saUtr": {
       "type": "string",
-      "description": "Self Assessment UTR"
+      "description": "Enrols a user for Self Assessment and generates a SA UTR"
     },
     "nino": {
       "type": "string",
-      "description": "National Insurance number"
+      "description": "Enrols a user for National Insurance and generates a National Insurance Number"
     },
     "mtdItId": {
       "type": "string",
-      "description": "MTD income tax ID"
+      "description": "Enrols a user for Making Tax Digital Income Tax and generates a MTD IT ID"
     },
     "empRef": {
       "type": "string",
-      "description": "Employer reference"
+      "description": "Enrols a user for PAYE for Employers and generates an Employer Reference"
     },
     "ctUtr": {
       "type": "string",
-      "description": "Corporation Tax UTR"
+      "description": "Enrols a user for Corporation Tax and generates a CT UTR"
     },
     "vrn": {
       "type": "string",
-      "description": "VAT registration number"
+      "description": "Enrols a user for a VAT Online Account and generates a VAT Reference Number"
     }
   },
   "required": ["userId", "password"]
