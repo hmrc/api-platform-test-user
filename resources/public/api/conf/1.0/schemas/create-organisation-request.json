@@ -10,12 +10,30 @@
       "items": {
         "type": "string",
         "oneOf": [
-          { "enum": ["corporation-tax"] },
-          { "enum": ["paye-for-employers"] },
-          { "enum": ["submit-vat-returns"] },
-          { "enum": ["national-insurance"] },
-          { "enum": ["self-assessment"] },
-          { "enum": ["mtd-income-tax"] }
+          {
+            "enum": ["corporation-tax"],
+            "description": "Enrols a user for a Corporation Tax UTR"
+          },
+          {
+            "enum": ["paye-for-employers"],
+            "description": "Enrols a user for PAYE for Employers and generates an Employer Reference"
+          },
+          {
+            "enum": ["submit-vat-returns"],
+            "description": "Enrols a user for a VAT Online Account and generates a VAT Registration Number"
+          },
+          {
+            "enum": ["national-insurance"],
+            "description": "Enrols a user for a National Insurance Number"
+          },
+          {
+            "enum": ["self-assessment"],
+            "description": "Enrols a user for a Self Assessment UTR"
+          },
+          {
+            "enum": ["mtd-income-tax"],
+            "description": "Enrols a user for Making Tax Digital Income Tax"
+          }
         ]
       },
       "uniqueItems": true
