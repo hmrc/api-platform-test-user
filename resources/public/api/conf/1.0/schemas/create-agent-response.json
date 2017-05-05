@@ -5,15 +5,15 @@
   "properties": {
     "userId": {
       "type": "string",
-      "description": "Government Gateway ID for the generated user"
+      "description": "Government Gateway ID"
     },
     "password": {
       "type": "string",
-      "description": "Government Gateway password for the generated user"
+      "description": "Government Gateway password"
     },
     "arn": {
       "type": "string",
-      "description": "Enrols a user for Agent Services and generates an account reference number for agent services"
+      "description": "Account reference number for agent services"
     }
   },
   "required": ["userId", "password"]
