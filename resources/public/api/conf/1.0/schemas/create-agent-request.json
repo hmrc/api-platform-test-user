@@ -10,7 +10,10 @@
       "items": {
         "type": "string",
         "oneOf": [
-          { "enum": ["agent-services"] }
+          {
+            "enum": ["agent-services"],
+            "description" : "Enrols a user for Agent Services and generates an account reference number for agent services"
+          }
         ]
       },
       "uniqueItems": true
