@@ -10,9 +10,18 @@
       "items": {
         "type": "string",
         "oneOf": [
-          { "enum": ["national-insurance"] },
-          { "enum": ["self-assessment"] },
-          { "enum": ["mtd-income-tax"] }
+          {
+            "enum": ["national-insurance"],
+            "description": "Enrols a user for a National Insurance Number"
+          },
+          {
+            "enum": ["self-assessment"],
+            "description": "Enrols a user for a Self Assessment UTR"
+          },
+          {
+            "enum": ["mtd-income-tax"],
+            "description": "Enrols a user for Making Tax Digital Income Tax"
+          }
         ]
       },
       "uniqueItems": true
