@@ -5,11 +5,11 @@
   "properties": {
     "userId": {
       "type": "string",
-      "description": "Government Gateway ID for the generated user"
+      "description": "Government Gateway ID"
     },
     "password": {
       "type": "string",
-      "description": "Government Gateway password for the generated user"
+      "description": "Government Gateway password"
     },
     "saUtr": {
       "type": "string",
@@ -17,15 +17,15 @@
     },
     "nino": {
       "type": "string",
-      "description": "National Insurance number"
+      "description": "National Insurance Number"
     },
     "mtdItId": {
       "type": "string",
-      "description": "MTD income tax ID"
+      "description": "Making Tax Digital Income Tax ID"
     },
     "empRef": {
       "type": "string",
-      "description": "Employer reference"
+      "description": "Employer Reference"
     },
     "ctUtr": {
       "type": "string",
@@ -33,7 +33,7 @@
     },
     "vrn": {
       "type": "string",
-      "description": "VAT registration number"
+      "description": "VAT Reference Number"
     }
   },
   "required": ["userId", "password"]
