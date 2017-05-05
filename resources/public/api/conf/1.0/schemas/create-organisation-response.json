@@ -5,35 +5,35 @@
   "properties": {
     "userId": {
       "type": "string",
-      "description": "Government Gateway ID for the generated user"
+      "description": "Government Gateway ID"
     },
     "password": {
       "type": "string",
-      "description": "Government Gateway password for the generated user"
+      "description": "Government Gateway password"
     },
     "saUtr": {
       "type": "string",
-      "description": "Enrols a user for Self Assessment and generates a SA UTR"
+      "description": "Self Assessment UTR"
     },
     "nino": {
       "type": "string",
-      "description": "Enrols a user for National Insurance and generates a National Insurance Number"
+      "description": "National Insurance Number"
     },
     "mtdItId": {
       "type": "string",
-      "description": "Enrols a user for Making Tax Digital Income Tax and generates a MTD IT ID"
+      "description": "Making Tax Digital Income Tax ID"
     },
     "empRef": {
       "type": "string",
-      "description": "Enrols a user for PAYE for Employers and generates an Employer Reference"
+      "description": "Employer Reference"
     },
     "ctUtr": {
       "type": "string",
-      "description": "Enrols a user for Corporation Tax and generates a CT UTR"
+      "description": "Corporation Tax UTR"
     },
     "vrn": {
       "type": "string",
-      "description": "Enrols a user for a VAT Online Account and generates a VAT Reference Number"
+      "description": "VAT Reference Number"
     }
   },
   "required": ["userId", "password"]
