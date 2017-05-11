@@ -1,6 +1,6 @@
 The Create Test User API allows developers and testers to create test users 
 in the API Developer Sandbox. These test users can then be used for testing 
-[user-restricted endpoints](/api-documentation/docs/authorisation#user-restricted).
+[user-restricted endpoints](/api-documentation/docs/authorisation/user-restricted-endpoints#user-restricted).
 
 Each test user is given:
 
