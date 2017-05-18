@@ -55,7 +55,7 @@ class TestUserSpec extends BaseSpec {
     scenario("Create an organisation") {
 
       When("I request the creation of an organisation")
-      val createdResponse = createOrganisation(Seq("national-insurance", "mtd-income-tax"))
+      val createdResponse = createOrganisation(Seq("national-insurance", "mtd-income-tax", "lisa"))
 
       Then("The response contains the details of the organisation created")
       createdResponse.code shouldBe SC_CREATED
@@ -68,7 +68,7 @@ class TestUserSpec extends BaseSpec {
       validatePassword(organisationCreated.password, organisationFromMongo.password) shouldBe true
 
       And("The organisation has the expected services")
-      organisationFromMongo.services shouldBe Seq(NATIONAL_INSURANCE, MTD_INCOME_TAX)
+      organisationFromMongo.services shouldBe Seq(NATIONAL_INSURANCE, MTD_INCOME_TAX, LISA)
     }
 
     scenario("Create an agent") {
