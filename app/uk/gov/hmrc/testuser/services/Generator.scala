@@ -19,7 +19,7 @@ package uk.gov.hmrc.testuser.services
 import org.scalacheck.Gen
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.testuser.models.ServiceName._
-import uk.gov.hmrc.testuser.models.{MtdItId, TestAgent, TestIndividual, TestOrganisation}
+import uk.gov.hmrc.testuser.models.{ServiceName => _, _}
 
 import scala.util.Random
 
@@ -37,6 +37,7 @@ trait Generator {
   private val vrnGenerator = Gen.choose(666000000, 666999999)
   private val arnGenerator = new ArnGenerator()
   private val mtdItIdGenerator = new MtdItIdGenerator()
+  private val lisaManRefNumGenerator = new LisaGenerator()
 
   def generateTestIndividual(services: Seq[ServiceName] = Seq.empty) = {
     val saUtr = if (services.contains(SELF_ASSESSMENT)) Some(generateSaUtr) else None
@@ -53,8 +54,9 @@ trait Generator {
     val empRef = if (services.contains(PAYE_FOR_EMPLOYERS)) Some(generateEmpRef) else None
     val ctUtr = if (services.contains(CORPORATION_TAX)) Some(generateCtUtr) else None
     val vrn = if (services.contains(SUBMIT_VAT_RETURNS)) Some(generateVrn) else None
+    val lisaManRefNum = if (services.contains(LISA)) Some(generateLisaManRefNum) else None
 
-    TestOrganisation(generateUserId, generatePassword, saUtr, nino, mtdItId, empRef, ctUtr, vrn, services)
+    TestOrganisation(generateUserId, generatePassword, saUtr, nino, mtdItId, empRef, ctUtr, vrn, lisaManRefNum, services)
   }
 
   def generateTestAgent(services: Seq[ServiceName] = Seq.empty) = {
@@ -69,6 +71,7 @@ trait Generator {
   private def generateNino: Nino = ninoGenerator.nextNino
   private def generateCtUtr: CtUtr = CtUtr(utrGenerator.nextSaUtr.value)
   private def generateVrn: Vrn = Vrn(vrnGenerator.sample.get.toString)
+  private def generateLisaManRefNum: LisaManagerReferenceNumber = lisaManRefNumGenerator.nextLisaManRefNum
   private def generateArn: AgentBusinessUtr = arnGenerator.nextArn
   private def generateMtdId: MtdItId = mtdItIdGenerator.nextMtdId
 }
@@ -92,5 +95,14 @@ class MtdItIdGenerator(random: Random = new Random) extends Modulus23Check {
     val randomCode = "IT" + f"${random.nextInt(1000000)}%011d"
     val checkCharacter = calculateCheckCharacter(randomCode)
     MtdItId(s"X$checkCharacter$randomCode")
+  }
+}
+
+class LisaGenerator(random: Random = new Random) extends Modulus23Check {
+  def this(seed: Int) = this(new scala.util.Random(seed))
+
+  def nextLisaManRefNum: LisaManagerReferenceNumber = {
+    val randomCode = f"${random.nextInt(999999)}%06d"
+    LisaManagerReferenceNumber(s"Z$randomCode")
   }
 }

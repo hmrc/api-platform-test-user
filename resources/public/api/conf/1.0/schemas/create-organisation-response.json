@@ -34,6 +34,10 @@
     "vrn": {
       "type": "string",
       "description": "VAT Reference Number"
+    },
+    "lisaManagerReferenceNumber": {
+      "type": "string",
+      "description": "Lisa Manager Reference Number"
     }
   },
   "required": ["userId", "password"]
