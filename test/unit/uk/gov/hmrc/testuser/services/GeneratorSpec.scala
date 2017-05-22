@@ -139,6 +139,17 @@ class GeneratorSpec extends UnitSpec {
       org.saUtr shouldBe empty
     }
 
+    "generate a lisaManagerReferenceNumber when LISA service is included" in {
+      val org = underTest.generateTestOrganisation(Seq(LISA))
+
+      org.vrn shouldBe empty
+      org.nino shouldBe empty
+      org.mtdItId shouldBe empty
+      org.empRef shouldBe empty
+      org.ctUtr shouldBe empty
+      org.saUtr shouldBe empty
+      org.lisaManRefNum shouldBe defined
+    }
 
   }
 
@@ -167,10 +178,10 @@ object CustomMatchers {
     private def allFieldsDifferent(leftUser: TestUser) = {
       (leftUser, right) match {
         case (i1: TestIndividual, i2: TestIndividual) => i1._id != i2._id  &&
-            i1.userId != i2.userId &&
-            i1.password != i2.password &&
-            i1.nino != i2.nino &&
-            i1.saUtr != i2.saUtr
+          i1.userId != i2.userId &&
+          i1.password != i2.password &&
+          i1.nino != i2.nino &&
+          i1.saUtr != i2.saUtr
         case (o1: TestOrganisation, o2: TestOrganisation) => o1._id != o2._id &&
           o1.userId != o2.userId &&
           o1.password != o2.password &&

@@ -31,6 +31,7 @@ object ServiceName extends Enumeration {
   val SUBMIT_VAT_RETURNS = Value("submit-vat-returns")
   val MTD_INCOME_TAX = Value("mtd-income-tax")
   val AGENT_SERVICES = Value("agent-services")
+  val LISA = Value("lisa")
 }
 
 sealed trait TestUser {
@@ -59,16 +60,17 @@ case class TestOrganisation(override val userId: String,
                             empRef: Option[EmpRef] = None,
                             ctUtr: Option[CtUtr] = None,
                             vrn: Option[Vrn] = None,
+                            lisaManRefNum: Option[LisaManagerReferenceNumber] = None,
                             override val services: Seq[ServiceName] = Seq.empty,
                             override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Organisation"
 }
 
 case class TestAgent(override val userId: String,
-                            override val password: String,
-                            arn: Option[AgentBusinessUtr] = None,
-                            override val services: Seq[ServiceName] = Seq.empty,
-                            override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
+                     override val password: String,
+                     arn: Option[AgentBusinessUtr] = None,
+                     override val services: Seq[ServiceName] = Seq.empty,
+                     override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Agent"
 }
 
@@ -113,11 +115,12 @@ case class TestOrganisationResponse(override val userId: String,
                                     empRef: Option[EmpRef] = None,
                                     ctUtr: Option[CtUtr] = None,
                                     vrn: Option[Vrn] = None,
+                                    lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber] = None,
                                     override val userType: UserType = UserType.ORGANISATION) extends TestUserResponse
 
 case class TestAgentResponse(userId: String,
-                            arn: Option[AgentBusinessUtr] = None,
-                            userType: UserType = UserType.AGENT)
+                             arn: Option[AgentBusinessUtr] = None,
+                             userType: UserType = UserType.AGENT)
 
 object TestIndividualResponse {
   def from(individual: TestIndividual) = TestIndividualResponse(individual.userId, individual.saUtr, individual.nino,
@@ -126,7 +129,7 @@ object TestIndividualResponse {
 
 object TestOrganisationResponse {
   def from(organisation: TestOrganisation) = TestOrganisationResponse(organisation.userId, organisation.saUtr,
-    organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn)
+    organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.lisaManRefNum)
 }
 
 object TestAgentResponse {
@@ -170,4 +173,16 @@ object MtdItId extends Modulus23Check with (String => MtdItId) {
   def isValid(mtdItId: String) = {
     mtdItId.matches(validMtdItIdFormat) && isCheckCorrect(mtdItId, 1)
   }
+
+}
+
+case class LisaManagerReferenceNumber(lisaManagerReferenceNumber: String) extends TaxIdentifier with SimpleName {
+  override def toString = lisaManagerReferenceNumber
+  val name = "lisaManagerReferenceNumber"
+  def value = lisaManagerReferenceNumber
+}
+
+object LisaManagerReferenceNumber extends (String => LisaManagerReferenceNumber) {
+  implicit val lisaManRefNumWrite: Writes[LisaManagerReferenceNumber] = new SimpleObjectWrites[LisaManagerReferenceNumber](_.value)
+  implicit val lisaManRefNumRead: Reads[LisaManagerReferenceNumber] = new SimpleObjectReads[LisaManagerReferenceNumber]("lisaManagerReferenceNumber", LisaManagerReferenceNumber.apply)
 }

@@ -87,6 +87,7 @@ object GovernmentGatewayLogin {
         case SUBMIT_VAT_RETURNS => organisation.vrn map {vrn => Enrolment("HMCE-VATDEC-ORG", taxIdentifier(vrn))}
         case PAYE_FOR_EMPLOYERS => organisation.empRef map {empRef => Enrolment("IR-PAYE", taxIdentifier(empRef))}
         case MTD_INCOME_TAX => organisation.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId))}
+        case LISA => organisation.lisaManRefNum map { lisaManRefNum => Enrolment("HMRC-LISA-ORG", taxIdentifier(lisaManRefNum))}
         case _ => None
       }
     }
@@ -115,6 +116,7 @@ object GovernmentGatewayLogin {
         Identifier("TaxOfficeReference", empRef.taxOfficeReference))
       case arn: AgentBusinessUtr => Seq(Identifier("AgentReferenceNumber", arn.toString))
       case mtdItId: MtdItId => Seq(Identifier("MTDITID", mtdItId.toString))
+      case lisaManRefNum: LisaManagerReferenceNumber => Seq(Identifier("lisaManagerReferenceNumber", lisaManRefNum.toString))
       case _ => Seq.empty
     }
   }

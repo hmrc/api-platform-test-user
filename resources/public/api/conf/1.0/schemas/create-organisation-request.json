@@ -33,6 +33,10 @@
           {
             "enum": ["mtd-income-tax"],
             "description": "Enrols a user for Making Tax Digital Income Tax"
+          },
+          {
+            "enum": ["lisa"],
+            "description": "Enrols a user for a Lifetime ISA"
           }
         ]
       },

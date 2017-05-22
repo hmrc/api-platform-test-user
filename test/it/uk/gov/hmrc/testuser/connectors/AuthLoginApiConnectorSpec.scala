@@ -23,7 +23,7 @@ import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
-import uk.gov.hmrc.testuser.models.{AuthSession, MtdItId, TestIndividual, TestOrganisation}
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ServiceName._
 
 class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with WithFakeApplication {
@@ -31,8 +31,8 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
   val testIndividual = TestIndividual("individualUser", "password", Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
     Some(MtdItId("XGIT00000000054")), Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX))
   val testOrganisation = TestOrganisation("organisationUser", "password", Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
-    Some(MtdItId("XGIT00000000054")), Some(EmpRef("555","EIA000")), Some(CtUtr("1555369053")), Some(Vrn("999902541")),
-    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX))
+    Some(MtdItId("XGIT00000000054")), Some(EmpRef("555","EIA000")), Some(CtUtr("1555369053")), Some(Vrn("999902541")), Some(LisaManagerReferenceNumber("Z123456")),
+    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, LISA))
 
   val authSession = AuthSession("Bearer 12345", "/auth/oid/12345", "ggToken")
 
@@ -161,6 +161,15 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       {
            |         "key":"MTDITID",
            |         "value":"${testOrganisation.mtdItId.get.value}"
+           |       }]
+           |     },
+           |     {
+           |       "key": "HMRC-LISA-ORG",
+           |       "state": "Activated",
+           |       "identifiers": [
+           |       {
+           |         "key":"lisaManagerReferenceNumber",
+           |         "value":"${testOrganisation.lisaManRefNum.get.value}"
            |       }]
            |     }
            |   ]
