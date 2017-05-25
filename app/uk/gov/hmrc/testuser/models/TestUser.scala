@@ -76,7 +76,8 @@ case class TestAgent(override val userId: String,
 
 case class TestIndividualCreatedResponse(userId: String, password: String, saUtr: Option[SaUtr], nino: Option[Nino], mtdItId: Option[MtdItId])
 case class TestOrganisationCreatedResponse(userId: String, password: String, saUtr: Option[SaUtr], nino: Option[Nino], mtdItId: Option[MtdItId],
-                                           empRef: Option[EmpRef], ctUtr: Option[CtUtr], vrn: Option[Vrn])
+                                           empRef: Option[EmpRef], ctUtr: Option[CtUtr], vrn: Option[Vrn],
+                                           lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber])
 case class TestAgentCreatedResponse(userId: String, password: String, arn: Option[AgentBusinessUtr])
 
 object TestIndividualCreatedResponse {
@@ -86,8 +87,8 @@ object TestIndividualCreatedResponse {
 
 object TestOrganisationCreatedResponse {
   def from(organisation: TestOrganisation) = TestOrganisationCreatedResponse(organisation.userId, organisation.password,
-    organisation.saUtr, organisation.nino, organisation.mtdItId,
-    organisation.empRef, organisation.ctUtr, organisation.vrn)
+    organisation.saUtr, organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr,
+    organisation.vrn, organisation.lisaManRefNum)
 }
 
 object TestAgentCreatedResponse {
