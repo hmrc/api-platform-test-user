@@ -78,7 +78,7 @@ case class TestIndividualCreatedResponse(userId: String, password: String, saUtr
 case class TestOrganisationCreatedResponse(userId: String, password: String, saUtr: Option[SaUtr], nino: Option[Nino], mtdItId: Option[MtdItId],
                                            empRef: Option[EmpRef], ctUtr: Option[CtUtr], vrn: Option[Vrn],
                                            lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber])
-case class TestAgentCreatedResponse(userId: String, password: String, arn: Option[AgentBusinessUtr])
+case class TestAgentCreatedResponse(userId: String, password: String, agentServicesAccountNumber: Option[AgentBusinessUtr])
 
 object TestIndividualCreatedResponse {
   def from(individual: TestIndividual) = TestIndividualCreatedResponse(individual.userId, individual.password,

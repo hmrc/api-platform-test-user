@@ -16,10 +16,18 @@
 
 package unit.uk.gov.hmrc.testuser.models
 
-import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.models.{MtdItId, TestOrganisationCreatedResponse, TestOrganisation, LisaManagerReferenceNumber}
+import uk.gov.hmrc.domain.AgentBusinessUtr
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.testuser.models._
+import play.api.libs.json.Json.toJson
+import uk.gov.hmrc.testuser.models.JsonFormatters._
 
-class TestUserSpec extends UnitSpec {
+class TestUserSpec extends UnitSpec with WithFakeApplication {
+  val arn = AgentBusinessUtr("NARN0396245")
+
+  trait Setup {
+    implicit lazy val materializer = fakeApplication.materializer
+  }
 
   "MTD ID should accept a valid ID" in {
 
@@ -34,7 +42,7 @@ class TestUserSpec extends UnitSpec {
     }
   }
 
-  "TestOrganisationResponse should be properly constructed from a TestOrganisation" in {
+  "TestOrganisationCreatedResponse should be properly constructed from a TestOrganisation" in {
     val testOrganisation = TestOrganisation(userId = "test", password = "test", lisaManRefNum = Some(LisaManagerReferenceNumber("Z123456")))
     TestOrganisationCreatedResponse.from(testOrganisation) shouldBe
       TestOrganisationCreatedResponse(
@@ -48,5 +56,12 @@ class TestUserSpec extends UnitSpec {
         None,
         Some(LisaManagerReferenceNumber("Z123456"))
       )
+  }
+
+  "TestAgentCreatedResponse should be properly constructed from the TestAgent" in {
+    val testAgent = TestAgent(userId = "test", password = "test", arn = Some(arn))
+    val testAgentCreatedResponse = TestAgentCreatedResponse.from(testAgent)
+
+    toJson(testAgentCreatedResponse).toString() shouldBe """{"userId":"test","password":"test","agentServicesAccountNumber":"NARN0396245"}"""
   }
 }
