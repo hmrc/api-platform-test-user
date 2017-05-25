@@ -17,7 +17,7 @@
 package unit.uk.gov.hmrc.testuser.models
 
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.models.MtdItId
+import uk.gov.hmrc.testuser.models.{MtdItId, TestOrganisationCreatedResponse, TestOrganisation, LisaManagerReferenceNumber}
 
 class TestUserSpec extends UnitSpec {
 
@@ -32,5 +32,21 @@ class TestUserSpec extends UnitSpec {
     intercept[IllegalArgumentException] {
       MtdItId("XXIT00000000054")
     }
+  }
+
+  "TestOrganisationResponse should be properly constructed from a TestOrganisation" in {
+    val testOrganisation = TestOrganisation(userId = "test", password = "test", lisaManRefNum = Some(LisaManagerReferenceNumber("Z123456")))
+    TestOrganisationCreatedResponse.from(testOrganisation) shouldBe
+      TestOrganisationCreatedResponse(
+        userId = "test",
+        password = "test",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        Some(LisaManagerReferenceNumber("Z123456"))
+      )
   }
 }
