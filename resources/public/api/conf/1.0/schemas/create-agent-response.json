@@ -11,9 +11,9 @@
       "type": "string",
       "description": "Government Gateway password"
     },
-    "arn": {
+    "agentServicesAccountNumber": {
       "type": "string",
-      "description": "Account reference number for agent services"
+      "description": "Account number for Agent Services"
     }
   },
   "required": ["userId", "password"]
