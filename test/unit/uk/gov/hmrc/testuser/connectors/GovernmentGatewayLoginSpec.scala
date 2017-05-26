@@ -38,7 +38,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
   val agentEnrolment = Enrolment("HMRC-AS-AGENT", Seq(Identifier("AgentReferenceNumber", arn.utr)))
   val saEnrolment = Enrolment("IR-SA", Seq(Identifier("UTR", saUtr.toString)))
   val mtdItEnrolment = Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId.toString)))
-  val lisaEnrolment = Enrolment("HMRC-LISA-ORG", Seq(Identifier("lisaManagerReferenceNumber", lisaManRefNum.toString)))
+  val lisaEnrolment = Enrolment("HMRC-LISA-ORG", Seq(Identifier("ZREF", lisaManRefNum.toString)))
   val ctEnrolment = Enrolment("IR-CT", Seq(Identifier("UTR", ctUtr.toString)))
   val vatEnrolment = Enrolment("HMCE-VATDEC-ORG", Seq(Identifier("VATRegNo", vrn.toString)))
   val payeEnrolment = Enrolment("IR-PAYE", Seq(Identifier("TaxOfficeNumber", empRef.taxOfficeNumber),
