@@ -168,7 +168,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "state": "Activated",
            |       "identifiers": [
            |       {
-           |         "key":"lisaManagerReferenceNumber",
+           |         "key":"ZREF",
            |         "value":"${testOrganisation.lisaManRefNum.get.value}"
            |       }]
            |     }

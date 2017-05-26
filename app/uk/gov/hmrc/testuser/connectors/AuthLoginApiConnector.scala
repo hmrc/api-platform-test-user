@@ -116,7 +116,7 @@ object GovernmentGatewayLogin {
         Identifier("TaxOfficeReference", empRef.taxOfficeReference))
       case arn: AgentBusinessUtr => Seq(Identifier("AgentReferenceNumber", arn.toString))
       case mtdItId: MtdItId => Seq(Identifier("MTDITID", mtdItId.toString))
-      case lisaManRefNum: LisaManagerReferenceNumber => Seq(Identifier("lisaManagerReferenceNumber", lisaManRefNum.toString))
+      case lisaManRefNum: LisaManagerReferenceNumber => Seq(Identifier("ZREF", lisaManRefNum.toString))
       case _ => Seq.empty
     }
   }
