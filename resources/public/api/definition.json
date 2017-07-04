@@ -4,6 +4,7 @@
     "name": "Create Test User",
     "description": "The Create Test User API is responsible for creating test users on the external test environment.",
     "context": "create-test-user",
+    "isTestSupport": true,
     "versions": [
       {
         "version": "1.0",
