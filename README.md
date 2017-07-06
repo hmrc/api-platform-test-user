@@ -20,13 +20,25 @@ is to run with a docker image:
 
 ### Seeing changes locally
 
-In order to view changes locally run the following
+In order to view changes locally you will need to add the following to your ~/.hmrc/api-services-stub.conf
 
-```sm --start API_DOCUMENTATION_FRONTED_STUBMODE```
+```api-platform-test-user = api-platform-test-user/resources/public/api```
 
-```sm --start API_SERVICES_STUB```
+Or create a file ~/.hmrc/api-services-stub.conf containing 
+~~~
+workspace: <path-to-your-projects-folder>
 
-```sm --start ASSETS_FRONTEND```
+services {
+    api-platform-test-user = api-platform-test-user/resources/public/api
+}
+~~~
+
+run the following in your projects folder
+~~~
+sm --start API_DOCUMENTATION_FRONTEND_STUBMODE
+sm --start API_SERVICES_STUB
+sm --start ASSETS_FRONTEND
+~~~
 
 You should be able to see your changes at
 
