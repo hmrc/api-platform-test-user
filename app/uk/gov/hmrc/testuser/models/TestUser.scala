@@ -21,6 +21,7 @@ import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.testuser.models.ServiceName.ServiceName
 import uk.gov.hmrc.testuser.models.UserType.UserType
+import uk.gov.hmrc.testuser.util.Randomiser
 
 object ServiceName extends Enumeration {
   type ServiceName = Value
@@ -48,7 +49,8 @@ case class TestIndividual(override val userId: String,
                           nino: Option[Nino] = None,
                           mtdItId: Option[MtdItId] = None,
                           override val services: Seq[ServiceName] = Seq.empty,
-                          override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
+                          override val _id: BSONObjectID = BSONObjectID.generate,
+                          individualDetails: IndividualDetails = IndividualDetails.random()) extends TestUser {
   override val affinityGroup = "Individual"
 }
 
@@ -186,4 +188,28 @@ case class LisaManagerReferenceNumber(lisaManagerReferenceNumber: String) extend
 object LisaManagerReferenceNumber extends (String => LisaManagerReferenceNumber) {
   implicit val lisaManRefNumWrite: Writes[LisaManagerReferenceNumber] = new SimpleObjectWrites[LisaManagerReferenceNumber](_.value)
   implicit val lisaManRefNumRead: Reads[LisaManagerReferenceNumber] = new SimpleObjectReads[LisaManagerReferenceNumber]("lisaManagerReferenceNumber", LisaManagerReferenceNumber.apply)
+}
+
+case class Address(line1: String, line2: String)
+
+object Address extends Randomiser {
+
+  def random(): Address = Address(
+    randomConfigString("randomiser.individualDetails.address.line1"),
+    randomConfigString("randomiser.individualDetails.address.line2")
+  )
+
+}
+
+case class IndividualDetails(firstName: String, lastName: String, dateOfBirth: String, address: Address)
+
+object IndividualDetails extends Randomiser {
+
+  def random(): IndividualDetails = IndividualDetails(
+    randomConfigString("randomiser.individualDetails.firstName"),
+    randomConfigString("randomiser.individualDetails.lastName"),
+    randomConfigString("randomiser.individualDetails.dateOfBirth"),
+    Address.random()
+  )
+
 }
