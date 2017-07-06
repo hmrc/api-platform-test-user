@@ -18,6 +18,22 @@ is to run with a docker image:
 
     docker run -p 27017:27017 --name mongo -d mongo:3.2
 
+### Seeing changes locally
+
+In order to view changes locally run the following
+
+```sm --start API_DOCUMENTATION_FRONTED_STUBMODE```
+
+```sm --start API_SERVICES_STUB```
+
+```sm --start ASSETS_FRONTEND```
+
+You should be able to see your changes at
+
+```http://localhost:9681/api-documentation/docs/api/service/api-platform-test-user```
+
+Though it may take a minute to boot.
+
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html")

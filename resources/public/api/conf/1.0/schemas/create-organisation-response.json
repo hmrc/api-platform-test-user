@@ -17,7 +17,7 @@
     },
     "nino": {
       "type": "string",
-      "description": "National Insurance Number"
+      "description": "National Insurance number"
     },
     "mtdItId": {
       "type": "string",
@@ -37,7 +37,7 @@
     },
     "lisaManagerReferenceNumber": {
       "type": "string",
-      "description": "Lisa Manager Reference Number"
+      "description": "LISA Manager Reference Number"
     }
   },
   "required": ["userId", "password"]
