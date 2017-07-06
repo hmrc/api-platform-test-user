@@ -12,7 +12,7 @@
         "oneOf": [
           {
             "enum": ["corporation-tax"],
-            "description": "Enrols a user for a Corporation Tax UTR"
+            "description": "Enrols a user for Corporation Tax and generates a Corporation Tax UTR"
           },
           {
             "enum": ["paye-for-employers"],
@@ -20,23 +20,23 @@
           },
           {
             "enum": ["submit-vat-returns"],
-            "description": "Enrols a user for a VAT Online Account and generates a VAT Registration Number"
+            "description": "Enrols a user for Submit VAT Returns and generates a VAT Registration Number"
           },
           {
             "enum": ["national-insurance"],
-            "description": "Enrols a user for a National Insurance Number"
+            "description": "Enrols a user for National Insurance and generates a National Insurance number"
           },
           {
             "enum": ["self-assessment"],
-            "description": "Enrols a user for a Self Assessment UTR"
+            "description": "Enrols a user for Self Assessment and generates a Self Assessment UTR"
           },
           {
             "enum": ["mtd-income-tax"],
-            "description": "Enrols a user for Making Tax Digital Income Tax"
+            "description": "Enrols a user for Making Tax Digital Income Tax and generates a Making Tax Digital Income Tax ID"
           },
           {
             "enum": ["lisa"],
-            "description": "Enrols a user for a Lifetime ISA"
+            "description": "Enrols a user for Lifetime ISA and generates a LISA Manager Reference Number"
           }
         ]
       },
