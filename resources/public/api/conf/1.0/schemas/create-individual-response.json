@@ -11,6 +11,37 @@
       "type": "string",
       "description": "Government Gateway password"
     },
+    "individualDetails": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "description": "Individual's first name"
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Individual's last name"
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "format": "date",
+          "description": "Individual's date of birth"
+        },
+        "address": {
+          "type": "object",
+          "properties": {
+            "line1": {
+              "type": "string",
+              "description": "Individual's first line of address"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Individual's second line of address"
+            }
+          }
+        }
+      }
+    },
     "saUtr": {
       "type": "string",
       "description": "Self Assessment UTR"
