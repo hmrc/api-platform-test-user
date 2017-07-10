@@ -77,14 +77,14 @@ case class TestAgent(override val userId: String,
   override val affinityGroup = "Agent"
 }
 
-case class TestIndividualCreatedResponse(userId: String, password: String, saUtr: Option[SaUtr], nino: Option[Nino], mtdItId: Option[MtdItId])
+case class TestIndividualCreatedResponse(userId: String, password: String, individualDetails: IndividualDetails, saUtr: Option[SaUtr], nino: Option[Nino], mtdItId: Option[MtdItId])
 case class TestOrganisationCreatedResponse(userId: String, password: String, saUtr: Option[SaUtr], nino: Option[Nino], mtdItId: Option[MtdItId],
                                            empRef: Option[EmpRef], ctUtr: Option[CtUtr], vrn: Option[Vrn],
                                            lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber])
 case class TestAgentCreatedResponse(userId: String, password: String, agentServicesAccountNumber: Option[AgentBusinessUtr])
 
 object TestIndividualCreatedResponse {
-  def from(individual: TestIndividual) = TestIndividualCreatedResponse(individual.userId, individual.password,
+  def from(individual: TestIndividual) = TestIndividualCreatedResponse(individual.userId, individual.password, individual.individualDetails,
     individual.saUtr, individual.nino, individual.mtdItId)
 }
 
