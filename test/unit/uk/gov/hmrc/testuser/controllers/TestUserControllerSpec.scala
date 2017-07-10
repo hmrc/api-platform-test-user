@@ -92,12 +92,21 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     "return 201 (Created) with the created individual" in new Setup {
 
+      def withConsistentIndividualDetails(testIndividualCreatedResponse1: TestIndividualCreatedResponse, testIndividualCreatedResponse2: TestIndividualCreatedResponse) = {
+        val consistentIndividualDetails = IndividualDetails.random()
+        (testIndividualCreatedResponse1.copy(individualDetails = consistentIndividualDetails),
+          testIndividualCreatedResponse2.copy(individualDetails = consistentIndividualDetails))
+      }
+
       given(underTest.testUserService.createTestIndividual(refEq(createIndividualServices))(any())).willReturn(testIndividual)
 
       val result = await(underTest.createIndividual()(createIndividualRequest))
 
       status(result) shouldBe CREATED
-      jsonBodyOf(result) shouldBe toJson(TestIndividualCreatedResponse(user, password, Some(saUtr), Some(nino), Some(mtdItId)))
+      private val actual = jsonBodyOf(result).as[TestIndividualCreatedResponse]
+      private val expected = TestIndividualCreatedResponse(user, password, null, Some(saUtr), Some(nino), Some(mtdItId))
+      val (actualWithConsistentIndividualDetails, expectedWithConsistentIndividualDetails) = withConsistentIndividualDetails(actual, expected)
+      actualWithConsistentIndividualDetails shouldBe expectedWithConsistentIndividualDetails
     }
 
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
