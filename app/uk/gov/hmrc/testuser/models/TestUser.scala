@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.testuser.models
 
+import org.joda.time.LocalDate
 import play.api.libs.json.{Format, Reads, Writes}
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.domain._
@@ -201,14 +202,14 @@ object Address extends Randomiser {
 
 }
 
-case class IndividualDetails(firstName: String, lastName: String, dateOfBirth: String, address: Address)
+case class IndividualDetails(firstName: String, lastName: String, dateOfBirth: LocalDate, address: Address)
 
 object IndividualDetails extends Randomiser {
 
   def random(): IndividualDetails = IndividualDetails(
     randomConfigString("randomiser.individualDetails.firstName"),
     randomConfigString("randomiser.individualDetails.lastName"),
-    randomConfigString("randomiser.individualDetails.dateOfBirth"),
+    LocalDate.parse(randomConfigString("randomiser.individualDetails.dateOfBirth")),
     Address.random()
   )
 
