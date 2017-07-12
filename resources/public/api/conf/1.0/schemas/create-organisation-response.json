@@ -11,6 +11,28 @@
       "type": "string",
       "description": "Government Gateway password"
     },
+    "organisationDetails": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Organisation name"
+        },
+        "address": {
+          "type": "object",
+          "properties": {
+            "line1": {
+              "type": "string",
+              "description": "Organisation's first line of address"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Organisation's second line of address"
+            }
+          }
+        }
+      }
+    },
     "saUtr": {
       "type": "string",
       "description": "Self Assessment UTR"
@@ -40,5 +62,5 @@
       "description": "LISA Manager Reference Number"
     }
   },
-  "required": ["userId", "password"]
+  "required": ["userId", "password", "organisationDetails"]
 }
