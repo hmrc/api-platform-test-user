@@ -24,6 +24,8 @@ import uk.gov.hmrc.testuser.models.ServiceName.ServiceName
 import uk.gov.hmrc.testuser.models.UserType.UserType
 import uk.gov.hmrc.testuser.util.Randomiser
 
+import scala.util.Random
+
 object ServiceName extends Enumeration {
   type ServiceName = Value
   val NATIONAL_INSURANCE = Value("national-insurance")
@@ -199,8 +201,8 @@ case class Address(line1: String, line2: String)
 object Address extends Randomiser {
 
   def random(): Address = Address(
-    randomConfigString("randomiser.individualDetails.address.line1"),
-    randomConfigString("randomiser.individualDetails.address.line2")
+    randomConfigString("randomiser.address.line1"),
+    randomConfigString("randomiser.address.line2")
   )
 
 }
@@ -222,9 +224,6 @@ case class OrganisationDetails(name: String, address: Address)
 
 object OrganisationDetails extends Randomiser {
 
-  def random(): OrganisationDetails = OrganisationDetails(
-    randomConfigString("randomiser.organisationDetails.name"),
-    Address.random()
-  )
+  def random(): OrganisationDetails = OrganisationDetails(s"Company ${Random.nextInt(99999)}", Address.random())
 
 }
