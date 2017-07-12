@@ -1,6 +1,13 @@
 {
   "userId":"085603622877",
   "password":"nyezgdfrlsmc",
+  "organisationDetails": {
+    "name":"Company ABF123",
+    "address": {
+      "line1":"1 Abbey Road",
+      "line2":"Aberdeen"
+    }
+  },
   "saUtr":"8000083480",
   "nino":"XM110477D",
   "empRef":"538/EMKXYNSVTH",
