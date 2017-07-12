@@ -65,7 +65,8 @@ case class TestOrganisation(override val userId: String,
                             vrn: Option[Vrn] = None,
                             lisaManRefNum: Option[LisaManagerReferenceNumber] = None,
                             override val services: Seq[ServiceName] = Seq.empty,
-                            override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
+                            override val _id: BSONObjectID = BSONObjectID.generate,
+                            organisationDetails: OrganisationDetails = OrganisationDetails.random()) extends TestUser {
   override val affinityGroup = "Organisation"
 }
 
@@ -78,7 +79,7 @@ case class TestAgent(override val userId: String,
 }
 
 case class TestIndividualCreatedResponse(userId: String, password: String, individualDetails: IndividualDetails, saUtr: Option[SaUtr], nino: Option[Nino], mtdItId: Option[MtdItId])
-case class TestOrganisationCreatedResponse(userId: String, password: String, saUtr: Option[SaUtr], nino: Option[Nino], mtdItId: Option[MtdItId],
+case class TestOrganisationCreatedResponse(userId: String, password: String, organisationDetails: OrganisationDetails, saUtr: Option[SaUtr], nino: Option[Nino], mtdItId: Option[MtdItId],
                                            empRef: Option[EmpRef], ctUtr: Option[CtUtr], vrn: Option[Vrn],
                                            lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber])
 case class TestAgentCreatedResponse(userId: String, password: String, agentServicesAccountNumber: Option[AgentBusinessUtr])
@@ -89,7 +90,7 @@ object TestIndividualCreatedResponse {
 }
 
 object TestOrganisationCreatedResponse {
-  def from(organisation: TestOrganisation) = TestOrganisationCreatedResponse(organisation.userId, organisation.password,
+  def from(organisation: TestOrganisation) = TestOrganisationCreatedResponse(organisation.userId, organisation.password, organisation.organisationDetails,
     organisation.saUtr, organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr,
     organisation.vrn, organisation.lisaManRefNum)
 }
@@ -114,6 +115,7 @@ case class TestIndividualResponse(override val userId: String,
                                   override val userType: UserType = UserType.INDIVIDUAL) extends TestUserResponse
 
 case class TestOrganisationResponse(override val userId: String,
+                                    organisationDetails: OrganisationDetails,
                                     override val saUtr: Option[SaUtr] = None,
                                     override val nino: Option[Nino] = None,
                                     override val mtdItId: Option[MtdItId] = None,
@@ -133,7 +135,7 @@ object TestIndividualResponse {
 }
 
 object TestOrganisationResponse {
-  def from(organisation: TestOrganisation) = TestOrganisationResponse(organisation.userId, organisation.saUtr,
+  def from(organisation: TestOrganisation) = TestOrganisationResponse(organisation.userId, organisation.organisationDetails, organisation.saUtr,
     organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.lisaManRefNum)
 }
 
@@ -211,6 +213,17 @@ object IndividualDetails extends Randomiser {
     randomConfigString("randomiser.individualDetails.firstName"),
     randomConfigString("randomiser.individualDetails.lastName"),
     LocalDate.parse(randomConfigString("randomiser.individualDetails.dateOfBirth")),
+    Address.random()
+  )
+
+}
+
+case class OrganisationDetails(name: String, address: Address)
+
+object OrganisationDetails extends Randomiser {
+
+  def random(): OrganisationDetails = OrganisationDetails(
+    randomConfigString("randomiser.organisationDetails.name"),
     Address.random()
   )
 
