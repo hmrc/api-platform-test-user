@@ -107,6 +107,7 @@ sealed trait TestUserResponse {
 }
 
 case class TestIndividualResponse(override val userId: String,
+                                  individualDetails: IndividualDetails,
                                   override val saUtr: Option[SaUtr] = None,
                                   override val nino: Option[Nino] = None,
                                   override val mtdItId: Option[MtdItId] = None,
@@ -127,7 +128,7 @@ case class TestAgentResponse(userId: String,
                              userType: UserType = UserType.AGENT)
 
 object TestIndividualResponse {
-  def from(individual: TestIndividual) = TestIndividualResponse(individual.userId, individual.saUtr, individual.nino,
+  def from(individual: TestIndividual) = TestIndividualResponse(individual.userId, individual.individualDetails, individual.saUtr, individual.nino,
     individual.mtdItId)
 }
 
