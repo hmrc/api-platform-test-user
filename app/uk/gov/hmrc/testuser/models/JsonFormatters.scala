@@ -26,6 +26,8 @@ object JsonFormatters {
   implicit val formatObjectId = ReactiveMongoFormats.objectIdFormats
   implicit val formatServiceName = EnumJson.enumFormat(ServiceName)
   implicit val formatUserType = EnumJson.enumFormat(UserType)
+  implicit val formatAddress = Json.format[Address]
+  implicit val formatIndividualDetails = Json.format[IndividualDetails]
   implicit val formatTestIndividual = Json.format[TestIndividual]
   implicit val formatTestOrganisation = Json.format[TestOrganisation]
   implicit val formatTestAgent = Json.format[TestAgent]

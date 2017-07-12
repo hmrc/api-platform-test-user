@@ -16,11 +16,13 @@
 
 package uk.gov.hmrc.testuser.models
 
+import org.joda.time.LocalDate
 import play.api.libs.json.{Format, Reads, Writes}
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.testuser.models.ServiceName.ServiceName
 import uk.gov.hmrc.testuser.models.UserType.UserType
+import uk.gov.hmrc.testuser.util.Randomiser
 
 object ServiceName extends Enumeration {
   type ServiceName = Value
@@ -48,7 +50,8 @@ case class TestIndividual(override val userId: String,
                           nino: Option[Nino] = None,
                           mtdItId: Option[MtdItId] = None,
                           override val services: Seq[ServiceName] = Seq.empty,
-                          override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
+                          override val _id: BSONObjectID = BSONObjectID.generate,
+                          individualDetails: IndividualDetails = IndividualDetails.random()) extends TestUser {
   override val affinityGroup = "Individual"
 }
 
@@ -74,14 +77,14 @@ case class TestAgent(override val userId: String,
   override val affinityGroup = "Agent"
 }
 
-case class TestIndividualCreatedResponse(userId: String, password: String, saUtr: Option[SaUtr], nino: Option[Nino], mtdItId: Option[MtdItId])
+case class TestIndividualCreatedResponse(userId: String, password: String, individualDetails: IndividualDetails, saUtr: Option[SaUtr], nino: Option[Nino], mtdItId: Option[MtdItId])
 case class TestOrganisationCreatedResponse(userId: String, password: String, saUtr: Option[SaUtr], nino: Option[Nino], mtdItId: Option[MtdItId],
                                            empRef: Option[EmpRef], ctUtr: Option[CtUtr], vrn: Option[Vrn],
                                            lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber])
 case class TestAgentCreatedResponse(userId: String, password: String, agentServicesAccountNumber: Option[AgentBusinessUtr])
 
 object TestIndividualCreatedResponse {
-  def from(individual: TestIndividual) = TestIndividualCreatedResponse(individual.userId, individual.password,
+  def from(individual: TestIndividual) = TestIndividualCreatedResponse(individual.userId, individual.password, individual.individualDetails,
     individual.saUtr, individual.nino, individual.mtdItId)
 }
 
@@ -104,6 +107,7 @@ sealed trait TestUserResponse {
 }
 
 case class TestIndividualResponse(override val userId: String,
+                                  individualDetails: IndividualDetails,
                                   override val saUtr: Option[SaUtr] = None,
                                   override val nino: Option[Nino] = None,
                                   override val mtdItId: Option[MtdItId] = None,
@@ -124,7 +128,7 @@ case class TestAgentResponse(userId: String,
                              userType: UserType = UserType.AGENT)
 
 object TestIndividualResponse {
-  def from(individual: TestIndividual) = TestIndividualResponse(individual.userId, individual.saUtr, individual.nino,
+  def from(individual: TestIndividual) = TestIndividualResponse(individual.userId, individual.individualDetails, individual.saUtr, individual.nino,
     individual.mtdItId)
 }
 
@@ -186,4 +190,28 @@ case class LisaManagerReferenceNumber(lisaManagerReferenceNumber: String) extend
 object LisaManagerReferenceNumber extends (String => LisaManagerReferenceNumber) {
   implicit val lisaManRefNumWrite: Writes[LisaManagerReferenceNumber] = new SimpleObjectWrites[LisaManagerReferenceNumber](_.value)
   implicit val lisaManRefNumRead: Reads[LisaManagerReferenceNumber] = new SimpleObjectReads[LisaManagerReferenceNumber]("lisaManagerReferenceNumber", LisaManagerReferenceNumber.apply)
+}
+
+case class Address(line1: String, line2: String)
+
+object Address extends Randomiser {
+
+  def random(): Address = Address(
+    randomConfigString("randomiser.individualDetails.address.line1"),
+    randomConfigString("randomiser.individualDetails.address.line2")
+  )
+
+}
+
+case class IndividualDetails(firstName: String, lastName: String, dateOfBirth: LocalDate, address: Address)
+
+object IndividualDetails extends Randomiser {
+
+  def random(): IndividualDetails = IndividualDetails(
+    randomConfigString("randomiser.individualDetails.firstName"),
+    randomConfigString("randomiser.individualDetails.lastName"),
+    LocalDate.parse(randomConfigString("randomiser.individualDetails.dateOfBirth")),
+    Address.random()
+  )
+
 }

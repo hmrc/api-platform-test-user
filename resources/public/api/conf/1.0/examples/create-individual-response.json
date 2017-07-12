@@ -1,6 +1,15 @@
 {
   "userId":"945350439195",
   "password":"bLohysg8utsa",
+  "individualDetails": {
+    "firstName": "Ida",
+    "lastName": "Newton",
+    "dateOfBirth": "1960-06-01",
+    "address": {
+      "line1": "45 Springfield Rise",
+      "line2": "Glasgow"
+    }
+  },
   "saUtr":"1000057161",
   "nino":"PE938808A",
   "mtdItId":"XJIT00000328268"

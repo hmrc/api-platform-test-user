@@ -18,6 +18,7 @@ package uk.gov.hmrc.testuser.config
 
 import com.typesafe.config.Config
 import net.ceedubs.ficus.Ficus._
+import play.api.Play._
 import play.api._
 import uk.gov.hmrc.api.config.{ServiceLocatorConfig, ServiceLocatorRegistration}
 import uk.gov.hmrc.api.connector.ServiceLocatorConnector
@@ -29,7 +30,7 @@ import uk.gov.hmrc.play.filters.MicroserviceFilterSupport
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.http.logging.filters.LoggingFilter
 import uk.gov.hmrc.play.microservice.bootstrap.DefaultMicroserviceGlobal
-import play.api.Play._
+import uk.gov.hmrc.testuser.services.MigrationService
 
 object ControllerConfiguration extends ControllerConfig {
   lazy val controllerConfigs = Play.current.configuration.underlying.as[Config]("controllers")
@@ -69,4 +70,9 @@ object MicroserviceGlobal extends DefaultMicroserviceGlobal with ServiceLocatorR
   override val loggingFilter = MicroserviceLoggingFilter
   override val microserviceAuditFilter = MicroserviceAuditFilter
   override val authFilter = Some(MicroserviceAuthFilter)
+
+  override def onStart(app: Application) = {
+    new MigrationService().migrateAdditionOfIndividualUserDetails()
+    super.onStart(app)
+  }
 }
