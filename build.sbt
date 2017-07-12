@@ -20,6 +20,7 @@ lazy val logbackJsonLoggerVersion = "3.1.0"
 lazy val playUrlBindersVersion = "2.1.0"
 lazy val playConfigVersion = "4.3.0"
 lazy val domainVersion = "4.1.0"
+lazy val mongoLockVersion = "4.1.0"
 lazy val hmrcReactiveMongoTestVersion = "2.0.0"
 lazy val hmrcTestVersion = "2.3.0"
 lazy val scalaTestVersion = "2.2.6"
@@ -45,6 +46,7 @@ lazy val compile = Seq(
   "uk.gov.hmrc" %% "logback-json-logger" % logbackJsonLoggerVersion,
   "uk.gov.hmrc" %% "play-json-union-formatter" % hmrcPlayJsonUnionFormatterVersion,
   "uk.gov.hmrc" %% "domain" % domainVersion,
+  "uk.gov.hmrc" %% "mongo-lock" % mongoLockVersion,
   "org.scalacheck" %% "scalacheck" % scalaCheckVersion,
   "org.mindrot" % "jbcrypt" % jBcryptVersion
 )
