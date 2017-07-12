@@ -104,8 +104,8 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       val result = await(underTest.createIndividual()(createIndividualRequest))
 
       status(result) shouldBe CREATED
-      private val actual = jsonBodyOf(result).as[TestIndividualCreatedResponse]
-      private val expected = TestIndividualCreatedResponse(user, password, null, Some(saUtr), Some(nino), Some(mtdItId))
+      val actual = jsonBodyOf(result).as[TestIndividualCreatedResponse]
+      val expected = TestIndividualCreatedResponse(user, password, null, Some(saUtr), Some(nino), Some(mtdItId))
       val (actualWithConsistentIndividualDetails, expectedWithConsistentIndividualDetails) = withConsistentIndividualDetails(actual, expected)
       actualWithConsistentIndividualDetails shouldBe expectedWithConsistentIndividualDetails
     }
@@ -128,13 +128,22 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     "return 201 (Created) with the created organisation" in new Setup {
 
+      def withConsistentOrganisationDetails(testOrganisationCreatedResponse1: TestOrganisationCreatedResponse, testOrganisationCreatedResponse2: TestOrganisationCreatedResponse) = {
+        val consistentOrganisationDetails = OrganisationDetails.random()
+        (testOrganisationCreatedResponse1.copy(organisationDetails = consistentOrganisationDetails),
+          testOrganisationCreatedResponse2.copy(organisationDetails = consistentOrganisationDetails))
+      }
+
       given(underTest.testUserService.createTestOrganisation(refEq(createOrganisationServices))(any())).willReturn(testOrganisation)
 
       val result = await(underTest.createOrganisation()(createOrganisationRequest))
 
       status(result) shouldBe CREATED
-      jsonBodyOf(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, Some(saUtr),
-        Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber)))
+      val actual = jsonBodyOf(result).as[TestOrganisationCreatedResponse]
+      val expected = TestOrganisationCreatedResponse(user, password, null, Some(saUtr),
+        Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber))
+      val (actualWithConsistentOrganisationDetails, expectedWithConsistentOrganisationDetails) = withConsistentOrganisationDetails(actual, expected)
+      actualWithConsistentOrganisationDetails shouldBe expectedWithConsistentOrganisationDetails
     }
 
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
