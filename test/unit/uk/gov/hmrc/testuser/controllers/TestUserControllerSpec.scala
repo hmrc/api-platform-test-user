@@ -21,8 +21,7 @@ import org.mockito.BDDMockito.given
 import org.mockito.Matchers.{any, refEq}
 import org.scalatest.mock.MockitoSugar
 import play.api.Logger
-import play.api.http.HeaderNames
-import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, UNAUTHORIZED}
+import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR}
 import play.api.libs.json.Json.toJson
 import play.api.libs.json.{JsValue, Json}
 import play.api.test._
@@ -34,7 +33,7 @@ import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.services.TestUserService
 
-import scala.concurrent.Future.{failed, successful}
+import scala.concurrent.Future.failed
 
 class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with LogSuppressing {
 
@@ -50,8 +49,10 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   val arn = AgentBusinessUtr("NARN0396245")
   val lisaManagerReferenceNumber = LisaManagerReferenceNumber("Z123456")
 
-  val testIndividual = TestIndividual(user, password, Some(saUtr), Some(nino), Some(mtdItId))
-  val testOrganisation = TestOrganisation(user, password, Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber))
+  val individualDetails = IndividualDetails.random()
+  val organisationDetails = OrganisationDetails.random()
+  val testIndividual = TestIndividual(user, password, Some(saUtr), Some(nino), Some(mtdItId), individualDetails = individualDetails)
+  val testOrganisation = TestOrganisation(user, password, Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber), organisationDetails = organisationDetails)
   val testAgent = TestAgent(user, password, Some(arn))
   val createIndividualServices = Seq(ServiceName.NATIONAL_INSURANCE)
   val createOrganisationServices = Seq(ServiceName.NATIONAL_INSURANCE)
@@ -92,21 +93,12 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     "return 201 (Created) with the created individual" in new Setup {
 
-      def withConsistentIndividualDetails(testIndividualCreatedResponse1: TestIndividualCreatedResponse, testIndividualCreatedResponse2: TestIndividualCreatedResponse) = {
-        val consistentIndividualDetails = IndividualDetails.random()
-        (testIndividualCreatedResponse1.copy(individualDetails = consistentIndividualDetails),
-          testIndividualCreatedResponse2.copy(individualDetails = consistentIndividualDetails))
-      }
-
       given(underTest.testUserService.createTestIndividual(refEq(createIndividualServices))(any())).willReturn(testIndividual)
 
       val result = await(underTest.createIndividual()(createIndividualRequest))
 
       status(result) shouldBe CREATED
-      private val actual = jsonBodyOf(result).as[TestIndividualCreatedResponse]
-      private val expected = TestIndividualCreatedResponse(user, password, null, Some(saUtr), Some(nino), Some(mtdItId))
-      val (actualWithConsistentIndividualDetails, expectedWithConsistentIndividualDetails) = withConsistentIndividualDetails(actual, expected)
-      actualWithConsistentIndividualDetails shouldBe expectedWithConsistentIndividualDetails
+      jsonBodyOf(result) shouldBe toJson(TestIndividualCreatedResponse(user, password, individualDetails, Some(saUtr), Some(nino), Some(mtdItId)))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
@@ -132,7 +124,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       val result = await(underTest.createOrganisation()(createOrganisationRequest))
 
       status(result) shouldBe CREATED
-      jsonBodyOf(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, Some(saUtr),
+      jsonBodyOf(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, organisationDetails, Some(saUtr),
         Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber)))
     }
 
