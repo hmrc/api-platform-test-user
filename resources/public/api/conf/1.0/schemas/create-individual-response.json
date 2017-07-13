@@ -38,9 +38,19 @@
               "type": "string",
               "description": "Individual's second line of address"
             }
-          }
+          },
+          "required": [
+            "line1",
+            "line2"
+          ]
         }
       }
+      "required": [
+        "firstName",
+        "lastName",
+        "dateOfBirth",
+        "address"
+      ]
     },
     "saUtr": {
       "type": "string",
@@ -55,5 +65,9 @@
       "description": "Making Tax Digital Income Tax ID"
     }
   },
-  "required": ["userId", "password", "individualDetails"]
+  "required": [
+    "userId",
+    "password",
+    "individualDetails"
+  ]
 }
