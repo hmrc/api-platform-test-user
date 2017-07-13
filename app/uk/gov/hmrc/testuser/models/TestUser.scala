@@ -17,6 +17,7 @@
 package uk.gov.hmrc.testuser.models
 
 import org.joda.time.LocalDate
+import org.scalacheck.Gen
 import play.api.libs.json.{Format, Reads, Writes}
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.domain._
@@ -224,6 +225,8 @@ case class OrganisationDetails(name: String, address: Address)
 
 object OrganisationDetails extends Randomiser {
 
-  def random(): OrganisationDetails = OrganisationDetails(s"Company ${Random.nextInt(99999)}", Address.random())
+  private def randomOrganisationName() = "Company " + Gen.listOfN(6, Gen.alphaNumChar).map(_.mkString.toUpperCase).sample.get
+
+  def random(): OrganisationDetails = OrganisationDetails(randomOrganisationName(), Address.random())
 
 }
