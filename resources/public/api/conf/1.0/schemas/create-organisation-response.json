@@ -29,9 +29,17 @@
               "type": "string",
               "description": "Organisation's second line of address"
             }
-          }
+          },
+          "required": [
+            "line1",
+            "line2"
+          ]
         }
-      }
+      },
+      "required": [
+        "name",
+        "address"
+      ]
     },
     "saUtr": {
       "type": "string",
@@ -62,5 +70,9 @@
       "description": "LISA Manager Reference Number"
     }
   },
-  "required": ["userId", "password", "organisationDetails"]
+  "required": [
+    "userId",
+    "password",
+    "organisationDetails"
+  ]
 }
