@@ -89,6 +89,24 @@ class FetchUserSpec extends BaseSpec {
       )
     }
 
+    scenario("Fetch an organisation by EMPREF") {
+
+      Given("An organisation")
+      val organisation = createOrganisation()
+
+      When("I fetch the organisation by its EMPREF")
+      val response = Http(s"$serviceUrl/organisations/empref/${organisation.empRef.get.encodedValue}").asString
+
+      Then("The organisation is returned")
+      Json.parse(response.body) shouldBe Json.parse(
+        s"""{
+            |   "userId": "${organisation.userId}",
+            |   "empRef": "${organisation.empRef.get}",
+            |   "userType": "ORGANISATION"
+            |}
+      """.stripMargin
+      )
+    }
   }
 
   private def createIndividual(): TestIndividualCreatedResponse = {
@@ -96,5 +114,12 @@ class FetchUserSpec extends BaseSpec {
       .postData(s"""{ "serviceNames": ["national-insurance", "self-assessment"] }""")
       .header(HeaderNames.CONTENT_TYPE, "application/json").asString
     Json.parse(createdResponse.body).as[TestIndividualCreatedResponse]
+  }
+
+  private def createOrganisation(): TestOrganisationCreatedResponse = {
+    val createdResponse = Http(s"$serviceUrl/organisations")
+      .postData(s"""{ "serviceNames": ["paye-for-employers"] }""")
+      .header(HeaderNames.CONTENT_TYPE, "application/json").asString
+    Json.parse(createdResponse.body).as[TestOrganisationCreatedResponse]
   }
 }

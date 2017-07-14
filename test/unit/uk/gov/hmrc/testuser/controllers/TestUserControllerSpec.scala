@@ -30,6 +30,7 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.controllers.TestUserController
 import uk.gov.hmrc.testuser.models.JsonFormatters._
+import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.services.TestUserService
 
@@ -178,12 +179,12 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     "return a 404 (Not Found) when there is no individual matching the NINO" in new Setup {
 
-      given(underTest.testUserService.fetchIndividualByNino(refEq(nino))(any())).willReturn(failed(UserNotFound()))
+      given(underTest.testUserService.fetchIndividualByNino(refEq(nino))(any())).willReturn(failed(UserNotFound(INDIVIDUAL)))
 
       val result = await(underTest.fetchIndividualByNino(nino)(request))
 
       status(result) shouldBe NOT_FOUND
-      jsonBodyOf(result) shouldBe Json.obj("code" -> "USER_NOT_FOUND", "message" -> "User not found")
+      jsonBodyOf(result) shouldBe Json.obj("code" -> "USER_NOT_FOUND", "message" -> "The individual can not be found")
     }
 
     "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
@@ -212,12 +213,12 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     "return a 404 (Not Found) when there is no individual matching the short nino" in new Setup {
 
-      given(underTest.testUserService.fetchIndividualByShortNino(refEq(shortNino))(any())).willReturn(failed(UserNotFound()))
+      given(underTest.testUserService.fetchIndividualByShortNino(refEq(shortNino))(any())).willReturn(failed(UserNotFound(INDIVIDUAL)))
 
       val result = await(underTest.fetchIndividualByShortNino(shortNino)(request))
 
       status(result) shouldBe NOT_FOUND
-      jsonBodyOf(result) shouldBe Json.obj("code" -> "USER_NOT_FOUND", "message" -> "User not found")
+      jsonBodyOf(result) shouldBe Json.obj("code" -> "USER_NOT_FOUND", "message" -> "The individual can not be found")
     }
 
     "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
@@ -246,12 +247,12 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     "return a 404 (Not Found) when there is no individual matching the saUtr" in new Setup {
 
-      given(underTest.testUserService.fetchIndividualBySaUtr(refEq(saUtr))(any())).willReturn(failed(UserNotFound()))
+      given(underTest.testUserService.fetchIndividualBySaUtr(refEq(saUtr))(any())).willReturn(failed(UserNotFound(INDIVIDUAL)))
 
       val result = await(underTest.fetchIndividualBySaUtr(saUtr)(request))
 
       status(result) shouldBe NOT_FOUND
-      jsonBodyOf(result) shouldBe Json.obj("code" -> "USER_NOT_FOUND", "message" -> "User not found")
+      jsonBodyOf(result) shouldBe Json.obj("code" -> "USER_NOT_FOUND", "message" -> "The individual can not be found")
     }
 
     "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
@@ -260,6 +261,40 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
           .willReturn(failed(new RuntimeException("expected test error")))
 
         val result = await(underTest.fetchIndividualBySaUtr(saUtr)(request))
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        jsonBodyOf(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
+      }
+    }
+  }
+
+  "fetchOrganisationByEmpref" should {
+    "return 200 (Ok) with the organisation" in new Setup {
+
+      given(underTest.testUserService.fetchOrganisationByEmpRef(refEq(empRef))(any())).willReturn(testOrganisation)
+
+      val result = await(underTest.fetchOrganisationByEmpRef(empRef)(request))
+
+      status(result) shouldBe OK
+      jsonBodyOf(result) shouldBe Json.toJson(TestOrganisationResponse.from(testOrganisation))
+    }
+
+    "return a 404 (Not Found) when there is no organisation matching the empRef" in new Setup {
+
+      given(underTest.testUserService.fetchOrganisationByEmpRef(refEq(empRef))(any())).willReturn(failed(UserNotFound(ORGANISATION)))
+
+      val result = await(underTest.fetchOrganisationByEmpRef(empRef)(request))
+
+      status(result) shouldBe NOT_FOUND
+      jsonBodyOf(result) shouldBe Json.obj("code" -> "USER_NOT_FOUND", "message" -> "The organisation can not be found")
+    }
+
+    "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
+        given(underTest.testUserService.fetchOrganisationByEmpRef(refEq(empRef))(any()))
+          .willReturn(failed(new RuntimeException("expected test error")))
+
+        val result = await(underTest.fetchOrganisationByEmpRef(empRef)(request))
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
         jsonBodyOf(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
