@@ -31,7 +31,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
 
   private val repository = new TestUserMongoRepository
   val testIndividual = generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE))
-  val testOrganisation = generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX))
+  val testOrganisation = generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS))
 
   override def beforeEach() {
     await(repository.drop)
@@ -84,6 +84,101 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
     "return None when no user matches the userId" in {
 
       val result = await(repository.fetchByUserId("unknown"))
+
+      result shouldBe None
+    }
+  }
+
+  "fetchIndividualByNino" should {
+
+    "return the individual" in {
+      await(repository.createUser(testIndividual))
+
+      val result = await(repository.fetchIndividualByNino(testIndividual.nino.get))
+
+      result shouldBe Some(testIndividual)
+    }
+
+    "return None when there is no individual matching" in {
+      val result = await(repository.fetchIndividualByNino(Nino("CC333333C")))
+
+      result shouldBe None
+    }
+
+    "return None when there is an organisation matching" in {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchIndividualByNino(testOrganisation.nino.get))
+
+      result shouldBe None
+    }
+  }
+
+  "fetchIndividualByShortNino" should {
+    val nino = Nino("CC333333C")
+    val shortNino = NinoNoSuffix("CC333333")
+    val individual = testIndividual.copy(nino = Some(nino))
+
+    "return the individual" in {
+      await(repository.createUser(individual))
+
+      val result = await(repository.fetchIndividualByShortNino(shortNino))
+
+      result shouldBe Some(individual)
+    }
+
+    "return None when there is no individual matching" in {
+      val result = await(repository.fetchIndividualByShortNino(shortNino))
+
+      result shouldBe None
+    }
+
+    "return None when there is an organisation matching" in {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchIndividualByShortNino(NinoNoSuffix(testOrganisation.nino.get)))
+
+      result shouldBe None
+    }
+  }
+
+  "fetchIndividualBySautr" should {
+
+    "return the individual" in {
+      await(repository.createUser(testIndividual))
+
+      val result = await(repository.fetchIndividualBySaUtr(testIndividual.saUtr.get))
+
+      result shouldBe Some(testIndividual)
+    }
+
+    "return None when there is an organisation matching" in {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchIndividualBySaUtr(testOrganisation.saUtr.get))
+
+      result shouldBe None
+    }
+
+    "return None when there is no individual matching" in {
+      val result = await(repository.fetchIndividualBySaUtr(SaUtr("1555369052")))
+
+      result shouldBe None
+    }
+  }
+
+  "fetchOrganisationByEmpRef" should {
+
+    "return the organisation" in {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchOrganisationByEmpRef(testOrganisation.empRef.get))
+
+      result shouldBe Some(testOrganisation)
+    }
+
+    "return None when there is an organisation matching" in {
+      val result = await(repository.fetchOrganisationByEmpRef(testOrganisation.empRef.get))
 
       result shouldBe None
     }
