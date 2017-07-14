@@ -88,4 +88,58 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
       result shouldBe None
     }
   }
+
+  "fetchIndividualByNino" should {
+
+    "return the individual" in {
+      await(repository.createUser(testIndividual))
+
+      val result = await(repository.fetchIndividualByNino(testIndividual.nino.get))
+
+      result shouldBe Some(testIndividual)
+    }
+
+    "return None when there is no individual matching" in {
+      val result = await(repository.fetchIndividualByNino(Nino("CC333333C")))
+
+      result shouldBe None
+    }
+  }
+
+  "fetchIndividualByShortNino" should {
+    val nino = Nino("CC333333C")
+    val shortNino = NinoNoSuffix("CC333333")
+    val individual = testIndividual.copy(nino = Some(nino))
+
+    "return the individual" in {
+      await(repository.createUser(individual))
+
+      val result = await(repository.fetchIndividualByShortNino(shortNino))
+
+      result shouldBe Some(individual)
+    }
+
+    "return None when there is no individual matching" in {
+      val result = await(repository.fetchIndividualByShortNino(shortNino))
+
+      result shouldBe None
+    }
+  }
+
+  "fetchIndividualBySautr" should {
+
+    "return the individual" in {
+      await(repository.createUser(testIndividual))
+
+      val result = await(repository.fetchIndividualBySaUtr(testIndividual.saUtr.get))
+
+      result shouldBe Some(testIndividual)
+    }
+
+    "return None when there is no individual matching" in {
+      val result = await(repository.fetchIndividualBySaUtr(SaUtr("1555369052")))
+
+      result shouldBe None
+    }
+  }
 }
