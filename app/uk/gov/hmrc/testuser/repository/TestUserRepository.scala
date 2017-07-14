@@ -65,12 +65,12 @@ class TestUserMongoRepository(implicit mongo: () => DB)
   }
 
   override def fetchIndividualByNino(nino: Nino): Future[Option[TestIndividual]] = {
-    find("nino" -> nino) map(_.headOption map (_.asInstanceOf[TestIndividual]))
+    find("nino" -> nino, "userType" -> UserType.INDIVIDUAL) map(_.headOption map (_.asInstanceOf[TestIndividual]))
   }
 
   override def fetchIndividualByShortNino(shortNino: NinoNoSuffix): Future[Option[TestIndividual]] = {
     val matchShortNino = Json.obj("$regex" ->  s"${shortNino.value}\\w")
-    find("nino" -> matchShortNino) map(_.headOption map (_.asInstanceOf[TestIndividual]))
+    find("nino" -> matchShortNino, "userType" -> UserType.INDIVIDUAL) map(_.headOption map (_.asInstanceOf[TestIndividual]))
   }
 
   override def fetchIndividualBySaUtr(saUtr: SaUtr): Future[Option[TestIndividual]] = {
