@@ -104,6 +104,14 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
 
       result shouldBe None
     }
+
+    "return None when there is an organisation matching" in {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchIndividualByNino(testOrganisation.nino.get))
+
+      result shouldBe None
+    }
   }
 
   "fetchIndividualByShortNino" should {
@@ -121,6 +129,14 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
 
     "return None when there is no individual matching" in {
       val result = await(repository.fetchIndividualByShortNino(shortNino))
+
+      result shouldBe None
+    }
+
+    "return None when there is an organisation matching" in {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchIndividualByShortNino(NinoNoSuffix(testOrganisation.nino.get)))
 
       result shouldBe None
     }
