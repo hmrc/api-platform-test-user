@@ -18,6 +18,7 @@ package uk.gov.hmrc.testuser.services
 
 import javax.inject.Inject
 
+import uk.gov.hmrc.domain.{SaUtr, Nino}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.testuser.connectors.{AuthLoginApiConnector, DesSimulatorConnector, DesSimulatorConnectorImpl}
 import uk.gov.hmrc.testuser.models._
@@ -64,7 +65,25 @@ trait TestUserService {
     val hashedPassword = passwordService.hash(agent.password)
     testUserRepository.createUser(agent.copy(password = hashedPassword)) map (_ => agent)
   }
+
+  def fetchIndividualByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
+    testUserRepository.fetchIndividualByNino(nino) map getOrFailWithUserNotFound
+  }
+
+  def fetchIndividualByShortNino(shortNino: NinoNoSuffix)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
+    testUserRepository.fetchIndividualByShortNino(shortNino) map getOrFailWithUserNotFound
+  }
+
+  def fetchIndividualBySaUtr(saUtr: SaUtr)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
+    testUserRepository.fetchIndividualBySaUtr(saUtr) map getOrFailWithUserNotFound
+  }
+
+  val getOrFailWithUserNotFound = PartialFunction[Option[TestIndividual], TestIndividual] {
+    case Some(t) => t
+    case _ => throw new UserNotFound()
+  }
 }
+
 
 class TestUserServiceImpl @Inject()(override val passwordService: PasswordServiceImpl,
                                     override val desSimulatorConnector: DesSimulatorConnectorImpl) extends TestUserService {
