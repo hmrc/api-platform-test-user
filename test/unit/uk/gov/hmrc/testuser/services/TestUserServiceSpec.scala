@@ -33,6 +33,7 @@ import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.services.Generator._
 import uk.gov.hmrc.testuser.services.{Generator, PasswordService, TestUserService}
+import uk.gov.hmrc.testuser.models.UserNotFound
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}
@@ -42,13 +43,27 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   val userId = "user"
   val password = "password"
   val hashedPassword = "hashedPassword"
+  val saUtr = SaUtr("1555369052")
+  val nino = Nino("CC333333C")
+  val shortNino = NinoNoSuffix("CC333333")
+  val empRef =  EmpRef("555","EIA000")
 
   val individualServices = Seq(ServiceName.NATIONAL_INSURANCE, ServiceName.MTD_INCOME_TAX)
-  val testIndividualWithNoServices = generateTestIndividual().copy(userId = userId, password = password)
+  val testIndividualWithNoServices = generateTestIndividual()
+    .copy(
+      userId = userId,
+      password = password,
+      nino = Some(nino),
+      saUtr = Some(saUtr)
+    )
   val testIndividual = testIndividualWithNoServices.copy(services = individualServices)
 
   val organisationServices = Seq(ServiceName.NATIONAL_INSURANCE, ServiceName.MTD_INCOME_TAX)
-  val testOrganisationWithNoServices = generateTestOrganisation().copy(userId = userId, password = password)
+  val testOrganisationWithNoServices = generateTestOrganisation()
+    .copy(
+      userId = userId,
+      password = password,
+      empRef = Some(empRef))
   val testOrganisation = testOrganisationWithNoServices.copy(services = organisationServices)
 
   val agentServices = Seq(ServiceName.AGENT_SERVICES)
@@ -180,6 +195,106 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
 
         intercept[RuntimeException] {
           await(underTest.createTestAgent(agentServices))
+        }
+      }
+    }
+  }
+
+  "fetchIndividualByNino" should {
+    "return the individual when it exists in the repository" in new Setup {
+      given(underTest.testUserRepository.fetchIndividualByNino(nino)).willReturn(Some(testIndividual))
+
+      val result = await(underTest.fetchIndividualByNino(nino))
+
+      result shouldBe testIndividual
+    }
+
+    "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
+      given(underTest.testUserRepository.fetchIndividualByNino(nino)).willReturn(None)
+
+      intercept[UserNotFound] {await(underTest.fetchIndividualByNino(nino))}
+    }
+
+    "propagate the error when the repository fails" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
+        given(underTest.testUserRepository.fetchIndividualByNino(any())).willReturn(failed(new RuntimeException("expected test error")))
+        intercept[RuntimeException] {
+          await(underTest.fetchIndividualByNino(nino))
+        }
+      }
+    }
+  }
+
+  "fetchIndividualByShortNino" should {
+    "return the individual when it exists in the repository" in new Setup {
+      given(underTest.testUserRepository.fetchIndividualByShortNino(shortNino)).willReturn(Some(testIndividual))
+
+      val result = await(underTest.fetchIndividualByShortNino(shortNino))
+
+      result shouldBe testIndividual
+    }
+
+    "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
+      given(underTest.testUserRepository.fetchIndividualByShortNino(shortNino)).willReturn(None)
+
+      intercept[UserNotFound] {await(underTest.fetchIndividualByShortNino(shortNino))}
+    }
+
+    "propagate the error when the repository fails" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
+        given(underTest.testUserRepository.fetchIndividualByShortNino(any())).willReturn(failed(new RuntimeException("expected test error")))
+        intercept[RuntimeException] {
+          await(underTest.fetchIndividualByShortNino(shortNino))
+        }
+      }
+    }
+  }
+
+  "fetchIndividualBySaUtr" should {
+    "return the individual when it exists in the repository" in new Setup {
+      given(underTest.testUserRepository.fetchIndividualBySaUtr(saUtr)).willReturn(Some(testIndividual))
+
+      val result = await(underTest.fetchIndividualBySaUtr(saUtr))
+
+      result shouldBe testIndividual
+    }
+
+    "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
+      given(underTest.testUserRepository.fetchIndividualBySaUtr(saUtr)).willReturn(None)
+
+      intercept[UserNotFound] {await(underTest.fetchIndividualBySaUtr(saUtr))}
+    }
+
+    "propagate the error when the repository fails" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
+        given(underTest.testUserRepository.fetchIndividualBySaUtr(any())).willReturn(failed(new RuntimeException("expected test error")))
+        intercept[RuntimeException] {
+          await(underTest.fetchIndividualBySaUtr(saUtr))
+        }
+      }
+    }
+  }
+
+  "fetchOrganisationByEmpRef" should {
+    "return the organisation when it exists in the repository" in new Setup {
+      given(underTest.testUserRepository.fetchOrganisationByEmpRef(empRef)).willReturn(Some(testOrganisation))
+
+      val result = await(underTest.fetchOrganisationByEmpRef(empRef))
+
+      result shouldBe testOrganisation
+    }
+
+    "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
+      given(underTest.testUserRepository.fetchOrganisationByEmpRef(empRef)).willReturn(None)
+
+      intercept[UserNotFound] {await(underTest.fetchOrganisationByEmpRef(empRef))}
+    }
+
+    "propagate the error when the repository fails" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
+        given(underTest.testUserRepository.fetchOrganisationByEmpRef(any())).willReturn(failed(new RuntimeException("expected test error")))
+        intercept[RuntimeException] {
+          await(underTest.fetchOrganisationByEmpRef(empRef))
         }
       }
     }

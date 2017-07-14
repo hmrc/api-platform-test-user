@@ -66,7 +66,7 @@ lazy val test = Seq(
 )
 
 lazy val plugins: Seq[Plugins] = Seq.empty
-lazy val playSettings: Seq[Setting[_]] = Seq.empty
+lazy val playSettings : Seq[Setting[_]] = Seq(routesImport ++= Seq("uk.gov.hmrc.domain._", "uk.gov.hmrc.testuser.models._", "uk.gov.hmrc.testuser.Binders._"))
 
 def unitFilter(name: String): Boolean = name startsWith "unit"
 def itTestFilter(name: String): Boolean = name startsWith "it"
