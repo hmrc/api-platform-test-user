@@ -37,7 +37,7 @@ object LegacySandboxUser {
 }
 
 case class InvalidCredentials(msg: String) extends Exception
-case class UserNotFound() extends Exception
+case class UserNotFound(userType: UserType.Value) extends Exception
 
 object ErrorCode extends Enumeration {
 
@@ -53,5 +53,6 @@ case class ErrorResponse(code: ErrorCode.Value, message: String)
 object ErrorResponse {
   val internalServerError = ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred")
   val invalidCredentialsError = ErrorResponse(ErrorCode.INVALID_CREDENTIALS, "Invalid Authentication information provided")
-  val userNotFoundError = ErrorResponse(ErrorCode.USER_NOT_FOUND, "User not found")
+  val individualNotFoundError = ErrorResponse(ErrorCode.USER_NOT_FOUND, "The individual can not be found")
+  val organisationNotFoundError = ErrorResponse(ErrorCode.USER_NOT_FOUND, "The organisation can not be found")
 }

@@ -46,6 +46,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   val saUtr = SaUtr("1555369052")
   val nino = Nino("CC333333C")
   val shortNino = NinoNoSuffix("CC333333")
+  val empRef =  EmpRef("555","EIA000")
 
   val individualServices = Seq(ServiceName.NATIONAL_INSURANCE, ServiceName.MTD_INCOME_TAX)
   val testIndividualWithNoServices = generateTestIndividual()
@@ -58,7 +59,11 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   val testIndividual = testIndividualWithNoServices.copy(services = individualServices)
 
   val organisationServices = Seq(ServiceName.NATIONAL_INSURANCE, ServiceName.MTD_INCOME_TAX)
-  val testOrganisationWithNoServices = generateTestOrganisation().copy(userId = userId, password = password)
+  val testOrganisationWithNoServices = generateTestOrganisation()
+    .copy(
+      userId = userId,
+      password = password,
+      empRef = Some(empRef))
   val testOrganisation = testOrganisationWithNoServices.copy(services = organisationServices)
 
   val agentServices = Seq(ServiceName.AGENT_SERVICES)
@@ -265,6 +270,31 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
         given(underTest.testUserRepository.fetchIndividualBySaUtr(any())).willReturn(failed(new RuntimeException("expected test error")))
         intercept[RuntimeException] {
           await(underTest.fetchIndividualBySaUtr(saUtr))
+        }
+      }
+    }
+  }
+
+  "fetchOrganisationByEmpRef" should {
+    "return the organisation when it exists in the repository" in new Setup {
+      given(underTest.testUserRepository.fetchOrganisationByEmpRef(empRef)).willReturn(Some(testOrganisation))
+
+      val result = await(underTest.fetchOrganisationByEmpRef(empRef))
+
+      result shouldBe testOrganisation
+    }
+
+    "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
+      given(underTest.testUserRepository.fetchOrganisationByEmpRef(empRef)).willReturn(None)
+
+      intercept[UserNotFound] {await(underTest.fetchOrganisationByEmpRef(empRef))}
+    }
+
+    "propagate the error when the repository fails" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
+        given(underTest.testUserRepository.fetchOrganisationByEmpRef(any())).willReturn(failed(new RuntimeException("expected test error")))
+        intercept[RuntimeException] {
+          await(underTest.fetchOrganisationByEmpRef(empRef))
         }
       }
     }

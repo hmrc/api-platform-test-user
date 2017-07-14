@@ -18,9 +18,10 @@ package uk.gov.hmrc.testuser.services
 
 import javax.inject.Inject
 
-import uk.gov.hmrc.domain.{SaUtr, Nino}
+import uk.gov.hmrc.domain.{EmpRef, SaUtr, Nino}
 import uk.gov.hmrc.play.http.HeaderCarrier
-import uk.gov.hmrc.testuser.connectors.{AuthLoginApiConnector, DesSimulatorConnector, DesSimulatorConnectorImpl}
+import uk.gov.hmrc.testuser.connectors.{DesSimulatorConnector, DesSimulatorConnectorImpl}
+import uk.gov.hmrc.testuser.models.UserType.{ORGANISATION, INDIVIDUAL}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.LegacySandboxUser._
 import uk.gov.hmrc.testuser.models.ServiceName._
@@ -67,20 +68,24 @@ trait TestUserService {
   }
 
   def fetchIndividualByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    testUserRepository.fetchIndividualByNino(nino) map getOrFailWithUserNotFound
+    testUserRepository.fetchIndividualByNino(nino) map getOrFailWithUserNotFound(INDIVIDUAL)
   }
 
   def fetchIndividualByShortNino(shortNino: NinoNoSuffix)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    testUserRepository.fetchIndividualByShortNino(shortNino) map getOrFailWithUserNotFound
+    testUserRepository.fetchIndividualByShortNino(shortNino) map getOrFailWithUserNotFound(INDIVIDUAL)
   }
 
   def fetchIndividualBySaUtr(saUtr: SaUtr)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    testUserRepository.fetchIndividualBySaUtr(saUtr) map getOrFailWithUserNotFound
+    testUserRepository.fetchIndividualBySaUtr(saUtr) map getOrFailWithUserNotFound(INDIVIDUAL)
   }
 
-  val getOrFailWithUserNotFound = PartialFunction[Option[TestIndividual], TestIndividual] {
+  def fetchOrganisationByEmpRef(empRef: EmpRef)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
+    testUserRepository.fetchOrganisationByEmpRef(empRef) map getOrFailWithUserNotFound(ORGANISATION)
+  }
+
+  def getOrFailWithUserNotFound[T <: TestUser](userType: UserType.Value) = PartialFunction[Option[T], T] {
     case Some(t) => t
-    case _ => throw new UserNotFound()
+    case _ => throw new UserNotFound(userType)
   }
 }
 

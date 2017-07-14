@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.testuser
 
-import uk.gov.hmrc.domain.{SaUtr, Nino}
+import uk.gov.hmrc.domain.{EmpRef, SaUtr, Nino}
 import uk.gov.hmrc.play.binders.SimpleObjectBinder
 import uk.gov.hmrc.testuser.models.NinoNoSuffix
 
 object NinoNoSuffixBinder extends SimpleObjectBinder[NinoNoSuffix](NinoNoSuffix.apply, _.value)
 object NinoBinder extends SimpleObjectBinder[Nino](Nino.apply, _.value)
 object SaUtrBinder extends SimpleObjectBinder[SaUtr](SaUtr.apply, _.value)
+object EmpRefBinder extends SimpleObjectBinder[EmpRef](EmpRef.fromIdentifiers, _.value)
 
 package object Binders {
   implicit val ninoNoSuffixBinder = NinoNoSuffixBinder
   implicit val ninoBinder = NinoBinder
   implicit val saUtrBinder = SaUtrBinder
+  implicit val empRefBinder = EmpRefBinder
 }

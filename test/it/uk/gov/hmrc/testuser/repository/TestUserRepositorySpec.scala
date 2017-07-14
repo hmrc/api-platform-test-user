@@ -31,7 +31,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
 
   private val repository = new TestUserMongoRepository
   val testIndividual = generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE))
-  val testOrganisation = generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX))
+  val testOrganisation = generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS))
 
   override def beforeEach() {
     await(repository.drop)
@@ -136,8 +136,33 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
       result shouldBe Some(testIndividual)
     }
 
+    "return None when there is an organisation matching" in {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchIndividualBySaUtr(testOrganisation.saUtr.get))
+
+      result shouldBe None
+    }
+
     "return None when there is no individual matching" in {
       val result = await(repository.fetchIndividualBySaUtr(SaUtr("1555369052")))
+
+      result shouldBe None
+    }
+  }
+
+  "fetchOrganisationByEmpRef" should {
+
+    "return the organisation" in {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchOrganisationByEmpRef(testOrganisation.empRef.get))
+
+      result shouldBe Some(testOrganisation)
+    }
+
+    "return None when there is an organisation matching" in {
+      val result = await(repository.fetchOrganisationByEmpRef(testOrganisation.empRef.get))
 
       result shouldBe None
     }

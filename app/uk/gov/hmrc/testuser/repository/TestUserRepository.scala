@@ -21,7 +21,7 @@ import play.modules.reactivemongo.MongoDbConnection
 import reactivemongo.api.DB
 import reactivemongo.api.indexes.{IndexType, Index}
 import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.domain.{SaUtr, Nino}
+import uk.gov.hmrc.domain.{EmpRef, SaUtr, Nino}
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.mongo.{ReactiveRepository, Repository}
 import uk.gov.hmrc.testuser.models._
@@ -40,6 +40,8 @@ trait TestUserRepository extends Repository[TestUser, BSONObjectID] {
   def fetchIndividualByShortNino(shortNino: NinoNoSuffix): Future[Option[TestIndividual]]
 
   def fetchIndividualBySaUtr(saUtr: SaUtr): Future[Option[TestIndividual]]
+
+  def fetchOrganisationByEmpRef(empRef: EmpRef): Future[Option[TestOrganisation]]
 }
 
 class TestUserMongoRepository(implicit mongo: () => DB)
@@ -73,6 +75,10 @@ class TestUserMongoRepository(implicit mongo: () => DB)
 
   override def fetchIndividualBySaUtr(saUtr: SaUtr): Future[Option[TestIndividual]] = {
     find("saUtr" -> saUtr, "userType" -> UserType.INDIVIDUAL) map(_.headOption map (_.asInstanceOf[TestIndividual]))
+  }
+
+  override def fetchOrganisationByEmpRef(empRef: EmpRef): Future[Option[TestOrganisation]] = {
+    find("empRef" -> empRef.value) map(_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
 }
 
