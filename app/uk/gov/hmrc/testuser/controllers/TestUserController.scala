@@ -21,7 +21,9 @@ import javax.inject.Inject
 import play.api.Logger
 import play.api.libs.json.Json.toJson
 import play.api.mvc.{Action, Result}
+import uk.gov.hmrc.domain.{SaUtr, Nino}
 import uk.gov.hmrc.play.microservice.controller.BaseController
+import uk.gov.hmrc.testuser.models.ErrorResponse.userNotFoundError
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.services._
@@ -56,7 +58,26 @@ trait TestUserController extends BaseController {
     } recover recovery
   }
 
+  def fetchIndividualByNino(nino: Nino) = Action.async { implicit request =>
+    testUserService.fetchIndividualByNino(nino) map { individual =>
+      Ok(toJson(TestIndividualResponse.from(individual)))
+    } recover recovery
+  }
+
+  def fetchIndividualByShortNino(shortNino: NinoNoSuffix) = Action.async { implicit request =>
+    testUserService.fetchIndividualByShortNino(shortNino) map { individual =>
+      Ok(toJson(TestIndividualResponse.from(individual)))
+    } recover recovery
+  }
+
+  def fetchIndividualBySaUtr(saUtr: SaUtr) = Action.async { implicit request =>
+    testUserService.fetchIndividualBySaUtr(saUtr) map { individual =>
+      Ok(toJson(TestIndividualResponse.from(individual)))
+    } recover recovery
+  }
+
   private def recovery: PartialFunction[Throwable, Result] = {
+    case UserNotFound() => NotFound(toJson(userNotFoundError))
     case e =>
       Logger.error(s"An unexpected error occurred: ${e.getMessage}", e)
       InternalServerError(toJson(ErrorResponse.internalServerError))
@@ -64,3 +85,4 @@ trait TestUserController extends BaseController {
 }
 
 class TestUserControllerImpl @Inject()(override val testUserService: TestUserServiceImpl) extends TestUserController
+
