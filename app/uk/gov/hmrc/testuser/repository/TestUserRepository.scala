@@ -69,7 +69,7 @@ class TestUserMongoRepository(implicit mongo: () => DB)
   }
 
   override def fetchIndividualByShortNino(shortNino: NinoNoSuffix): Future[Option[TestIndividual]] = {
-    val matchShortNino = Json.obj("$regex" ->  s"${shortNino.value}.*")
+    val matchShortNino = Json.obj("$regex" ->  s"${shortNino.value}\\w")
     find("nino" -> matchShortNino) map(_.headOption map (_.asInstanceOf[TestIndividual]))
   }
 
