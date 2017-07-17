@@ -27,11 +27,12 @@ import reactivemongo.json.ImplicitBSONHandlers._
 import reactivemongo.json.collection.JSONCollection
 import uk.gov.hmrc.lock.{LockKeeper, LockMongoRepository}
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models.UserType.INDIVIDUAL
+import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserMongoRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.concurrent.Future.sequence
 
 class MigrationService extends MongoDbConnection {
@@ -48,7 +49,7 @@ class MigrationService extends MongoDbConnection {
     override val forceLockReleaseAfter = standardMinutes(2)
   }
 
-  def migrateAdditionOfIndividualUserDetails() = migrate(new Migration("random-individual-details") {
+  private val randomIndividualDetailsMigration = new Migration("random-individual-details") {
     override protected val query = BSONDocument(
       "userType" -> INDIVIDUAL.toString,
       "individualDetails" -> obj("$exists" -> false)
@@ -60,13 +61,29 @@ class MigrationService extends MongoDbConnection {
     override protected def modifier = BSONDocument("$set" ->
       BSONDocument("individualDetails" -> toJson(IndividualDetails.random()))
     )
-  })
+  }
 
-  private def migrate(migration: Migration) =
+  private val randomOrganisationDetailsMigration = new Migration("random-organisation-details") {
+    override protected val query = BSONDocument(
+      "userType" -> ORGANISATION.toString,
+      "organisationDetails" -> obj("$exists" -> false)
+    )
+
+    override protected def selector(jsValue: JsValue) =
+      BSONDocument("userId" -> (jsValue \ "userId").as[String])
+
+    override protected def modifier = BSONDocument("$set" ->
+      BSONDocument("organisationDetails" -> toJson(OrganisationDetails.random()))
+    )
+  }
+
+  def migrate(): Future[Unit] = migrate(Seq(randomIndividualDetailsMigration, randomOrganisationDetailsMigration))
+
+  private def migrate(migrations: Seq[Migration]): Future[Unit] =
     lockKeeper.tryLock {
-      migration.migrate()
+      sequence(migrations map (_.migrate()))
     } map {
-      case None => Logger.warn(s"migration '${migration.key}' skipped due to unobtainable database lock")
+      case None => Logger.warn(s"migrations skipped due to unobtainable database lock")
       case Some(_) =>
     }
 

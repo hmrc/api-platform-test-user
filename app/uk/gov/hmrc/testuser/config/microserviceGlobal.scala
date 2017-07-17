@@ -72,7 +72,7 @@ object MicroserviceGlobal extends DefaultMicroserviceGlobal with ServiceLocatorR
   override val authFilter = Some(MicroserviceAuthFilter)
 
   override def onStart(app: Application) = {
-    new MigrationService().migrateAdditionOfIndividualUserDetails()
+    new MigrationService().migrate()
     super.onStart(app)
   }
 }
