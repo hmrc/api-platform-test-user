@@ -21,7 +21,7 @@ import org.mockito.BDDMockito.given
 import org.mockito.Matchers.{any, refEq}
 import org.scalatest.mock.MockitoSugar
 import play.api.Logger
-import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR}
+import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, OK, NOT_FOUND}
 import play.api.libs.json.Json.toJson
 import play.api.libs.json.{JsValue, Json}
 import play.api.test._
