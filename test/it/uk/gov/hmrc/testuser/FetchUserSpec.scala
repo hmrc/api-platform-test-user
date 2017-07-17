@@ -19,6 +19,7 @@ package it.uk.gov.hmrc.testuser
 import it.uk.gov.hmrc.testuser.helpers.BaseSpec
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
+import play.api.libs.json.Json.toJson
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models._
 
@@ -42,6 +43,7 @@ class FetchUserSpec extends BaseSpec {
         |   "userId": "${individual.userId}",
         |   "saUtr": "${individual.saUtr.get}",
         |   "nino": "${individual.nino.get}",
+        |   "individualDetails": ${toJson(individual.individualDetails)},
         |   "userType": "INDIVIDUAL"
         |}
       """.stripMargin
@@ -63,6 +65,7 @@ class FetchUserSpec extends BaseSpec {
             |   "userId": "${individual.userId}",
             |   "saUtr": "${individual.saUtr.get}",
             |   "nino": "${individual.nino.get}",
+            |   "individualDetails": ${toJson(individual.individualDetails)},
             |   "userType": "INDIVIDUAL"
             |}
       """.stripMargin
@@ -83,6 +86,7 @@ class FetchUserSpec extends BaseSpec {
             |   "userId": "${individual.userId}",
             |   "saUtr": "${individual.saUtr.get}",
             |   "nino": "${individual.nino.get}",
+            |   "individualDetails": ${toJson(individual.individualDetails)},
             |   "userType": "INDIVIDUAL"
             |}
       """.stripMargin
@@ -102,6 +106,7 @@ class FetchUserSpec extends BaseSpec {
         s"""{
             |   "userId": "${organisation.userId}",
             |   "empRef": "${organisation.empRef.get}",
+            |   "organisationDetails": ${toJson(organisation.organisationDetails)},
             |   "userType": "ORGANISATION"
             |}
       """.stripMargin
