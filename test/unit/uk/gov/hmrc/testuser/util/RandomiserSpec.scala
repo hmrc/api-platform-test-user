@@ -22,7 +22,9 @@ import uk.gov.hmrc.testuser.util.Randomiser
 
 class RandomiserSpec extends FlatSpec with Matchers {
 
-  private val randomiser = new Randomiser("randomiser-test")
+  private val randomiser = new Randomiser {
+    override val fileName = "randomiser-test"
+  }
 
   "Randomiser" should "generate a random nino eligible date of birth" in {
     val date1 = randomiser.randomNinoEligibleDateOfBirth()

@@ -16,15 +16,17 @@
 
 package uk.gov.hmrc.testuser.services
 
+import org.joda.time.LocalDate
 import org.scalacheck.Gen
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.testuser.models.ServiceName._
 import uk.gov.hmrc.testuser.models.{ServiceName => _, _}
+import uk.gov.hmrc.testuser.util.Randomiser
 
 import scala.util.Random
 
 
-trait Generator {
+trait Generator extends Randomiser {
 
   private val userIdGenerator = Gen.listOfN(12, Gen.numChar).map(_.mkString)
   private val passwordGenerator = Gen.listOfN(12, Gen.alphaNumChar).map(_.mkString)
@@ -44,7 +46,7 @@ trait Generator {
     val nino = if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) Some(generateNino) else None
     val mtdItId = if(services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
 
-    TestIndividual(generateUserId, generatePassword, saUtr, nino, mtdItId, services)
+    TestIndividual(generateUserId, generatePassword, generateIndividualDetails, saUtr, nino, mtdItId, services)
   }
 
   def generateTestOrganisation(services: Seq[ServiceName] = Seq.empty) = {
@@ -56,12 +58,34 @@ trait Generator {
     val vrn = if (services.contains(SUBMIT_VAT_RETURNS)) Some(generateVrn) else None
     val lisaManRefNum = if (services.contains(LISA)) Some(generateLisaManRefNum) else None
 
-    TestOrganisation(generateUserId, generatePassword, saUtr, nino, mtdItId, empRef, ctUtr, vrn, lisaManRefNum, services)
+    TestOrganisation(generateUserId, generatePassword, generateOrganisationDetails, saUtr, nino, mtdItId, empRef, ctUtr, vrn, lisaManRefNum, services)
   }
 
   def generateTestAgent(services: Seq[ServiceName] = Seq.empty) = {
     val arn = if (services.contains(AGENT_SERVICES)) Some(generateArn) else None
     TestAgent(generateUserId, generatePassword, arn, services)
+  }
+
+  private def generateAddress() = {
+    Address(
+      randomConfigString("randomiser.address.line1"),
+      randomConfigString("randomiser.address.line2"),
+      randomConfigString("randomiser.address.postcode")
+    )
+  }
+
+  private def generateIndividualDetails = {
+    IndividualDetails(
+      randomConfigString("randomiser.individualDetails.firstName"),
+      randomConfigString("randomiser.individualDetails.lastName"),
+      LocalDate.parse(randomConfigString("randomiser.individualDetails.dateOfBirth")),
+      generateAddress()
+    )
+  }
+
+  private def generateOrganisationDetails = {
+    val randomOrganisationName = "Company " + Gen.listOfN(6, Gen.alphaNumChar).map(_.mkString.toUpperCase).sample.get
+    OrganisationDetails(randomOrganisationName, generateAddress())
   }
 
   private def generateUserId = userIdGenerator.sample.get
