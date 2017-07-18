@@ -37,11 +37,16 @@
             "line2": {
               "type": "string",
               "description": "Individual's second line of address"
+            },
+            "postcode": {
+              "type": "string",
+              "description": "Individual's postcode"
             }
           },
           "required": [
             "line1",
-            "line2"
+            "line2",
+            "postcode"
           ]
         }
       },

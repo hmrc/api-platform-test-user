@@ -43,7 +43,16 @@ class FetchUserSpec extends BaseSpec {
         |   "userId": "${individual.userId}",
         |   "saUtr": "${individual.saUtr.get}",
         |   "nino": "${individual.nino.get}",
-        |   "individualDetails": ${toJson(individual.individualDetails)},
+        |   "individualDetails": {
+        |     "firstName": "${individual.individualDetails.firstName}",
+        |     "lastName": "${individual.individualDetails.lastName}",
+        |     "dateOfBirth": "${individual.individualDetails.dateOfBirth}",
+        |     "address": {
+        |       "line1": "${individual.individualDetails.address.line1}",
+        |       "line2": "${individual.individualDetails.address.line2}",
+        |       "postcode": "${individual.individualDetails.address.postcode}"
+        |     }
+        |   },
         |   "userType": "INDIVIDUAL"
         |}
       """.stripMargin
@@ -106,7 +115,14 @@ class FetchUserSpec extends BaseSpec {
         s"""{
             |   "userId": "${organisation.userId}",
             |   "empRef": "${organisation.empRef.get}",
-            |   "organisationDetails": ${toJson(organisation.organisationDetails)},
+            |   "organisationDetails": {
+            |     "name": "${organisation.organisationDetails.name}",
+            |     "address": {
+            |       "line1": "${organisation.organisationDetails.address.line1}",
+            |       "line2": "${organisation.organisationDetails.address.line2}",
+            |       "postcode": "${organisation.organisationDetails.address.postcode}"
+            |     }
+            |   },
             |   "userType": "ORGANISATION"
             |}
       """.stripMargin

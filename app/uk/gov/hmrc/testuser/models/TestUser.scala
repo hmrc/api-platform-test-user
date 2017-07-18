@@ -17,15 +17,11 @@
 package uk.gov.hmrc.testuser.models
 
 import org.joda.time.LocalDate
-import org.scalacheck.Gen
 import play.api.libs.json.{Format, Reads, Writes}
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.testuser.models.ServiceName.ServiceName
 import uk.gov.hmrc.testuser.models.UserType.UserType
-import uk.gov.hmrc.testuser.util.Randomiser
-
-import scala.util.Random
 
 object ServiceName extends Enumeration {
   type ServiceName = Value
@@ -49,17 +45,18 @@ sealed trait TestUser {
 
 case class TestIndividual(override val userId: String,
                           override val password: String,
+                          individualDetails: IndividualDetails,
                           saUtr: Option[SaUtr] = None,
                           nino: Option[Nino] = None,
                           mtdItId: Option[MtdItId] = None,
                           override val services: Seq[ServiceName] = Seq.empty,
-                          override val _id: BSONObjectID = BSONObjectID.generate,
-                          individualDetails: IndividualDetails = IndividualDetails.random()) extends TestUser {
+                          override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Individual"
 }
 
 case class TestOrganisation(override val userId: String,
                             override val password: String,
+                            organisationDetails: OrganisationDetails,
                             saUtr: Option[SaUtr] = None,
                             nino: Option[Nino] = None,
                             mtdItId: Option [MtdItId] = None,
@@ -68,8 +65,7 @@ case class TestOrganisation(override val userId: String,
                             vrn: Option[Vrn] = None,
                             lisaManRefNum: Option[LisaManagerReferenceNumber] = None,
                             override val services: Seq[ServiceName] = Seq.empty,
-                            override val _id: BSONObjectID = BSONObjectID.generate,
-                            organisationDetails: OrganisationDetails = OrganisationDetails.random()) extends TestUser {
+                            override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Organisation"
 }
 
@@ -146,15 +142,15 @@ object TestAgentResponse {
   def from(agent: TestAgent) = TestAgentResponse(agent.userId, agent.arn)
 }
 
-case class DesSimulatorTestIndividual(val mtdItId: Option[MtdItId], val nino: Option[Nino], val saUtr: Option[SaUtr])
+case class DesSimulatorTestIndividual(mtdItId: Option[MtdItId], nino: Option[Nino], saUtr: Option[SaUtr])
 
 object DesSimulatorTestIndividual {
   def from(individual: TestIndividual) = DesSimulatorTestIndividual(individual.mtdItId, individual.nino, individual.saUtr)
 }
 
-case class DesSimulatorTestOrganisation(val mtdItId: Option[MtdItId], val nino: Option[Nino],
-                                        val saUtr: Option[SaUtr], val ctUtr: Option[CtUtr],
-                                        val empRef: Option[EmpRef], val vrn: Option[Vrn])
+case class DesSimulatorTestOrganisation(mtdItId: Option[MtdItId], nino: Option[Nino],
+                                        saUtr: Option[SaUtr], ctUtr: Option[CtUtr],
+                                        empRef: Option[EmpRef], vrn: Option[Vrn])
 
 object DesSimulatorTestOrganisation {
   def from(organisation: TestOrganisation) = DesSimulatorTestOrganisation(organisation.mtdItId,
@@ -197,36 +193,9 @@ object LisaManagerReferenceNumber extends (String => LisaManagerReferenceNumber)
   implicit val lisaManRefNumRead: Reads[LisaManagerReferenceNumber] = new SimpleObjectReads[LisaManagerReferenceNumber]("lisaManagerReferenceNumber", LisaManagerReferenceNumber.apply)
 }
 
-case class Address(line1: String, line2: String)
-
-object Address extends Randomiser {
-
-  def random(): Address = Address(
-    randomConfigString("randomiser.address.line1"),
-    randomConfigString("randomiser.address.line2")
-  )
-
-}
+case class Address(line1: String, line2: String, postcode: String)
 
 case class IndividualDetails(firstName: String, lastName: String, dateOfBirth: LocalDate, address: Address)
 
-object IndividualDetails extends Randomiser {
-
-  def random(): IndividualDetails = IndividualDetails(
-    randomConfigString("randomiser.individualDetails.firstName"),
-    randomConfigString("randomiser.individualDetails.lastName"),
-    LocalDate.parse(randomConfigString("randomiser.individualDetails.dateOfBirth")),
-    Address.random()
-  )
-
-}
-
 case class OrganisationDetails(name: String, address: Address)
 
-object OrganisationDetails extends Randomiser {
-
-  private def randomOrganisationName() = "Company " + Gen.listOfN(6, Gen.alphaNumChar).map(_.mkString.toUpperCase).sample.get
-
-  def random(): OrganisationDetails = OrganisationDetails(randomOrganisationName(), Address.random())
-
-}

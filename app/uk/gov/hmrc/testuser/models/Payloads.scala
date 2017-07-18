@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.testuser.models
 
+import org.joda.time.LocalDate
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.testuser.models.ServiceName._
 
@@ -32,7 +33,9 @@ object LegacySandboxUser {
   private val userId = "user1"
   private val password = "password1"
   val sandboxAuthenticationRequest = AuthenticationRequest(userId, password)
-  val sandboxUser = TestIndividual(userId, password, Some(SaUtr("1700000000")), Some(Nino("AA000017A")), None,
+  val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"),
+    Address("221b Baker St", "Marylebone", "NW1 6XE"))
+  val sandboxUser = TestIndividual(userId, password, individualDetails, Some(SaUtr("1700000000")), Some(Nino("AA000017A")), None,
     Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT))
 }
 

@@ -16,6 +16,7 @@
 
 package unit.uk.gov.hmrc.testuser.connectors
 
+import org.joda.time.LocalDate
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.connectors.{Enrolment, GovernmentGatewayLogin, Identifier}
@@ -25,6 +26,8 @@ import uk.gov.hmrc.testuser.models.ServiceName._
 class GovernmentGatewayLoginSpec extends UnitSpec {
   val user = "user"
   val password = "password"
+  val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
+  val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
 
   val arn = AgentBusinessUtr("NARN0396245")
   val saUtr = SaUtr("1555369052")
@@ -64,19 +67,19 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
 
   "A GovernmentGatewayLogin created from a TestIndividual" should {
     "contain no enrolments when the individual has no services" in {
-      val individual = TestIndividual(user, password, Some(saUtr), Some(nino), Some(mtdItId))
+      val individual = TestIndividual(user, password, individualDetails, Some(saUtr), Some(nino), Some(mtdItId))
       GovernmentGatewayLogin(individual).enrolments shouldBe empty
     }
 
     "contain the right enrolments for the individual's services" in {
-      val individual = TestIndividual(user, password, Some(saUtr), Some(nino), Some(mtdItId),
+      val individual = TestIndividual(user, password,individualDetails,  Some(saUtr), Some(nino), Some(mtdItId),
         Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
 
       GovernmentGatewayLogin(individual).enrolments should contain theSameElementsAs Seq(saEnrolment, mtdItEnrolment)
     }
 
     "ignore services that are not applicable" in {
-      val individual = TestIndividual(user, password,  Some(saUtr), Some(nino), Some(mtdItId),
+      val individual = TestIndividual(user, password, individualDetails, Some(saUtr), Some(nino), Some(mtdItId),
         Seq(AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
 
       GovernmentGatewayLogin(individual).enrolments should contain theSameElementsAs Seq(saEnrolment, mtdItEnrolment)
@@ -85,12 +88,12 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
 
   "A GovernmentGatewayLogin created from a TestOrganisation" should {
     "contain no enrolments when the organisation has no services" in {
-      val organisation = TestOrganisation(user, password, Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum))
+      val organisation = TestOrganisation(user, password, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum))
       GovernmentGatewayLogin(organisation).enrolments shouldBe empty
     }
 
     "contain the right enrolments for the organisation's services" in {
-      val organisation = TestOrganisation(user, password, Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum),
+      val organisation = TestOrganisation(user, password, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum),
         Seq(AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, LISA))
 
       GovernmentGatewayLogin(organisation).enrolments should contain theSameElementsAs
@@ -98,7 +101,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
     }
 
     "ignore services that are not applicable" in {
-      val organisation = TestOrganisation(user, password, Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum),
+      val organisation = TestOrganisation(user, password, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum),
         Seq(AGENT_SERVICES, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA))
 
       GovernmentGatewayLogin(organisation).enrolments should contain theSameElementsAs Seq(ctEnrolment, vatEnrolment, lisaEnrolment)
