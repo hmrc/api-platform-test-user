@@ -18,6 +18,7 @@ package it.uk.gov.hmrc.testuser.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequestedFor, urlPathEqualTo}
 import it.uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
+import org.joda.time.LocalDate
 import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.http.{HeaderCarrier, Upstream5xxResponse}
@@ -28,9 +29,12 @@ import uk.gov.hmrc.testuser.models.ServiceName._
 
 class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with WithFakeApplication {
 
-  val testIndividual = TestIndividual("individualUser", "password", Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
+  val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
+  val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
+
+  val testIndividual = TestIndividual("individualUser", "password", individualDetails, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
     Some(MtdItId("XGIT00000000054")), Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX))
-  val testOrganisation = TestOrganisation("organisationUser", "password", Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
+  val testOrganisation = TestOrganisation("organisationUser", "password", organisationDetails, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
     Some(MtdItId("XGIT00000000054")), Some(EmpRef("555","EIA000")), Some(CtUtr("1555369053")), Some(Vrn("999902541")), Some(LisaManagerReferenceNumber("Z123456")),
     Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, LISA))
 

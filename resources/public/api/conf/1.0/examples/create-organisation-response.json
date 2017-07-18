@@ -5,7 +5,8 @@
     "name":"Company ABF123",
     "address": {
       "line1":"1 Abbey Road",
-      "line2":"Aberdeen"
+      "line2":"Aberdeen",
+      "postcode": "TS1 1PA"
     }
   },
   "saUtr":"8000083480",

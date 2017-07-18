@@ -16,16 +16,19 @@
 
 package unit.uk.gov.hmrc.testuser.services
 
+import org.joda.time.LocalDate
 import org.scalatest.matchers.{MatchResult, Matcher}
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.models.{TestAgent, TestIndividual, TestOrganisation, TestUser}
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ServiceName._
 import uk.gov.hmrc.testuser.services.Generator
 import unit.uk.gov.hmrc.testuser.services.CustomMatchers.haveDifferentPropertiesThan
 
 class GeneratorSpec extends UnitSpec {
 
-  val underTest = Generator
+  val underTest = new Generator {
+    override val fileName = "randomiser-unique-values"
+  }
 
   "generateTestIndividual" should {
 
@@ -60,6 +63,12 @@ class GeneratorSpec extends UnitSpec {
       individual.mtdItId shouldBe empty
     }
 
+    "generate individualDetails from the configuration file" in {
+      val individual = underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
+
+      individual.individualDetails shouldBe IndividualDetails("Adrian", "Adams", LocalDate.parse("1940-10-10"),
+        Address("1 Abbey Road", "Aberdeen", "TS1 1PA"))
+    }
   }
 
   "generateTestOrganisation" should {
