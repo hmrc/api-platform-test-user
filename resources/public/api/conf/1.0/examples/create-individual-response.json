@@ -7,7 +7,8 @@
     "dateOfBirth": "1960-06-01",
     "address": {
       "line1": "45 Springfield Rise",
-      "line2": "Glasgow"
+      "line2": "Glasgow",
+      "postcode": "TS1 1PA"
     }
   },
   "saUtr":"1000057161",

@@ -16,6 +16,7 @@
 
 package unit.uk.gov.hmrc.testuser.services
 
+import org.joda.time.LocalDate
 import org.mockito.BDDMockito.given
 import org.mockito.Matchers.anyString
 import org.mockito.Mockito.when
@@ -38,7 +39,8 @@ class AuthenticationServiceSpec extends UnitSpec with MockitoSugar {
   val password = "password"
   val hashedPassword = "hashedPassword"
   val authSession = AuthSession("Bearer AUTH_TOKEN", "/auth/oid/12345", "gatewayToken")
-  val storedTestIndividual = TestIndividual(userId, hashedPassword, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
+  val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
+  val storedTestIndividual = TestIndividual(userId, hashedPassword, individualDetails, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
     Some(MtdItId("XGIT00000000054")), Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
 
   trait Setup {

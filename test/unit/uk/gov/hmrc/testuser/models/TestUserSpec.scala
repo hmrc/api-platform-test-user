@@ -43,7 +43,7 @@ class TestUserSpec extends UnitSpec with WithFakeApplication {
   }
 
   "TestOrganisationCreatedResponse should be properly constructed from a TestOrganisation" in {
-    val organisationDetails = OrganisationDetails.random()
+    val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
     val testOrganisation = TestOrganisation(userId = "test", password = "test", organisationDetails = organisationDetails, lisaManRefNum = Some(LisaManagerReferenceNumber("Z123456")))
     TestOrganisationCreatedResponse.from(testOrganisation) shouldBe
       TestOrganisationCreatedResponse(
