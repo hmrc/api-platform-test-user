@@ -51,11 +51,13 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   val empRef = EmpRef("555","EIA000")
   val arn = AgentBusinessUtr("NARN0396245")
   val lisaManagerReferenceNumber = LisaManagerReferenceNumber("Z123456")
+  val secureElectronicTransferReferenceNumber = SecureElectronicTransferReferenceNumber("123456789012")
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
   val testIndividual = TestIndividual(user, password, individualDetails, Some(saUtr), Some(nino), Some(mtdItId))
-  val testOrganisation = TestOrganisation(user, password, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber))
+  val testOrganisation = TestOrganisation(user, password, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId),
+    Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber), Some(secureElectronicTransferReferenceNumber))
   val testAgent = TestAgent(user, password, Some(arn))
   val createIndividualServices = Seq(ServiceName.NATIONAL_INSURANCE)
   val createOrganisationServices = Seq(ServiceName.NATIONAL_INSURANCE)
@@ -128,7 +130,8 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
       status(result) shouldBe CREATED
       jsonBodyOf(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, organisationDetails, Some(saUtr),
-        Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber)))
+        Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber),
+        Some(secureElectronicTransferReferenceNumber)))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {

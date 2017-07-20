@@ -56,7 +56,8 @@ class TestUserSpec extends UnitSpec with WithFakeApplication {
         None,
         None,
         None,
-        Some(LisaManagerReferenceNumber("Z123456"))
+        Some(LisaManagerReferenceNumber("Z123456")),
+        None
       )
   }
 

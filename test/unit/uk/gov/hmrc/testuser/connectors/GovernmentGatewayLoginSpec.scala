@@ -36,12 +36,14 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
   val ctUtr = CtUtr("1555369053")
   val vrn = Vrn("999902541")
   val lisaManRefNum = LisaManagerReferenceNumber("Z123456")
+  val secureElectronicTransferReferenceNumber = SecureElectronicTransferReferenceNumber("123456789012")
   val empRef = EmpRef("555","EIA000")
 
   val agentEnrolment = Enrolment("HMRC-AS-AGENT", Seq(Identifier("AgentReferenceNumber", arn.utr)))
   val saEnrolment = Enrolment("IR-SA", Seq(Identifier("UTR", saUtr.toString)))
   val mtdItEnrolment = Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId.toString)))
   val lisaEnrolment = Enrolment("HMRC-LISA-ORG", Seq(Identifier("ZREF", lisaManRefNum.toString)))
+  val setEnrolment = Enrolment("HMRC-SET-ORG", Seq(Identifier("SRN", secureElectronicTransferReferenceNumber.toString)))
   val ctEnrolment = Enrolment("IR-CT", Seq(Identifier("UTR", ctUtr.toString)))
   val vatEnrolment = Enrolment("HMCE-VATDEC-ORG", Seq(Identifier("VATRegNo", vrn.toString)))
   val payeEnrolment = Enrolment("IR-PAYE", Seq(Identifier("TaxOfficeNumber", empRef.taxOfficeNumber),
@@ -88,21 +90,25 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
 
   "A GovernmentGatewayLogin created from a TestOrganisation" should {
     "contain no enrolments when the organisation has no services" in {
-      val organisation = TestOrganisation(user, password, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum))
+      val organisation = TestOrganisation(user, password, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId),
+        Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum), Some(secureElectronicTransferReferenceNumber))
       GovernmentGatewayLogin(organisation).enrolments shouldBe empty
     }
 
     "contain the right enrolments for the organisation's services" in {
-      val organisation = TestOrganisation(user, password, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum),
-        Seq(AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, LISA))
+      val organisation = TestOrganisation(user, password, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId),
+        Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum), Some(secureElectronicTransferReferenceNumber),
+        Seq(AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS,
+          MTD_INCOME_TAX, LISA, SECURE_ELECTRONIC_TRANSFER))
 
       GovernmentGatewayLogin(organisation).enrolments should contain theSameElementsAs
-        Seq(saEnrolment, ctEnrolment, vatEnrolment, payeEnrolment, mtdItEnrolment, lisaEnrolment)
+        Seq(saEnrolment, ctEnrolment, vatEnrolment, payeEnrolment, mtdItEnrolment, lisaEnrolment, setEnrolment)
     }
 
     "ignore services that are not applicable" in {
-      val organisation = TestOrganisation(user, password, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum),
-        Seq(AGENT_SERVICES, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA))
+      val organisation = TestOrganisation(user, password, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId),
+        Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum),
+        services=Seq(AGENT_SERVICES, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA))
 
       GovernmentGatewayLogin(organisation).enrolments should contain theSameElementsAs Seq(ctEnrolment, vatEnrolment, lisaEnrolment)
     }
