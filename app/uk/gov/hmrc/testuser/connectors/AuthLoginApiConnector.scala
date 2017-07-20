@@ -88,6 +88,7 @@ object GovernmentGatewayLogin {
         case PAYE_FOR_EMPLOYERS => organisation.empRef map {empRef => Enrolment("IR-PAYE", taxIdentifier(empRef))}
         case MTD_INCOME_TAX => organisation.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId))}
         case LISA => organisation.lisaManRefNum map { lisaManRefNum => Enrolment("HMRC-LISA-ORG", taxIdentifier(lisaManRefNum))}
+        case SECURE_ELECTRONIC_TRANSFER => organisation.secureElectronicTransferReferenceNumber map { setRefNum => Enrolment("HMRC-SET-ORG", taxIdentifier(setRefNum))}
         case _ => None
       }
     }
@@ -117,6 +118,7 @@ object GovernmentGatewayLogin {
       case arn: AgentBusinessUtr => Seq(Identifier("AgentReferenceNumber", arn.toString))
       case mtdItId: MtdItId => Seq(Identifier("MTDITID", mtdItId.toString))
       case lisaManRefNum: LisaManagerReferenceNumber => Seq(Identifier("ZREF", lisaManRefNum.toString))
+      case setRefNum: SecureElectronicTransferReferenceNumber => Seq(Identifier("SRN", setRefNum.toString))
       case _ => Seq.empty
     }
   }

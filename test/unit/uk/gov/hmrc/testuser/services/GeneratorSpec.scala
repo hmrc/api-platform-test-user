@@ -75,9 +75,9 @@ class GeneratorSpec extends UnitSpec {
 
     "create a different test organisation at every run" in {
       val organisation1 = underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX,
-        CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS))
+        CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS, LISA, SECURE_ELECTRONIC_TRANSFER))
       val organisation2 = underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX,
-        CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS))
+        CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS, LISA, SECURE_ELECTRONIC_TRANSFER))
 
       organisation1 should haveDifferentPropertiesThan(organisation2)
     }
@@ -91,6 +91,8 @@ class GeneratorSpec extends UnitSpec {
       org.ctUtr shouldBe empty
       org.saUtr shouldBe empty
       org.vrn shouldBe empty
+      org.lisaManRefNum shouldBe empty
+      org.secureElectronicTransferReferenceNumber shouldBe empty
     }
 
     "generate a NINO when NATIONAL_INSURANCE service is included" in {
@@ -102,6 +104,8 @@ class GeneratorSpec extends UnitSpec {
       org.ctUtr shouldBe empty
       org.saUtr shouldBe empty
       org.vrn shouldBe empty
+      org.lisaManRefNum shouldBe empty
+      org.secureElectronicTransferReferenceNumber shouldBe empty
     }
 
     "generate a EMPREF when PAYE_FOR_EMPLOYERS service is included" in {
@@ -113,6 +117,8 @@ class GeneratorSpec extends UnitSpec {
       org.ctUtr shouldBe empty
       org.saUtr shouldBe empty
       org.vrn shouldBe empty
+      org.lisaManRefNum shouldBe empty
+      org.secureElectronicTransferReferenceNumber shouldBe empty
     }
 
     "generate a CT UTR when CORPORATION_TAX service is included" in {
@@ -124,6 +130,8 @@ class GeneratorSpec extends UnitSpec {
       org.empRef shouldBe empty
       org.saUtr shouldBe empty
       org.vrn shouldBe empty
+      org.lisaManRefNum shouldBe empty
+      org.secureElectronicTransferReferenceNumber shouldBe empty
     }
 
     "generate a SA UTR when SELF_ASSESSMENT service is included" in {
@@ -135,6 +143,8 @@ class GeneratorSpec extends UnitSpec {
       org.empRef shouldBe empty
       org.ctUtr shouldBe empty
       org.vrn shouldBe empty
+      org.lisaManRefNum shouldBe empty
+      org.secureElectronicTransferReferenceNumber shouldBe empty
     }
 
     "generate a VRN when SUBMIT_VAT_RETURNS service is included" in {
@@ -146,6 +156,8 @@ class GeneratorSpec extends UnitSpec {
       org.empRef shouldBe empty
       org.ctUtr shouldBe empty
       org.saUtr shouldBe empty
+      org.lisaManRefNum shouldBe empty
+      org.secureElectronicTransferReferenceNumber shouldBe empty
     }
 
     "generate a lisaManagerReferenceNumber when LISA service is included" in {
@@ -158,6 +170,20 @@ class GeneratorSpec extends UnitSpec {
       org.ctUtr shouldBe empty
       org.saUtr shouldBe empty
       org.lisaManRefNum shouldBe defined
+      org.secureElectronicTransferReferenceNumber shouldBe empty
+    }
+
+    "generate a secureElectronicTransferReferenceNumber when SECURE_ELECTRONIC_TRANSFER service is included" in {
+      val org = underTest.generateTestOrganisation(Seq(SECURE_ELECTRONIC_TRANSFER))
+
+      org.vrn shouldBe empty
+      org.nino shouldBe empty
+      org.mtdItId shouldBe empty
+      org.empRef shouldBe empty
+      org.ctUtr shouldBe empty
+      org.saUtr shouldBe empty
+      org.lisaManRefNum shouldBe empty
+      org.secureElectronicTransferReferenceNumber shouldBe defined
     }
 
   }
@@ -191,17 +217,22 @@ object CustomMatchers {
           i1.password != i2.password &&
           i1.nino != i2.nino &&
           i1.saUtr != i2.saUtr
+
         case (o1: TestOrganisation, o2: TestOrganisation) => o1._id != o2._id &&
           o1.userId != o2.userId &&
           o1.password != o2.password &&
           o1.saUtr != o2.saUtr &&
           o1.ctUtr != o2.ctUtr &&
           o1.empRef != o2.empRef &&
-          o1.vrn != o2.vrn
+          o1.vrn != o2.vrn &&
+          o1.lisaManRefNum != o2.lisaManRefNum &&
+          o1.secureElectronicTransferReferenceNumber != o2.secureElectronicTransferReferenceNumber
+
         case (a1: TestAgent, a2: TestAgent) => a1._id != a2._id &&
           a1.userId != a2.userId &&
           a1.password != a2.password &&
           a1.arn != a2.arn
+
         case _ => false
       }
     }

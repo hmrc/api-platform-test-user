@@ -37,6 +37,10 @@
           {
             "enum": ["lisa"],
             "description": "Enrols a user for Lifetime ISA and generates a LISA Manager Reference Number"
+          },
+          {
+            "enum": ["secure-electronic-transfer"],
+            "description": "Enrols a user for HMRC Secure Electronic Transfer and generates a Secure Electronic Transfer Reference Number"
           }
         ]
       },

@@ -35,8 +35,9 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
   val testIndividual = TestIndividual("individualUser", "password", individualDetails, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
     Some(MtdItId("XGIT00000000054")), Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX))
   val testOrganisation = TestOrganisation("organisationUser", "password", organisationDetails, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
-    Some(MtdItId("XGIT00000000054")), Some(EmpRef("555","EIA000")), Some(CtUtr("1555369053")), Some(Vrn("999902541")), Some(LisaManagerReferenceNumber("Z123456")),
-    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, LISA))
+    Some(MtdItId("XGIT00000000054")), Some(EmpRef("555","EIA000")), Some(CtUtr("1555369053")), Some(Vrn("999902541")),
+    Some(LisaManagerReferenceNumber("Z123456")), Some(SecureElectronicTransferReferenceNumber("123456789012")),
+    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, LISA, SECURE_ELECTRONIC_TRANSFER))
 
   val authSession = AuthSession("Bearer 12345", "/auth/oid/12345", "ggToken")
 
@@ -174,6 +175,15 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       {
            |         "key":"ZREF",
            |         "value":"${testOrganisation.lisaManRefNum.get.value}"
+           |       }]
+           |     },
+           |     {
+           |       "key": "HMRC-SET-ORG",
+           |       "state": "Activated",
+           |       "identifiers": [
+           |       {
+           |         "key":"SRN",
+           |         "value":"${testOrganisation.secureElectronicTransferReferenceNumber.get.value}"
            |       }]
            |     }
            |   ]
