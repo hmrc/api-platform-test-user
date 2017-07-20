@@ -40,6 +40,7 @@ trait Generator extends Randomiser {
   private val arnGenerator = new ArnGenerator()
   private val mtdItIdGenerator = new MtdItIdGenerator()
   private val lisaManRefNumGenerator = new LisaGenerator()
+  private val setRefNumGenerator = new SecureElectronicTransferReferenceNumberGenerator()
 
   def generateTestIndividual(services: Seq[ServiceName] = Seq.empty) = {
     val saUtr = if (services.contains(SELF_ASSESSMENT)) Some(generateSaUtr) else None
@@ -57,8 +58,10 @@ trait Generator extends Randomiser {
     val ctUtr = if (services.contains(CORPORATION_TAX)) Some(generateCtUtr) else None
     val vrn = if (services.contains(SUBMIT_VAT_RETURNS)) Some(generateVrn) else None
     val lisaManRefNum = if (services.contains(LISA)) Some(generateLisaManRefNum) else None
+    val setRefNum = if (services.contains(SECURE_ELECTRONIC_TRANSFER)) Some(generateSetRefNum) else None
 
-    TestOrganisation(generateUserId, generatePassword, generateOrganisationDetails, saUtr, nino, mtdItId, empRef, ctUtr, vrn, lisaManRefNum, services)
+    TestOrganisation(generateUserId, generatePassword, generateOrganisationDetails, saUtr, nino, mtdItId, empRef, ctUtr,
+      vrn, lisaManRefNum, setRefNum, services)
   }
 
   def generateTestAgent(services: Seq[ServiceName] = Seq.empty) = {
@@ -95,9 +98,10 @@ trait Generator extends Randomiser {
   private def generateNino: Nino = ninoGenerator.nextNino
   private def generateCtUtr: CtUtr = CtUtr(utrGenerator.nextSaUtr.value)
   private def generateVrn: Vrn = Vrn(vrnGenerator.sample.get.toString)
-  private def generateLisaManRefNum: LisaManagerReferenceNumber = lisaManRefNumGenerator.nextLisaManRefNum
-  private def generateArn: AgentBusinessUtr = arnGenerator.nextArn
-  private def generateMtdId: MtdItId = mtdItIdGenerator.nextMtdId
+  private def generateLisaManRefNum: LisaManagerReferenceNumber = lisaManRefNumGenerator.next
+  private def generateSetRefNum: SecureElectronicTransferReferenceNumber = setRefNumGenerator.next
+  private def generateArn: AgentBusinessUtr = arnGenerator.next
+  private def generateMtdId: MtdItId = mtdItIdGenerator.next
 }
 
 object Generator extends Generator
@@ -105,7 +109,7 @@ object Generator extends Generator
 class ArnGenerator(random: Random = new Random) extends Modulus23Check {
   def this(seed: Int) = this(new scala.util.Random(seed))
 
-  def nextArn: AgentBusinessUtr = {
+  def next: AgentBusinessUtr = {
     val randomCode = "ARN" + f"${random.nextInt(1000000)}%07d"
     val checkCharacter  = calculateCheckCharacter(randomCode)
     AgentBusinessUtr(s"$checkCharacter$randomCode")
@@ -115,7 +119,7 @@ class ArnGenerator(random: Random = new Random) extends Modulus23Check {
 class MtdItIdGenerator(random: Random = new Random) extends Modulus23Check {
   def this(seed: Int) = this(new scala.util.Random(seed))
 
-  def nextMtdId = {
+  def next = {
     val randomCode = "IT" + f"${random.nextInt(1000000)}%011d"
     val checkCharacter = calculateCheckCharacter(randomCode)
     MtdItId(s"X$checkCharacter$randomCode")
@@ -125,8 +129,19 @@ class MtdItIdGenerator(random: Random = new Random) extends Modulus23Check {
 class LisaGenerator(random: Random = new Random) extends Modulus23Check {
   def this(seed: Int) = this(new scala.util.Random(seed))
 
-  def nextLisaManRefNum: LisaManagerReferenceNumber = {
+  def next: LisaManagerReferenceNumber = {
     val randomCode = f"${random.nextInt(999999)}%06d"
     LisaManagerReferenceNumber(s"Z$randomCode")
+  }
+}
+
+class SecureElectronicTransferReferenceNumberGenerator(random: Random = new Random) {
+  def this(seed: Int) = this(new scala.util.Random(seed))
+
+  def next: SecureElectronicTransferReferenceNumber = {
+    // SecureElectronicTransferReferenceNumber must be 12 digit number not beginning with 0
+    val initialDigit = random.nextInt(8) + 1
+    val remainingDigits = f"${random.nextInt(Int.MaxValue)}%011d"
+    SecureElectronicTransferReferenceNumber(s"$initialDigit$remainingDigits")
   }
 }
