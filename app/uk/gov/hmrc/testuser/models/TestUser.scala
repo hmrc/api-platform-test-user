@@ -33,6 +33,7 @@ object ServiceName extends Enumeration {
   val MTD_INCOME_TAX = Value("mtd-income-tax")
   val AGENT_SERVICES = Value("agent-services")
   val LISA = Value("lisa")
+  val SECURE_ELECTRONIC_TRANSFER = Value("secure-electronic-transfer")
 }
 
 sealed trait TestUser {
@@ -64,6 +65,7 @@ case class TestOrganisation(override val userId: String,
                             ctUtr: Option[CtUtr] = None,
                             vrn: Option[Vrn] = None,
                             lisaManRefNum: Option[LisaManagerReferenceNumber] = None,
+                            secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber] = None,
                             override val services: Seq[ServiceName] = Seq.empty,
                             override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Organisation"
@@ -80,7 +82,8 @@ case class TestAgent(override val userId: String,
 case class TestIndividualCreatedResponse(userId: String, password: String, individualDetails: IndividualDetails, saUtr: Option[SaUtr], nino: Option[Nino], mtdItId: Option[MtdItId])
 case class TestOrganisationCreatedResponse(userId: String, password: String, organisationDetails: OrganisationDetails, saUtr: Option[SaUtr], nino: Option[Nino], mtdItId: Option[MtdItId],
                                            empRef: Option[EmpRef], ctUtr: Option[CtUtr], vrn: Option[Vrn],
-                                           lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber])
+                                           lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber],
+                                           secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber])
 case class TestAgentCreatedResponse(userId: String, password: String, agentServicesAccountNumber: Option[AgentBusinessUtr])
 
 object TestIndividualCreatedResponse {
@@ -91,7 +94,7 @@ object TestIndividualCreatedResponse {
 object TestOrganisationCreatedResponse {
   def from(organisation: TestOrganisation) = TestOrganisationCreatedResponse(organisation.userId, organisation.password, organisation.organisationDetails,
     organisation.saUtr, organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr,
-    organisation.vrn, organisation.lisaManRefNum)
+    organisation.vrn, organisation.lisaManRefNum, organisation.secureElectronicTransferReferenceNumber)
 }
 
 object TestAgentCreatedResponse {
@@ -122,6 +125,7 @@ case class TestOrganisationResponse(override val userId: String,
                                     ctUtr: Option[CtUtr] = None,
                                     vrn: Option[Vrn] = None,
                                     lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber] = None,
+                                    secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber] = None,
                                     override val userType: UserType = UserType.ORGANISATION) extends TestUserResponse
 
 case class TestAgentResponse(userId: String,
@@ -134,8 +138,9 @@ object TestIndividualResponse {
 }
 
 object TestOrganisationResponse {
-  def from(organisation: TestOrganisation) = TestOrganisationResponse(organisation.userId, organisation.organisationDetails, organisation.saUtr,
-    organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.lisaManRefNum)
+  def from(organisation: TestOrganisation) = TestOrganisationResponse(organisation.userId, organisation.organisationDetails,
+    organisation.saUtr, organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn,
+    organisation.lisaManRefNum, organisation.secureElectronicTransferReferenceNumber)
 }
 
 object TestAgentResponse {
@@ -191,6 +196,20 @@ case class LisaManagerReferenceNumber(lisaManagerReferenceNumber: String) extend
 object LisaManagerReferenceNumber extends (String => LisaManagerReferenceNumber) {
   implicit val lisaManRefNumWrite: Writes[LisaManagerReferenceNumber] = new SimpleObjectWrites[LisaManagerReferenceNumber](_.value)
   implicit val lisaManRefNumRead: Reads[LisaManagerReferenceNumber] = new SimpleObjectReads[LisaManagerReferenceNumber]("lisaManagerReferenceNumber", LisaManagerReferenceNumber.apply)
+}
+
+case class SecureElectronicTransferReferenceNumber(secureElectronicTransferReferenceNumber: String) extends TaxIdentifier with SimpleName {
+  override def toString = secureElectronicTransferReferenceNumber
+  val name = "secureElectronicTransferReferenceNumber"
+  def value = secureElectronicTransferReferenceNumber
+}
+
+object SecureElectronicTransferReferenceNumber extends (String => SecureElectronicTransferReferenceNumber) {
+  implicit val secureElectronicTransferReferenceNumberWrite: Writes[SecureElectronicTransferReferenceNumber] =
+    new SimpleObjectWrites[SecureElectronicTransferReferenceNumber](_.value)
+
+  implicit val secureElectronicTransferReferenceNumberRead: Reads[SecureElectronicTransferReferenceNumber] =
+    new SimpleObjectReads[SecureElectronicTransferReferenceNumber]("secureElectronicTransferReferenceNumber", SecureElectronicTransferReferenceNumber.apply)
 }
 
 case class Address(line1: String, line2: String, postcode: String)

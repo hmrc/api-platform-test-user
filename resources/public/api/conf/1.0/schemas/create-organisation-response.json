@@ -73,6 +73,10 @@
     "lisaManagerReferenceNumber": {
       "type": "string",
       "description": "LISA Manager Reference Number"
+    },
+    "secureElectronicTransferReferenceNumber": {
+      "type": "string",
+      "description": "Secure Electronic Transfer reference number"
     }
   },
   "required": [
