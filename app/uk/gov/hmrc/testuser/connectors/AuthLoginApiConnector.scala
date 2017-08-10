@@ -56,7 +56,8 @@ case class GovernmentGatewayLogin(credId: String,
                                   nino: Option[String],
                                   enrolments: Seq[Enrolment],
                                   confidenceLevel: Int = ConfidenceLevel.L200.level,
-                                  credentialStrength: String = "strong"
+                                  credentialStrength: String = "strong",
+                                  credentialRole: Option[String] = None
                                  )
 
 object GovernmentGatewayLogin {
@@ -105,7 +106,8 @@ object GovernmentGatewayLogin {
       }
     }
 
-    GovernmentGatewayLogin(agent.userId, agent.affinityGroup, None, agent.services.map(asEnrolment(_)).flatten)
+    GovernmentGatewayLogin(agent.userId, agent.affinityGroup, None, agent.services.map(asEnrolment(_)).flatten,
+      credentialRole = Some("user"))
   }
 
   private def taxIdentifier(taxIdentifier: TaxIdentifier) = {
