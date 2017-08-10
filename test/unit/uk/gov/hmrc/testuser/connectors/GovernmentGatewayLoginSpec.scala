@@ -57,13 +57,20 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
 
     "contain the enrolment HMRC-AS-AGENT when the agent has the 'agent-services' service" in {
       val testAgent = TestAgent(user, password, Some(arn), Seq(AGENT_SERVICES))
-      val enrolments = GovernmentGatewayLogin(testAgent).enrolments
       GovernmentGatewayLogin(testAgent).enrolments should contain theSameElementsAs Seq(agentEnrolment)
     }
 
     "ignore services that are not applicable" in {
       val testAgent = TestAgent(user, password, Some(arn), Seq(SELF_ASSESSMENT, AGENT_SERVICES))
       GovernmentGatewayLogin(testAgent).enrolments should contain theSameElementsAs Seq(agentEnrolment)
+    }
+
+    "have the credential role populated" in {
+      val testAgent = TestAgent(user, password, Some(arn), Seq(AGENT_SERVICES))
+      val credentialRole = GovernmentGatewayLogin(testAgent).credentialRole
+
+      credentialRole shouldBe defined
+      credentialRole shouldBe Some("user")
     }
   }
 
@@ -86,6 +93,14 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
 
       GovernmentGatewayLogin(individual).enrolments should contain theSameElementsAs Seq(saEnrolment, mtdItEnrolment)
     }
+
+    "not have the credential role populated" in {
+      val individual = TestIndividual(user, password,individualDetails,  Some(saUtr), Some(nino), Some(mtdItId),
+        Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
+
+      GovernmentGatewayLogin(individual).credentialRole shouldBe empty
+    }
+
   }
 
   "A GovernmentGatewayLogin created from a TestOrganisation" should {
@@ -111,6 +126,13 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
         services=Seq(AGENT_SERVICES, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA))
 
       GovernmentGatewayLogin(organisation).enrolments should contain theSameElementsAs Seq(ctEnrolment, vatEnrolment, lisaEnrolment)
+    }
+
+    "not have the credential role populated" in {
+      val organisation = TestOrganisation(user, password, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId),
+        services=Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
+
+      GovernmentGatewayLogin(organisation).credentialRole shouldBe empty
     }
   }
 
