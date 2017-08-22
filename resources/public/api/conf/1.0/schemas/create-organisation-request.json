@@ -12,35 +12,35 @@
         "oneOf": [
           {
             "enum": ["corporation-tax"],
-            "description": "Enrols a user for Corporation Tax and generates a Corporation Tax UTR"
+            "description": "Generates a Corporation Tax UTR and enrols the user for Corporation Tax"
           },
           {
             "enum": ["paye-for-employers"],
-            "description": "Enrols a user for PAYE for Employers and generates an Employer Reference"
+            "description": "Generates an Employer Reference and enrols the user for PAYE for Employers"
           },
           {
             "enum": ["submit-vat-returns"],
-            "description": "Enrols a user for Submit VAT Returns and generates a VAT Registration Number"
+            "description": "Generates a VAT Registration Number and enrols the user for Submit VAT Returns"
           },
           {
             "enum": ["national-insurance"],
-            "description": "Enrols a user for National Insurance and generates a National Insurance number"
+            "description": "Generates a National Insurance number and enrols the user for National Insurance"
           },
           {
             "enum": ["self-assessment"],
-            "description": "Enrols a user for Self Assessment and generates a Self Assessment UTR"
+            "description": "Generates a Self Assessment UTR and enrols the user for Self Assessment"
           },
           {
             "enum": ["mtd-income-tax"],
-            "description": "Enrols a user for Making Tax Digital Income Tax and generates a Making Tax Digital Income Tax ID"
+            "description": "Generates a National Insurance number and a Making Tax Digital Income Tax ID and enrols the user for Making Tax Digital Income Tax"
           },
           {
             "enum": ["lisa"],
-            "description": "Enrols a user for Lifetime ISA and generates a LISA Manager Reference Number"
+            "description": "Generates a LISA Manager Reference Number and enrols the user for Lifetime ISA"
           },
           {
             "enum": ["secure-electronic-transfer"],
-            "description": "Enrols a user for HMRC Secure Electronic Transfer and generates a Secure Electronic Transfer Reference Number"
+            "description": "Generates a Secure Electronic Transfer Reference Number and enrols the user for HMRC Secure Electronic Transfer"
           }
         ]
       },
