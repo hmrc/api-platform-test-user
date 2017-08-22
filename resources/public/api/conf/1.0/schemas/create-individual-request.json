@@ -12,15 +12,15 @@
         "oneOf": [
           {
             "enum": ["national-insurance"],
-            "description": "Enrols a user for National Insurance and generates a National Insurance number"
+            "description": "Generates a National Insurance number ane enrols the user for National Insurance"
           },
           {
             "enum": ["self-assessment"],
-            "description": "Enrols a user for Self Assessment and generates a Self Assessment UTR"
+            "description": "Generates a Self Assessment UTR and enrols the user for Self Assessment"
           },
           {
             "enum": ["mtd-income-tax"],
-            "description": "Enrols a user for Making Tax Digital Income Tax and generates a National Insurance number and a Making Tax Digital Income Tax ID"
+            "description": "Generates a National Insurance number and a Making Tax Digital Income Tax ID and enrols the user for Making Tax Digital Income Tax"
           }
         ]
       },
