@@ -6,6 +6,7 @@ POST        /agents                             @uk.gov.hmrc.testuser.controller
 
 
 POST        /session                            @uk.gov.hmrc.testuser.controllers.AuthenticationControllerImpl.authenticate
+POST        /gap-authentication/session         @uk.gov.hmrc.testuser.controllers.AuthenticationControllerImpl.authenticate
 
 GET         /individuals/nino/:nino             @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.fetchIndividualByNino(nino: uk.gov.hmrc.domain.Nino)
 GET         /individuals/shortnino/:shortNino   @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.fetchIndividualByShortNino(shortNino: uk.gov.hmrc.testuser.models.NinoNoSuffix)
