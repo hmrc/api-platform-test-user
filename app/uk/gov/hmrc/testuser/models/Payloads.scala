@@ -20,7 +20,7 @@ import org.joda.time.LocalDate
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.testuser.models.ServiceName._
 
-case class AuthenticationRequest(userId: String, password: String)
+case class AuthenticationRequest(username: String, password: String)
 
 case class AuthenticationResponse(gatewayToken: String, affinityGroup: String)
 
