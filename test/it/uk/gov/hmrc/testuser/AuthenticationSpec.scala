@@ -138,7 +138,7 @@ class AuthenticationSpec extends BaseSpec {
 
   private def authenticate(userId: String, password: String) = {
     Http(s"$serviceUrl/session")
-      .postData(stringify(obj("userId" -> userId, "password" -> password)))
+      .postData(stringify(obj("username" -> userId, "password" -> password)))
       .header(HeaderNames.CONTENT_TYPE, "application/json").asString
   }
 }
