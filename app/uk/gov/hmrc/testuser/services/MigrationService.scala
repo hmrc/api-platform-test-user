@@ -26,8 +26,8 @@ import reactivemongo.bson.BSONDocument
 import reactivemongo.json.ImplicitBSONHandlers._
 import reactivemongo.json.collection.JSONCollection
 import uk.gov.hmrc.lock.{LockKeeper, LockMongoRepository}
-import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.repository.TestUserMongoRepository
+import uk.gov.hmrc.testuser.services.Generator.{generateEmailAddress, generateUserFullName}
 import uk.gov.hmrc.testuser.util.Randomiser
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -48,35 +48,28 @@ class MigrationService extends MongoDbConnection with Randomiser {
     override val forceLockReleaseAfter = standardMinutes(2)
   }
 
-  private val individualPostcodeMigration = new Migration("individual-postcode") {
+  private val userFullNameAndEmailAddressMigration = new Migration("user-full-name-and-email-address") {
     override protected val query = BSONDocument(
-      "userType" -> INDIVIDUAL.toString,
-      "individualDetails.address.postcode" -> obj("$exists" -> false)
+      "userFullName" -> obj("$exists" -> false)
     )
 
     override protected def selector(jsValue: JsValue) =
       BSONDocument("userId" -> (jsValue \ "userId").as[String])
 
-    override protected def modifier = BSONDocument("$set" ->
-      BSONDocument("individualDetails.address.postcode" -> toJson(randomConfigString("randomiser.address.postcode")))
-    )
+    override protected def modifier = {
+      val firstName = randomConfigString("randomiser.individualDetails.firstName")
+      val lastName = randomConfigString("randomiser.individualDetails.lastName")
+
+      BSONDocument("$set" ->
+        BSONDocument("userFullName" -> toJson(generateUserFullName(firstName, lastName)),
+        "emailAddress" -> toJson(generateEmailAddress(firstName, lastName)))
+      )
+    }
+
   }
 
-  private val organisationPostcodeMigration = new Migration("organisation-postcode") {
-    override protected val query = BSONDocument(
-      "userType" -> ORGANISATION.toString,
-      "organisationDetails.address.postcode" -> obj("$exists" -> false)
-    )
 
-    override protected def selector(jsValue: JsValue) =
-      BSONDocument("userId" -> (jsValue \ "userId").as[String])
-
-    override protected def modifier = BSONDocument("$set" ->
-      BSONDocument("organisationDetails.address.postcode" -> toJson(randomConfigString("randomiser.address.postcode")))
-    )
-  }
-
-  def migrate(): Future[Unit] = migrate(Seq(individualPostcodeMigration, organisationPostcodeMigration))
+  def migrate(): Future[Unit] = migrate(Seq(userFullNameAndEmailAddressMigration))
 
   private def migrate(migrations: Seq[Migration]): Future[Unit] =
     lockKeeper.tryLock {

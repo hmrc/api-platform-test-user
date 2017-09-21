@@ -31,13 +31,18 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
+  val userFullName = "John Doe"
+  val emailAddress = "john.doe@example.com"
 
-  val testIndividual = TestIndividual("individualUser", "password", individualDetails, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
+  val testIndividual = TestIndividual("individualUser", "password", userFullName, emailAddress, individualDetails, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
     Some(MtdItId("XGIT00000000054")), Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX))
-  val testOrganisation = TestOrganisation("organisationUser", "password", organisationDetails, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
+
+  val testOrganisation = TestOrganisation("organisationUser", "password", userFullName, emailAddress,  organisationDetails, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
     Some(MtdItId("XGIT00000000054")), Some(EmpRef("555","EIA000")), Some(CtUtr("1555369053")), Some(Vrn("999902541")),
     Some(LisaManagerReferenceNumber("Z123456")), Some(SecureElectronicTransferReferenceNumber("123456789012")),
     Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, LISA, SECURE_ELECTRONIC_TRANSFER))
+
+  val testAgent = TestAgent("agentUser", "password", userFullName, emailAddress, Some(AgentBusinessUtr("NARN0396245")), Seq(AGENT_SERVICES))
 
   val authSession = AuthSession("Bearer 12345", "/auth/oid/12345", "ggToken")
 
@@ -99,7 +104,9 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
           |         "value":"${testIndividual.mtdItId.get.value}"
           |       }]
           |     }
-          |   ]
+          |   ],
+          |   "usersName": "John Doe",
+          |   "email": "john.doe@example.com"
           |}
         """.stripMargin.replaceAll("\n", ""))))
     }
@@ -186,9 +193,43 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |         "value":"${testOrganisation.secureElectronicTransferReferenceNumber.get.value}"
            |       }]
            |     }
-           |   ]
+           |   ],
+           |   "usersName": "John Doe",
+           |   "email": "john.doe@example.com"
            |}
         """.stripMargin.replaceAll("\n", ""))))
+    }
+
+    "create a session for an Agent" in new Setup {
+      AuthLoginApiStub.willReturnTheSession(authSession)
+
+      val result = await(underTest.createSession(testAgent))
+
+      result shouldBe authSession
+      AuthLoginApiStub.mock.verifyThat(postRequestedFor(urlPathEqualTo("/government-gateway/legacy/login"))
+        .withRequestBody(equalToJson(
+          s"""
+             |{
+             |   "credId": "${testAgent.userId}",
+             |   "affinityGroup": "Agent",
+             |   "confidenceLevel": 200,
+             |   "credentialStrength": "strong",
+             |   "credentialRole": "user",
+             |   "enrolments": [
+             |     {
+             |       "key": "HMRC-AS-AGENT",
+             |       "state": "Activated",
+             |       "identifiers": [
+             |       {
+             |         "key":"AgentReferenceNumber",
+             |         "value":"${testAgent.arn.get.value}"
+             |       }]
+             |     }
+             |   ],
+             |   "usersName": "John Doe",
+             |   "email": "john.doe@example.com"
+             |}
+      """.stripMargin.replaceAll("\n", ""))))
     }
 
     "fail with Upstream5xxResponse when auth-login-api returns an error" in new Setup {

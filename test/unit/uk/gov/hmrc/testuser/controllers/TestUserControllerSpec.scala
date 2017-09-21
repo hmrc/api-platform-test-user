@@ -41,7 +41,8 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
   val user = "user"
   val password = "password"
-
+  val userFullName = "John Doe"
+  val emailAddress = "john.doe@example.com"
   val saUtr = SaUtr("1555369052")
   val nino = Nino("CC333333C")
   val shortNino = NinoNoSuffix("CC333333")
@@ -55,10 +56,12 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
-  val testIndividual = TestIndividual(user, password, individualDetails, Some(saUtr), Some(nino), Some(mtdItId))
-  val testOrganisation = TestOrganisation(user, password, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId),
+  val testIndividual = TestIndividual(user, password, userFullName, emailAddress, individualDetails,
+    Some(saUtr), Some(nino), Some(mtdItId))
+  val testOrganisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,
+    Some(saUtr), Some(nino), Some(mtdItId),
     Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber), Some(secureElectronicTransferReferenceNumber))
-  val testAgent = TestAgent(user, password, Some(arn))
+  val testAgent = TestAgent(user, password, userFullName, emailAddress, Some(arn))
   val createIndividualServices = Seq(ServiceName.NATIONAL_INSURANCE)
   val createOrganisationServices = Seq(ServiceName.NATIONAL_INSURANCE)
   val createAgentServices = Seq(ServiceName.AGENT_SERVICES)
@@ -103,7 +106,8 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       val result = await(underTest.createIndividual()(createIndividualRequest))
 
       status(result) shouldBe CREATED
-      jsonBodyOf(result) shouldBe toJson(TestIndividualCreatedResponse(user, password, individualDetails, Some(saUtr), Some(nino), Some(mtdItId)))
+      jsonBodyOf(result) shouldBe toJson(TestIndividualCreatedResponse(user, password, userFullName, emailAddress,
+        individualDetails, Some(saUtr), Some(nino), Some(mtdItId)))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
@@ -129,7 +133,8 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       val result = await(underTest.createOrganisation()(createOrganisationRequest))
 
       status(result) shouldBe CREATED
-      jsonBodyOf(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, organisationDetails, Some(saUtr),
+      jsonBodyOf(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, userFullName, emailAddress,
+        organisationDetails, Some(saUtr),
         Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber),
         Some(secureElectronicTransferReferenceNumber)))
     }
@@ -156,7 +161,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       val result = await(underTest.createAgent()(createAgentRequest))
 
       status(result) shouldBe CREATED
-      jsonBodyOf(result) shouldBe toJson(TestAgentCreatedResponse(user, password, Some(arn)))
+      jsonBodyOf(result) shouldBe toJson(TestAgentCreatedResponse(user, password, userFullName, emailAddress, Some(arn)))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the agent failed" in new Setup {
@@ -180,7 +185,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       val result = await(underTest.fetchIndividualByNino(nino)(request))
 
       status(result) shouldBe OK
-      jsonBodyOf(result) shouldBe Json.toJson(TestIndividualResponse.from(testIndividual))
+      jsonBodyOf(result) shouldBe Json.toJson(FetchTestIndividualResponse.from(testIndividual))
     }
 
     "return a 404 (Not Found) when there is no individual matching the NINO" in new Setup {
@@ -214,7 +219,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       val result = await(underTest.fetchIndividualByShortNino(shortNino)(request))
 
       status(result) shouldBe OK
-      jsonBodyOf(result) shouldBe Json.toJson(TestIndividualResponse.from(testIndividual))
+      jsonBodyOf(result) shouldBe Json.toJson(FetchTestIndividualResponse.from(testIndividual))
     }
 
     "return a 404 (Not Found) when there is no individual matching the short nino" in new Setup {
@@ -248,7 +253,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       val result = await(underTest.fetchIndividualBySaUtr(saUtr)(request))
 
       status(result) shouldBe OK
-      jsonBodyOf(result) shouldBe Json.toJson(TestIndividualResponse.from(testIndividual))
+      jsonBodyOf(result) shouldBe Json.toJson(FetchTestIndividualResponse.from(testIndividual))
     }
 
     "return a 404 (Not Found) when there is no individual matching the saUtr" in new Setup {
@@ -282,7 +287,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       val result = await(underTest.fetchOrganisationByEmpRef(empRef)(request))
 
       status(result) shouldBe OK
-      jsonBodyOf(result) shouldBe Json.toJson(TestOrganisationResponse.from(testOrganisation))
+      jsonBodyOf(result) shouldBe Json.toJson(FetchTestOrganisationResponse.from(testOrganisation))
     }
 
     "return a 404 (Not Found) when there is no organisation matching the empRef" in new Setup {

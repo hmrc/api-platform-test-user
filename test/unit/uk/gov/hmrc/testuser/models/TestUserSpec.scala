@@ -23,6 +23,10 @@ import play.api.libs.json.Json.toJson
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 
 class TestUserSpec extends UnitSpec with WithFakeApplication {
+  val userId = "1234567890"
+  val password = "l3tm31n"
+  val userFullName = "John Doe"
+  val emailAddress = "john.doe@example.com"
   val arn = AgentBusinessUtr("NARN0396245")
 
   trait Setup {
@@ -44,11 +48,13 @@ class TestUserSpec extends UnitSpec with WithFakeApplication {
 
   "TestOrganisationCreatedResponse should be properly constructed from a TestOrganisation" in {
     val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
-    val testOrganisation = TestOrganisation(userId = "test", password = "test", organisationDetails = organisationDetails, lisaManRefNum = Some(LisaManagerReferenceNumber("Z123456")))
+    val testOrganisation = TestOrganisation(userId, password, userFullName, emailAddress, organisationDetails = organisationDetails, lisaManRefNum = Some(LisaManagerReferenceNumber("Z123456")))
     TestOrganisationCreatedResponse.from(testOrganisation) shouldBe
       TestOrganisationCreatedResponse(
-        userId = "test",
-        password = "test",
+        userId,
+        password,
+        userFullName,
+        emailAddress,
         organisationDetails,
         None,
         None,
@@ -62,9 +68,7 @@ class TestUserSpec extends UnitSpec with WithFakeApplication {
   }
 
   "TestAgentCreatedResponse should be properly constructed from the TestAgent" in {
-    val testAgent = TestAgent(userId = "test", password = "test", arn = Some(arn))
-    val testAgentCreatedResponse = TestAgentCreatedResponse.from(testAgent)
-
-    toJson(testAgentCreatedResponse).toString() shouldBe """{"userId":"test","password":"test","agentServicesAccountNumber":"NARN0396245"}"""
+    val testAgent = TestAgent(userId, password, userFullName, emailAddress, arn = Some(arn))
+    TestAgentCreatedResponse.from(testAgent) shouldBe TestAgentCreatedResponse(userId, password, userFullName, emailAddress, Some(arn))
   }
 }

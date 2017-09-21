@@ -69,6 +69,14 @@ class GeneratorSpec extends UnitSpec {
       individual.individualDetails shouldBe IndividualDetails("Adrian", "Adams", LocalDate.parse("1940-10-10"),
         Address("1 Abbey Road", "Aberdeen", "TS1 1PA"))
     }
+
+    "set the userFullName and emailAddress" in {
+      val individual = underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
+
+      individual.userFullName shouldBe s"${individual.individualDetails.firstName} ${individual.individualDetails.lastName}"
+
+      individual.emailAddress shouldBe s"${individual.individualDetails.firstName}.${individual.individualDetails.lastName}@example.com".toLowerCase
+    }
   }
 
   "generateTestOrganisation" should {
@@ -186,6 +194,15 @@ class GeneratorSpec extends UnitSpec {
       org.secureElectronicTransferReferenceNumber shouldBe defined
     }
 
+    "set the userFullName and emailAddress" in {
+      val organisation = underTest.generateTestOrganisation(Seq(MTD_INCOME_TAX))
+
+      organisation.userFullName.matches("[a-zA-Z]+ [a-zA-Z]+") shouldBe true
+
+      val nameParts = organisation.userFullName.split(" ")
+
+      organisation.emailAddress shouldBe s"${nameParts(0)}.${nameParts(1)}@example.com".toLowerCase
+    }
   }
 
   "generateTestAgent" should {
@@ -195,6 +212,16 @@ class GeneratorSpec extends UnitSpec {
       val agent2 = underTest.generateTestAgent(Seq(AGENT_SERVICES))
 
       agent1 should haveDifferentPropertiesThan(agent2)
+    }
+
+    "set the userFullName and emailAddress" in {
+      val agent = underTest.generateTestAgent(Seq(AGENT_SERVICES))
+
+      agent.userFullName.matches("[a-zA-Z]+ [a-zA-Z]+") shouldBe true
+
+      val nameParts = agent.userFullName.split(" ")
+
+      agent.emailAddress shouldBe s"${nameParts(0)}.${nameParts(1)}@example.com".toLowerCase
     }
   }
 }
