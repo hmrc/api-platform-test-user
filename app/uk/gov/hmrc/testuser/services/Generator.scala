@@ -46,8 +46,11 @@ trait Generator extends Randomiser {
     val saUtr = if (services.contains(SELF_ASSESSMENT)) Some(generateSaUtr) else None
     val nino = if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) Some(generateNino) else None
     val mtdItId = if(services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
+    val individualDetails = generateIndividualDetails
+    val userFullName = generateUserFullName(individualDetails.firstName, individualDetails.lastName)
+    val emailAddress = generateEmailAddress(individualDetails.firstName, individualDetails.lastName)
 
-    TestIndividual(generateUserId, generatePassword, generateIndividualDetails, saUtr, nino, mtdItId, services)
+    TestIndividual(generateUserId, generatePassword, userFullName, emailAddress, individualDetails, saUtr, nino, mtdItId, services)
   }
 
   def generateTestOrganisation(services: Seq[ServiceName] = Seq.empty) = {
@@ -60,14 +63,28 @@ trait Generator extends Randomiser {
     val lisaManRefNum = if (services.contains(LISA)) Some(generateLisaManRefNum) else None
     val setRefNum = if (services.contains(SECURE_ELECTRONIC_TRANSFER)) Some(generateSetRefNum) else None
 
-    TestOrganisation(generateUserId, generatePassword, generateOrganisationDetails, saUtr, nino, mtdItId, empRef, ctUtr,
+    val firstName = randomConfigString("randomiser.individualDetails.firstName")
+    val lastName = randomConfigString("randomiser.individualDetails.lastName")
+    val userFullName = generateUserFullName(firstName, lastName)
+    val emailAddress = generateEmailAddress(firstName, lastName)
+
+    TestOrganisation(generateUserId, generatePassword, userFullName, emailAddress, generateOrganisationDetails, saUtr, nino, mtdItId, empRef, ctUtr,
       vrn, lisaManRefNum, setRefNum, services)
   }
 
   def generateTestAgent(services: Seq[ServiceName] = Seq.empty) = {
     val arn = if (services.contains(AGENT_SERVICES)) Some(generateArn) else None
-    TestAgent(generateUserId, generatePassword, arn, services)
+    val firstName = randomConfigString("randomiser.individualDetails.firstName")
+    val lastName = randomConfigString("randomiser.individualDetails.lastName")
+    val userFullName = generateUserFullName(firstName, lastName)
+    val emailAddress = generateEmailAddress(firstName, lastName)
+
+    TestAgent(generateUserId, generatePassword, userFullName, emailAddress, arn, services)
   }
+
+  def generateUserFullName(firstName: String, lastName: String) = s"${firstName} ${lastName}"
+
+  def generateEmailAddress(firstName: String, lastName: String) = s"${firstName}.${lastName}@example.com".toLowerCase
 
   private def generateAddress() = {
     Address(

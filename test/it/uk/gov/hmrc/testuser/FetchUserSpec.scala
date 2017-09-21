@@ -41,6 +41,8 @@ class FetchUserSpec extends BaseSpec {
       Json.parse(response.body) shouldBe Json.parse(
       s"""{
         |   "userId": "${individual.userId}",
+        |   "userFullName": "${individual.userFullName}",
+        |   "emailAddress": "${individual.emailAddress}",
         |   "saUtr": "${individual.saUtr.get}",
         |   "nino": "${individual.nino.get}",
         |   "individualDetails": {
@@ -52,8 +54,7 @@ class FetchUserSpec extends BaseSpec {
         |       "line2": "${individual.individualDetails.address.line2}",
         |       "postcode": "${individual.individualDetails.address.postcode}"
         |     }
-        |   },
-        |   "userType": "INDIVIDUAL"
+        |   }
         |}
       """.stripMargin
       )
@@ -72,10 +73,11 @@ class FetchUserSpec extends BaseSpec {
       Json.parse(response.body) shouldBe Json.parse(
         s"""{
             |   "userId": "${individual.userId}",
+            |   "userFullName": "${individual.userFullName}",
+            |   "emailAddress": "${individual.emailAddress}",
             |   "saUtr": "${individual.saUtr.get}",
             |   "nino": "${individual.nino.get}",
-            |   "individualDetails": ${toJson(individual.individualDetails)},
-            |   "userType": "INDIVIDUAL"
+            |   "individualDetails": ${toJson(individual.individualDetails)}
             |}
       """.stripMargin
       )
@@ -93,10 +95,11 @@ class FetchUserSpec extends BaseSpec {
       Json.parse(response.body) shouldBe Json.parse(
         s"""{
             |   "userId": "${individual.userId}",
+            |   "userFullName": "${individual.userFullName}",
+            |   "emailAddress": "${individual.emailAddress}",
             |   "saUtr": "${individual.saUtr.get}",
             |   "nino": "${individual.nino.get}",
-            |   "individualDetails": ${toJson(individual.individualDetails)},
-            |   "userType": "INDIVIDUAL"
+            |   "individualDetails": ${toJson(individual.individualDetails)}
             |}
       """.stripMargin
       )
@@ -114,6 +117,8 @@ class FetchUserSpec extends BaseSpec {
       Json.parse(response.body) shouldBe Json.parse(
         s"""{
             |   "userId": "${organisation.userId}",
+            |   "userFullName": "${organisation.userFullName}",
+            |   "emailAddress": "${organisation.emailAddress}",
             |   "empRef": "${organisation.empRef.get}",
             |   "organisationDetails": {
             |     "name": "${organisation.organisationDetails.name}",
@@ -122,8 +127,7 @@ class FetchUserSpec extends BaseSpec {
             |       "line2": "${organisation.organisationDetails.address.line2}",
             |       "postcode": "${organisation.organisationDetails.address.postcode}"
             |     }
-            |   },
-            |   "userType": "ORGANISATION"
+            |   }
             |}
       """.stripMargin
       )
