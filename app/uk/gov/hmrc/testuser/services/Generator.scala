@@ -63,8 +63,8 @@ trait Generator extends Randomiser {
     val lisaManRefNum = if (services.contains(LISA)) Some(generateLisaManRefNum) else None
     val setRefNum = if (services.contains(SECURE_ELECTRONIC_TRANSFER)) Some(generateSetRefNum) else None
 
-    val firstName = randomConfigString("randomiser.individualDetails.firstName")
-    val lastName = randomConfigString("randomiser.individualDetails.lastName")
+    val firstName = generateFirstName
+    val lastName = generateLastName
     val userFullName = generateUserFullName(firstName, lastName)
     val emailAddress = generateEmailAddress(firstName, lastName)
 
@@ -74,8 +74,8 @@ trait Generator extends Randomiser {
 
   def generateTestAgent(services: Seq[ServiceName] = Seq.empty) = {
     val arn = if (services.contains(AGENT_SERVICES)) Some(generateArn) else None
-    val firstName = randomConfigString("randomiser.individualDetails.firstName")
-    val lastName = randomConfigString("randomiser.individualDetails.lastName")
+    val firstName = generateFirstName
+    val lastName = generateLastName
     val userFullName = generateUserFullName(firstName, lastName)
     val emailAddress = generateEmailAddress(firstName, lastName)
 
@@ -85,6 +85,10 @@ trait Generator extends Randomiser {
   def generateUserFullName(firstName: String, lastName: String) = s"${firstName} ${lastName}"
 
   def generateEmailAddress(firstName: String, lastName: String) = s"${firstName}.${lastName}@example.com".toLowerCase
+
+  def generateFirstName = randomConfigString("randomiser.individualDetails.firstName")
+
+  def generateLastName = randomConfigString("randomiser.individualDetails.lastName")
 
   private def generateAddress() = {
     Address(
@@ -96,8 +100,8 @@ trait Generator extends Randomiser {
 
   private def generateIndividualDetails = {
     IndividualDetails(
-      randomConfigString("randomiser.individualDetails.firstName"),
-      randomConfigString("randomiser.individualDetails.lastName"),
+      generateFirstName,
+      generateLastName,
       LocalDate.parse(randomConfigString("randomiser.individualDetails.dateOfBirth")),
       generateAddress()
     )
