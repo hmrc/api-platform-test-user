@@ -11,6 +11,14 @@
       "type": "string",
       "description": "Government Gateway password"
     },
+    "userFullName": {
+      "type": "string",
+      "description": "Government Gateway user's full name"
+    },
+    "emailAddress": {
+      "type": "string",
+      "description": "Government Gateway user's email address"
+    },
     "individualDetails": {
       "type": "object",
       "properties": {
@@ -73,6 +81,8 @@
   "required": [
     "userId",
     "password",
+    "userFullName",
+    "emailAddress",
     "individualDetails"
   ]
 }

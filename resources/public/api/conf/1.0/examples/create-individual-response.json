@@ -1,6 +1,8 @@
 {
   "userId":"945350439195",
   "password":"bLohysg8utsa",
+  "userFullName": "Ida Newton",
+  "emailAddress": "ida.newton@example.com",
   "individualDetails": {
     "firstName": "Ida",
     "lastName": "Newton",
