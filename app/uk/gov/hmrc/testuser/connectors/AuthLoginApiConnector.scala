@@ -55,6 +55,8 @@ case class GovernmentGatewayLogin(credId: String,
                                   affinityGroup: String,
                                   nino: Option[String],
                                   enrolments: Seq[Enrolment],
+                                  usersName: String,
+                                  email: String,
                                   confidenceLevel: Int = ConfidenceLevel.L200.level,
                                   credentialStrength: String = "strong",
                                   credentialRole: Option[String] = None
@@ -77,7 +79,7 @@ object GovernmentGatewayLogin {
     }
 
     GovernmentGatewayLogin(individual.userId, individual.affinityGroup, individual.nino.map(_.value),
-      individual.services.map(asEnrolment(_)).flatten)
+      individual.services.map(asEnrolment(_)).flatten, individual.userFullName, individual.emailAddress)
   }
 
   private def fromOrganisation(organisation: TestOrganisation) = {
@@ -95,7 +97,7 @@ object GovernmentGatewayLogin {
     }
 
     GovernmentGatewayLogin(organisation.userId, organisation.affinityGroup, organisation.nino.map(_.value),
-      organisation.services.map(asEnrolment(_)).flatten)
+      organisation.services.map(asEnrolment(_)).flatten, organisation.userFullName, organisation.emailAddress)
   }
 
   private def fromAgent(agent: TestAgent) = {
@@ -107,6 +109,7 @@ object GovernmentGatewayLogin {
     }
 
     GovernmentGatewayLogin(agent.userId, agent.affinityGroup, None, agent.services.map(asEnrolment(_)).flatten,
+      agent.userFullName, agent.emailAddress,
       credentialRole = Some("user"))
   }
 

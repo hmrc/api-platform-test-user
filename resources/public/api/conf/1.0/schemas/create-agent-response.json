@@ -11,10 +11,23 @@
       "type": "string",
       "description": "Government Gateway password"
     },
+    "userFullName": {
+      "type": "string",
+      "description": "Government Gateway user's full name"
+    },
+    "emailAddress": {
+      "type": "string",
+      "description": "Government Gateway user's email address"
+    },
     "agentServicesAccountNumber": {
       "type": "string",
       "description": "Account number for Agent Services"
     }
   },
-  "required": ["userId", "password"]
+  "required": [
+    "userId",
+    "password",
+    "userFullName",
+    "emailAddress"
+  ]
 }

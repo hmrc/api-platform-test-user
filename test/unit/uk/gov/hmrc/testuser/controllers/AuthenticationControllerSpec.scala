@@ -42,7 +42,8 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with WithF
 
   val user = "user"
   val password = "password"
-
+  val userFullName = "John Doe"
+  val emailAddress = "john.doe@example.com"
   val saUtr = SaUtr("1555369052")
   val nino = Nino("CC333333C")
   val mtdItId = MtdItId("XGIT00000000054")
@@ -52,11 +53,13 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with WithF
   val empRef = EmpRef("555","EIA000")
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
-  val testIndividual = TestIndividual(user, password, individualDetails, Some(saUtr), Some(nino), Some(mtdItId),
+  val testIndividual = TestIndividual(user, password, userFullName, emailAddress, individualDetails,
+    Some(saUtr), Some(nino), Some(mtdItId),
     Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX))
 
   val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
-  val testOrganisation = TestOrganisation(user, password, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum),
+  val testOrganisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,
+    Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum),
     services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, PAYE_FOR_EMPLOYERS, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA))
 
   val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
