@@ -16,7 +16,6 @@
 
 package it.uk.gov.hmrc.testuser.services
 
-import org.joda.time.LocalDate
 import org.scalatest.BeforeAndAfterEach
 import play.api.libs.json.Json
 import uk.gov.hmrc.mongo.MongoSpecSupport
@@ -39,35 +38,20 @@ class MigrationServiceSpec extends UnitSpec with MongoSpecSupport with WithFakeA
     val jsonCollection = repository.collection
   }
 
-  val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
-  val individual = TestIndividual("userId", "password", individualDetails)
-
-  val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
-  val testOrganisation = TestOrganisation("userId", "password", organisationDetails)
-
   override def beforeEach() {
     await(repository.drop)
   }
 
   "migrate" should {
 
-    "add postcode in existing individuals" in new Setup {
+    "add userFullName and emailAddress in existing records with random values" in new Setup {
 
       await(jsonCollection.save(Json.parse(
         """
           |{
           | "userId": "userId",
           | "password": "password",
-          | "individualDetails": {
-          |   "firstName" : "John",
-          |   "lastName" : "Doe",
-          |   "dateOfBirth" : "1980-01-10",
-          |   "address" : {
-          |     "line1" : "221b Baker St",
-          |     "line2" : "Marylebone"
-          |   }
-          | },
-          | "userType": "INDIVIDUAL",
+          | "userType": "AGENT",
           | "services": []
           |}
         """.stripMargin
@@ -75,34 +59,9 @@ class MigrationServiceSpec extends UnitSpec with MongoSpecSupport with WithFakeA
 
       await(underTest.migrate())
 
-      val result = await(repository.fetchByUserId("userId")).map(_.asInstanceOf[TestIndividual])
-      result.get.individualDetails.address.postcode should not be null
-    }
-
-    "add postcode in existing organisations" in new Setup {
-
-      await(jsonCollection.save(Json.parse(
-        """
-          |{
-          | "userId": "userId",
-          | "password": "password",
-          | "organisationDetails": {
-          |   "name" : "Company ABCDEF 12345",
-          |   "address" : {
-          |     "line1" : "221b Baker St",
-          |     "line2" : "Marylebone"
-          |   }
-          | },
-          | "userType": "ORGANISATION",
-          | "services": []
-          |}
-        """.stripMargin
-      )))
-
-      await(underTest.migrate())
-
-      val result = await(repository.fetchByUserId("userId")).map(_.asInstanceOf[TestOrganisation])
-      result.get.organisationDetails.address.postcode should not be null
+      val agent = await(repository.fetchByUserId("userId")).map(_.asInstanceOf[TestAgent]).get
+      agent.userFullName should not be null
+      agent.emailAddress should not be null
     }
   }
 }

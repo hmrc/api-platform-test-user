@@ -61,25 +61,25 @@ trait TestUserController extends BaseController {
 
   def fetchIndividualByNino(nino: Nino) = Action.async { implicit request =>
     testUserService.fetchIndividualByNino(nino) map { individual =>
-      Ok(toJson(TestIndividualResponse.from(individual)))
+      Ok(toJson(FetchTestIndividualResponse.from(individual)))
     } recover recovery
   }
 
   def fetchIndividualByShortNino(shortNino: NinoNoSuffix) = Action.async { implicit request =>
     testUserService.fetchIndividualByShortNino(shortNino) map { individual =>
-      Ok(toJson(TestIndividualResponse.from(individual)))
+      Ok(toJson(FetchTestIndividualResponse.from(individual)))
     } recover recovery
   }
 
   def fetchIndividualBySaUtr(saUtr: SaUtr) = Action.async { implicit request =>
     testUserService.fetchIndividualBySaUtr(saUtr) map { individual =>
-      Ok(toJson(TestIndividualResponse.from(individual)))
+      Ok(toJson(FetchTestIndividualResponse.from(individual)))
     } recover recovery
   }
 
   def fetchOrganisationByEmpRef(empRef: EmpRef) = Action.async { implicit request =>
     testUserService.fetchOrganisationByEmpRef(empRef) map { organisation =>
-      Ok(toJson(TestOrganisationResponse.from(organisation)))
+      Ok(toJson(FetchTestOrganisationResponse.from(organisation)))
     } recover recovery
   }
 
