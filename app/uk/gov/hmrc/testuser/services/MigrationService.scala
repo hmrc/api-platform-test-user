@@ -27,7 +27,7 @@ import reactivemongo.json.ImplicitBSONHandlers._
 import reactivemongo.json.collection.JSONCollection
 import uk.gov.hmrc.lock.{LockKeeper, LockMongoRepository}
 import uk.gov.hmrc.testuser.repository.TestUserMongoRepository
-import uk.gov.hmrc.testuser.services.Generator.{generateEmailAddress, generateUserFullName}
+import uk.gov.hmrc.testuser.services.Generator._
 import uk.gov.hmrc.testuser.util.Randomiser
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -57,8 +57,8 @@ class MigrationService extends MongoDbConnection with Randomiser {
       BSONDocument("userId" -> (jsValue \ "userId").as[String])
 
     override protected def modifier = {
-      val firstName = randomConfigString("randomiser.individualDetails.firstName")
-      val lastName = randomConfigString("randomiser.individualDetails.lastName")
+      val firstName = generateFirstName
+      val lastName = generateLastName
 
       BSONDocument("$set" ->
         BSONDocument("userFullName" -> toJson(generateUserFullName(firstName, lastName)),
