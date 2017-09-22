@@ -1,6 +1,8 @@
 {
   "userId":"085603622877",
   "password":"nyezgdfrlsmc",
+  "userFullName": "Ida Newton",
+  "emailAddress": "ida.newton@example.com",
   "organisationDetails": {
     "name":"Company ABF123",
     "address": {
