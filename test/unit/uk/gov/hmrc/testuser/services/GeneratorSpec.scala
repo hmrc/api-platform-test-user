@@ -17,6 +17,7 @@
 package unit.uk.gov.hmrc.testuser.services
 
 import org.joda.time.LocalDate
+import org.scalatest.enablers.{Definition, Emptiness}
 import org.scalatest.matchers.{MatchResult, Matcher}
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.models._
@@ -30,7 +31,23 @@ class GeneratorSpec extends UnitSpec {
     override val fileName = "randomiser-unique-values"
   }
 
+  trait Checker {
+    def check[T](attribute: T, isDefined: Boolean)(implicit definition: Definition[T], emptiness: Emptiness[T]) = {
+      if(isDefined) attribute shouldBe defined
+      else attribute shouldBe empty
+    }
+  }
+
   "generateTestIndividual" should {
+
+    implicit def individualAssertion(individual: TestIndividual) = new Checker {
+      def shouldHave(ninoDefined: Boolean = false, saUtrDefined: Boolean = false, mtdItIdDefined: Boolean = false) = {
+
+        check(individual.nino, ninoDefined)
+        check(individual.saUtr, saUtrDefined)
+        check(individual.mtdItId, mtdItIdDefined)
+      }
+    }
 
     "create a different test individual at every run" in {
       val individual1 = underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
@@ -42,25 +59,19 @@ class GeneratorSpec extends UnitSpec {
     "generate a NINO and MTD IT ID when MTD_INCOME_TAX service is included" in {
       val individual = underTest.generateTestIndividual(Seq(MTD_INCOME_TAX))
 
-      individual.mtdItId shouldBe defined
-      individual.nino shouldBe defined
-      individual.saUtr shouldBe empty
+      individual shouldHave(mtdItIdDefined = true, ninoDefined = true)
     }
 
     "generate a NINO when NATIONAL_INSURANCE service is included" in {
       val individual = underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE))
 
-      individual.nino shouldBe defined
-      individual.mtdItId shouldBe empty
-      individual.saUtr shouldBe empty
+      individual shouldHave(ninoDefined = true)
     }
 
     "generate a SA UTR when SELF_ASSESSMENT service is included" in {
       val individual = underTest.generateTestIndividual(Seq(SELF_ASSESSMENT))
 
-      individual.saUtr shouldBe defined
-      individual.nino shouldBe empty
-      individual.mtdItId shouldBe empty
+      individual shouldHave(saUtrDefined = true)
     }
 
     "generate individualDetails from the configuration file" in {
@@ -81,6 +92,23 @@ class GeneratorSpec extends UnitSpec {
 
   "generateTestOrganisation" should {
 
+    implicit def organisationAssertion(org: TestOrganisation) = new Checker {
+      def shouldHave(vrnDefined: Boolean = false, ninoDefined: Boolean = false, mtdItIdDefined: Boolean = false,
+               empRefDefined: Boolean = false, ctUtrDefined: Boolean = false, saUtrDefined: Boolean = false,
+               lisaManRefNumDefined: Boolean = false,
+               secureElectronicTransferReferenceNumberDefined: Boolean = false) = {
+
+        check(org.vrn, vrnDefined)
+        check(org.nino, ninoDefined)
+        check(org.mtdItId, mtdItIdDefined)
+        check(org.empRef, empRefDefined)
+        check(org.ctUtr, ctUtrDefined)
+        check(org.saUtr, saUtrDefined)
+        check(org.lisaManRefNum, lisaManRefNumDefined)
+        check(org.secureElectronicTransferReferenceNumber, secureElectronicTransferReferenceNumberDefined)
+      }
+    }
+
     "create a different test organisation at every run" in {
       val organisation1 = underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX,
         CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS, LISA, SECURE_ELECTRONIC_TRANSFER))
@@ -93,105 +121,49 @@ class GeneratorSpec extends UnitSpec {
     "generate a NINO and MTD IT ID when MTD_INCOME_TAX service is included" in {
       val org = underTest.generateTestOrganisation(Seq(MTD_INCOME_TAX))
 
-      org.mtdItId shouldBe defined
-      org.nino shouldBe defined
-      org.empRef shouldBe empty
-      org.ctUtr shouldBe empty
-      org.saUtr shouldBe empty
-      org.vrn shouldBe empty
-      org.lisaManRefNum shouldBe empty
-      org.secureElectronicTransferReferenceNumber shouldBe empty
+      org shouldHave(mtdItIdDefined = true, ninoDefined = true)
     }
 
     "generate a NINO when NATIONAL_INSURANCE service is included" in {
       val org = underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE))
 
-      org.nino shouldBe defined
-      org.mtdItId shouldBe empty
-      org.empRef shouldBe empty
-      org.ctUtr shouldBe empty
-      org.saUtr shouldBe empty
-      org.vrn shouldBe empty
-      org.lisaManRefNum shouldBe empty
-      org.secureElectronicTransferReferenceNumber shouldBe empty
+      org shouldHave(ninoDefined = true)
     }
 
     "generate a EMPREF when PAYE_FOR_EMPLOYERS service is included" in {
       val org = underTest.generateTestOrganisation(Seq(PAYE_FOR_EMPLOYERS))
 
-      org.empRef shouldBe defined
-      org.nino shouldBe empty
-      org.mtdItId shouldBe empty
-      org.ctUtr shouldBe empty
-      org.saUtr shouldBe empty
-      org.vrn shouldBe empty
-      org.lisaManRefNum shouldBe empty
-      org.secureElectronicTransferReferenceNumber shouldBe empty
+      org shouldHave(empRefDefined = true)
     }
 
     "generate a CT UTR when CORPORATION_TAX service is included" in {
       val org = underTest.generateTestOrganisation(Seq(CORPORATION_TAX))
 
-      org.ctUtr shouldBe defined
-      org.nino shouldBe empty
-      org.mtdItId shouldBe empty
-      org.empRef shouldBe empty
-      org.saUtr shouldBe empty
-      org.vrn shouldBe empty
-      org.lisaManRefNum shouldBe empty
-      org.secureElectronicTransferReferenceNumber shouldBe empty
+      org shouldHave(ctUtrDefined = true)
     }
 
     "generate a SA UTR when SELF_ASSESSMENT service is included" in {
       val org = underTest.generateTestOrganisation(Seq(SELF_ASSESSMENT))
 
-      org.saUtr shouldBe defined
-      org.nino shouldBe empty
-      org.mtdItId shouldBe empty
-      org.empRef shouldBe empty
-      org.ctUtr shouldBe empty
-      org.vrn shouldBe empty
-      org.lisaManRefNum shouldBe empty
-      org.secureElectronicTransferReferenceNumber shouldBe empty
+      org shouldHave(saUtrDefined = true)
     }
 
     "generate a VRN when SUBMIT_VAT_RETURNS service is included" in {
       val org = underTest.generateTestOrganisation(Seq(SUBMIT_VAT_RETURNS))
 
-      org.vrn shouldBe defined
-      org.nino shouldBe empty
-      org.mtdItId shouldBe empty
-      org.empRef shouldBe empty
-      org.ctUtr shouldBe empty
-      org.saUtr shouldBe empty
-      org.lisaManRefNum shouldBe empty
-      org.secureElectronicTransferReferenceNumber shouldBe empty
+      org shouldHave(vrnDefined = true)
     }
 
     "generate a lisaManagerReferenceNumber when LISA service is included" in {
       val org = underTest.generateTestOrganisation(Seq(LISA))
 
-      org.vrn shouldBe empty
-      org.nino shouldBe empty
-      org.mtdItId shouldBe empty
-      org.empRef shouldBe empty
-      org.ctUtr shouldBe empty
-      org.saUtr shouldBe empty
-      org.lisaManRefNum shouldBe defined
-      org.secureElectronicTransferReferenceNumber shouldBe empty
+      org shouldHave(lisaManRefNumDefined = true)
     }
 
     "generate a secureElectronicTransferReferenceNumber when SECURE_ELECTRONIC_TRANSFER service is included" in {
       val org = underTest.generateTestOrganisation(Seq(SECURE_ELECTRONIC_TRANSFER))
 
-      org.vrn shouldBe empty
-      org.nino shouldBe empty
-      org.mtdItId shouldBe empty
-      org.empRef shouldBe empty
-      org.ctUtr shouldBe empty
-      org.saUtr shouldBe empty
-      org.lisaManRefNum shouldBe empty
-      org.secureElectronicTransferReferenceNumber shouldBe defined
+      org shouldHave(secureElectronicTransferReferenceNumberDefined = true)
     }
 
     "set the userFullName and emailAddress" in {
@@ -207,11 +179,30 @@ class GeneratorSpec extends UnitSpec {
 
   "generateTestAgent" should {
 
+    implicit def agentChecker(agent: TestAgent) = new Checker {
+      def shouldHave(arnDefined: Boolean = false) = {
+
+        check(agent.arn, arnDefined)
+      }
+    }
+
     "create a different test agent at every run" in {
       val agent1 = underTest.generateTestAgent(Seq(AGENT_SERVICES))
       val agent2 = underTest.generateTestAgent(Seq(AGENT_SERVICES))
 
       agent1 should haveDifferentPropertiesThan(agent2)
+    }
+
+    "not generate any identifiers when no services are included" in {
+      val agent = underTest.generateTestAgent(Seq.empty)
+
+      agent shouldHave(arnDefined = false)
+    }
+
+    "generate an agent reference number when AGENT_SERVICES service is included" in {
+      val agent = underTest.generateTestAgent(Seq(AGENT_SERVICES))
+
+      agent shouldHave(arnDefined = true)
     }
 
     "set the userFullName and emailAddress" in {

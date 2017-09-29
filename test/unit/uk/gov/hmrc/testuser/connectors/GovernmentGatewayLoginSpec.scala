@@ -52,89 +52,101 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
     Identifier("TaxOfficeReference", empRef.taxOfficeReference)))
 
   "A GovernmentGatewayLogin created from a TestAgent" should {
+
+    val agent = TestAgent(user, password, userFullName, emailAddress,
+      arn = Some(arn), services = Seq(AGENT_SERVICES))
+
     "contain no enrolments when the agent has no services" in {
-      val testAgent = TestAgent(user, password, userFullName, emailAddress, Some(arn), Seq.empty)
-      GovernmentGatewayLogin(testAgent).enrolments shouldBe empty
+      val login = GovernmentGatewayLogin(agent.copy(services = Seq.empty))
+
+      login.enrolments shouldBe empty
     }
 
     "contain the enrolment HMRC-AS-AGENT when the agent has the 'agent-services' service" in {
-      val testAgent = TestAgent(user, password, userFullName, emailAddress, Some(arn), Seq(AGENT_SERVICES))
-      GovernmentGatewayLogin(testAgent).enrolments should contain theSameElementsAs Seq(agentEnrolment)
+      val login = GovernmentGatewayLogin(agent)
+
+      login.enrolments should contain theSameElementsAs Seq(agentEnrolment)
     }
 
     "ignore services that are not applicable" in {
-      val testAgent = TestAgent(user, password, userFullName, emailAddress, Some(arn), Seq(SELF_ASSESSMENT, AGENT_SERVICES))
-      GovernmentGatewayLogin(testAgent).enrolments should contain theSameElementsAs Seq(agentEnrolment)
+      val login = GovernmentGatewayLogin(agent.copy(services = Seq(SELF_ASSESSMENT, AGENT_SERVICES)))
+
+      login.enrolments should contain theSameElementsAs Seq(agentEnrolment)
     }
 
     "have the credential role populated" in {
-      val testAgent = TestAgent(user, password, userFullName, emailAddress, Some(arn), Seq(AGENT_SERVICES))
-      val credentialRole = GovernmentGatewayLogin(testAgent).credentialRole
+      val login = GovernmentGatewayLogin(agent)
 
-      credentialRole shouldBe defined
-      credentialRole shouldBe Some("user")
+      login.credentialRole shouldBe defined
+      login.credentialRole shouldBe Some("user")
     }
   }
 
   "A GovernmentGatewayLogin created from a TestIndividual" should {
+
+    val individual = TestIndividual(user, password, userFullName, emailAddress,individualDetails,
+      saUtr = Some(saUtr), nino = Some(nino), mtdItId = Some(mtdItId),
+      services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
+
     "contain no enrolments when the individual has no services" in {
-      val individual = TestIndividual(user, password, userFullName, emailAddress, individualDetails, Some(saUtr), Some(nino), Some(mtdItId))
-      GovernmentGatewayLogin(individual).enrolments shouldBe empty
+      val login = GovernmentGatewayLogin(individual.copy(services = Seq.empty))
+
+      login.enrolments shouldBe empty
     }
 
     "contain the right enrolments for the individual's services" in {
-      val individual = TestIndividual(user, password, userFullName, emailAddress,individualDetails,  Some(saUtr), Some(nino), Some(mtdItId),
-        Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
+      val login = GovernmentGatewayLogin(individual)
 
-      GovernmentGatewayLogin(individual).enrolments should contain theSameElementsAs Seq(saEnrolment, mtdItEnrolment)
+      login.enrolments should contain theSameElementsAs Seq(saEnrolment, mtdItEnrolment)
     }
 
     "ignore services that are not applicable" in {
-      val individual = TestIndividual(user, password, userFullName, emailAddress, individualDetails, Some(saUtr), Some(nino), Some(mtdItId),
-        Seq(AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
+      val login = GovernmentGatewayLogin(individual.copy(services = Seq(
+        AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX)))
 
-      GovernmentGatewayLogin(individual).enrolments should contain theSameElementsAs Seq(saEnrolment, mtdItEnrolment)
+      login.enrolments should contain theSameElementsAs Seq(saEnrolment, mtdItEnrolment)
     }
 
     "not have the credential role populated" in {
-      val individual = TestIndividual(user, password, userFullName, emailAddress, individualDetails,  Some(saUtr), Some(nino), Some(mtdItId),
-        Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
+      val login = GovernmentGatewayLogin(individual)
 
-      GovernmentGatewayLogin(individual).credentialRole shouldBe empty
+      login.credentialRole shouldBe empty
     }
 
   }
 
   "A GovernmentGatewayLogin created from a TestOrganisation" should {
+
+    val organisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,
+      saUtr = Some(saUtr), nino = Some(nino), mtdItId = Some(mtdItId), empRef = Some(empRef), ctUtr = Some(ctUtr),
+      vrn = Some(vrn), lisaManRefNum = Some(lisaManRefNum), secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
+      services = Seq(AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, CORPORATION_TAX, SUBMIT_VAT_RETURNS,
+        PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, LISA, SECURE_ELECTRONIC_TRANSFER))
+
     "contain no enrolments when the organisation has no services" in {
-      val organisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId),
-        Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum), Some(secureElectronicTransferReferenceNumber))
-      GovernmentGatewayLogin(organisation).enrolments shouldBe empty
+      val login = GovernmentGatewayLogin(organisation.copy(services = Seq.empty))
+
+      login.enrolments shouldBe empty
     }
 
     "contain the right enrolments for the organisation's services" in {
-      val organisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId),
-        Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum), Some(secureElectronicTransferReferenceNumber),
-        Seq(AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS,
-          MTD_INCOME_TAX, LISA, SECURE_ELECTRONIC_TRANSFER))
+      val login = GovernmentGatewayLogin(organisation)
 
-      GovernmentGatewayLogin(organisation).enrolments should contain theSameElementsAs
+      login.enrolments should contain theSameElementsAs
         Seq(saEnrolment, ctEnrolment, vatEnrolment, payeEnrolment, mtdItEnrolment, lisaEnrolment, setEnrolment)
     }
 
     "ignore services that are not applicable" in {
-      val organisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId),
-        Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum),
-        services=Seq(AGENT_SERVICES, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA))
+      val login = GovernmentGatewayLogin(organisation.copy(
+        services= Seq(AGENT_SERVICES, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA)))
 
-      GovernmentGatewayLogin(organisation).enrolments should contain theSameElementsAs Seq(ctEnrolment, vatEnrolment, lisaEnrolment)
+      login.enrolments should contain theSameElementsAs Seq(ctEnrolment, vatEnrolment, lisaEnrolment)
     }
 
     "not have the credential role populated" in {
-      val organisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails, Some(saUtr), Some(nino), Some(mtdItId),
-        services=Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
+      val login = GovernmentGatewayLogin(organisation)
 
-      GovernmentGatewayLogin(organisation).credentialRole shouldBe empty
+      login.credentialRole shouldBe empty
     }
   }
 

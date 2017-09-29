@@ -56,12 +56,16 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
+
   val testIndividual = TestIndividual(user, password, userFullName, emailAddress, individualDetails,
     Some(saUtr), Some(nino), Some(mtdItId))
+
   val testOrganisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,
     Some(saUtr), Some(nino), Some(mtdItId),
     Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber), Some(secureElectronicTransferReferenceNumber))
+
   val testAgent = TestAgent(user, password, userFullName, emailAddress, Some(arn))
+
   val createIndividualServices = Seq(ServiceName.NATIONAL_INSURANCE)
   val createOrganisationServices = Seq(ServiceName.NATIONAL_INSURANCE)
   val createAgentServices = Seq(ServiceName.AGENT_SERVICES)
@@ -84,11 +88,6 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     def createAgentRequest = {
       val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["agent-services"]}""")
-      FakeRequest().withBody[JsValue](jsonPayload)
-    }
-
-    def authenticationRequest(usr: String, pwd: String) = {
-      val jsonPayload: JsValue = Json.parse(s"""{ "userId": "$usr", "password" :"$pwd" }""")
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
