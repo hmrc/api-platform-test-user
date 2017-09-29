@@ -42,8 +42,9 @@ class AuthenticationServiceSpec extends UnitSpec with MockitoSugar {
   val hashedPassword = "hashedPassword"
   val authSession = AuthSession("Bearer AUTH_TOKEN", "/auth/oid/12345", "gatewayToken")
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
-  val storedTestIndividual = TestIndividual(userId, hashedPassword, userFullName, emailAddress, individualDetails, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
-    Some(MtdItId("XGIT00000000054")), Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
+  val storedTestIndividual = TestIndividual(userId, hashedPassword, userFullName, emailAddress, individualDetails,
+    saUtr = Some(SaUtr("1555369052")), nino = Some(Nino("CC333333C")), mtdItId = Some(MtdItId("XGIT00000000054")),
+    services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
 
   trait Setup {
     implicit val hc = HeaderCarrier()
