@@ -40,7 +40,7 @@ class GeneratorSpec extends UnitSpec {
 
   "generateTestIndividual" should {
 
-    implicit def individualAssertion(individual: TestIndividual) = new Checker {
+    implicit def individualChecker(individual: TestIndividual) = new Checker {
       def shouldHave(ninoDefined: Boolean = false, saUtrDefined: Boolean = false, mtdItIdDefined: Boolean = false) = {
 
         check(individual.nino, ninoDefined)
@@ -92,7 +92,7 @@ class GeneratorSpec extends UnitSpec {
 
   "generateTestOrganisation" should {
 
-    implicit def organisationAssertion(org: TestOrganisation) = new Checker {
+    implicit def organisationChecker(org: TestOrganisation) = new Checker {
       def shouldHave(vrnDefined: Boolean = false, ninoDefined: Boolean = false, mtdItIdDefined: Boolean = false,
                empRefDefined: Boolean = false, ctUtrDefined: Boolean = false, saUtrDefined: Boolean = false,
                lisaManRefNumDefined: Boolean = false,
