@@ -41,6 +41,10 @@
           {
             "enum": ["secure-electronic-transfer"],
             "description": "Generates a Secure Electronic Transfer Reference Number and enrols the user for HMRC Secure Electronic Transfer"
+          },
+          {
+            "enum": ["relief-at-source"],
+            "description": "Generates a Pension Scheme Administrator Identifier and enrols the user for Relief at Source"
           }
         ]
       },
