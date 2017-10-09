@@ -34,6 +34,7 @@ object ServiceName extends Enumeration {
   val AGENT_SERVICES = Value("agent-services")
   val LISA = Value("lisa")
   val SECURE_ELECTRONIC_TRANSFER = Value("secure-electronic-transfer")
+  val RELIEF_AT_SOURCE = Value("relief-at-source")
 }
 
 sealed trait TestUser {
@@ -72,6 +73,7 @@ case class TestOrganisation(override val userId: String,
                             vrn: Option[Vrn] = None,
                             lisaManRefNum: Option[LisaManagerReferenceNumber] = None,
                             secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber] = None,
+                            pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier] = None,
                             override val services: Seq[ServiceName] = Seq.empty,
                             override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Organisation"
@@ -110,6 +112,7 @@ sealed trait TestOrganisationResponse extends TestUserResponse {
   val vrn: Option[Vrn]
   val lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber]
   val secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber]
+  val pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier]
 }
 
 sealed trait TestAgentResponse extends TestUserResponse {
@@ -158,14 +161,15 @@ case class FetchTestOrganisationResponse(override val userId: String,
                                          override val ctUtr: Option[CtUtr] = None,
                                          override val vrn: Option[Vrn] = None,
                                          override val lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber] = None,
-                                         override val secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber] = None)
+                                         override val secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber] = None,
+                                         override val pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier] = None)
   extends TestOrganisationResponse
 
 object FetchTestOrganisationResponse {
   def from(organisation: TestOrganisation) = FetchTestOrganisationResponse(organisation.userId, organisation.userFullName,
-    organisation.emailAddress, organisation.organisationDetails,
-    organisation.saUtr, organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn,
-    organisation.lisaManRefNum, organisation.secureElectronicTransferReferenceNumber)
+    organisation.emailAddress, organisation.organisationDetails, organisation.saUtr, organisation.nino,
+    organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.lisaManRefNum,
+    organisation.secureElectronicTransferReferenceNumber, organisation.pensionSchemeAdministratorIdentifier)
 }
 
 case class TestOrganisationCreatedResponse(override val userId: String,
@@ -180,14 +184,16 @@ case class TestOrganisationCreatedResponse(override val userId: String,
                                            override val ctUtr: Option[CtUtr],
                                            override val vrn: Option[Vrn],
                                            override val lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber],
-                                           override val secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber])
+                                           override val secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber],
+                                           override val pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier])
   extends TestOrganisationResponse
 
 object TestOrganisationCreatedResponse {
   def from(organisation: TestOrganisation) = TestOrganisationCreatedResponse(organisation.userId, organisation.password,
-    organisation.userFullName, organisation.emailAddress, organisation.organisationDetails,
-    organisation.saUtr, organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr,
-    organisation.vrn, organisation.lisaManRefNum, organisation.secureElectronicTransferReferenceNumber)
+    organisation.userFullName, organisation.emailAddress, organisation.organisationDetails, organisation.saUtr,
+    organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn,
+    organisation.lisaManRefNum, organisation.secureElectronicTransferReferenceNumber,
+    organisation.pensionSchemeAdministratorIdentifier)
 }
 
 case class TestAgentCreatedResponse(override val userId: String, password: String,
@@ -264,6 +270,20 @@ object SecureElectronicTransferReferenceNumber extends (String => SecureElectron
 
   implicit val secureElectronicTransferReferenceNumberRead: Reads[SecureElectronicTransferReferenceNumber] =
     new SimpleObjectReads[SecureElectronicTransferReferenceNumber]("secureElectronicTransferReferenceNumber", SecureElectronicTransferReferenceNumber.apply)
+}
+
+case class PensionSchemeAdministratorIdentifier(pensionSchemeAdministratorIdentifier: String) extends TaxIdentifier with SimpleName {
+  override def toString = pensionSchemeAdministratorIdentifier
+  val name = "pensionSchemeAdministratorIdentifier"
+  def value = pensionSchemeAdministratorIdentifier
+}
+
+object PensionSchemeAdministratorIdentifier extends (String => PensionSchemeAdministratorIdentifier) {
+  implicit val psaIdWrite: Writes[PensionSchemeAdministratorIdentifier] =
+    new SimpleObjectWrites[PensionSchemeAdministratorIdentifier](_.value)
+
+  implicit val psaIdRead: Reads[PensionSchemeAdministratorIdentifier] =
+    new SimpleObjectReads[PensionSchemeAdministratorIdentifier]("pensionSchemeAdministratorIdentifier", PensionSchemeAdministratorIdentifier.apply)
 }
 
 case class Address(line1: String, line2: String, postcode: String)
