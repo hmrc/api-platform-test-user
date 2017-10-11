@@ -279,10 +279,10 @@ case class PensionSchemeAdministratorIdentifier(pensionSchemeAdministratorIdenti
 }
 
 object PensionSchemeAdministratorIdentifier extends (String => PensionSchemeAdministratorIdentifier) {
-  implicit val psaIdWrite: Writes[PensionSchemeAdministratorIdentifier] =
+  implicit val pensionSchemeAdministratorIdentifierWrite: Writes[PensionSchemeAdministratorIdentifier] =
     new SimpleObjectWrites[PensionSchemeAdministratorIdentifier](_.value)
 
-  implicit val psaIdRead: Reads[PensionSchemeAdministratorIdentifier] =
+  implicit val pensionSchemeAdministratorIdentifierRead: Reads[PensionSchemeAdministratorIdentifier] =
     new SimpleObjectReads[PensionSchemeAdministratorIdentifier]("pensionSchemeAdministratorIdentifier", PensionSchemeAdministratorIdentifier.apply)
 }
 

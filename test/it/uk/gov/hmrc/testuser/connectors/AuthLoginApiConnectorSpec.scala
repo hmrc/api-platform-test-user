@@ -40,7 +40,9 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
   val testOrganisation = TestOrganisation("organisationUser", "password", userFullName, emailAddress,  organisationDetails, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
     Some(MtdItId("XGIT00000000054")), Some(EmpRef("555","EIA000")), Some(CtUtr("1555369053")), Some(Vrn("999902541")),
     Some(LisaManagerReferenceNumber("Z123456")), Some(SecureElectronicTransferReferenceNumber("123456789012")),
-    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, LISA, SECURE_ELECTRONIC_TRANSFER))
+    Some(PensionSchemeAdministratorIdentifier("A1234567")),
+    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX,
+      LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE))
 
   val testAgent = TestAgent("agentUser", "password", userFullName, emailAddress, Some(AgentBusinessUtr("NARN0396245")), Seq(AGENT_SERVICES))
 
@@ -191,6 +193,15 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       {
            |         "key":"SRN",
            |         "value":"${testOrganisation.secureElectronicTransferReferenceNumber.get.value}"
+           |       }]
+           |     },
+           |     {
+           |       "key": "HMRC-PSA-ORG",
+           |       "state": "Activated",
+           |       "identifiers": [
+           |       {
+           |         "key":"PSAID",
+           |         "value":"${testOrganisation.pensionSchemeAdministratorIdentifier.get.value}"
            |       }]
            |     }
            |   ],
