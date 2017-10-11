@@ -95,8 +95,8 @@ class GeneratorSpec extends UnitSpec {
     implicit def organisationChecker(org: TestOrganisation) = new Checker {
       def shouldHave(vrnDefined: Boolean = false, ninoDefined: Boolean = false, mtdItIdDefined: Boolean = false,
                empRefDefined: Boolean = false, ctUtrDefined: Boolean = false, saUtrDefined: Boolean = false,
-               lisaManRefNumDefined: Boolean = false,
-               secureElectronicTransferReferenceNumberDefined: Boolean = false) = {
+               lisaManRefNumDefined: Boolean = false, secureElectronicTransferReferenceNumberDefined: Boolean = false,
+               pensionSchemeAdministratorIdentifierDefined: Boolean = false) = {
 
         check(org.vrn, vrnDefined)
         check(org.nino, ninoDefined)
@@ -106,14 +106,15 @@ class GeneratorSpec extends UnitSpec {
         check(org.saUtr, saUtrDefined)
         check(org.lisaManRefNum, lisaManRefNumDefined)
         check(org.secureElectronicTransferReferenceNumber, secureElectronicTransferReferenceNumberDefined)
+        check(org.pensionSchemeAdministratorIdentifier, pensionSchemeAdministratorIdentifierDefined)
       }
     }
 
     "create a different test organisation at every run" in {
       val organisation1 = underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX,
-        CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS, LISA, SECURE_ELECTRONIC_TRANSFER))
+        CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE))
       val organisation2 = underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX,
-        CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS, LISA, SECURE_ELECTRONIC_TRANSFER))
+        CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE))
 
       organisation1 should haveDifferentPropertiesThan(organisation2)
     }
@@ -164,6 +165,12 @@ class GeneratorSpec extends UnitSpec {
       val org = underTest.generateTestOrganisation(Seq(SECURE_ELECTRONIC_TRANSFER))
 
       org shouldHave(secureElectronicTransferReferenceNumberDefined = true)
+    }
+
+    "generate a pensionSchemeAdministratorIdentifier when RELIEF_AT_SOURCE service is included" in {
+      val org = underTest.generateTestOrganisation(Seq(RELIEF_AT_SOURCE))
+
+      org shouldHave(pensionSchemeAdministratorIdentifierDefined = true)
     }
 
     "set the userFullName and emailAddress" in {
@@ -244,7 +251,8 @@ object CustomMatchers {
           o1.empRef != o2.empRef &&
           o1.vrn != o2.vrn &&
           o1.lisaManRefNum != o2.lisaManRefNum &&
-          o1.secureElectronicTransferReferenceNumber != o2.secureElectronicTransferReferenceNumber
+          o1.secureElectronicTransferReferenceNumber != o2.secureElectronicTransferReferenceNumber &&
+          o1.pensionSchemeAdministratorIdentifier != o2.pensionSchemeAdministratorIdentifier
 
         case (a1: TestAgent, a2: TestAgent) => a1._id != a2._id &&
           a1.userId != a2.userId &&

@@ -53,6 +53,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   val arn = AgentBusinessUtr("NARN0396245")
   val lisaManagerReferenceNumber = LisaManagerReferenceNumber("Z123456")
   val secureElectronicTransferReferenceNumber = SecureElectronicTransferReferenceNumber("123456789012")
+  val pensionSchemeAdministratorIdentifier = PensionSchemeAdministratorIdentifier("A1234567")
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
@@ -62,7 +63,8 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
   val testOrganisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,
     Some(saUtr), Some(nino), Some(mtdItId),
-    Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber), Some(secureElectronicTransferReferenceNumber))
+    Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber), Some(secureElectronicTransferReferenceNumber),
+    Some(pensionSchemeAdministratorIdentifier))
 
   val testAgent = TestAgent(user, password, userFullName, emailAddress, Some(arn))
 
@@ -135,7 +137,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       jsonBodyOf(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, userFullName, emailAddress,
         organisationDetails, Some(saUtr),
         Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber),
-        Some(secureElectronicTransferReferenceNumber)))
+        Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier)))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
