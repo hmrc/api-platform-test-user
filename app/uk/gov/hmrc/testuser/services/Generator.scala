@@ -23,6 +23,7 @@ import uk.gov.hmrc.testuser.models.ServiceName._
 import uk.gov.hmrc.testuser.models.{ServiceName => _, _}
 import uk.gov.hmrc.testuser.util.Randomiser
 
+import scala.annotation.tailrec
 import scala.util.Random
 
 
@@ -41,6 +42,7 @@ trait Generator extends Randomiser {
   private val mtdItIdGenerator = new MtdItIdGenerator()
   private val lisaManRefNumGenerator = new LisaGenerator()
   private val setRefNumGenerator = new SecureElectronicTransferReferenceNumberGenerator()
+  private val psaIdGenerator = new PensionSchemeAdministratorIdentifierGenerator()
 
   def generateTestIndividual(services: Seq[ServiceName] = Seq.empty) = {
     val saUtr = if (services.contains(SELF_ASSESSMENT)) Some(generateSaUtr) else None
@@ -62,6 +64,7 @@ trait Generator extends Randomiser {
     val vrn = if (services.contains(SUBMIT_VAT_RETURNS)) Some(generateVrn) else None
     val lisaManRefNum = if (services.contains(LISA)) Some(generateLisaManRefNum) else None
     val setRefNum = if (services.contains(SECURE_ELECTRONIC_TRANSFER)) Some(generateSetRefNum) else None
+    val psaId = if(services.contains(RELIEF_AT_SOURCE)) Some(generatePsaId) else None
 
     val firstName = generateFirstName
     val lastName = generateLastName
@@ -69,7 +72,7 @@ trait Generator extends Randomiser {
     val emailAddress = generateEmailAddress(firstName, lastName)
 
     TestOrganisation(generateUserId, generatePassword, userFullName, emailAddress, generateOrganisationDetails, saUtr, nino, mtdItId, empRef, ctUtr,
-      vrn, lisaManRefNum, setRefNum, services)
+      vrn, lisaManRefNum, setRefNum, psaId, services)
   }
 
   def generateTestAgent(services: Seq[ServiceName] = Seq.empty) = {
@@ -121,6 +124,7 @@ trait Generator extends Randomiser {
   private def generateVrn: Vrn = Vrn(vrnGenerator.sample.get.toString)
   private def generateLisaManRefNum: LisaManagerReferenceNumber = lisaManRefNumGenerator.next
   private def generateSetRefNum: SecureElectronicTransferReferenceNumber = setRefNumGenerator.next
+  private def generatePsaId: PensionSchemeAdministratorIdentifier = psaIdGenerator.next
   private def generateArn: AgentBusinessUtr = arnGenerator.next
   private def generateMtdId: MtdItId = mtdItIdGenerator.next
 }
@@ -164,5 +168,16 @@ class SecureElectronicTransferReferenceNumberGenerator(random: Random = new Rand
     val initialDigit = random.nextInt(8) + 1
     val remainingDigits = f"${random.nextInt(Int.MaxValue)}%011d"
     SecureElectronicTransferReferenceNumber(s"$initialDigit$remainingDigits")
+  }
+}
+
+class PensionSchemeAdministratorIdentifierGenerator(random: Random = new Random) {
+  def this(seed: Int) = this(new scala.util.Random(seed))
+
+  def next: PensionSchemeAdministratorIdentifier = {
+    // PensionSchemeAdministratorIdentifier must conform to this regex: ^[Aa]{1}[0-9]{7} e.g. A1234567
+    val initialCharacter = if (random.nextBoolean()) "A" else "a"
+    val remainingDigits = (for (i <- 1 to 7) yield random.nextInt(9)).mkString("")
+    PensionSchemeAdministratorIdentifier(s"$initialCharacter$remainingDigits")
   }
 }

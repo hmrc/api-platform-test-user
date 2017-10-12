@@ -85,6 +85,10 @@
     "secureElectronicTransferReferenceNumber": {
       "type": "string",
       "description": "Secure Electronic Transfer reference number"
+    },
+    "pensionSchemeAdministratorIdentifier": {
+      "type": "string",
+      "description": "Pension Scheme Administrator Identifier"
     }
   },
   "required": [
