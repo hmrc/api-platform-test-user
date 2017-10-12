@@ -92,6 +92,7 @@ object GovernmentGatewayLogin {
         case MTD_INCOME_TAX => organisation.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId))}
         case LISA => organisation.lisaManRefNum map { lisaManRefNum => Enrolment("HMRC-LISA-ORG", taxIdentifier(lisaManRefNum))}
         case SECURE_ELECTRONIC_TRANSFER => organisation.secureElectronicTransferReferenceNumber map { setRefNum => Enrolment("HMRC-SET-ORG", taxIdentifier(setRefNum))}
+        case RELIEF_AT_SOURCE => organisation.pensionSchemeAdministratorIdentifier map { psaId => Enrolment("HMRC-PSA-ORG", taxIdentifier(psaId))}
         case _ => None
       }
     }
@@ -124,6 +125,7 @@ object GovernmentGatewayLogin {
       case mtdItId: MtdItId => Seq(Identifier("MTDITID", mtdItId.toString))
       case lisaManRefNum: LisaManagerReferenceNumber => Seq(Identifier("ZREF", lisaManRefNum.toString))
       case setRefNum: SecureElectronicTransferReferenceNumber => Seq(Identifier("SRN", setRefNum.toString))
+      case psaId: PensionSchemeAdministratorIdentifier => Seq(Identifier("PSAID", psaId.toString))
       case _ => Seq.empty
     }
   }
