@@ -19,8 +19,8 @@ package uk.gov.hmrc.testuser.connectors
 import javax.inject.Singleton
 
 import play.api.Logger
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.testuser.config.WSHttp
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models._

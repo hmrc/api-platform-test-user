@@ -20,9 +20,9 @@ import javax.inject.Singleton
 
 import play.api.http.HeaderNames.{AUTHORIZATION, LOCATION}
 import uk.gov.hmrc.domain._
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.auth.microservice.connectors.ConfidenceLevel
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.testuser.config.WSHttp
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.ServiceName._
@@ -79,7 +79,7 @@ object GovernmentGatewayLogin {
     }
 
     GovernmentGatewayLogin(individual.userId, individual.affinityGroup, individual.nino.map(_.value),
-      individual.services.map(asEnrolment(_)).flatten, individual.userFullName, individual.emailAddress)
+      individual.services.flatMap(asEnrolment), individual.userFullName, individual.emailAddress)
   }
 
   private def fromOrganisation(organisation: TestOrganisation) = {
@@ -98,7 +98,7 @@ object GovernmentGatewayLogin {
     }
 
     GovernmentGatewayLogin(organisation.userId, organisation.affinityGroup, organisation.nino.map(_.value),
-      organisation.services.map(asEnrolment(_)).flatten, organisation.userFullName, organisation.emailAddress)
+      organisation.services.flatMap(asEnrolment), organisation.userFullName, organisation.emailAddress)
   }
 
   private def fromAgent(agent: TestAgent) = {
@@ -109,7 +109,7 @@ object GovernmentGatewayLogin {
       }
     }
 
-    GovernmentGatewayLogin(agent.userId, agent.affinityGroup, None, agent.services.map(asEnrolment(_)).flatten,
+    GovernmentGatewayLogin(agent.userId, agent.affinityGroup, None, agent.services.flatMap(asEnrolment),
       agent.userFullName, agent.emailAddress,
       credentialRole = Some("user"))
   }

@@ -21,11 +21,11 @@ import it.uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import org.joda.time.LocalDate
 import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.play.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ServiceName._
+import uk.gov.hmrc.http.{ HeaderCarrier, Upstream5xxResponse }
 
 class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with WithFakeApplication {
 

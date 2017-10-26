@@ -18,11 +18,11 @@ package it.uk.gov.hmrc.testuser.connectors
 
 import it.uk.gov.hmrc.testuser.helpers.stubs.DesSimulatorStub
 import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.play.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
 import uk.gov.hmrc.testuser.models.ServiceName._
 import uk.gov.hmrc.testuser.services.Generator._
+import uk.gov.hmrc.http.{ HeaderCarrier, Upstream5xxResponse }
 
 class DesSimulatorConnectorSpec extends UnitSpec with BeforeAndAfterEach with WithFakeApplication {
 
