@@ -59,7 +59,7 @@ object MicroserviceGlobal extends DefaultMicroserviceGlobal with ServiceLocatorR
   with RunMode with MicroserviceFilterSupport {
 
   override val hc = HeaderCarrier()
-  override val slConnector: ServiceLocatorConnector = ServiceLocatorConnector(WSHttp)
+  override val slConnector = ServiceLocatorConnector(WSHttp)
   override val auditConnector = MicroserviceAuditConnector
   override lazy val registrationEnabled = current.configuration.getBoolean("microservice.services.service-locator.enabled").getOrElse(false)
 
