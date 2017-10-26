@@ -18,7 +18,7 @@ package uk.gov.hmrc.testuser.services
 
 import javax.inject.Inject
 
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
 import uk.gov.hmrc.testuser.models.LegacySandboxUser._
 import uk.gov.hmrc.testuser.models.{AuthSession, AuthenticationRequest, InvalidCredentials, TestUser}
