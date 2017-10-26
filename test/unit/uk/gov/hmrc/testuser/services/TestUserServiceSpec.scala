@@ -22,18 +22,17 @@ import org.mockito.Matchers.{any, anyString}
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.Logger
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
-import uk.gov.hmrc.testuser.models.ServiceName.{ServiceName => _, _}
-import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.models.ServiceName.{ServiceName => _}
+import uk.gov.hmrc.testuser.models.{UserNotFound, _}
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.services.Generator._
 import uk.gov.hmrc.testuser.services.{Generator, PasswordService, TestUserService}
-import uk.gov.hmrc.testuser.models.UserNotFound
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}

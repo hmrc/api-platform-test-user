@@ -21,16 +21,14 @@ import net.ceedubs.ficus.Ficus._
 import play.api.Play._
 import play.api._
 import uk.gov.hmrc.api.config.{ServiceLocatorConfig, ServiceLocatorRegistration}
-import uk.gov.hmrc.api.connector.ServiceLocatorConnector
-import uk.gov.hmrc.play.audit.filters.AuditFilter
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.auth.controllers.AuthParamsControllerConfig
 import uk.gov.hmrc.play.auth.microservice.filters.AuthorisationFilter
 import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
-import uk.gov.hmrc.play.filters.MicroserviceFilterSupport
-import uk.gov.hmrc.play.http.HeaderCarrier
-import uk.gov.hmrc.play.http.logging.filters.LoggingFilter
 import uk.gov.hmrc.play.microservice.bootstrap.DefaultMicroserviceGlobal
+import uk.gov.hmrc.play.microservice.filters.{AuditFilter, LoggingFilter, MicroserviceFilterSupport}
 import uk.gov.hmrc.testuser.services.MigrationService
+import uk.gov.hmrc.api.connector.ServiceLocatorConnector
 
 object ControllerConfiguration extends ControllerConfig {
   lazy val controllerConfigs = Play.current.configuration.underlying.as[Config]("controllers")
@@ -61,7 +59,7 @@ object MicroserviceGlobal extends DefaultMicroserviceGlobal with ServiceLocatorR
   with RunMode with MicroserviceFilterSupport {
 
   override val hc = HeaderCarrier()
-  override val slConnector = ServiceLocatorConnector(WSHttp)
+  override val slConnector: ServiceLocatorConnector = ServiceLocatorConnector(WSHttp)
   override val auditConnector = MicroserviceAuditConnector
   override lazy val registrationEnabled = current.configuration.getBoolean("microservice.services.service-locator.enabled").getOrElse(false)
 
