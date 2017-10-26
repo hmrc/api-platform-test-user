@@ -18,18 +18,16 @@ package uk.gov.hmrc.testuser.services
 
 import javax.inject.Inject
 
-import uk.gov.hmrc.domain.{EmpRef, SaUtr, Nino}
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.testuser.connectors.{DesSimulatorConnector, DesSimulatorConnectorImpl}
-import uk.gov.hmrc.testuser.models.UserType.{ORGANISATION, INDIVIDUAL}
-import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.models.LegacySandboxUser._
 import uk.gov.hmrc.testuser.models.ServiceName._
+import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.concurrent.Future.successful
 
 trait TestUserService {
 

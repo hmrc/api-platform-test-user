@@ -20,9 +20,8 @@ import org.joda.time.LocalDate
 import org.mockito.BDDMockito.given
 import org.mockito.Matchers.anyString
 import org.mockito.Mockito.when
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
 import uk.gov.hmrc.testuser.models.LegacySandboxUser._
@@ -32,6 +31,7 @@ import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.services.{AuthenticationService, PasswordService}
 
 import scala.concurrent.Future.successful
+import uk.gov.hmrc.http.HeaderCarrier
 
 class AuthenticationServiceSpec extends UnitSpec with MockitoSugar {
 

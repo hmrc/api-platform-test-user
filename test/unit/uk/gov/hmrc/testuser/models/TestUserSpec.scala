@@ -16,37 +16,31 @@
 
 package unit.uk.gov.hmrc.testuser.models
 
+import org.scalatest.{FlatSpec, Matchers}
 import uk.gov.hmrc.domain.AgentBusinessUtr
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.models._
-import play.api.libs.json.Json.toJson
-import uk.gov.hmrc.testuser.models.JsonFormatters._
 
-class TestUserSpec extends UnitSpec with WithFakeApplication {
+class TestUserSpec extends FlatSpec with Matchers {
   val userId = "1234567890"
   val password = "l3tm31n"
   val userFullName = "John Doe"
   val emailAddress = "john.doe@example.com"
   val arn = AgentBusinessUtr("NARN0396245")
 
-  trait Setup {
-    implicit lazy val materializer = fakeApplication.materializer
-  }
 
-  "MTD ID should accept a valid ID" in {
-
+  "MTD ID" should "accept a valid ID" in {
     val mtdItId = MtdItId("XGIT00000000054")
 
     mtdItId.toString shouldBe "XGIT00000000054"
   }
 
-  "MTD ID should not accept an ID with invalid checksum" in {
+  "MTD ID" should "not accept an ID with invalid checksum" in {
     intercept[IllegalArgumentException] {
       MtdItId("XXIT00000000054")
     }
   }
 
-  "TestOrganisationCreatedResponse should be properly constructed from a TestOrganisation" in {
+  "TestOrganisationCreatedResponse" should "be properly constructed from a TestOrganisation" in {
     val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
     val testOrganisation = TestOrganisation(userId, password, userFullName, emailAddress, organisationDetails = organisationDetails, lisaManRefNum = Some(LisaManagerReferenceNumber("Z123456")))
     TestOrganisationCreatedResponse.from(testOrganisation) shouldBe
@@ -68,7 +62,7 @@ class TestUserSpec extends UnitSpec with WithFakeApplication {
       )
   }
 
-  "TestAgentCreatedResponse should be properly constructed from the TestAgent" in {
+  "TestAgentCreatedResponse" should "be properly constructed from the TestAgent" in {
     val testAgent = TestAgent(userId, password, userFullName, emailAddress, arn = Some(arn))
     TestAgentCreatedResponse.from(testAgent) shouldBe TestAgentCreatedResponse(userId, password, userFullName, emailAddress, Some(arn))
   }

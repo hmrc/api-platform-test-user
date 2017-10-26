@@ -20,14 +20,13 @@ import common.LogSuppressing
 import org.joda.time.LocalDate
 import org.mockito.BDDMockito.given
 import org.mockito.Matchers.{any, refEq}
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.Logger
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, OK, NOT_FOUND}
 import play.api.libs.json.Json.toJson
 import play.api.libs.json.{JsValue, Json}
 import play.api.test._
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.controllers.TestUserController
 import uk.gov.hmrc.testuser.models.JsonFormatters._
@@ -36,6 +35,7 @@ import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.services.TestUserService
 
 import scala.concurrent.Future.failed
+import uk.gov.hmrc.http.HeaderCarrier
 
 class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with LogSuppressing {
 

@@ -21,9 +21,9 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, TestData}
-import org.scalatestplus.play.OneAppPerTest
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.http.LazyHttpErrorHandler
 import play.api.http.Status.OK
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -31,7 +31,7 @@ import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.{Application, Mode}
 import uk.gov.hmrc.api.domain.Registration
-import uk.gov.hmrc.play.filters.MicroserviceFilterSupport
+import uk.gov.hmrc.play.microservice.filters.MicroserviceFilterSupport
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.controllers.DocumentationController
 
@@ -47,7 +47,7 @@ import uk.gov.hmrc.testuser.controllers.DocumentationController
   *
   * See: ***REMOVED***
   */
-class PlatformIntegrationSpec extends UnitSpec with MockitoSugar with ScalaFutures with BeforeAndAfterEach with OneAppPerTest {
+class PlatformIntegrationSpec extends UnitSpec with MockitoSugar with ScalaFutures with BeforeAndAfterEach with GuiceOneAppPerTest {
 
   val stubHost = "localhost"
   val stubPort = sys.env.getOrElse("WIREMOCK_SERVICE_LOCATOR_PORT", "11112").toInt

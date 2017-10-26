@@ -1,67 +1,41 @@
-import play.sbt.PlayImport._
-import play.core.PlayVersion
-import sbt.Tests.{SubProcess, Group}
-import play.routes.compiler.StaticRoutesGenerator
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
-import uk.gov.hmrc._
-import DefaultBuildSettings._
-import uk.gov.hmrc.{SbtBuildInfo, ShellPrompt, SbtAutoBuildPlugin}
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
-import uk.gov.hmrc.versioning.SbtGitVersioning
 import _root_.play.sbt.routes.RoutesKeys.routesGenerator
+import play.core.PlayVersion
+import play.routes.compiler.StaticRoutesGenerator
+import play.sbt.PlayImport._
+import sbt.Tests.{Group, SubProcess}
+import uk.gov.hmrc.DefaultBuildSettings._
+import uk.gov.hmrc.{SbtAutoBuildPlugin, _}
+import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
+import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
+import uk.gov.hmrc.versioning.SbtGitVersioning
 
 lazy val appName = "api-platform-test-user"
 lazy val appDependencies: Seq[ModuleID] = compile ++ test
 
-lazy val microserviceBootstrapVersion = "5.13.0"
-lazy val playAuthVersion = "4.3.0"
-lazy val playHealthVersion = "2.1.0"
-lazy val logbackJsonLoggerVersion = "3.1.0"
-lazy val playUrlBindersVersion = "2.1.0"
-lazy val playConfigVersion = "4.3.0"
-lazy val domainVersion = "4.1.0"
-lazy val mongoLockVersion = "4.1.0"
-lazy val hmrcReactiveMongoTestVersion = "2.0.0"
-lazy val hmrcTestVersion = "2.3.0"
-lazy val scalaTestVersion = "2.2.6"
-lazy val pegdownVersion = "1.6.0"
-lazy val scalaTestPlusVersion = "1.5.1"
-lazy val hmrcPlayJsonUnionFormatterVersion = "1.0.0"
-lazy val scalaCheckVersion = "1.12.6"
-lazy val mockitoVersion = "1.10.19"
-lazy val scalaJVersion = "1.1.6"
-lazy val jBcryptVersion = "0.4"
-
-lazy val playReactivemongoVersion = "5.2.0"
-
 lazy val compile = Seq(
-  "uk.gov.hmrc" %% "play-reactivemongo" % playReactivemongoVersion,
+  "uk.gov.hmrc" %% "play-reactivemongo" % "5.2.0",
   ws,
-  "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
-  "uk.gov.hmrc" %% "play-authorisation" % playAuthVersion,
-  "uk.gov.hmrc" %% "play-health" % playHealthVersion,
-  "uk.gov.hmrc" %% "play-url-binders" % playUrlBindersVersion,
-  "uk.gov.hmrc" %% "play-config" % playConfigVersion,
-  "uk.gov.hmrc" %% "play-hmrc-api" % "1.4.0",
-  "uk.gov.hmrc" %% "logback-json-logger" % logbackJsonLoggerVersion,
-  "uk.gov.hmrc" %% "play-json-union-formatter" % hmrcPlayJsonUnionFormatterVersion,
-  "uk.gov.hmrc" %% "domain" % domainVersion,
-  "uk.gov.hmrc" %% "mongo-lock" % mongoLockVersion,
-  "org.scalacheck" %% "scalacheck" % scalaCheckVersion,
-  "org.mindrot" % "jbcrypt" % jBcryptVersion
+  "uk.gov.hmrc" %% "microservice-bootstrap" % "6.10.0",
+  "uk.gov.hmrc" %% "play-url-binders" % "2.1.0",
+  "uk.gov.hmrc" %% "play-hmrc-api" % "2.0.0",
+  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.0.0",
+  "uk.gov.hmrc" %% "domain" % "5.0.0",
+  "uk.gov.hmrc" %% "mongo-lock" % "4.1.0",
+  "org.scalacheck" %% "scalacheck" % "1.12.6",
+  "org.mindrot" % "jbcrypt" % "0.4"
 )
 
 lazy val scope: String = "test, it"
 
 lazy val test = Seq(
-  "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope,
-  "uk.gov.hmrc" %% "reactivemongo-test" % hmrcReactiveMongoTestVersion % scope,
-  "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
-  "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusVersion % scope,
-  "org.pegdown" % "pegdown" % pegdownVersion % scope,
+  "uk.gov.hmrc" %% "hmrctest" % "2.3.0" % scope,
+  "uk.gov.hmrc" %% "reactivemongo-test" % "2.0.0" % scope,
+  "org.scalatest" %% "scalatest" % "3.0.4" % scope,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0" % scope,
+  "org.pegdown" % "pegdown" % "1.6.0" % scope,
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-  "org.mockito" % "mockito-core" % mockitoVersion % scope,
-  "org.scalaj" %% "scalaj-http" % scalaJVersion % scope,
+  "org.mockito" % "mockito-core" % "1.10.19" % scope,
+  "org.scalaj" %% "scalaj-http" % "1.1.6" % scope,
   "com.github.tomakehurst" % "wiremock" % "1.58" % "test,it"
 )
 
