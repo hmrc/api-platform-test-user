@@ -74,6 +74,7 @@ object GovernmentGatewayLogin {
       serviceName match {
         case SELF_ASSESSMENT => individual.saUtr map {saUtr => Enrolment("IR-SA", taxIdentifier(saUtr))}
         case MTD_INCOME_TAX => individual.mtdItId map {mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId))}
+        case CUSTOMS_DECLARATIONS => individual.eoriNumber map {eoriNumber => Enrolment("HMRC-CUS-ORG", taxIdentifier(eoriNumber))}
         case _ => None
       }
     }
@@ -93,6 +94,7 @@ object GovernmentGatewayLogin {
         case LISA => organisation.lisaManRefNum map { lisaManRefNum => Enrolment("HMRC-LISA-ORG", taxIdentifier(lisaManRefNum))}
         case SECURE_ELECTRONIC_TRANSFER => organisation.secureElectronicTransferReferenceNumber map { setRefNum => Enrolment("HMRC-SET-ORG", taxIdentifier(setRefNum))}
         case RELIEF_AT_SOURCE => organisation.pensionSchemeAdministratorIdentifier map { psaId => Enrolment("HMRC-PSA-ORG", taxIdentifier(psaId))}
+        case CUSTOMS_DECLARATIONS => organisation.eoriNumber map {eoriNumber => Enrolment("HMRC-CUS-ORG", taxIdentifier(eoriNumber))}
         case _ => None
       }
     }
@@ -126,6 +128,7 @@ object GovernmentGatewayLogin {
       case lisaManRefNum: LisaManagerReferenceNumber => Seq(Identifier("ZREF", lisaManRefNum.toString))
       case setRefNum: SecureElectronicTransferReferenceNumber => Seq(Identifier("SRN", setRefNum.toString))
       case psaId: PensionSchemeAdministratorIdentifier => Seq(Identifier("PSAID", psaId.toString))
+      case EoriNumber(value) => Seq(Identifier("EORINumber", value))
       case _ => Seq.empty
     }
   }

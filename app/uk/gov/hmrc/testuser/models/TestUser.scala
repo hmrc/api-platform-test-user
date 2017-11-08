@@ -21,7 +21,6 @@ import play.api.libs.json.{Format, Reads, Writes}
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.testuser.models.ServiceName.ServiceName
-import uk.gov.hmrc.testuser.models.UserType.UserType
 
 object ServiceName extends Enumeration {
   type ServiceName = Value
@@ -35,6 +34,7 @@ object ServiceName extends Enumeration {
   val LISA = Value("lisa")
   val SECURE_ELECTRONIC_TRANSFER = Value("secure-electronic-transfer")
   val RELIEF_AT_SOURCE = Value("relief-at-source")
+  val CUSTOMS_DECLARATIONS = Value("customs-declarations")
 }
 
 sealed trait TestUser {
@@ -55,6 +55,7 @@ case class TestIndividual(override val userId: String,
                           saUtr: Option[SaUtr] = None,
                           nino: Option[Nino] = None,
                           mtdItId: Option[MtdItId] = None,
+                          eoriNumber: Option[EoriNumber] = None,
                           override val services: Seq[ServiceName] = Seq.empty,
                           override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Individual"
@@ -74,6 +75,7 @@ case class TestOrganisation(override val userId: String,
                             lisaManRefNum: Option[LisaManagerReferenceNumber] = None,
                             secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber] = None,
                             pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier] = None,
+                            eoriNumber: Option[EoriNumber] = None,
                             override val services: Seq[ServiceName] = Seq.empty,
                             override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Organisation"
@@ -100,6 +102,7 @@ sealed trait TestIndividualResponse extends TestUserResponse {
   val saUtr: Option[SaUtr]
   val nino: Option[Nino]
   val mtdItId: Option[MtdItId]
+  val eoriNumber: Option[EoriNumber]
 }
 
 sealed trait TestOrganisationResponse extends TestUserResponse {
@@ -113,6 +116,7 @@ sealed trait TestOrganisationResponse extends TestUserResponse {
   val lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber]
   val secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber]
   val pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier]
+  val eoriNumber: Option[EoriNumber]
 }
 
 sealed trait TestAgentResponse extends TestUserResponse {
@@ -125,13 +129,14 @@ case class FetchTestIndividualResponse(override val userId: String,
                                        override val individualDetails: IndividualDetails,
                                        override val saUtr: Option[SaUtr] = None,
                                        override val nino: Option[Nino] = None,
-                                       override val mtdItId: Option[MtdItId] = None)
+                                       override val mtdItId: Option[MtdItId] = None,
+                                       override val eoriNumber: Option[EoriNumber] = None)
   extends TestIndividualResponse
 
 object FetchTestIndividualResponse {
   def from(individual: TestIndividual) = FetchTestIndividualResponse(individual.userId, individual.userFullName,
     individual.emailAddress, individual.individualDetails, individual.saUtr, individual.nino,
-    individual.mtdItId)
+    individual.mtdItId, individual.eoriNumber)
 }
 
 case class TestIndividualCreatedResponse(override val userId: String,
@@ -141,13 +146,14 @@ case class TestIndividualCreatedResponse(override val userId: String,
                                          override val individualDetails: IndividualDetails,
                                          override val saUtr: Option[SaUtr],
                                          override val nino: Option[Nino],
-                                         override val mtdItId: Option[MtdItId])
+                                         override val mtdItId: Option[MtdItId],
+                                         override val eoriNumber: Option[EoriNumber] = None)
   extends TestIndividualResponse
 
 object TestIndividualCreatedResponse {
   def from(individual: TestIndividual) = TestIndividualCreatedResponse(individual.userId, individual.password,
     individual.userFullName, individual.emailAddress, individual.individualDetails,
-    individual.saUtr, individual.nino, individual.mtdItId)
+    individual.saUtr, individual.nino, individual.mtdItId, individual.eoriNumber)
 }
 
 case class FetchTestOrganisationResponse(override val userId: String,
@@ -162,14 +168,16 @@ case class FetchTestOrganisationResponse(override val userId: String,
                                          override val vrn: Option[Vrn] = None,
                                          override val lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber] = None,
                                          override val secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber] = None,
-                                         override val pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier] = None)
+                                         override val pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier] = None,
+                                         override val eoriNumber: Option[EoriNumber] = None)
   extends TestOrganisationResponse
 
 object FetchTestOrganisationResponse {
   def from(organisation: TestOrganisation) = FetchTestOrganisationResponse(organisation.userId, organisation.userFullName,
     organisation.emailAddress, organisation.organisationDetails, organisation.saUtr, organisation.nino,
     organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.lisaManRefNum,
-    organisation.secureElectronicTransferReferenceNumber, organisation.pensionSchemeAdministratorIdentifier)
+    organisation.secureElectronicTransferReferenceNumber, organisation.pensionSchemeAdministratorIdentifier,
+    organisation.eoriNumber)
 }
 
 case class TestOrganisationCreatedResponse(override val userId: String,
@@ -185,7 +193,8 @@ case class TestOrganisationCreatedResponse(override val userId: String,
                                            override val vrn: Option[Vrn],
                                            override val lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber],
                                            override val secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber],
-                                           override val pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier])
+                                           override val pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier],
+                                           override val eoriNumber: Option[EoriNumber] = None)
   extends TestOrganisationResponse
 
 object TestOrganisationCreatedResponse {
@@ -193,7 +202,7 @@ object TestOrganisationCreatedResponse {
     organisation.userFullName, organisation.emailAddress, organisation.organisationDetails, organisation.saUtr,
     organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn,
     organisation.lisaManRefNum, organisation.secureElectronicTransferReferenceNumber,
-    organisation.pensionSchemeAdministratorIdentifier)
+    organisation.pensionSchemeAdministratorIdentifier, organisation.eoriNumber)
 }
 
 case class TestAgentCreatedResponse(override val userId: String, password: String,
@@ -229,8 +238,6 @@ case class MtdItId(mtdItId: String) extends TaxIdentifier with SimpleName {
   def value = mtdItId
 
   val name = "mtdItId"
-
-  def formatted = value
 }
 
 
@@ -286,9 +293,27 @@ object PensionSchemeAdministratorIdentifier extends (String => PensionSchemeAdmi
     new SimpleObjectReads[PensionSchemeAdministratorIdentifier]("pensionSchemeAdministratorIdentifier", PensionSchemeAdministratorIdentifier.apply)
 }
 
+case class EoriNumber(override val value: String) extends TaxIdentifier with SimpleName {
+  require(EoriNumber.isValid(value), s"$value is not a valid EORI.")
+
+  override val name = EoriNumber.name
+}
+
+object EoriNumber extends SimpleName {
+  val validEoriFormat = "^[A-z]{2}[0-9]{10,15}$"
+
+  def isValid(eoriNumber: String) = eoriNumber.matches(validEoriFormat)
+
+  override val name = "eoriNumber"
+
+  implicit val jsonFormat = Format[EoriNumber](
+    new SimpleObjectReads[EoriNumber](name, EoriNumber.apply),
+    new SimpleObjectWrites[EoriNumber](_.value)
+  )
+}
+
 case class Address(line1: String, line2: String, postcode: String)
 
 case class IndividualDetails(firstName: String, lastName: String, dateOfBirth: LocalDate, address: Address)
 
 case class OrganisationDetails(name: String, address: Address)
-

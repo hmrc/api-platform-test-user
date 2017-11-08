@@ -2,6 +2,7 @@
   "serviceNames": [
     "national-insurance",
     "self-assessment",
-    "mtd-income-tax"
+    "mtd-income-tax",
+    "customs-declarations"
   ]
 }
