@@ -54,17 +54,18 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   val lisaManagerReferenceNumber = LisaManagerReferenceNumber("Z123456")
   val secureElectronicTransferReferenceNumber = SecureElectronicTransferReferenceNumber("123456789012")
   val pensionSchemeAdministratorIdentifier = PensionSchemeAdministratorIdentifier("A1234567")
+  val eoriNumber = EoriNumber("GB1234567890")
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
 
   val testIndividual = TestIndividual(user, password, userFullName, emailAddress, individualDetails,
-    Some(saUtr), Some(nino), Some(mtdItId))
+    Some(saUtr), Some(nino), Some(mtdItId), Some(eoriNumber))
 
   val testOrganisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,
     Some(saUtr), Some(nino), Some(mtdItId),
     Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber), Some(secureElectronicTransferReferenceNumber),
-    Some(pensionSchemeAdministratorIdentifier))
+    Some(pensionSchemeAdministratorIdentifier), Some(eoriNumber))
 
   val testAgent = TestAgent(user, password, userFullName, emailAddress, Some(arn))
 
@@ -108,7 +109,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
       status(result) shouldBe CREATED
       jsonBodyOf(result) shouldBe toJson(TestIndividualCreatedResponse(user, password, userFullName, emailAddress,
-        individualDetails, Some(saUtr), Some(nino), Some(mtdItId)))
+        individualDetails, Some(saUtr), Some(nino), Some(mtdItId), Some(eoriNumber)))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
@@ -137,7 +138,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       jsonBodyOf(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, userFullName, emailAddress,
         organisationDetails, Some(saUtr),
         Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber),
-        Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier)))
+        Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier), Some(eoriNumber)))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
