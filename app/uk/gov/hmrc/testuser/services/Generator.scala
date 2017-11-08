@@ -43,16 +43,18 @@ trait Generator extends Randomiser {
   private val lisaManRefNumGenerator = new LisaGenerator()
   private val setRefNumGenerator = new SecureElectronicTransferReferenceNumberGenerator()
   private val psaIdGenerator = new PensionSchemeAdministratorIdentifierGenerator()
+  private val eoriGenerator = Gen.listOfN(10, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
 
   def generateTestIndividual(services: Seq[ServiceName] = Seq.empty) = {
     val saUtr = if (services.contains(SELF_ASSESSMENT)) Some(generateSaUtr) else None
     val nino = if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) Some(generateNino) else None
     val mtdItId = if(services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
+    val eoriNumber = if(services.contains(CUSTOMS_DECLARATIONS)) Some(generateEoriNumber) else None
     val individualDetails = generateIndividualDetails
     val userFullName = generateUserFullName(individualDetails.firstName, individualDetails.lastName)
     val emailAddress = generateEmailAddress(individualDetails.firstName, individualDetails.lastName)
 
-    TestIndividual(generateUserId, generatePassword, userFullName, emailAddress, individualDetails, saUtr, nino, mtdItId, services)
+    TestIndividual(generateUserId, generatePassword, userFullName, emailAddress, individualDetails, saUtr, nino, mtdItId, eoriNumber, services)
   }
 
   def generateTestOrganisation(services: Seq[ServiceName] = Seq.empty) = {
@@ -65,6 +67,7 @@ trait Generator extends Randomiser {
     val lisaManRefNum = if (services.contains(LISA)) Some(generateLisaManRefNum) else None
     val setRefNum = if (services.contains(SECURE_ELECTRONIC_TRANSFER)) Some(generateSetRefNum) else None
     val psaId = if(services.contains(RELIEF_AT_SOURCE)) Some(generatePsaId) else None
+    val eoriNumber = if(services.contains(CUSTOMS_DECLARATIONS)) Some(generateEoriNumber) else None
 
     val firstName = generateFirstName
     val lastName = generateLastName
@@ -72,7 +75,7 @@ trait Generator extends Randomiser {
     val emailAddress = generateEmailAddress(firstName, lastName)
 
     TestOrganisation(generateUserId, generatePassword, userFullName, emailAddress, generateOrganisationDetails, saUtr, nino, mtdItId, empRef, ctUtr,
-      vrn, lisaManRefNum, setRefNum, psaId, services)
+      vrn, lisaManRefNum, setRefNum, psaId, eoriNumber, services)
   }
 
   def generateTestAgent(services: Seq[ServiceName] = Seq.empty) = {
@@ -85,9 +88,9 @@ trait Generator extends Randomiser {
     TestAgent(generateUserId, generatePassword, userFullName, emailAddress, arn, services)
   }
 
-  def generateUserFullName(firstName: String, lastName: String) = s"${firstName} ${lastName}"
+  def generateUserFullName(firstName: String, lastName: String) = s"$firstName $lastName"
 
-  def generateEmailAddress(firstName: String, lastName: String) = s"${firstName}.${lastName}@example.com".toLowerCase
+  def generateEmailAddress(firstName: String, lastName: String) = s"$firstName.$lastName@example.com".toLowerCase
 
   def generateFirstName = randomConfigString("randomiser.individualDetails.firstName")
 
@@ -127,6 +130,7 @@ trait Generator extends Randomiser {
   private def generatePsaId: PensionSchemeAdministratorIdentifier = psaIdGenerator.next
   private def generateArn: AgentBusinessUtr = arnGenerator.next
   private def generateMtdId: MtdItId = mtdItIdGenerator.next
+  private def generateEoriNumber: EoriNumber = eoriGenerator.sample.get
 }
 
 object Generator extends Generator

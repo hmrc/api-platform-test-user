@@ -51,16 +51,18 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with WithF
   val vrn = Vrn("999902541")
   val lisaManRefNum = LisaManagerReferenceNumber("Z123456")
   val empRef = EmpRef("555","EIA000")
+  val eoriNumber = EoriNumber("GB1234567890")
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val testIndividual = TestIndividual(user, password, userFullName, emailAddress, individualDetails,
-    Some(saUtr), Some(nino), Some(mtdItId),
-    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX))
+    Some(saUtr), Some(nino), Some(mtdItId), Some(eoriNumber),
+    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_DECLARATIONS))
 
   val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
   val testOrganisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,
     Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum),
-    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, PAYE_FOR_EMPLOYERS, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA))
+    eoriNumber = Some(eoriNumber),
+    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, PAYE_FOR_EMPLOYERS, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA, CUSTOMS_DECLARATIONS))
 
   val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
 
@@ -106,7 +108,7 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with WithF
       jsonBodyOf(result) shouldBe toJson(ErrorResponse.invalidCredentialsError)
     }
 
-    "fail with 500 (Internal Server Error) when an error occured " in new Setup {
+    "fail with 500 (Internal Server Error) when an error has occurred " in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
         given(underTest.authenticationService.authenticate(refEq(AuthenticationRequest(user, password)))(any()))
           .willReturn(failed(new RuntimeException("expected test error")))

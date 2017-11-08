@@ -45,6 +45,10 @@
           {
             "enum": ["relief-at-source"],
             "description": "Generates a Pension Scheme Administrator Identifier and enrols the user for Relief at Source"
+          },
+          {
+            "enum": ["customs-declarations"],
+            "description": "Generates an EORI number and enrols the user for the Customs Declarations service"
           }
         ]
       },
