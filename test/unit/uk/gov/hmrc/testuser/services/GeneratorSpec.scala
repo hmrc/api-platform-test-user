@@ -20,10 +20,12 @@ import org.joda.time.LocalDate
 import org.scalatest.enablers.{Definition, Emptiness}
 import org.scalatest.matchers.{MatchResult, Matcher}
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ServiceName._
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.services.Generator
 import unit.uk.gov.hmrc.testuser.services.CustomMatchers.haveDifferentPropertiesThan
+
+import scala.language.implicitConversions
 
 class GeneratorSpec extends UnitSpec {
 
@@ -41,17 +43,22 @@ class GeneratorSpec extends UnitSpec {
   "generateTestIndividual" should {
 
     implicit def individualChecker(individual: TestIndividual) = new Checker {
-      def shouldHave(ninoDefined: Boolean = false, saUtrDefined: Boolean = false, mtdItIdDefined: Boolean = false) = {
+      def shouldHave(ninoDefined: Boolean = false, saUtrDefined: Boolean = false, mtdItIdDefined: Boolean = false,
+                     eoriDefined: Boolean = false) = {
 
         check(individual.nino, ninoDefined)
         check(individual.saUtr, saUtrDefined)
         check(individual.mtdItId, mtdItIdDefined)
+        check(individual.eoriNumber, eoriDefined)
       }
     }
 
     "create a different test individual at every run" in {
-      val individual1 = underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
-      val individual2 = underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
+      def generate(): TestIndividual =
+        underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES))
+
+      val individual1 = generate()
+      val individual2 = generate()
 
       individual1 should haveDifferentPropertiesThan(individual2)
     }
@@ -72,6 +79,12 @@ class GeneratorSpec extends UnitSpec {
       val individual = underTest.generateTestIndividual(Seq(SELF_ASSESSMENT))
 
       individual shouldHave(saUtrDefined = true)
+    }
+
+    "generate an EORI when CUSTOMS_SERVICES service is included" in {
+      val individual = underTest.generateTestIndividual(Seq(CUSTOMS_SERVICES))
+
+      individual shouldHave(eoriDefined = true)
     }
 
     "generate individualDetails from the configuration file" in {
@@ -96,7 +109,7 @@ class GeneratorSpec extends UnitSpec {
       def shouldHave(vrnDefined: Boolean = false, ninoDefined: Boolean = false, mtdItIdDefined: Boolean = false,
                empRefDefined: Boolean = false, ctUtrDefined: Boolean = false, saUtrDefined: Boolean = false,
                lisaManRefNumDefined: Boolean = false, secureElectronicTransferReferenceNumberDefined: Boolean = false,
-               pensionSchemeAdministratorIdentifierDefined: Boolean = false) = {
+               pensionSchemeAdministratorIdentifierDefined: Boolean = false, eoriDefined: Boolean = false) = {
 
         check(org.vrn, vrnDefined)
         check(org.nino, ninoDefined)
@@ -107,14 +120,18 @@ class GeneratorSpec extends UnitSpec {
         check(org.lisaManRefNum, lisaManRefNumDefined)
         check(org.secureElectronicTransferReferenceNumber, secureElectronicTransferReferenceNumberDefined)
         check(org.pensionSchemeAdministratorIdentifier, pensionSchemeAdministratorIdentifierDefined)
+        check(org.eoriNumber, eoriDefined)
       }
     }
 
     "create a different test organisation at every run" in {
-      val organisation1 = underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX,
-        CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE))
-      val organisation2 = underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX,
-        CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE))
+      def generate(): TestOrganisation =
+        underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX,
+          CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE,
+          CUSTOMS_SERVICES))
+
+      val organisation1 = generate()
+      val organisation2 = generate()
 
       organisation1 should haveDifferentPropertiesThan(organisation2)
     }
@@ -171,6 +188,12 @@ class GeneratorSpec extends UnitSpec {
       val org = underTest.generateTestOrganisation(Seq(RELIEF_AT_SOURCE))
 
       org shouldHave(pensionSchemeAdministratorIdentifierDefined = true)
+    }
+
+    "generate an EORI when CUSTOMS_SERVICES service is included" in {
+      val org = underTest.generateTestOrganisation(Seq(CUSTOMS_SERVICES))
+
+      org shouldHave(eoriDefined = true)
     }
 
     "set the userFullName and emailAddress" in {
@@ -241,7 +264,8 @@ object CustomMatchers {
           i1.userId != i2.userId &&
           i1.password != i2.password &&
           i1.nino != i2.nino &&
-          i1.saUtr != i2.saUtr
+          i1.saUtr != i2.saUtr &&
+          i1.eoriNumber != i2.eoriNumber
 
         case (o1: TestOrganisation, o2: TestOrganisation) => o1._id != o2._id &&
           o1.userId != o2.userId &&
@@ -252,7 +276,8 @@ object CustomMatchers {
           o1.vrn != o2.vrn &&
           o1.lisaManRefNum != o2.lisaManRefNum &&
           o1.secureElectronicTransferReferenceNumber != o2.secureElectronicTransferReferenceNumber &&
-          o1.pensionSchemeAdministratorIdentifier != o2.pensionSchemeAdministratorIdentifier
+          o1.pensionSchemeAdministratorIdentifier != o2.pensionSchemeAdministratorIdentifier &&
+          o1.eoriNumber != o2.eoriNumber
 
         case (a1: TestAgent, a2: TestAgent) => a1._id != a2._id &&
           a1.userId != a2.userId &&

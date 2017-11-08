@@ -89,6 +89,10 @@
     "pensionSchemeAdministratorIdentifier": {
       "type": "string",
       "description": "Pension Scheme Administrator Identifier"
+    },
+    "eoriNumber": {
+      "type": "string",
+      "description": "Economic Operator Registration and Identification (EORI) number"
     }
   },
   "required": [

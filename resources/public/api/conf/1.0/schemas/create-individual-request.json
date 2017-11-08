@@ -12,7 +12,7 @@
         "oneOf": [
           {
             "enum": ["national-insurance"],
-            "description": "Generates a National Insurance number ane enrols the user for National Insurance"
+            "description": "Generates a National Insurance number and enrols the user for National Insurance"
           },
           {
             "enum": ["self-assessment"],
@@ -21,6 +21,10 @@
           {
             "enum": ["mtd-income-tax"],
             "description": "Generates a National Insurance number and a Making Tax Digital Income Tax ID and enrols the user for Making Tax Digital Income Tax"
+          },
+          {
+            "enum": ["customs-services"],
+            "description": "Generates an EORI number and enrols the user for Customs Services"
           }
         ]
       },
