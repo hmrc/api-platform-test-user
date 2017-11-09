@@ -76,6 +76,10 @@
     "mtdItId": {
       "type": "string",
       "description": "Making Tax Digital Income Tax ID"
+    },
+    "eoriNumber": {
+      "type": "string",
+      "description": "Economic Operator Registration and Identification (EORI) number"
     }
   },
   "required": [
