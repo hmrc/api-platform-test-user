@@ -18,7 +18,7 @@ is to run with a docker image:
 
     docker run -p 27017:27017 --name mongo -d mongo:3.2
 
-### Seeing changes locally
+### Seeing API documentation changes locally
 
 In order to view changes locally you will need to add the following to your ~/.hmrc/api-services-stub.conf
 
