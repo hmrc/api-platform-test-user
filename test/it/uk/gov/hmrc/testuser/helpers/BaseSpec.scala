@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,10 @@ import org.scalatest._
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.mongo.MongoConnector
-import uk.gov.hmrc.testuser.repository.TestUserMongoRepository
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 import scala.concurrent.Await._
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with OneServerPerSuite
@@ -44,6 +43,8 @@ with GivenWhenThen {
       "mongodb.uri" -> "mongodb://localhost:27017/api-platform-test-user-it",
       "run.mode" -> "It"
     ).build()
+
+  def mongoRepository =  app.injector.instanceOf[TestUserRepository]
 
   val timeout = Duration(5, TimeUnit.SECONDS)
   val serviceUrl = s"http://localhost:$port"
@@ -63,11 +64,6 @@ with GivenWhenThen {
   override protected def afterAll(): Unit = {
     mocks.foreach(_.server.stop())
     result(mongoRepository.drop, timeout)
-  }
-
-  def mongoRepository = {
-    implicit val mongo = MongoConnector("mongodb://localhost:27017/api-platform-test-user-it").db
-    new TestUserMongoRepository()
   }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,26 @@
 package it.uk.gov.hmrc.testuser.repository
 
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
+import play.modules.reactivemongo.ReactiveMongoComponent
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.mongo.MongoSpecSupport
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.models.ServiceName._
 import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.repository.TestUserMongoRepository
-import uk.gov.hmrc.testuser.services.Generator._
+import uk.gov.hmrc.testuser.repository.TestUserRepository
+import uk.gov.hmrc.testuser.services.Generator
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with BeforeAndAfterAll with MongoSpecSupport {
 
-  private val repository = new TestUserMongoRepository
-  val testIndividual = generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE))
-  val testOrganisation = generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS))
+  private val mongoComponent = new ReactiveMongoComponent {
+    override def mongoConnector = mongoConnectorForTest
+  }
+  private val repository = new TestUserRepository(mongoComponent)
+  private val generator = new Generator()
+  val testIndividual = generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE))
+  val testOrganisation = generator.generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS))
 
   override def beforeEach() {
     await(repository.drop)

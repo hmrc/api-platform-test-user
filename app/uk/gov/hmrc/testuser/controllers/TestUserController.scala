@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,23 @@
 
 package uk.gov.hmrc.testuser.controllers
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 
 import play.api.Logger
 import play.api.libs.json.Json.toJson
 import play.api.mvc.{Action, Result}
-import uk.gov.hmrc.domain.{EmpRef, SaUtr, Nino}
+import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr}
 import uk.gov.hmrc.play.microservice.controller.BaseController
-import uk.gov.hmrc.testuser.models.ErrorResponse.{organisationNotFoundError, individualNotFoundError}
+import uk.gov.hmrc.testuser.models.ErrorResponse.{individualNotFoundError, organisationNotFoundError}
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models.UserType.{ORGANISATION, INDIVIDUAL}
+import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.services._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait TestUserController extends BaseController {
-
-  val testUserService: TestUserService
+@Singleton
+class TestUserController @Inject()(val testUserService: TestUserService) extends BaseController {
 
   def createIndividual() = Action.async(parse.json) { implicit request =>
     withJsonBody[CreateUserRequest] { createUserRequest =>
@@ -91,6 +90,3 @@ trait TestUserController extends BaseController {
       InternalServerError(toJson(ErrorResponse.internalServerError))
   }
 }
-
-class TestUserControllerImpl @Inject()(override val testUserService: TestUserServiceImpl) extends TestUserController
-

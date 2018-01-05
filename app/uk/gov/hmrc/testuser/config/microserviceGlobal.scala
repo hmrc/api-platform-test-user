@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,8 @@ object MicroserviceGlobal extends DefaultMicroserviceGlobal with ServiceLocatorR
   override val authFilter = Some(MicroserviceAuthFilter)
 
   override def onStart(app: Application) = {
-    new MigrationService().migrate()
+    val migrationService = app.injector.instanceOf[MigrationService]
+    migrationService.migrate()
     super.onStart(app)
   }
 }

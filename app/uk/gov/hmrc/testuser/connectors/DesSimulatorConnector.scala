@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,8 @@ import uk.gov.hmrc.testuser.models._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait DesSimulatorConnector extends ServicesConfig {
+@Singleton
+class DesSimulatorConnector extends ServicesConfig {
   lazy val serviceUrl: String = baseUrl("des-simulator")
 
   def createIndividual(individual: TestIndividual)(implicit hc:HeaderCarrier): Future[TestIndividual] = {
@@ -41,6 +42,3 @@ trait DesSimulatorConnector extends ServicesConfig {
     WSHttp.POST(s"$serviceUrl/test-users/organisations", DesSimulatorTestOrganisation.from(organisation)) map { request => organisation }
   }
 }
-
-@Singleton
-class DesSimulatorConnectorImpl extends DesSimulatorConnector

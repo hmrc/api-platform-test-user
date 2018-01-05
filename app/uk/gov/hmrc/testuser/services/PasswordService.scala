@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,10 @@ import javax.inject.Inject
 import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
 import uk.gov.hmrc.testuser.config.AppContext
 
-trait PasswordService {
-  val logRounds: Int
+class PasswordService @Inject()(appContext: AppContext)  {
+  lazy val logRounds = appContext.passwordLogRounds
 
   def hash(password: String): String = BCryptUtils.hashpw(password, BCryptUtils.gensalt(logRounds))
 
   def validate(password: String, hashedPassword: String) = BCryptUtils.checkpw(password, hashedPassword)
-}
-
-class PasswordServiceImpl @Inject()(appContext: AppContext) extends PasswordService {
-  override lazy val logRounds = appContext.passwordLogRounds
 }
