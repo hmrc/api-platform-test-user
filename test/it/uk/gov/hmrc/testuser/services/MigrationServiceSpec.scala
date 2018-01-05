@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,26 @@
 
 package it.uk.gov.hmrc.testuser.services
 
-import org.scalatest.BeforeAndAfterEach
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.libs.json.Json
+import play.modules.reactivemongo.ReactiveMongoComponent
 import uk.gov.hmrc.mongo.MongoSpecSupport
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.repository.TestUserMongoRepository
-import uk.gov.hmrc.testuser.services.MigrationService
+import uk.gov.hmrc.testuser.repository.TestUserRepository
+import uk.gov.hmrc.testuser.services.{Generator, MigrationService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class MigrationServiceSpec extends UnitSpec with MongoSpecSupport with WithFakeApplication with BeforeAndAfterEach {
 
-  val repository = new TestUserMongoRepository()
+  private val mongoComponent = new ReactiveMongoComponent {
+    override def mongoConnector = mongoConnectorForTest
+  }
+  private val repository = new TestUserRepository(mongoComponent)
 
   trait Setup {
-    val underTest = new MigrationService {
-      override lazy val mongoConnector = mongoConnectorForTest
-    }
+    val underTest = new MigrationService(repository, new Generator())
 
     val jsonCollection = repository.collection
   }

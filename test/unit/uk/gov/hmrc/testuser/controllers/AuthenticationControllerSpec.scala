@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,9 +77,7 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with WithF
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
-    val underTest = new AuthenticationController {
-      override val authenticationService: AuthenticationService = mock[AuthenticationService]
-    }
+    val underTest = new AuthenticationController (mock[AuthenticationService])
   }
 
   "authenticate" should {

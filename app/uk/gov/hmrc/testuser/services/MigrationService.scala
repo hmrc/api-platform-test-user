@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.testuser.services
 
+import javax.inject.{Inject, Singleton}
+
 import org.joda.time.Duration._
 import play.api.Logger
 import play.api.libs.json.JsValue
@@ -23,20 +25,20 @@ import play.api.libs.json.Json.{obj, toJson}
 import play.modules.reactivemongo.MongoDbConnection
 import reactivemongo.api.DB
 import reactivemongo.bson.BSONDocument
-import reactivemongo.json.ImplicitBSONHandlers._
-import reactivemongo.json.collection.JSONCollection
+import reactivemongo.play.json.ImplicitBSONHandlers._
+import reactivemongo.play.json.collection.JSONCollection
 import uk.gov.hmrc.lock.{LockKeeper, LockMongoRepository}
-import uk.gov.hmrc.testuser.repository.TestUserMongoRepository
-import uk.gov.hmrc.testuser.services.Generator._
+import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.util.Randomiser
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.sequence
 
-class MigrationService extends MongoDbConnection with Randomiser {
+@Singleton
+class MigrationService @Inject()(repository: TestUserRepository, generator: Generator) extends MongoDbConnection with Randomiser {
 
-  implicit lazy val jsonCollection = new TestUserMongoRepository().collection
+  implicit lazy val jsonCollection = repository.collection
 
   private val lockKeeper = new LockKeeper {
     lazy val mongo: () => DB = mongoConnector.db
@@ -57,12 +59,12 @@ class MigrationService extends MongoDbConnection with Randomiser {
       BSONDocument("userId" -> (jsValue \ "userId").as[String])
 
     override protected def modifier = {
-      val firstName = generateFirstName
-      val lastName = generateLastName
+      val firstName = generator.generateFirstName
+      val lastName = generator.generateLastName
 
       BSONDocument("$set" ->
-        BSONDocument("userFullName" -> toJson(generateUserFullName(firstName, lastName)),
-        "emailAddress" -> toJson(generateEmailAddress(firstName, lastName)))
+        BSONDocument("userFullName" -> toJson(generator.generateUserFullName(firstName, lastName)),
+        "emailAddress" -> toJson(generator.generateEmailAddress(firstName, lastName)))
       )
     }
 

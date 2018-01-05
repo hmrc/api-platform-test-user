@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,19 @@
 
 package uk.gov.hmrc.testuser.services
 
+import javax.inject.{Inject, Singleton}
+
 import org.joda.time.LocalDate
 import org.scalacheck.Gen
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.testuser.models.ServiceName._
-import uk.gov.hmrc.testuser.models.{ServiceName => _, _}
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.util.Randomiser
 
-import scala.annotation.tailrec
 import scala.util.Random
 
-
-trait Generator extends Randomiser {
+@Singleton
+class Generator @Inject() extends Randomiser {
 
   private val userIdGenerator = Gen.listOfN(12, Gen.numChar).map(_.mkString)
   private val passwordGenerator = Gen.listOfN(12, Gen.alphaNumChar).map(_.mkString)
@@ -132,8 +133,6 @@ trait Generator extends Randomiser {
   private def generateMtdId: MtdItId = mtdItIdGenerator.next
   private def generateEoriNumber: EoriNumber = eoriGenerator.sample.get
 }
-
-object Generator extends Generator
 
 class ArnGenerator(random: Random = new Random) extends Modulus23Check {
   def this(seed: Int) = this(new scala.util.Random(seed))

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future._
 
-trait AuthenticationService {
-
-  val testUserRepository: TestUserRepository
-  val passwordService: PasswordService
-  val authLoginApiConnector: AuthLoginApiConnector
+class AuthenticationService @Inject()(val passwordService: PasswordService,
+                                      val authLoginApiConnector: AuthLoginApiConnector,
+                                      val testUserRepository: TestUserRepository) {
 
   def authenticate(authReq: AuthenticationRequest)(implicit hc: HeaderCarrier): Future[(TestUser, AuthSession)] = {
     val userFuture = authReq match {
@@ -50,9 +48,4 @@ trait AuthenticationService {
       authSession <- authLoginApiConnector.createSession(user)
     } yield (user, authSession)
   }
-}
-
-class AuthenticationServiceImpl @Inject()(override val passwordService: PasswordServiceImpl,
-                                          override val authLoginApiConnector: AuthLoginApiConnector) extends AuthenticationService {
-  override val testUserRepository = TestUserRepository()
 }

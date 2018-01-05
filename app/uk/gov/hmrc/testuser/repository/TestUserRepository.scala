@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,46 +16,32 @@
 
 package uk.gov.hmrc.testuser.repository
 
-import play.api.libs.json.Json
-import play.modules.reactivemongo.MongoDbConnection
-import reactivemongo.api.DB
-import reactivemongo.api.indexes.{IndexType, Index}
-import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.domain.{EmpRef, SaUtr, Nino}
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
-import uk.gov.hmrc.mongo.{ReactiveRepository, Repository}
-import uk.gov.hmrc.testuser.models._
-import scala.concurrent.ExecutionContext.Implicits.global
+import javax.inject.{Inject, Singleton}
 
+import play.api.libs.json.Json
+import play.modules.reactivemongo.ReactiveMongoComponent
+import reactivemongo.api.indexes.{Index, IndexType}
+import reactivemongo.bson.BSONObjectID
+import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr}
+import uk.gov.hmrc.mongo.ReactiveRepository
+import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
+import uk.gov.hmrc.testuser.models._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait TestUserRepository extends Repository[TestUser, BSONObjectID] {
-
-  def createUser[T <: TestUser](testUser:T): Future[T]
-
-  def fetchByUserId(userId: String): Future[Option[TestUser]]
-
-  def fetchIndividualByNino(nino: Nino): Future[Option[TestIndividual]]
-
-  def fetchIndividualByShortNino(shortNino: NinoNoSuffix): Future[Option[TestIndividual]]
-
-  def fetchIndividualBySaUtr(saUtr: SaUtr): Future[Option[TestIndividual]]
-
-  def fetchOrganisationByEmpRef(empRef: EmpRef): Future[Option[TestOrganisation]]
-}
-
-class TestUserMongoRepository(implicit mongo: () => DB)
-  extends ReactiveRepository[TestUser, BSONObjectID]("testUser", mongo,
-    JsonFormatters.formatTestUser, ReactiveMongoFormats.objectIdFormats)
-  with TestUserRepository {
+@Singleton
+class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)
+  extends ReactiveRepository[TestUser, BSONObjectID]("testUser", mongo.mongoConnector.db,
+    JsonFormatters.formatTestUser, ReactiveMongoFormats.objectIdFormats) {
 
   ensureIndex("userId", "userIdIndex")
 
-  override def createUser[T <: TestUser](testUser: T): Future[T] = {
+  def createUser[T <: TestUser](testUser: T): Future[T] = {
     insert(testUser) map {_ => testUser}
   }
 
-  override def fetchByUserId(userId: String): Future[Option[TestUser]] = {
+  def fetchByUserId(userId: String): Future[Option[TestUser]] = {
     find("userId" -> userId) map(_.headOption)
   }
 
@@ -64,27 +50,20 @@ class TestUserMongoRepository(implicit mongo: () => DB)
       name = Some(indexName), unique = isUnique, background = true))
   }
 
-  override def fetchIndividualByNino(nino: Nino): Future[Option[TestIndividual]] = {
+  def fetchIndividualByNino(nino: Nino): Future[Option[TestIndividual]] = {
     find("nino" -> nino, "userType" -> UserType.INDIVIDUAL) map(_.headOption map (_.asInstanceOf[TestIndividual]))
   }
 
-  override def fetchIndividualByShortNino(shortNino: NinoNoSuffix): Future[Option[TestIndividual]] = {
+  def fetchIndividualByShortNino(shortNino: NinoNoSuffix): Future[Option[TestIndividual]] = {
     val matchShortNino = Json.obj("$regex" ->  s"${shortNino.value}\\w")
     find("nino" -> matchShortNino, "userType" -> UserType.INDIVIDUAL) map(_.headOption map (_.asInstanceOf[TestIndividual]))
   }
 
-  override def fetchIndividualBySaUtr(saUtr: SaUtr): Future[Option[TestIndividual]] = {
+  def fetchIndividualBySaUtr(saUtr: SaUtr): Future[Option[TestIndividual]] = {
     find("saUtr" -> saUtr, "userType" -> UserType.INDIVIDUAL) map(_.headOption map (_.asInstanceOf[TestIndividual]))
   }
 
-  override def fetchOrganisationByEmpRef(empRef: EmpRef): Future[Option[TestOrganisation]] = {
+  def fetchOrganisationByEmpRef(empRef: EmpRef): Future[Option[TestOrganisation]] = {
     find("empRef" -> empRef.value) map(_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
-}
-
-object TestUserRepository extends MongoDbConnection {
-
-  private lazy val repository = new TestUserMongoRepository
-
-  def apply(): TestUserRepository = repository
 }
