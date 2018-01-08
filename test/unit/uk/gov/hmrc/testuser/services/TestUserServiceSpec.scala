@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
 import uk.gov.hmrc.testuser.models.ServiceName.{ServiceName => _}
 import uk.gov.hmrc.testuser.models.{UserNotFound, _}
 import uk.gov.hmrc.testuser.repository.TestUserRepository
-import uk.gov.hmrc.testuser.services.Generator._
 import uk.gov.hmrc.testuser.services.{Generator, PasswordService, TestUserService}
 
 import scala.concurrent.Future
@@ -48,7 +47,8 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   val empRef =  EmpRef("555","EIA000")
 
   val individualServices = Seq(ServiceName.NATIONAL_INSURANCE, ServiceName.MTD_INCOME_TAX)
-  val testIndividualWithNoServices = generateTestIndividual()
+  val generator = new Generator()
+  val testIndividualWithNoServices = generator.generateTestIndividual()
     .copy(
       userId = userId,
       password = password,
@@ -58,7 +58,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   val testIndividual = testIndividualWithNoServices.copy(services = individualServices)
 
   val organisationServices = Seq(ServiceName.NATIONAL_INSURANCE, ServiceName.MTD_INCOME_TAX)
-  val testOrganisationWithNoServices = generateTestOrganisation()
+  val testOrganisationWithNoServices = generator.generateTestOrganisation()
     .copy(
       userId = userId,
       password = password,
@@ -66,17 +66,12 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   val testOrganisation = testOrganisationWithNoServices.copy(services = organisationServices)
 
   val agentServices = Seq(ServiceName.AGENT_SERVICES)
-  val testAgent = generateTestAgent(agentServices).copy(userId = userId, password = password)
+  val testAgent = generator.generateTestAgent(agentServices).copy(userId = userId, password = password)
 
   trait Setup {
     implicit val hc = HeaderCarrier()
 
-    val underTest = new TestUserService {
-      override val generator: Generator = mock[Generator]
-      override val testUserRepository: TestUserRepository = mock[TestUserRepository]
-      override val passwordService: PasswordService = mock[PasswordService]
-      override val desSimulatorConnector: DesSimulatorConnector = mock[DesSimulatorConnector]
-    }
+    val underTest = new TestUserService(mock[PasswordService], mock[DesSimulatorConnector], mock[TestUserRepository], mock[Generator])
     when(underTest.testUserRepository.createUser(any[TestUser]())).thenAnswer(sameUserCreated)
     when(underTest.testUserRepository.fetchByUserId(anyString())).thenReturn(successful(None))
     when(underTest.passwordService.validate(anyString(), anyString())).thenReturn(false)

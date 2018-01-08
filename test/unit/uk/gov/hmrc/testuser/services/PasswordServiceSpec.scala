@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,19 @@
 
 package unit.uk.gov.hmrc.testuser.services
 
+import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.testuser.config.AppContext
 import uk.gov.hmrc.testuser.services.PasswordService
+import org.mockito.Mockito.when
 
-class PasswordServiceSpec extends UnitSpec{
+class PasswordServiceSpec extends UnitSpec with MockitoSugar {
 
   trait Setup {
-    val underTest = new PasswordService {
-      override val logRounds: Int = 12
-    }
+    val mockAppContext = mock[AppContext]
+    when(mockAppContext.passwordLogRounds).thenReturn(12)
+
+    val underTest = new PasswordService(mockAppContext)
   }
 
   "hash" should {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.testuser.services
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 
 import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.testuser.connectors.{DesSimulatorConnector, DesSimulatorConnectorImpl}
+import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
 import uk.gov.hmrc.testuser.models.ServiceName._
 import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.models._
@@ -29,12 +29,11 @@ import uk.gov.hmrc.testuser.repository.TestUserRepository
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait TestUserService {
-
-  val generator: Generator
-  val testUserRepository: TestUserRepository
-  val passwordService: PasswordService
-  val desSimulatorConnector: DesSimulatorConnector
+@Singleton
+class TestUserService @Inject()(val passwordService: PasswordService,
+                                val desSimulatorConnector: DesSimulatorConnector,
+                                val testUserRepository: TestUserRepository,
+                                val generator: Generator) {
 
   def createTestIndividual(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier) = {
     val individual = generator.generateTestIndividual(serviceNames)
@@ -83,13 +82,6 @@ trait TestUserService {
 
   def getOrFailWithUserNotFound[T <: TestUser](userType: UserType.Value) = PartialFunction[Option[T], T] {
     case Some(t) => t
-    case _ => throw new UserNotFound(userType)
+    case _ => throw UserNotFound(userType)
   }
-}
-
-
-class TestUserServiceImpl @Inject()(override val passwordService: PasswordServiceImpl,
-                                    override val desSimulatorConnector: DesSimulatorConnectorImpl) extends TestUserService {
-  override val generator: Generator = Generator
-  override val testUserRepository = TestUserRepository()
 }
