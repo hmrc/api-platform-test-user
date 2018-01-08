@@ -82,6 +82,6 @@ class TestUserService @Inject()(val passwordService: PasswordService,
 
   def getOrFailWithUserNotFound[T <: TestUser](userType: UserType.Value) = PartialFunction[Option[T], T] {
     case Some(t) => t
-    case _ => throw new UserNotFound(userType)
+    case _ => throw UserNotFound(userType)
   }
 }
