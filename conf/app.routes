@@ -1,15 +1,15 @@
 # microservice specific routes
 
-POST        /individuals                        @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.createIndividual
-POST        /organisations                      @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.createOrganisation
-POST        /agents                             @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.createAgent
+POST        /individuals                        @uk.gov.hmrc.testuser.controllers.TestUserController.createIndividual
+POST        /organisations                      @uk.gov.hmrc.testuser.controllers.TestUserController.createOrganisation
+POST        /agents                             @uk.gov.hmrc.testuser.controllers.TestUserController.createAgent
 
 
-POST        /session                            @uk.gov.hmrc.testuser.controllers.AuthenticationControllerImpl.authenticate
-POST        /gap-authentication/session         @uk.gov.hmrc.testuser.controllers.AuthenticationControllerImpl.authenticate
+POST        /session                            @uk.gov.hmrc.testuser.controllers.AuthenticationController.authenticate
+POST        /gap-authentication/session         @uk.gov.hmrc.testuser.controllers.AuthenticationController.authenticate
 
-GET         /individuals/nino/:nino             @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.fetchIndividualByNino(nino: uk.gov.hmrc.domain.Nino)
-GET         /individuals/shortnino/:shortNino   @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.fetchIndividualByShortNino(shortNino: uk.gov.hmrc.testuser.models.NinoNoSuffix)
-GET         /individuals/sautr/:saUtr           @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.fetchIndividualBySaUtr(saUtr: uk.gov.hmrc.domain.SaUtr)
+GET         /individuals/nino/:nino             @uk.gov.hmrc.testuser.controllers.TestUserController.fetchIndividualByNino(nino: uk.gov.hmrc.domain.Nino)
+GET         /individuals/shortnino/:shortNino   @uk.gov.hmrc.testuser.controllers.TestUserController.fetchIndividualByShortNino(shortNino: uk.gov.hmrc.testuser.models.NinoNoSuffix)
+GET         /individuals/sautr/:saUtr           @uk.gov.hmrc.testuser.controllers.TestUserController.fetchIndividualBySaUtr(saUtr: uk.gov.hmrc.domain.SaUtr)
 
-GET         /organisations/empref/:empRef       @uk.gov.hmrc.testuser.controllers.TestUserControllerImpl.fetchOrganisationByEmpRef(empRef: uk.gov.hmrc.domain.EmpRef)
+GET         /organisations/empref/:empRef       @uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationByEmpRef(empRef: uk.gov.hmrc.domain.EmpRef)

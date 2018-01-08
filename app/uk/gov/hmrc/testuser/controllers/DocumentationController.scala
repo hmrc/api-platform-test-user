@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.testuser.controllers
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 
 import controllers.AssetsBuilder
 import play.api.http.HttpErrorHandler
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
+@Singleton
 class DocumentationController @Inject()(httpErrorHandler: HttpErrorHandler) extends AssetsBuilder(httpErrorHandler) with BaseController {
 
   def definition = super.at(s"/public/api", "definition.json")
