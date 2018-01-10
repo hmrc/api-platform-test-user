@@ -27,7 +27,6 @@ import uk.gov.hmrc.play.auth.microservice.filters.AuthorisationFilter
 import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
 import uk.gov.hmrc.play.microservice.bootstrap.DefaultMicroserviceGlobal
 import uk.gov.hmrc.play.microservice.filters.{AuditFilter, LoggingFilter, MicroserviceFilterSupport}
-import uk.gov.hmrc.testuser.services.MigrationService
 import uk.gov.hmrc.api.connector.ServiceLocatorConnector
 
 object ControllerConfiguration extends ControllerConfig {
@@ -68,10 +67,4 @@ object MicroserviceGlobal extends DefaultMicroserviceGlobal with ServiceLocatorR
   override val loggingFilter = MicroserviceLoggingFilter
   override val microserviceAuditFilter = MicroserviceAuditFilter
   override val authFilter = Some(MicroserviceAuthFilter)
-
-  override def onStart(app: Application) = {
-    val migrationService = app.injector.instanceOf[MigrationService]
-    migrationService.migrate()
-    super.onStart(app)
-  }
 }
