@@ -158,7 +158,7 @@ class LisaGenerator(random: Random = new Random) extends Modulus23Check {
   def this(seed: Int) = this(new scala.util.Random(seed))
 
   def next: LisaManagerReferenceNumber = {
-    val randomCode = f"${random.nextInt(999999)}%06d"
+    val randomCode = if (random.nextBoolean()) f"${random.nextInt(999999)}%06d" else f"${random.nextInt(9999)}%04d"
     LisaManagerReferenceNumber(s"Z$randomCode")
   }
 }
