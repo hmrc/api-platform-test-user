@@ -5,7 +5,7 @@
 This is the backend microservice for the creation of test users in the API Platform for the External Test Environment.
 Test users and organisations are stored in mongo.
 
-It exposes two endpoints as documented on the [developer sandbox]().
+It exposes endpoints as documented on the [Developer Hub](https://developer.service.hmrc.gov.uk/api-documentation/docs/api/service/api-platform-test-user).
 
 ### Running tests
 
