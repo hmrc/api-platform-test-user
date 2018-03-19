@@ -78,7 +78,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
       val result = await(underTest.createSession(testIndividual))
 
       result shouldBe authSession
-      AuthLoginApiStub.mock.verifyThat(postRequestedFor(urlPathEqualTo("/government-gateway/legacy/login"))
+      AuthLoginApiStub.mock.verifyThat(postRequestedFor(urlPathEqualTo("/government-gateway/session/login"))
         .withRequestBody(equalToJson(
         s"""
           |{
@@ -128,7 +128,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
       val result = await(underTest.createSession(testOrganisation))
 
       result shouldBe authSession
-      AuthLoginApiStub.mock.verifyThat(postRequestedFor(urlPathEqualTo("/government-gateway/legacy/login")).withRequestBody(equalToJson(
+      AuthLoginApiStub.mock.verifyThat(postRequestedFor(urlPathEqualTo("/government-gateway/session/login")).withRequestBody(equalToJson(
         s"""
            |{
            |   "credId": "${testOrganisation.userId}",
@@ -235,7 +235,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
       val result = await(underTest.createSession(testAgent))
 
       result shouldBe authSession
-      AuthLoginApiStub.mock.verifyThat(postRequestedFor(urlPathEqualTo("/government-gateway/legacy/login"))
+      AuthLoginApiStub.mock.verifyThat(postRequestedFor(urlPathEqualTo("/government-gateway/session/login"))
         .withRequestBody(equalToJson(
           s"""
              |{

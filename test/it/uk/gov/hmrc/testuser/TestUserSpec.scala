@@ -16,7 +16,6 @@
 
 package it.uk.gov.hmrc.testuser
 
-
 import it.uk.gov.hmrc.testuser.helpers.BaseSpec
 import org.apache.http.HttpStatus._
 import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
