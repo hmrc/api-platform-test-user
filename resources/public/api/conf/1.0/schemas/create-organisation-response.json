@@ -80,7 +80,7 @@
     },
     "lisaManagerReferenceNumber": {
       "type": "string",
-      "description": "LISA Manager Reference Number"
+      "description": "LISA Manager Reference Number, in either 4-digit format (Znnnn) or 6-digit format (Znnnnnn)"
     },
     "secureElectronicTransferReferenceNumber": {
       "type": "string",
