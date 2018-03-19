@@ -25,7 +25,7 @@ import uk.gov.hmrc.testuser.models.AuthSession
 object AuthLoginApiStub extends MockHost(11111) {
 
   def willReturnTheSession(session: AuthSession) = {
-    mock.register(post(urlPathEqualTo("/government-gateway/legacy/login"))
+    mock.register(post(urlPathEqualTo("/government-gateway/session/login"))
       .willReturn(aResponse()
         .withStatus(CREATED)
         .withBody(s"""{"gatewayToken": "${session.gatewayToken}"}""")
@@ -34,7 +34,7 @@ object AuthLoginApiStub extends MockHost(11111) {
   }
 
   def willFailToReturnASession() = {
-    mock.register(post(urlPathEqualTo("/government-gateway/legacy/login"))
+    mock.register(post(urlPathEqualTo("/government-gateway/session/login"))
       .willReturn(aResponse()
         .withStatus(INTERNAL_SERVER_ERROR)))
   }
