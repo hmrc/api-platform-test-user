@@ -33,10 +33,12 @@ import scala.concurrent.Future
 
 @Singleton
 class AuthLoginApiConnector extends ServicesConfig {
+
   lazy val serviceUrl: String = baseUrl("auth-login-api")
 
-  def createSession(testUser: TestUser)(implicit hc: HeaderCarrier): Future[AuthSession] = {
-    WSHttp.POST(s"$serviceUrl/government-gateway/legacy/login", GovernmentGatewayLogin(testUser)) map { response =>
+  def createSession(testUser: TestUser)
+                   (implicit hc: HeaderCarrier): Future[AuthSession] = {
+    WSHttp.POST(s"$serviceUrl/government-gateway/session/login", GovernmentGatewayLogin(testUser)) map { response =>
       val gatewayToken = (response.json \ "gatewayToken").as[String]
 
       (response.header(AUTHORIZATION), response.header(LOCATION)) match {
@@ -45,6 +47,7 @@ class AuthLoginApiConnector extends ServicesConfig {
       }
     }
   }
+
 }
 
 case class Identifier(key: String, value: String)
@@ -59,10 +62,10 @@ case class GovernmentGatewayLogin(credId: String,
                                   email: String,
                                   confidenceLevel: Int = ConfidenceLevel.L200.level,
                                   credentialStrength: String = "strong",
-                                  credentialRole: Option[String] = None
-                                 )
+                                  credentialRole: Option[String] = None)
 
 object GovernmentGatewayLogin {
+
   def apply(testUser: TestUser): GovernmentGatewayLogin = testUser match {
     case individual: TestIndividual => fromIndividual(individual)
     case organisation: TestOrganisation => fromOrganisation(organisation)
@@ -70,6 +73,7 @@ object GovernmentGatewayLogin {
   }
 
   private def fromIndividual(individual: TestIndividual) = {
+
     def asEnrolment(serviceName: ServiceName) = {
       serviceName match {
         case SELF_ASSESSMENT => individual.saUtr map {saUtr => Enrolment("IR-SA", taxIdentifier(saUtr))}
@@ -84,6 +88,7 @@ object GovernmentGatewayLogin {
   }
 
   private def fromOrganisation(organisation: TestOrganisation) = {
+
     def asEnrolment(serviceName: ServiceName) = {
       serviceName match {
         case SELF_ASSESSMENT => organisation.saUtr map {saUtr => Enrolment("IR-SA", taxIdentifier(saUtr))}
@@ -132,4 +137,5 @@ object GovernmentGatewayLogin {
       case _ => Seq.empty
     }
   }
+
 }
