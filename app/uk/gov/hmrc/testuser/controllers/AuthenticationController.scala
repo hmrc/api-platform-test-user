@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.testuser.controllers
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 
 import play.api.Logger
 import play.api.http.HeaderNames
@@ -25,13 +25,12 @@ import play.api.mvc.{Action, Result}
 import uk.gov.hmrc.play.microservice.controller.BaseController
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.{AuthenticationRequest, AuthenticationResponse, ErrorResponse, InvalidCredentials}
-import uk.gov.hmrc.testuser.services.{AuthenticationService, AuthenticationServiceImpl}
+import uk.gov.hmrc.testuser.services.AuthenticationService
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait AuthenticationController extends BaseController {
-
-  val authenticationService: AuthenticationService
+@Singleton
+class AuthenticationController @Inject()(val authenticationService: AuthenticationService) extends BaseController {
 
   def authenticate() = {
     Action.async(parse.json) { implicit request =>
@@ -53,6 +52,3 @@ trait AuthenticationController extends BaseController {
       InternalServerError(toJson(ErrorResponse.internalServerError))
   }
 }
-
-class AuthenticationControllerImpl @Inject()(override val authenticationService: AuthenticationServiceImpl)
-  extends AuthenticationController

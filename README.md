@@ -5,7 +5,7 @@
 This is the backend microservice for the creation of test users in the API Platform for the External Test Environment.
 Test users and organisations are stored in mongo.
 
-It exposes two endpoints as documented on the [developer sandbox]().
+It exposes endpoints as documented on the [Developer Hub](https://developer.service.hmrc.gov.uk/api-documentation/docs/api/service/api-platform-test-user).
 
 ### Running tests
 
@@ -18,7 +18,7 @@ is to run with a docker image:
 
     docker run -p 27017:27017 --name mongo -d mongo:3.2
 
-### Seeing changes locally
+### Seeing API documentation changes locally
 
 In order to view changes locally you will need to add the following to your ~/.hmrc/api-services-stub.conf
 

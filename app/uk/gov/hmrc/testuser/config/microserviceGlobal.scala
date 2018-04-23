@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import uk.gov.hmrc.play.auth.microservice.filters.AuthorisationFilter
 import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
 import uk.gov.hmrc.play.microservice.bootstrap.DefaultMicroserviceGlobal
 import uk.gov.hmrc.play.microservice.filters.{AuditFilter, LoggingFilter, MicroserviceFilterSupport}
-import uk.gov.hmrc.testuser.services.MigrationService
 import uk.gov.hmrc.api.connector.ServiceLocatorConnector
 
 object ControllerConfiguration extends ControllerConfig {
@@ -68,9 +67,4 @@ object MicroserviceGlobal extends DefaultMicroserviceGlobal with ServiceLocatorR
   override val loggingFilter = MicroserviceLoggingFilter
   override val microserviceAuditFilter = MicroserviceAuditFilter
   override val authFilter = Some(MicroserviceAuthFilter)
-
-  override def onStart(app: Application) = {
-    new MigrationService().migrate()
-    super.onStart(app)
-  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,19 @@
 
 package uk.gov.hmrc.testuser.services
 
+import javax.inject.{Inject, Singleton}
+
 import org.joda.time.LocalDate
 import org.scalacheck.Gen
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.testuser.models.ServiceName._
-import uk.gov.hmrc.testuser.models.{ServiceName => _, _}
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.util.Randomiser
 
-import scala.annotation.tailrec
 import scala.util.Random
 
-
-trait Generator extends Randomiser {
+@Singleton
+class Generator @Inject() extends Randomiser {
 
   private val userIdGenerator = Gen.listOfN(12, Gen.numChar).map(_.mkString)
   private val passwordGenerator = Gen.listOfN(12, Gen.alphaNumChar).map(_.mkString)
@@ -133,8 +134,6 @@ trait Generator extends Randomiser {
   private def generateEoriNumber: EoriNumber = eoriGenerator.sample.get
 }
 
-object Generator extends Generator
-
 class ArnGenerator(random: Random = new Random) extends Modulus23Check {
   def this(seed: Int) = this(new scala.util.Random(seed))
 
@@ -159,21 +158,46 @@ class LisaGenerator(random: Random = new Random) extends Modulus23Check {
   def this(seed: Int) = this(new scala.util.Random(seed))
 
   def next: LisaManagerReferenceNumber = {
-    val randomCode = f"${random.nextInt(999999)}%06d"
+    val randomCode = if (random.nextBoolean()) f"${random.nextInt(999999)}%06d" else f"${random.nextInt(9999)}%04d"
     LisaManagerReferenceNumber(s"Z$randomCode")
   }
 }
 
+//class SecureElectronicTransferReferenceNumberGenerator(random: Random = new Random) {
+//  def this(seed: Int) = this(new scala.util.Random(seed))
+//
+//  def next: SecureElectronicTransferReferenceNumber = {
+//    // SecureElectronicTransferReferenceNumber must be 12 digit number not beginning with 0
+//    val initialDigit = random.nextInt(8) + 1
+//    val remainingDigits = f"${random.nextInt(Int.MaxValue)}%011d"
+//    SecureElectronicTransferReferenceNumber(s"$initialDigit$remainingDigits")
+//  }
+//}
+//SDES - temporary modification to randomly choose from 20 SRNs
 class SecureElectronicTransferReferenceNumberGenerator(random: Random = new Random) {
   def this(seed: Int) = this(new scala.util.Random(seed))
 
-  def next: SecureElectronicTransferReferenceNumber = {
+  def next: SecureElectronicTransferReferenceNumber = randomlyChosenNext
+
+  def randomlyChosenNext = {
+    // SecureElectronicTransferReferenceNumber is 12 digits randomly chosen from List of SRNs
+    val snrArray = Array(
+      307703077030L, 345634569999L, 376060300996L,
+      111122224013L, 111122224011L, 111122224008L,
+      111122223356L, 111111111199L, 111111111189L,
+      111111111198L, 123456789999L, 333156333416L
+    )
+    SecureElectronicTransferReferenceNumber(s"${snrArray(random.nextInt(snrArray.length))}")
+  }
+
+  def randomlyGeneratedNext: SecureElectronicTransferReferenceNumber = {
     // SecureElectronicTransferReferenceNumber must be 12 digit number not beginning with 0
-    val initialDigit = random.nextInt(8) + 1
+    val initialDigit = random.nextInt(9) + 1    //bug random.nextInt(8) -> random.nextInt(9)
     val remainingDigits = f"${random.nextInt(Int.MaxValue)}%011d"
     SecureElectronicTransferReferenceNumber(s"$initialDigit$remainingDigits")
   }
 }
+
 
 class PensionSchemeAdministratorIdentifierGenerator(random: Random = new Random) {
   def this(seed: Int) = this(new scala.util.Random(seed))

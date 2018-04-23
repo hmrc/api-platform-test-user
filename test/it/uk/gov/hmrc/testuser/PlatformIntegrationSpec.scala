@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,8 +44,6 @@ import uk.gov.hmrc.testuser.controllers.DocumentationController
   *
   * 2a, To expose API's to Third Party Developers, the service needs to make the API definition available under api/definition GET endpoint
   * 2b, The endpoints need to be defined in an application.raml file for all versions
-  *
-  * See: https://confluence.tools.tax.service.gov.uk/display/ApiPlatform/API+Platform+Architecture+with+Flows
   */
 class PlatformIntegrationSpec extends UnitSpec with MockitoSugar with ScalaFutures with BeforeAndAfterEach with GuiceOneAppPerTest {
 
