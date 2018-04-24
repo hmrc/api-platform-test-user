@@ -49,6 +49,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   val mtdItId = MtdItId("XGIT00000000054")
   val ctUtr = CtUtr("1555369053")
   val vrn = Vrn("999902541")
+  val mtdVrn = MtdVrn("999902541")
   val empRef = EmpRef("555","EIA000")
   val arn = AgentBusinessUtr("NARN0396245")
   val lisaManagerReferenceNumber = LisaManagerReferenceNumber("Z123456")
@@ -64,7 +65,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
   val testOrganisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,
     Some(saUtr), Some(nino), Some(mtdItId),
-    Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber), Some(secureElectronicTransferReferenceNumber),
+    Some(empRef), Some(ctUtr), Some(vrn), Some(mtdVrn), Some(lisaManagerReferenceNumber), Some(secureElectronicTransferReferenceNumber),
     Some(pensionSchemeAdministratorIdentifier), Some(eoriNumber))
 
   val testAgent = TestAgent(user, password, userFullName, emailAddress, Some(arn))

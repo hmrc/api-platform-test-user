@@ -109,11 +109,13 @@ class GeneratorSpec extends UnitSpec {
       def shouldHave(vrnDefined: Boolean = false, ninoDefined: Boolean = false, mtdItIdDefined: Boolean = false,
                empRefDefined: Boolean = false, ctUtrDefined: Boolean = false, saUtrDefined: Boolean = false,
                lisaManRefNumDefined: Boolean = false, secureElectronicTransferReferenceNumberDefined: Boolean = false,
-               pensionSchemeAdministratorIdentifierDefined: Boolean = false, eoriDefined: Boolean = false) = {
+               pensionSchemeAdministratorIdentifierDefined: Boolean = false, eoriDefined: Boolean = false,
+               mtdVrnDefined: Boolean = false) = {
 
         check(org.vrn, vrnDefined)
         check(org.nino, ninoDefined)
         check(org.mtdItId, mtdItIdDefined)
+        check(org.mtdVrn, mtdVrnDefined)
         check(org.empRef, empRefDefined)
         check(org.ctUtr, ctUtrDefined)
         check(org.saUtr, saUtrDefined)
@@ -126,7 +128,7 @@ class GeneratorSpec extends UnitSpec {
 
     "create a different test organisation at every run" in {
       def generate(): TestOrganisation =
-        underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX,
+        underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, MTD_VAT,
           CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE,
           CUSTOMS_SERVICES))
 
@@ -170,6 +172,12 @@ class GeneratorSpec extends UnitSpec {
       val org = underTest.generateTestOrganisation(Seq(SUBMIT_VAT_RETURNS))
 
       org shouldHave(vrnDefined = true)
+    }
+
+    "generate a VRN when MTD_VAT service is included" in {
+      val org = underTest.generateTestOrganisation(Seq(MTD_VAT))
+
+      org shouldHave(mtdVrnDefined = true)
     }
 
     "generate a lisaManagerReferenceNumber when LISA service is included" in {
