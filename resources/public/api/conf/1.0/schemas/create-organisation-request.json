@@ -35,6 +35,10 @@
             "description": "Generates a National Insurance number and a Making Tax Digital Income Tax ID and enrols the user for Making Tax Digital Income Tax"
           },
           {
+            "enum": ["mtd-vat"],
+            "description": "Generates a VAT Registration Number and enrols the user for Making Tax Digital VAT"
+          },
+          {
             "enum": ["lisa"],
             "description": "Generates a LISA Manager Reference Number and enrols the user for Lifetime ISA"
           },

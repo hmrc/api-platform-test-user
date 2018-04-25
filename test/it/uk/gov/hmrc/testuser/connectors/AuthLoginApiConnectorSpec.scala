@@ -187,6 +187,15 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       }]
            |     },
            |     {
+           |       "key": "HMRC-MTD-VAT",
+           |       "state": "Activated",
+           |       "identifiers": [
+           |       {
+           |         "key":"VRN",
+           |         "value":"${testOrganisation.mtdVrn.get.value}"
+           |       }]
+           |     },
+           |     {
            |       "key": "HMRC-LISA-ORG",
            |       "state": "Activated",
            |       "identifiers": [
