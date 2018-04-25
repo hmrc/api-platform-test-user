@@ -37,6 +37,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
   val mtdItId = MtdItId("XGIT00000000054")
   val ctUtr = CtUtr("1555369053")
   val vrn = Vrn("999902541")
+  val mtdVrn = MtdVrn("999902541")
   val lisaManRefNum = LisaManagerReferenceNumber("Z123456")
   val secureElectronicTransferReferenceNumber = SecureElectronicTransferReferenceNumber("123456789012")
   val pensionSchemeAdministratorIdentifier = PensionSchemeAdministratorIdentifier("A1234567")
@@ -46,6 +47,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
   val agentEnrolment = Enrolment("HMRC-AS-AGENT", Seq(Identifier("AgentReferenceNumber", arn.utr)))
   val saEnrolment = Enrolment("IR-SA", Seq(Identifier("UTR", saUtr.toString)))
   val mtdItEnrolment = Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId.toString)))
+  val mtdVatEnrolment = Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString)))
   val lisaEnrolment = Enrolment("HMRC-LISA-ORG", Seq(Identifier("ZREF", lisaManRefNum.toString)))
   val setEnrolment = Enrolment("HMRC-SET-ORG", Seq(Identifier("SRN", secureElectronicTransferReferenceNumber.toString)))
   val psaEnrolment = Enrolment("HMRC-PSA-ORG", Seq(Identifier("PSAID", pensionSchemeAdministratorIdentifier.toString))) // Used for Relief at Source
@@ -129,10 +131,10 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
 
     val organisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,
       saUtr = Some(saUtr), nino = Some(nino), mtdItId = Some(mtdItId), empRef = Some(empRef), ctUtr = Some(ctUtr),
-      vrn = Some(vrn), lisaManRefNum = Some(lisaManRefNum), secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
+      vrn = Some(vrn), mtdVrn = Some(mtdVrn), lisaManRefNum = Some(lisaManRefNum), secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
       pensionSchemeAdministratorIdentifier = Some(pensionSchemeAdministratorIdentifier), eoriNumber = Some(eoriNumber),
       services = Seq(AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, CORPORATION_TAX, SUBMIT_VAT_RETURNS,
-        PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES))
+        PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES))
 
     "contain no enrolments when the organisation has no services" in {
       val login = GovernmentGatewayLogin(organisation.copy(services = Seq.empty))
@@ -144,15 +146,15 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
       val login = GovernmentGatewayLogin(organisation)
 
       login.enrolments should contain theSameElementsAs
-        Seq(saEnrolment, ctEnrolment, vatEnrolment, payeEnrolment, mtdItEnrolment, lisaEnrolment, setEnrolment,
+        Seq(saEnrolment, ctEnrolment, vatEnrolment, payeEnrolment, mtdItEnrolment, mtdVatEnrolment, lisaEnrolment, setEnrolment,
           psaEnrolment, customsEnrolment)
     }
 
     "ignore services that are not applicable" in {
       val login = GovernmentGatewayLogin(organisation.copy(
-        services= Seq(AGENT_SERVICES, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA)))
+        services= Seq(AGENT_SERVICES, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, MTD_VAT, LISA)))
 
-      login.enrolments should contain theSameElementsAs Seq(ctEnrolment, vatEnrolment, lisaEnrolment)
+      login.enrolments should contain theSameElementsAs Seq(ctEnrolment, vatEnrolment, mtdVatEnrolment, lisaEnrolment)
     }
 
     "contain the correct enrolments for the relief at source service" in {

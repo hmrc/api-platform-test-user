@@ -65,6 +65,7 @@ class Generator @Inject() extends Randomiser {
     val empRef = if (services.contains(PAYE_FOR_EMPLOYERS)) Some(generateEmpRef) else None
     val ctUtr = if (services.contains(CORPORATION_TAX)) Some(generateCtUtr) else None
     val vrn = if (services.contains(SUBMIT_VAT_RETURNS)) Some(generateVrn) else None
+    val mtdVrn = if (services.contains(MTD_VAT)) Some(generateMtdVrn(vrn)) else None
     val lisaManRefNum = if (services.contains(LISA)) Some(generateLisaManRefNum) else None
     val setRefNum = if (services.contains(SECURE_ELECTRONIC_TRANSFER)) Some(generateSetRefNum) else None
     val psaId = if(services.contains(RELIEF_AT_SOURCE)) Some(generatePsaId) else None
@@ -76,7 +77,7 @@ class Generator @Inject() extends Randomiser {
     val emailAddress = generateEmailAddress(firstName, lastName)
 
     TestOrganisation(generateUserId, generatePassword, userFullName, emailAddress, generateOrganisationDetails, saUtr, nino, mtdItId, empRef, ctUtr,
-      vrn, lisaManRefNum, setRefNum, psaId, eoriNumber, services)
+      vrn, mtdVrn, lisaManRefNum, setRefNum, psaId, eoriNumber, services)
   }
 
   def generateTestAgent(services: Seq[ServiceName] = Seq.empty) = {
@@ -126,6 +127,7 @@ class Generator @Inject() extends Randomiser {
   private def generateNino: Nino = ninoGenerator.nextNino
   private def generateCtUtr: CtUtr = CtUtr(utrGenerator.nextSaUtr.value)
   private def generateVrn: Vrn = Vrn(vrnGenerator.sample.get.toString)
+  private def generateMtdVrn(vrn: Option[Vrn]): MtdVrn = MtdVrn(vrn.fold(vrnGenerator.sample.get.toString)(v => v.vrn))
   private def generateLisaManRefNum: LisaManagerReferenceNumber = lisaManRefNumGenerator.next
   private def generateSetRefNum: SecureElectronicTransferReferenceNumber = setRefNumGenerator.next
   private def generatePsaId: PensionSchemeAdministratorIdentifier = psaIdGenerator.next

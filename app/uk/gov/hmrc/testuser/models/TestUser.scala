@@ -29,6 +29,7 @@ object ServiceName extends Enumeration {
   val CORPORATION_TAX = Value("corporation-tax")
   val PAYE_FOR_EMPLOYERS = Value("paye-for-employers")
   val SUBMIT_VAT_RETURNS = Value("submit-vat-returns")
+  val MTD_VAT = Value("mtd-vat")
   val MTD_INCOME_TAX = Value("mtd-income-tax")
   val AGENT_SERVICES = Value("agent-services")
   val LISA = Value("lisa")
@@ -72,6 +73,7 @@ case class TestOrganisation(override val userId: String,
                             empRef: Option[EmpRef] = None,
                             ctUtr: Option[CtUtr] = None,
                             vrn: Option[Vrn] = None,
+                            mtdVrn: Option[MtdVrn] = None,
                             lisaManRefNum: Option[LisaManagerReferenceNumber] = None,
                             secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber] = None,
                             pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier] = None,
@@ -252,6 +254,17 @@ object MtdItId extends Modulus23Check with (String => MtdItId) {
     mtdItId.matches(validMtdItIdFormat) && isCheckCorrect(mtdItId, 1)
   }
 
+}
+
+case class MtdVrn(vrn: String) extends TaxIdentifier with SimpleName {
+  override def toString = vrn
+  val name = "vrn"
+  def value = vrn
+}
+
+object MtdVrn extends (String => MtdVrn) {
+  implicit val vrnWrite: Writes[MtdVrn] = new SimpleObjectWrites[MtdVrn](_.value)
+  implicit val vrnRead: Reads[MtdVrn] = new SimpleObjectReads[MtdVrn]("vrn", MtdVrn.apply)
 }
 
 case class LisaManagerReferenceNumber(lisaManagerReferenceNumber: String) extends TaxIdentifier with SimpleName {
