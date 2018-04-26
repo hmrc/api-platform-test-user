@@ -73,7 +73,6 @@ case class TestOrganisation(override val userId: String,
                             empRef: Option[EmpRef] = None,
                             ctUtr: Option[CtUtr] = None,
                             vrn: Option[Vrn] = None,
-                            mtdVrn: Option[MtdVrn] = None,
                             lisaManRefNum: Option[LisaManagerReferenceNumber] = None,
                             secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber] = None,
                             pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier] = None,
@@ -254,17 +253,6 @@ object MtdItId extends Modulus23Check with (String => MtdItId) {
     mtdItId.matches(validMtdItIdFormat) && isCheckCorrect(mtdItId, 1)
   }
 
-}
-
-case class MtdVrn(vrn: String) extends TaxIdentifier with SimpleName {
-  override def toString = vrn
-  val name = "vrn"
-  def value = vrn
-}
-
-object MtdVrn extends (String => MtdVrn) {
-  implicit val vrnWrite: Writes[MtdVrn] = new SimpleObjectWrites[MtdVrn](_.value)
-  implicit val vrnRead: Reads[MtdVrn] = new SimpleObjectReads[MtdVrn]("vrn", MtdVrn.apply)
 }
 
 case class LisaManagerReferenceNumber(lisaManagerReferenceNumber: String) extends TaxIdentifier with SimpleName {

@@ -37,7 +37,6 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
   val mtdItId = MtdItId("XGIT00000000054")
   val ctUtr = CtUtr("1555369053")
   val vrn = Vrn("999902541")
-  val mtdVrn = MtdVrn("999902541")
   val lisaManRefNum = LisaManagerReferenceNumber("Z123456")
   val secureElectronicTransferReferenceNumber = SecureElectronicTransferReferenceNumber("123456789012")
   val pensionSchemeAdministratorIdentifier = PensionSchemeAdministratorIdentifier("A1234567")
@@ -131,7 +130,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
 
     val organisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,
       saUtr = Some(saUtr), nino = Some(nino), mtdItId = Some(mtdItId), empRef = Some(empRef), ctUtr = Some(ctUtr),
-      vrn = Some(vrn), mtdVrn = Some(mtdVrn), lisaManRefNum = Some(lisaManRefNum), secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
+      vrn = Some(vrn), lisaManRefNum = Some(lisaManRefNum), secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
       pensionSchemeAdministratorIdentifier = Some(pensionSchemeAdministratorIdentifier), eoriNumber = Some(eoriNumber),
       services = Seq(AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, CORPORATION_TAX, SUBMIT_VAT_RETURNS,
         PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES))

@@ -38,7 +38,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     Some(MtdItId("XGIT00000000054")), Some(EoriNumber("GB1234567890")), Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES))
 
   val testOrganisation = TestOrganisation("organisationUser", "password", userFullName, emailAddress,  organisationDetails, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
-    Some(MtdItId("XGIT00000000054")), Some(EmpRef("555","EIA000")), Some(CtUtr("1555369053")), Some(Vrn("999902541")), Some(MtdVrn("999902541")),
+    Some(MtdItId("XGIT00000000054")), Some(EmpRef("555","EIA000")), Some(CtUtr("1555369053")), Some(Vrn("999902541")),
     Some(LisaManagerReferenceNumber("Z123456")), Some(SecureElectronicTransferReferenceNumber("123456789012")),
     Some(PensionSchemeAdministratorIdentifier("A1234567")), Some(EoriNumber("GB1234567890")),
     Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX,
@@ -192,7 +192,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "identifiers": [
            |       {
            |         "key":"VRN",
-           |         "value":"${testOrganisation.mtdVrn.get.value}"
+           |         "value":"${testOrganisation.vrn.get.value}"
            |       }]
            |     },
            |     {

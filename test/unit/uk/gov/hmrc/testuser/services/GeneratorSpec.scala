@@ -109,13 +109,11 @@ class GeneratorSpec extends UnitSpec {
       def shouldHave(vrnDefined: Boolean = false, ninoDefined: Boolean = false, mtdItIdDefined: Boolean = false,
                empRefDefined: Boolean = false, ctUtrDefined: Boolean = false, saUtrDefined: Boolean = false,
                lisaManRefNumDefined: Boolean = false, secureElectronicTransferReferenceNumberDefined: Boolean = false,
-               pensionSchemeAdministratorIdentifierDefined: Boolean = false, eoriDefined: Boolean = false,
-               mtdVrnDefined: Boolean = false) = {
+               pensionSchemeAdministratorIdentifierDefined: Boolean = false, eoriDefined: Boolean = false) = {
 
         check(org.vrn, vrnDefined)
         check(org.nino, ninoDefined)
         check(org.mtdItId, mtdItIdDefined)
-        check(org.mtdVrn, mtdVrnDefined)
         check(org.empRef, empRefDefined)
         check(org.ctUtr, ctUtrDefined)
         check(org.saUtr, saUtrDefined)
@@ -177,7 +175,7 @@ class GeneratorSpec extends UnitSpec {
     "generate a VRN when MTD_VAT service is included" in {
       val org = underTest.generateTestOrganisation(Seq(MTD_VAT))
 
-      org shouldHave(mtdVrnDefined = true)
+      org shouldHave(vrnDefined = true)
     }
 
     "generate a lisaManagerReferenceNumber when LISA service is included" in {

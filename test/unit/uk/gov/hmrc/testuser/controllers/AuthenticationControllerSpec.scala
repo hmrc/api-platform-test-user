@@ -49,7 +49,6 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with WithF
   val mtdItId = MtdItId("XGIT00000000054")
   val ctUtr = CtUtr("1555369053")
   val vrn = Vrn("999902541")
-  val mtdVrn = MtdVrn("999902541")
   val lisaManRefNum = LisaManagerReferenceNumber("Z123456")
   val empRef = EmpRef("555","EIA000")
   val eoriNumber = EoriNumber("GB1234567890")
@@ -61,7 +60,7 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with WithF
 
   val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
   val testOrganisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,
-    Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(mtdVrn), Some(lisaManRefNum),
+    Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManRefNum),
     eoriNumber = Some(eoriNumber),
     services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, MTD_VAT, PAYE_FOR_EMPLOYERS, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA, CUSTOMS_SERVICES))
 
