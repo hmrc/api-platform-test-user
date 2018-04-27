@@ -96,6 +96,7 @@ object GovernmentGatewayLogin {
         case SUBMIT_VAT_RETURNS => organisation.vrn map {vrn => Enrolment("HMCE-VATDEC-ORG", taxIdentifier(vrn))}
         case PAYE_FOR_EMPLOYERS => organisation.empRef map {empRef => Enrolment("IR-PAYE", taxIdentifier(empRef))}
         case MTD_INCOME_TAX => organisation.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId))}
+        case MTD_VAT => organisation.vrn map {vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString())))}
         case LISA => organisation.lisaManRefNum map { lisaManRefNum => Enrolment("HMRC-LISA-ORG", taxIdentifier(lisaManRefNum))}
         case SECURE_ELECTRONIC_TRANSFER => organisation.secureElectronicTransferReferenceNumber map { setRefNum => Enrolment("HMRC-SET-ORG", taxIdentifier(setRefNum))}
         case RELIEF_AT_SOURCE => organisation.pensionSchemeAdministratorIdentifier map { psaId => Enrolment("HMRC-PSA-ORG", taxIdentifier(psaId))}

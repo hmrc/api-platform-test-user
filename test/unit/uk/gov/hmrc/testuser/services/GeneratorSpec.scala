@@ -126,7 +126,7 @@ class GeneratorSpec extends UnitSpec {
 
     "create a different test organisation at every run" in {
       def generate(): TestOrganisation =
-        underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX,
+        underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, MTD_VAT,
           CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE,
           CUSTOMS_SERVICES))
 
@@ -168,6 +168,12 @@ class GeneratorSpec extends UnitSpec {
 
     "generate a VRN when SUBMIT_VAT_RETURNS service is included" in {
       val org = underTest.generateTestOrganisation(Seq(SUBMIT_VAT_RETURNS))
+
+      org shouldHave(vrnDefined = true)
+    }
+
+    "generate a VRN when MTD_VAT service is included" in {
+      val org = underTest.generateTestOrganisation(Seq(MTD_VAT))
 
       org shouldHave(vrnDefined = true)
     }

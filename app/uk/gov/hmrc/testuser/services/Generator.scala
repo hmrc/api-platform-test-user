@@ -64,7 +64,7 @@ class Generator @Inject() extends Randomiser {
     val mtdItId = if (services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
     val empRef = if (services.contains(PAYE_FOR_EMPLOYERS)) Some(generateEmpRef) else None
     val ctUtr = if (services.contains(CORPORATION_TAX)) Some(generateCtUtr) else None
-    val vrn = if (services.contains(SUBMIT_VAT_RETURNS)) Some(generateVrn) else None
+    val vrn = if (services.contains(SUBMIT_VAT_RETURNS) || services.contains(MTD_VAT)) Some(generateVrn) else None
     val lisaManRefNum = if (services.contains(LISA)) Some(generateLisaManRefNum) else None
     val setRefNum = if (services.contains(SECURE_ELECTRONIC_TRANSFER)) Some(generateSetRefNum) else None
     val psaId = if(services.contains(RELIEF_AT_SOURCE)) Some(generatePsaId) else None
