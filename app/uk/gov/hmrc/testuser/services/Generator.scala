@@ -185,7 +185,8 @@ class SecureElectronicTransferReferenceNumberGenerator(random: Random = new Rand
       307703077030L, 345634569999L, 376060300996L,
       111122224013L, 111122224011L, 111122224008L,
       111122223356L, 111111111199L, 111111111189L,
-      111111111198L, 123456789999L, 333156333416L, 309105308354L
+      111111111198L, 123456789999L, 333156333416L,
+      309105308354L, 340961904502L
     )
     SecureElectronicTransferReferenceNumber(s"${snrArray(random.nextInt(snrArray.length))}")
   }
