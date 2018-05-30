@@ -43,7 +43,7 @@ class AuthLoginApiConnector extends ServicesConfig {
 
       (response.header(AUTHORIZATION), response.header(LOCATION)) match {
         case (Some(authBearerToken), Some(authorityUri)) => AuthSession(authBearerToken, authorityUri, gatewayToken)
-        case _ => throw new RuntimeException(s"Authorization and Location header must be present in response.")
+        case _ => throw new RuntimeException("Authorization and Location header must be present in response.")
       }
     }
   }
@@ -76,9 +76,9 @@ object GovernmentGatewayLogin {
 
     def asEnrolment(serviceName: ServiceName) = {
       serviceName match {
-        case SELF_ASSESSMENT => individual.saUtr map {saUtr => Enrolment("IR-SA", taxIdentifier(saUtr))}
-        case MTD_INCOME_TAX => individual.mtdItId map {mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId))}
-        case CUSTOMS_SERVICES => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", taxIdentifier(eoriNumber))}
+        case SELF_ASSESSMENT => individual.saUtr map { saUtr => Enrolment("IR-SA", taxIdentifier(saUtr)) }
+        case MTD_INCOME_TAX => individual.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId)) }
+        case CUSTOMS_SERVICES => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", taxIdentifier(eoriNumber)) }
         case _ => None
       }
     }
@@ -91,16 +91,16 @@ object GovernmentGatewayLogin {
 
     def asEnrolment(serviceName: ServiceName) = {
       serviceName match {
-        case SELF_ASSESSMENT => organisation.saUtr map {saUtr => Enrolment("IR-SA", taxIdentifier(saUtr))}
-        case CORPORATION_TAX => organisation.ctUtr map {ctUtr => Enrolment("IR-CT", taxIdentifier(ctUtr))}
-        case SUBMIT_VAT_RETURNS => organisation.vrn map {vrn => Enrolment("HMCE-VATDEC-ORG", taxIdentifier(vrn))}
-        case PAYE_FOR_EMPLOYERS => organisation.empRef map {empRef => Enrolment("IR-PAYE", taxIdentifier(empRef))}
-        case MTD_INCOME_TAX => organisation.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId))}
-        case MTD_VAT => organisation.vrn map {vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString())))}
-        case LISA => organisation.lisaManRefNum map { lisaManRefNum => Enrolment("HMRC-LISA-ORG", taxIdentifier(lisaManRefNum))}
-        case SECURE_ELECTRONIC_TRANSFER => organisation.secureElectronicTransferReferenceNumber map { setRefNum => Enrolment("HMRC-SET-ORG", taxIdentifier(setRefNum))}
-        case RELIEF_AT_SOURCE => organisation.pensionSchemeAdministratorIdentifier map { psaId => Enrolment("HMRC-PSA-ORG", taxIdentifier(psaId))}
-        case CUSTOMS_SERVICES => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", taxIdentifier(eoriNumber))}
+        case SELF_ASSESSMENT => organisation.saUtr map { saUtr => Enrolment("IR-SA", taxIdentifier(saUtr)) }
+        case CORPORATION_TAX => organisation.ctUtr map { ctUtr => Enrolment("IR-CT", taxIdentifier(ctUtr)) }
+        case SUBMIT_VAT_RETURNS => organisation.vrn map { vrn => Enrolment("HMCE-VATDEC-ORG", taxIdentifier(vrn)) }
+        case PAYE_FOR_EMPLOYERS => organisation.empRef map { empRef => Enrolment("IR-PAYE", taxIdentifier(empRef)) }
+        case MTD_INCOME_TAX => organisation.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId)) }
+        case MTD_VAT => organisation.vrn map {vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString()))) }
+        case LISA => organisation.lisaManRefNum map { lisaManRefNum => Enrolment("HMRC-LISA-ORG", taxIdentifier(lisaManRefNum)) }
+        case SECURE_ELECTRONIC_TRANSFER => organisation.secureElectronicTransferReferenceNumber map { setRefNum => Enrolment("HMRC-SET-ORG", taxIdentifier(setRefNum)) }
+        case RELIEF_AT_SOURCE => organisation.pensionSchemeAdministratorIdentifier map { psaId => Enrolment("HMRC-PSA-ORG", taxIdentifier(psaId)) }
+        case CUSTOMS_SERVICES => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", taxIdentifier(eoriNumber)) }
         case _ => None
       }
     }
@@ -112,7 +112,7 @@ object GovernmentGatewayLogin {
   private def fromAgent(agent: TestAgent) = {
     def asEnrolment(serviceName: ServiceName) = {
       serviceName match {
-        case AGENT_SERVICES => agent.arn map {arn => Enrolment("HMRC-AS-AGENT", taxIdentifier(arn))}
+        case AGENT_SERVICES => agent.arn map { arn => Enrolment("HMRC-AS-AGENT", taxIdentifier(arn)) }
         case _ => None
       }
     }
