@@ -64,7 +64,7 @@ class Generator @Inject() extends Randomiser {
     val mtdItId = if (services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
     val empRef = if (services.contains(PAYE_FOR_EMPLOYERS)) Some(generateEmpRef) else None
     val ctUtr = if (services.contains(CORPORATION_TAX)) Some(generateCtUtr) else None
-    val vrn = if (services.contains(SUBMIT_VAT_RETURNS)) Some(generateVrn) else None
+    val vrn = if (services.contains(SUBMIT_VAT_RETURNS) || services.contains(MTD_VAT)) Some(generateVrn) else None
     val lisaManRefNum = if (services.contains(LISA)) Some(generateLisaManRefNum) else None
     val setRefNum = if (services.contains(SECURE_ELECTRONIC_TRANSFER)) Some(generateSetRefNum) else None
     val psaId = if(services.contains(RELIEF_AT_SOURCE)) Some(generatePsaId) else None
@@ -185,7 +185,8 @@ class SecureElectronicTransferReferenceNumberGenerator(random: Random = new Rand
       307703077030L, 345634569999L, 376060300996L,
       111122224013L, 111122224011L, 111122224008L,
       111122223356L, 111111111199L, 111111111189L,
-      111111111198L, 123456789999L, 333156333416L
+      111111111198L, 123456789999L, 333156333416L,
+      309105308354L, 340961904502L
     )
     SecureElectronicTransferReferenceNumber(s"${snrArray(random.nextInt(snrArray.length))}")
   }

@@ -42,7 +42,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     Some(LisaManagerReferenceNumber("Z123456")), Some(SecureElectronicTransferReferenceNumber("123456789012")),
     Some(PensionSchemeAdministratorIdentifier("A1234567")), Some(EoriNumber("GB1234567890")),
     Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX,
-      LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES))
+      MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES))
 
   val testAgent = TestAgent("agentUser", "password", userFullName, emailAddress, Some(AgentBusinessUtr("NARN0396245")), Seq(AGENT_SERVICES))
 
@@ -184,6 +184,15 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       {
            |         "key":"MTDITID",
            |         "value":"${testOrganisation.mtdItId.get.value}"
+           |       }]
+           |     },
+           |     {
+           |       "key": "HMRC-MTD-VAT",
+           |       "state": "Activated",
+           |       "identifiers": [
+           |       {
+           |         "key":"VRN",
+           |         "value":"${testOrganisation.vrn.get.value}"
            |       }]
            |     },
            |     {
