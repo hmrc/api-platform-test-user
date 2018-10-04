@@ -1,4 +1,4 @@
-Use this API to create test users for [testing in our sandbox](/api-documentation/docs/testing) with [user-restricted endpoints](/api-documentation/docs/authorisation/user-restricted-endpoints#user-restricted).
+Use this API to create test users for [testing in our sandbox](/api-documentation/docs/testing) with [user-restricted endpoints](/api-documentation/docs/authorisation/user-restricted-endpoints).
 
 ###What is a test user?
 A test user is a dummy Government Gateway account that you can use for testing in our sandbox.
