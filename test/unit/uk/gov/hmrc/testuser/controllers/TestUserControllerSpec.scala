@@ -156,7 +156,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     "return 201 (Created) with the created agent" in new Setup {
 
-      given(underTest.testUserService.createTestAgent(createAgentServices)).willReturn(testAgent)
+      given(underTest.testUserService.createTestAgent(refEq(createAgentServices))(any[HeaderCarrier])).willReturn(testAgent)
 
       val result = await(underTest.createAgent()(createAgentRequest))
 
@@ -166,7 +166,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
     "fail with 500 (Internal Server Error) when the creation of the agent failed" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        given(underTest.testUserService.createTestAgent(any()))
+        given(underTest.testUserService.createTestAgent(any())(any[HeaderCarrier]))
           .willReturn(failed(new RuntimeException("expected test error")))
 
         val result = await(underTest.createAgent()(createAgentRequest))

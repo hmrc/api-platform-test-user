@@ -27,7 +27,7 @@ import play.api.Logger
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
+import uk.gov.hmrc.testuser.connectors.{AgentsExternalStubsConnector, DesSimulatorConnector}
 import uk.gov.hmrc.testuser.models.ServiceName.{ServiceName => _}
 import uk.gov.hmrc.testuser.models.{UserNotFound, _}
 import uk.gov.hmrc.testuser.repository.TestUserRepository
@@ -71,7 +71,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   trait Setup {
     implicit val hc = HeaderCarrier()
 
-    val underTest = new TestUserService(mock[PasswordService], mock[DesSimulatorConnector], mock[TestUserRepository], mock[Generator])
+    val underTest = new TestUserService(mock[PasswordService], mock[DesSimulatorConnector], mock[TestUserRepository], mock[Generator], mock[AgentsExternalStubsConnector])
     when(underTest.testUserRepository.createUser(any[TestUser]())).thenAnswer(sameUserCreated)
     when(underTest.testUserRepository.fetchByUserId(anyString())).thenReturn(successful(None))
     when(underTest.passwordService.validate(anyString(), anyString())).thenReturn(false)
@@ -85,6 +85,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
       val hashedPassword  = "hashedPassword"
       given(underTest.generator.generateTestIndividual(individualServices)).willReturn(testIndividual)
       given(underTest.passwordService.hash(testIndividual.password)).willReturn(hashedPassword)
+      given(underTest.agentsExternalStubsConnector.createTestUser(testIndividual)).willReturn(successful(()))
 
       val result = await(underTest.createTestIndividual(individualServices))
 
@@ -99,6 +100,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
       val hashedPassword  = "hashedPassword"
       given(underTest.generator.generateTestIndividual(Seq.empty)).willReturn(testIndividualWithNoServices)
       given(underTest.passwordService.hash(testIndividualWithNoServices.password)).willReturn(hashedPassword)
+      given(underTest.agentsExternalStubsConnector.createTestUser(testIndividualWithNoServices)).willReturn(successful(()))
 
       val result = await(underTest.createTestIndividual(Seq.empty))
 
@@ -107,6 +109,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
       val testIndividualWithHashedPassword = testIndividualWithNoServices.copy(password = hashedPassword)
       verify(underTest.testUserRepository).createUser(testIndividualWithHashedPassword)
       verify(underTest.desSimulatorConnector, times(0)).createIndividual(testIndividualWithHashedPassword)
+      verify(underTest.agentsExternalStubsConnector).createTestUser(testIndividualWithNoServices)
     }
 
     "fail when the repository fails" in new Setup {
@@ -120,6 +123,23 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
         }
       }
     }
+
+    "Do not fail even if agents-external-stubs failed" in new Setup {
+
+      val hashedPassword  = "hashedPassword"
+      given(underTest.generator.generateTestIndividual(individualServices)).willReturn(testIndividual)
+      given(underTest.passwordService.hash(testIndividual.password)).willReturn(hashedPassword)
+      given(underTest.agentsExternalStubsConnector.createTestUser(testIndividual)).willReturn(Future.failed(new Exception()))
+
+      val result = await(underTest.createTestIndividual(individualServices))
+
+      result shouldBe testIndividual
+
+      val testIndividualWithHashedPassword = testIndividual.copy(password = hashedPassword)
+      verify(underTest.testUserRepository).createUser(testIndividualWithHashedPassword)
+      verify(underTest.desSimulatorConnector).createIndividual(testIndividualWithHashedPassword)
+      verify(underTest.agentsExternalStubsConnector).createTestUser(testIndividual)
+    }
   }
 
   "createTestOrganisation" should {
@@ -129,6 +149,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
       val hashedPassword  = "hashedPassword"
       given(underTest.generator.generateTestOrganisation(organisationServices)).willReturn(testOrganisation)
       given(underTest.passwordService.hash(testOrganisation.password)).willReturn(hashedPassword)
+      given(underTest.agentsExternalStubsConnector.createTestUser(testOrganisation)).willReturn(successful(()))
 
       val result = await(underTest.createTestOrganisation(organisationServices))
 
@@ -137,6 +158,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
       val testOrgWithHashedPassword = testOrganisation.copy(password = hashedPassword)
       verify(underTest.testUserRepository).createUser(testOrgWithHashedPassword)
       verify(underTest.desSimulatorConnector).createOrganisation(testOrgWithHashedPassword)
+      verify(underTest.agentsExternalStubsConnector).createTestUser(testOrganisation)
     }
 
     "Not call the DES simulator when the organisation does not have the mtd-income-tax service" in new Setup {
@@ -144,6 +166,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
       val hashedPassword  = "hashedPassword"
       given(underTest.generator.generateTestOrganisation(Seq.empty)).willReturn(testOrganisationWithNoServices)
       given(underTest.passwordService.hash(testOrganisationWithNoServices.password)).willReturn(hashedPassword)
+      given(underTest.agentsExternalStubsConnector.createTestUser(testOrganisationWithNoServices)).willReturn(successful(()))
 
       val result = await(underTest.createTestOrganisation(Seq.empty))
 
@@ -165,6 +188,23 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
         }
       }
     }
+
+    "Do not fail even if agents-external-stubs failed" in new Setup {
+
+      val hashedPassword  = "hashedPassword"
+      given(underTest.generator.generateTestOrganisation(organisationServices)).willReturn(testOrganisation)
+      given(underTest.passwordService.hash(testOrganisation.password)).willReturn(hashedPassword)
+      given(underTest.agentsExternalStubsConnector.createTestUser(testOrganisation)).willReturn(Future.failed(new Exception()))
+
+      val result = await(underTest.createTestOrganisation(organisationServices))
+
+      result shouldBe testOrganisation
+
+      val testOrgWithHashedPassword = testOrganisation.copy(password = hashedPassword)
+      verify(underTest.testUserRepository).createUser(testOrgWithHashedPassword)
+      verify(underTest.desSimulatorConnector).createOrganisation(testOrgWithHashedPassword)
+      verify(underTest.agentsExternalStubsConnector).createTestUser(testOrganisation)
+    }
   }
 
   "createTestAgent" should {
@@ -174,11 +214,13 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
       val hashedPassword  = "hashedPassword"
       given(underTest.generator.generateTestAgent(agentServices)).willReturn(testAgent)
       given(underTest.passwordService.hash(testAgent.password)).willReturn(hashedPassword)
+      given(underTest.agentsExternalStubsConnector.createTestUser(testAgent)).willReturn(successful(()))
 
       val result = await(underTest.createTestAgent(agentServices))
 
       result shouldBe testAgent
       verify(underTest.testUserRepository).createUser(testAgent.copy(password = hashedPassword))
+      verify(underTest.agentsExternalStubsConnector).createTestUser(testAgent)
     }
 
     "fail when the repository fails" in new Setup {
@@ -191,6 +233,20 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
           await(underTest.createTestAgent(agentServices))
         }
       }
+    }
+
+    "Do not fail even if agents-external-stubs failed" in new Setup {
+
+      val hashedPassword  = "hashedPassword"
+      given(underTest.generator.generateTestAgent(agentServices)).willReturn(testAgent)
+      given(underTest.passwordService.hash(testAgent.password)).willReturn(hashedPassword)
+      given(underTest.agentsExternalStubsConnector.createTestUser(testAgent)).willReturn(Future.failed(new Exception()))
+
+      val result = await(underTest.createTestAgent(agentServices))
+
+      result shouldBe testAgent
+      verify(underTest.testUserRepository).createUser(testAgent.copy(password = hashedPassword))
+      verify(underTest.agentsExternalStubsConnector).createTestUser(testAgent)
     }
   }
 

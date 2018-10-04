@@ -16,16 +16,26 @@
 
 package uk.gov.hmrc.testuser.config
 
-import javax.inject.{Singleton, Inject}
-
+import com.google.inject.ImplementedBy
+import javax.inject.{Inject, Singleton}
 import play.api.Configuration
 
-@Singleton
-class AppContext @Inject()(implicit val config: Configuration) {
+@ImplementedBy(classOf[PlayAppContext])
+trait AppContext {
+  def passwordLogRounds: Int
+  def syncToAgentsExternalStubs: Boolean
+}
 
-  lazy val passwordLogRounds = getConfigInt("passwordLogRounds")
+@Singleton
+class PlayAppContext @Inject()(implicit val config: Configuration) extends AppContext {
+
+  override lazy val passwordLogRounds: Int = getConfigInt("passwordLogRounds")
+  override lazy val syncToAgentsExternalStubs: Boolean = getConfigBoolean("feature.syncToAgentsExternalStubs")
 
   private def getConfigInt(key: String) = config.getInt(key)
+    .getOrElse(throw new RuntimeException(s"[$key] is not configured!"))
+
+  private def getConfigBoolean(key: String) = config.getBoolean(key)
     .getOrElse(throw new RuntimeException(s"[$key] is not configured!"))
 
 }

@@ -17,10 +17,10 @@
 package uk.gov.hmrc.testuser.services
 
 import javax.inject.{Inject, Singleton}
-
+import play.api.Logger
 import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
+import uk.gov.hmrc.testuser.connectors.{AgentsExternalStubsConnector, DesSimulatorConnector}
 import uk.gov.hmrc.testuser.models.ServiceName._
 import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.models._
@@ -28,12 +28,14 @@ import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 @Singleton
 class TestUserService @Inject()(val passwordService: PasswordService,
                                 val desSimulatorConnector: DesSimulatorConnector,
                                 val testUserRepository: TestUserRepository,
-                                val generator: Generator) {
+                                val generator: Generator,
+                                val agentsExternalStubsConnector: AgentsExternalStubsConnector) {
 
   def createTestIndividual(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier) = {
     val individual = generator.generateTestIndividual(serviceNames)
@@ -42,9 +44,15 @@ class TestUserService @Inject()(val passwordService: PasswordService,
     testUserRepository.createUser(individual.copy(password = hashedPassword)) map {
       case createdIndividual if createdIndividual.services.contains(ServiceName.MTD_INCOME_TAX) => desSimulatorConnector.createIndividual(createdIndividual)
       case _ => Future.successful(individual)
+    } flatMap {
+      _ => agentsExternalStubsConnector.createTestUser(individual).recover {
+        case NonFatal(e) =>
+          Logger.info(s"Individual user ${individual.userId} sync to agents-external-stubs failed", e)
+      }
     } map {
-      _ => individual
-    }
+        _ => individual
+      }
+
   }
 
   def createTestOrganisation(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier) = {
@@ -53,15 +61,25 @@ class TestUserService @Inject()(val passwordService: PasswordService,
     testUserRepository.createUser(organisation.copy(password = hashedPassword)) map {
       case createdOrganisation if createdOrganisation.services.contains(ServiceName.MTD_INCOME_TAX) => desSimulatorConnector.createOrganisation(createdOrganisation)
       case _ => Future.successful(organisation)
+    } flatMap {
+      _ => agentsExternalStubsConnector.createTestUser(organisation).recover {
+        case NonFatal(e) =>
+          Logger.info(s"Organisation user ${organisation.userId} sync to agents-external-stubs failed", e)
+      }
     } map {
       _ => organisation
     }
   }
 
-  def createTestAgent(serviceNames: Seq[ServiceName]) = {
+  def createTestAgent(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier) = {
     val agent = generator.generateTestAgent(serviceNames)
     val hashedPassword = passwordService.hash(agent.password)
-    testUserRepository.createUser(agent.copy(password = hashedPassword)) map (_ => agent)
+    testUserRepository.createUser(agent.copy(password = hashedPassword)) flatMap {
+      _ => agentsExternalStubsConnector.createTestUser(agent).recover {
+        case NonFatal(e) =>
+          Logger.info(s"Agent user ${agent.userId} sync to agents-external-stubs failed", e)
+      }
+    } map (_ => agent)
   }
 
   def fetchIndividualByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
