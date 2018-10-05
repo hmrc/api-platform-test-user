@@ -41,34 +41,34 @@ class TestUserService @Inject()(val passwordService: PasswordService,
     val individual = generator.generateTestIndividual(serviceNames)
     val hashedPassword = passwordService.hash(individual.password)
 
-    testUserRepository.createUser(individual.copy(password = hashedPassword)) map {
-      case createdIndividual if createdIndividual.services.contains(ServiceName.MTD_INCOME_TAX) => desSimulatorConnector.createIndividual(createdIndividual)
-      case _ => Future.successful(individual)
-    } flatMap {
-      _ => agentsExternalStubsConnector.createTestUser(individual).recover {
+    for {
+      _ <- testUserRepository.createUser(individual.copy(password = hashedPassword)).map({
+              case createdIndividual if createdIndividual.services.contains(ServiceName.MTD_INCOME_TAX) =>
+                desSimulatorConnector.createIndividual(createdIndividual)
+              case _ => Future.successful(individual)
+            })
+      _ <- agentsExternalStubsConnector.createTestUser(individual).recover {
         case NonFatal(e) =>
           Logger.info(s"Individual user ${individual.userId} sync to agents-external-stubs failed", e)
       }
-    } map {
-        _ => individual
-      }
-
+    } yield individual
   }
 
   def createTestOrganisation(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier) = {
     val organisation = generator.generateTestOrganisation(serviceNames)
     val hashedPassword = passwordService.hash(organisation.password)
-    testUserRepository.createUser(organisation.copy(password = hashedPassword)) map {
-      case createdOrganisation if createdOrganisation.services.contains(ServiceName.MTD_INCOME_TAX) => desSimulatorConnector.createOrganisation(createdOrganisation)
-      case _ => Future.successful(organisation)
-    } flatMap {
-      _ => agentsExternalStubsConnector.createTestUser(organisation).recover {
+
+    for {
+      _ <- testUserRepository.createUser(organisation.copy(password = hashedPassword)).map({
+              case createdOrganisation if createdOrganisation.services.contains(ServiceName.MTD_INCOME_TAX) =>
+                desSimulatorConnector.createOrganisation(createdOrganisation)
+              case _ => Future.successful(organisation)
+            })
+      _ <- agentsExternalStubsConnector.createTestUser(organisation).recover {
         case NonFatal(e) =>
           Logger.info(s"Organisation user ${organisation.userId} sync to agents-external-stubs failed", e)
       }
-    } map {
-      _ => organisation
-    }
+    } yield organisation
   }
 
   def createTestAgent(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier) = {
