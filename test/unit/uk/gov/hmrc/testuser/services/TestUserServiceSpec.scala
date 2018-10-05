@@ -44,7 +44,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   val saUtr = SaUtr("1555369052")
   val nino = Nino("CC333333C")
   val shortNino = NinoNoSuffix("CC333333")
-  val empRef =  EmpRef("555","EIA000")
+  val empRef = EmpRef("555", "EIA000")
 
   val individualServices = Seq(ServiceName.NATIONAL_INSURANCE, ServiceName.MTD_INCOME_TAX)
   val generator = new Generator()
@@ -82,7 +82,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
 
     "Generate an individual and save it with hashed password in the database" in new Setup {
 
-      val hashedPassword  = "hashedPassword"
+      val hashedPassword = "hashedPassword"
       given(underTest.generator.generateTestIndividual(individualServices)).willReturn(testIndividual)
       given(underTest.passwordService.hash(testIndividual.password)).willReturn(hashedPassword)
       given(underTest.agentsExternalStubsConnector.createTestUser(testIndividual)).willReturn(successful(()))
@@ -98,7 +98,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     }
 
     "Not call the DES simulator when the individual does not have the mtd-income-tax service" in new Setup {
-      val hashedPassword  = "hashedPassword"
+      val hashedPassword = "hashedPassword"
       given(underTest.generator.generateTestIndividual(Seq.empty)).willReturn(testIndividualWithNoServices)
       given(underTest.passwordService.hash(testIndividualWithNoServices.password)).willReturn(hashedPassword)
       given(underTest.agentsExternalStubsConnector.createTestUser(testIndividualWithNoServices)).willReturn(successful(()))
@@ -127,7 +127,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
 
     "Do not fail even if agents-external-stubs failed" in new Setup {
 
-      val hashedPassword  = "hashedPassword"
+      val hashedPassword = "hashedPassword"
       given(underTest.generator.generateTestIndividual(individualServices)).willReturn(testIndividual)
       given(underTest.passwordService.hash(testIndividual.password)).willReturn(hashedPassword)
       given(underTest.agentsExternalStubsConnector.createTestUser(testIndividual)).willReturn(Future.failed(new Exception()))
@@ -148,7 +148,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
 
     "Generate an organisation and save it in the database" in new Setup {
 
-      val hashedPassword  = "hashedPassword"
+      val hashedPassword = "hashedPassword"
       given(underTest.generator.generateTestOrganisation(organisationServices)).willReturn(testOrganisation)
       given(underTest.passwordService.hash(testOrganisation.password)).willReturn(hashedPassword)
       given(underTest.agentsExternalStubsConnector.createTestUser(testOrganisation)).willReturn(successful(()))
@@ -166,7 +166,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
 
     "Not call the DES simulator when the organisation does not have the mtd-income-tax service" in new Setup {
 
-      val hashedPassword  = "hashedPassword"
+      val hashedPassword = "hashedPassword"
       given(underTest.generator.generateTestOrganisation(Seq.empty)).willReturn(testOrganisationWithNoServices)
       given(underTest.passwordService.hash(testOrganisationWithNoServices.password)).willReturn(hashedPassword)
       given(underTest.agentsExternalStubsConnector.createTestUser(testOrganisationWithNoServices)).willReturn(successful(()))
@@ -194,7 +194,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
 
     "Do not fail even if agents-external-stubs failed" in new Setup {
 
-      val hashedPassword  = "hashedPassword"
+      val hashedPassword = "hashedPassword"
       given(underTest.generator.generateTestOrganisation(organisationServices)).willReturn(testOrganisation)
       given(underTest.passwordService.hash(testOrganisation.password)).willReturn(hashedPassword)
       given(underTest.agentsExternalStubsConnector.createTestUser(testOrganisation)).willReturn(Future.failed(new Exception()))
@@ -215,7 +215,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
 
     "Generate an agent and save it in the database" in new Setup {
 
-      val hashedPassword  = "hashedPassword"
+      val hashedPassword = "hashedPassword"
       given(underTest.generator.generateTestAgent(agentServices)).willReturn(testAgent)
       given(underTest.passwordService.hash(testAgent.password)).willReturn(hashedPassword)
       given(underTest.agentsExternalStubsConnector.createTestUser(any[TestAgent])(any[HeaderCarrier])).willReturn(successful(()))
@@ -241,7 +241,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
 
     "Do not fail even if agents-external-stubs failed" in new Setup {
 
-      val hashedPassword  = "hashedPassword"
+      val hashedPassword = "hashedPassword"
       given(underTest.generator.generateTestAgent(agentServices)).willReturn(testAgent)
       given(underTest.passwordService.hash(testAgent.password)).willReturn(hashedPassword)
       given(underTest.agentsExternalStubsConnector.createTestUser(testAgent)).willReturn(Future.failed(new Exception()))
@@ -266,7 +266,9 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
       given(underTest.testUserRepository.fetchIndividualByNino(nino)).willReturn(None)
 
-      intercept[UserNotFound] {await(underTest.fetchIndividualByNino(nino))}
+      intercept[UserNotFound] {
+        await(underTest.fetchIndividualByNino(nino))
+      }
     }
 
     "propagate the error when the repository fails" in new Setup {
@@ -291,7 +293,9 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
       given(underTest.testUserRepository.fetchIndividualByShortNino(shortNino)).willReturn(None)
 
-      intercept[UserNotFound] {await(underTest.fetchIndividualByShortNino(shortNino))}
+      intercept[UserNotFound] {
+        await(underTest.fetchIndividualByShortNino(shortNino))
+      }
     }
 
     "propagate the error when the repository fails" in new Setup {
@@ -316,7 +320,9 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
       given(underTest.testUserRepository.fetchIndividualBySaUtr(saUtr)).willReturn(None)
 
-      intercept[UserNotFound] {await(underTest.fetchIndividualBySaUtr(saUtr))}
+      intercept[UserNotFound] {
+        await(underTest.fetchIndividualBySaUtr(saUtr))
+      }
     }
 
     "propagate the error when the repository fails" in new Setup {
@@ -341,7 +347,9 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
       given(underTest.testUserRepository.fetchOrganisationByEmpRef(empRef)).willReturn(None)
 
-      intercept[UserNotFound] {await(underTest.fetchOrganisationByEmpRef(empRef))}
+      intercept[UserNotFound] {
+        await(underTest.fetchOrganisationByEmpRef(empRef))
+      }
     }
 
     "propagate the error when the repository fails" in new Setup {

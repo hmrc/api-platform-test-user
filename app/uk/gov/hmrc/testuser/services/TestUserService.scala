@@ -67,14 +67,14 @@ class TestUserService @Inject()(val passwordService: PasswordService,
 
   private def createIndividual(individual: TestIndividual)(implicit hs: HeaderCarrier): Future[TestIndividual] = for {
     createdIndividual <- testUserRepository.createUser(individual.copy(password = passwordService.hash(individual.password)))
-    _ <- if(createdIndividual.services.contains(ServiceName.MTD_INCOME_TAX)) {
-            desSimulatorConnector.createIndividual(createdIndividual)
-         } else Future.successful(individual)
+    _ <- if (createdIndividual.services.contains(ServiceName.MTD_INCOME_TAX)) {
+      desSimulatorConnector.createIndividual(createdIndividual)
+    } else Future.successful(individual)
   } yield individual
 
   private def createOrganisation(organisation: TestOrganisation)(implicit hs: HeaderCarrier): Future[TestOrganisation] = for {
     createdOrganisation <- testUserRepository.createUser(organisation.copy(password = passwordService.hash(organisation.password)))
-    _ <- if(createdOrganisation.services.contains(ServiceName.MTD_INCOME_TAX)) desSimulatorConnector.createOrganisation(createdOrganisation)
+    _ <- if (createdOrganisation.services.contains(ServiceName.MTD_INCOME_TAX)) desSimulatorConnector.createOrganisation(createdOrganisation)
     else Future.successful(organisation)
   } yield organisation
 
