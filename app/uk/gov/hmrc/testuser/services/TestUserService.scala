@@ -37,50 +37,52 @@ class TestUserService @Inject()(val passwordService: PasswordService,
                                 val generator: Generator,
                                 val agentsExternalStubsConnector: AgentsExternalStubsConnector) {
 
-  def createTestIndividual(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier) = {
+  def createTestIndividual(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier): Future[TestIndividual] = {
     val individual = generator.generateTestIndividual(serviceNames)
-    val hashedPassword = passwordService.hash(individual.password)
 
     for {
-      _ <- testUserRepository.createUser(individual.copy(password = hashedPassword)).map({
-              case createdIndividual if createdIndividual.services.contains(ServiceName.MTD_INCOME_TAX) =>
-                desSimulatorConnector.createIndividual(createdIndividual)
-              case _ => Future.successful(individual)
-            })
-      _ <- agentsExternalStubsConnector.createTestUser(individual).recover {
-        case NonFatal(e) =>
-          Logger.info(s"Individual user ${individual.userId} sync to agents-external-stubs failed", e)
-      }
+      _ <- createIndividual(individual)
+      _ <- syncToAgentExternalStubs(individual)
     } yield individual
   }
 
-  def createTestOrganisation(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier) = {
+  def createTestOrganisation(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
     val organisation = generator.generateTestOrganisation(serviceNames)
-    val hashedPassword = passwordService.hash(organisation.password)
 
     for {
-      _ <- testUserRepository.createUser(organisation.copy(password = hashedPassword)).map({
-              case createdOrganisation if createdOrganisation.services.contains(ServiceName.MTD_INCOME_TAX) =>
-                desSimulatorConnector.createOrganisation(createdOrganisation)
-              case _ => Future.successful(organisation)
-            })
-      _ <- agentsExternalStubsConnector.createTestUser(organisation).recover {
-        case NonFatal(e) =>
-          Logger.info(s"Organisation user ${organisation.userId} sync to agents-external-stubs failed", e)
-      }
+      _ <- createOrganisation(organisation)
+      _ <- syncToAgentExternalStubs(organisation)
     } yield organisation
   }
 
-  def createTestAgent(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier) = {
+  def createTestAgent(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier): Future[TestAgent] = {
     val agent = generator.generateTestAgent(serviceNames)
     val hashedPassword = passwordService.hash(agent.password)
-    testUserRepository.createUser(agent.copy(password = hashedPassword)) flatMap {
-      _ => agentsExternalStubsConnector.createTestUser(agent).recover {
-        case NonFatal(e) =>
-          Logger.info(s"Agent user ${agent.userId} sync to agents-external-stubs failed", e)
-      }
-    } map (_ => agent)
+
+    for {
+      _ <- testUserRepository.createUser(agent.copy(password = hashedPassword))
+      _ <- syncToAgentExternalStubs(agent)
+    } yield agent
   }
+
+  private def createIndividual(individual: TestIndividual)(implicit hs: HeaderCarrier): Future[TestIndividual] = for {
+    createdIndividual <- testUserRepository.createUser(individual.copy(password = passwordService.hash(individual.password)))
+    _ <- if(createdIndividual.services.contains(ServiceName.MTD_INCOME_TAX)) {
+            desSimulatorConnector.createIndividual(createdIndividual)
+         } else Future.successful(individual)
+  } yield individual
+
+  private def createOrganisation(organisation: TestOrganisation)(implicit hs: HeaderCarrier): Future[TestOrganisation] = for {
+    createdOrganisation <- testUserRepository.createUser(organisation.copy(password = passwordService.hash(organisation.password)))
+    _ <- if(createdOrganisation.services.contains(ServiceName.MTD_INCOME_TAX)) desSimulatorConnector.createOrganisation(createdOrganisation)
+    else Future.successful(organisation)
+  } yield organisation
+
+  private def syncToAgentExternalStubs(user: TestUser)(implicit hs: HeaderCarrier) =
+    agentsExternalStubsConnector.createTestUser(user).recover {
+      case NonFatal(e) =>
+        Logger.info(s"User ${user.userId} sync to agents-external-stubs failed", e)
+    }
 
   def fetchIndividualByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
     testUserRepository.fetchIndividualByNino(nino) map getOrFailWithUserNotFound(INDIVIDUAL)

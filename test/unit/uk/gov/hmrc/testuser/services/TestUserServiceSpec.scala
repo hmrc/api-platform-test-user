@@ -86,6 +86,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
       given(underTest.generator.generateTestIndividual(individualServices)).willReturn(testIndividual)
       given(underTest.passwordService.hash(testIndividual.password)).willReturn(hashedPassword)
       given(underTest.agentsExternalStubsConnector.createTestUser(testIndividual)).willReturn(successful(()))
+      given(underTest.desSimulatorConnector.createIndividual(any[TestIndividual])(any[HeaderCarrier])).willReturn(successful(testIndividual))
 
       val result = await(underTest.createTestIndividual(individualServices))
 
@@ -130,6 +131,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
       given(underTest.generator.generateTestIndividual(individualServices)).willReturn(testIndividual)
       given(underTest.passwordService.hash(testIndividual.password)).willReturn(hashedPassword)
       given(underTest.agentsExternalStubsConnector.createTestUser(testIndividual)).willReturn(Future.failed(new Exception()))
+      given(underTest.desSimulatorConnector.createIndividual(any[TestIndividual])(any[HeaderCarrier])).willReturn(successful(testIndividual))
 
       val result = await(underTest.createTestIndividual(individualServices))
 
@@ -150,6 +152,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
       given(underTest.generator.generateTestOrganisation(organisationServices)).willReturn(testOrganisation)
       given(underTest.passwordService.hash(testOrganisation.password)).willReturn(hashedPassword)
       given(underTest.agentsExternalStubsConnector.createTestUser(testOrganisation)).willReturn(successful(()))
+      given(underTest.desSimulatorConnector.createOrganisation(any[TestOrganisation])(any[HeaderCarrier])).willReturn(successful(testOrganisation))
 
       val result = await(underTest.createTestOrganisation(organisationServices))
 
@@ -195,6 +198,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
       given(underTest.generator.generateTestOrganisation(organisationServices)).willReturn(testOrganisation)
       given(underTest.passwordService.hash(testOrganisation.password)).willReturn(hashedPassword)
       given(underTest.agentsExternalStubsConnector.createTestUser(testOrganisation)).willReturn(Future.failed(new Exception()))
+      given(underTest.desSimulatorConnector.createOrganisation(any[TestOrganisation])(any[HeaderCarrier])).willReturn(successful(testOrganisation))
 
       val result = await(underTest.createTestOrganisation(organisationServices))
 
@@ -214,7 +218,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
       val hashedPassword  = "hashedPassword"
       given(underTest.generator.generateTestAgent(agentServices)).willReturn(testAgent)
       given(underTest.passwordService.hash(testAgent.password)).willReturn(hashedPassword)
-      given(underTest.agentsExternalStubsConnector.createTestUser(testAgent)).willReturn(successful(()))
+      given(underTest.agentsExternalStubsConnector.createTestUser(any[TestAgent])(any[HeaderCarrier])).willReturn(successful(()))
 
       val result = await(underTest.createTestAgent(agentServices))
 
