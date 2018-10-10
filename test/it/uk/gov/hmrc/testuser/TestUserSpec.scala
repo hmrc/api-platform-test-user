@@ -17,6 +17,7 @@
 package it.uk.gov.hmrc.testuser
 
 import it.uk.gov.hmrc.testuser.helpers.BaseSpec
+import it.uk.gov.hmrc.testuser.helpers.stubs.DesSimulatorStub
 import org.apache.http.HttpStatus._
 import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
 import play.api.http.HeaderNames
@@ -52,6 +53,8 @@ class TestUserSpec extends BaseSpec {
     }
 
     scenario("Create an organisation") {
+      Given("The Des simulator will return a success")
+      DesSimulatorStub.willSuccessfullyCreateTestOrganisation()
 
       When("I request the creation of an organisation")
       val createdResponse = createOrganisation(Seq("national-insurance", "mtd-income-tax", "lisa"))

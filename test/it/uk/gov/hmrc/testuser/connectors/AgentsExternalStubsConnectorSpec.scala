@@ -72,7 +72,7 @@ class AgentsExternalStubsConnectorSpec extends UnitSpec with BeforeAndAfterEach 
       await(underTest.createTestUser(testOrganisation))
     }
 
-    "fail when the DesSimulator returns an error" in new Setup {
+    "fail when AgentExternalStubs returns an error" in new Setup {
       AgentsExternalStubsStub.willFailWhenCreatingTestUser()
       intercept[Upstream5xxResponse]{await(underTest.createTestUser(testIndividual))}
     }

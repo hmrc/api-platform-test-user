@@ -122,7 +122,7 @@ class AuthenticationSpec extends BaseSpec {
   }
 
   private def createOrganisation() = {
-    val organisationCreatedResponse = createUser("organisations", Seq("national-insurance", "mtd-income-tax"))
+    val organisationCreatedResponse = createUser("organisations", Seq("national-insurance"))
     Json.parse(organisationCreatedResponse.body).as[TestOrganisationCreatedResponse]
   }
 

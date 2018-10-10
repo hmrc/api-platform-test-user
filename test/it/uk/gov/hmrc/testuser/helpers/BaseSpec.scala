@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import it.uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
+import it.uk.gov.hmrc.testuser.helpers.stubs.{AuthLoginApiStub, DesSimulatorStub}
 import org.scalatest._
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.Application
@@ -40,6 +40,7 @@ with GivenWhenThen {
       "auditing.enabled" -> false,
       "auditing.traceRequests" -> false,
       "microservice.services.auth-login-api.port" -> AuthLoginApiStub.port,
+      "microservice.services.des-simulator.port" -> DesSimulatorStub.port,
       "mongodb.uri" -> "mongodb://localhost:27017/api-platform-test-user-it",
       "run.mode" -> "It"
     ).build()
@@ -48,7 +49,7 @@ with GivenWhenThen {
 
   val timeout = Duration(5, TimeUnit.SECONDS)
   val serviceUrl = s"http://localhost:$port"
-  val mocks = Seq(AuthLoginApiStub)
+  val mocks = Seq(AuthLoginApiStub, DesSimulatorStub)
 
   override protected def beforeEach(): Unit = {
     mocks.foreach(m => if (!m.server.isRunning) m.server.start())
