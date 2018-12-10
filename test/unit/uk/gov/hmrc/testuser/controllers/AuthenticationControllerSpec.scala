@@ -55,8 +55,8 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with WithF
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val testIndividual = TestIndividual(user, password, userFullName, emailAddress, individualDetails,
-    Some(saUtr), Some(nino), Some(mtdItId), Some(eoriNumber),
-    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES))
+    Some(saUtr), Some(nino), Some(mtdItId), Some(vrn), Some(eoriNumber),
+    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
 
   val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
   val testOrganisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,

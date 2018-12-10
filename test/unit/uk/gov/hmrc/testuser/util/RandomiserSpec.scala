@@ -33,7 +33,8 @@ class RandomiserSpec extends FlatSpec with Matchers {
     date1 should not be date2
     for (date <- Set(date1, date2)) {
       val now = LocalDate.now()
-      date.isBefore(now.minusYears(16)) && date.isAfter(now.minusYears(101)) shouldBe true
+
+       date.isBefore(now.minusYears(16)) && date.isAfter(now.minusYears(101)) shouldBe true
     }
   }
 

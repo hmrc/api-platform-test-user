@@ -51,11 +51,12 @@ class Generator @Inject() extends Randomiser {
     val nino = if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) Some(generateNino) else None
     val mtdItId = if(services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
     val eoriNumber = if(services.contains(CUSTOMS_SERVICES)) Some(generateEoriNumber) else None
+    val vrn = if(services.contains(MTD_VAT)) Some(generateVrn) else None
     val individualDetails = generateIndividualDetails
     val userFullName = generateUserFullName(individualDetails.firstName, individualDetails.lastName)
     val emailAddress = generateEmailAddress(individualDetails.firstName, individualDetails.lastName)
 
-    TestIndividual(generateUserId, generatePassword, userFullName, emailAddress, individualDetails, saUtr, nino, mtdItId, eoriNumber, services)
+    TestIndividual(generateUserId, generatePassword, userFullName, emailAddress, individualDetails, saUtr, nino, mtdItId, vrn, eoriNumber, services)
   }
 
   def generateTestOrganisation(services: Seq[ServiceName] = Seq.empty) = {
