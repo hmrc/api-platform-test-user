@@ -56,6 +56,7 @@ case class TestIndividual(override val userId: String,
                           saUtr: Option[SaUtr] = None,
                           nino: Option[Nino] = None,
                           mtdItId: Option[MtdItId] = None,
+                          vrn: Option[Vrn] = None,
                           eoriNumber: Option[EoriNumber] = None,
                           override val services: Seq[ServiceName] = Seq.empty,
                           override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
@@ -103,6 +104,7 @@ sealed trait TestIndividualResponse extends TestUserResponse {
   val saUtr: Option[SaUtr]
   val nino: Option[Nino]
   val mtdItId: Option[MtdItId]
+  val vrn: Option[Vrn]
   val eoriNumber: Option[EoriNumber]
 }
 
@@ -131,13 +133,14 @@ case class FetchTestIndividualResponse(override val userId: String,
                                        override val saUtr: Option[SaUtr] = None,
                                        override val nino: Option[Nino] = None,
                                        override val mtdItId: Option[MtdItId] = None,
+                                       override val vrn: Option[Vrn] = None,
                                        override val eoriNumber: Option[EoriNumber] = None)
   extends TestIndividualResponse
 
 object FetchTestIndividualResponse {
   def from(individual: TestIndividual) = FetchTestIndividualResponse(individual.userId, individual.userFullName,
     individual.emailAddress, individual.individualDetails, individual.saUtr, individual.nino,
-    individual.mtdItId, individual.eoriNumber)
+    individual.mtdItId, individual.vrn, individual.eoriNumber)
 }
 
 case class TestIndividualCreatedResponse(override val userId: String,
@@ -148,13 +151,14 @@ case class TestIndividualCreatedResponse(override val userId: String,
                                          override val saUtr: Option[SaUtr],
                                          override val nino: Option[Nino],
                                          override val mtdItId: Option[MtdItId],
+                                         override val vrn: Option[Vrn],
                                          override val eoriNumber: Option[EoriNumber] = None)
   extends TestIndividualResponse
 
 object TestIndividualCreatedResponse {
   def from(individual: TestIndividual) = TestIndividualCreatedResponse(individual.userId, individual.password,
     individual.userFullName, individual.emailAddress, individual.individualDetails,
-    individual.saUtr, individual.nino, individual.mtdItId, individual.eoriNumber)
+    individual.saUtr, individual.nino, individual.mtdItId, individual.vrn, individual.eoriNumber)
 }
 
 case class FetchTestOrganisationResponse(override val userId: String,
@@ -217,10 +221,10 @@ object TestAgentCreatedResponse {
     agent.userFullName, agent.emailAddress, agent.arn)
 }
 
-case class DesSimulatorTestIndividual(mtdItId: Option[MtdItId], nino: Option[Nino], saUtr: Option[SaUtr])
+case class DesSimulatorTestIndividual(mtdItId: Option[MtdItId], vrn: Option[Vrn], nino: Option[Nino], saUtr: Option[SaUtr])
 
 object DesSimulatorTestIndividual {
-  def from(individual: TestIndividual) = DesSimulatorTestIndividual(individual.mtdItId, individual.nino, individual.saUtr)
+  def from(individual: TestIndividual) = DesSimulatorTestIndividual(individual.mtdItId, individual.vrn, individual.nino, individual.saUtr)
 }
 
 case class DesSimulatorTestOrganisation(mtdItId: Option[MtdItId], nino: Option[Nino],

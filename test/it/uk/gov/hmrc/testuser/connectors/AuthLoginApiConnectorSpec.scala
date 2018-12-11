@@ -34,8 +34,8 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
   val userFullName = "John Doe"
   val emailAddress = "john.doe@example.com"
 
-  val testIndividual = TestIndividual("individualUser", "password", userFullName, emailAddress, individualDetails, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
-    Some(MtdItId("XGIT00000000054")), Some(EoriNumber("GB1234567890")), Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES))
+  val testIndividual = TestIndividual("individualUser", "password", userFullName, emailAddress, individualDetails, Some(SaUtr("1555369052")), nino = Some(Nino("CC333333C")),
+   mtdItId =  Some(MtdItId("XGIT00000000054")), vrn = Some(Vrn("999902541")), eoriNumber = Some(EoriNumber("GB1234567890")), Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
 
   val testOrganisation = TestOrganisation("organisationUser", "password", userFullName, emailAddress,  organisationDetails, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
     Some(MtdItId("XGIT00000000054")), Some(EmpRef("555","EIA000")), Some(CtUtr("1555369053")), Some(Vrn("999902541")),
@@ -113,6 +113,15 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
           |       {
           |         "key":"EORINumber",
           |         "value":"${testIndividual.eoriNumber.get.value}"
+          |       }]
+          |     },
+          |     {
+          |       "key": "HMRC-MTD-VAT",
+          |       "state": "Activated",
+          |       "identifiers": [
+          |       {
+          |         "key":"VRN",
+          |         "value":"${testIndividual.vrn.get.value}"
           |       }]
           |     }
           |   ],

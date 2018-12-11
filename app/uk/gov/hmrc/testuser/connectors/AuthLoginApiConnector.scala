@@ -79,6 +79,7 @@ object GovernmentGatewayLogin {
         case SELF_ASSESSMENT => individual.saUtr map { saUtr => Enrolment("IR-SA", taxIdentifier(saUtr)) }
         case MTD_INCOME_TAX => individual.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId)) }
         case CUSTOMS_SERVICES => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", taxIdentifier(eoriNumber)) }
+        case MTD_VAT => individual.vrn map {vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString()))) }
         case _ => None
       }
     }

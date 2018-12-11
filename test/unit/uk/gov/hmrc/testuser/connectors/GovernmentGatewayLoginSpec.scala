@@ -90,8 +90,8 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
   "A GovernmentGatewayLogin created from a TestIndividual" should {
 
     val individual = TestIndividual(user, password, userFullName, emailAddress,individualDetails,
-      saUtr = Some(saUtr), nino = Some(nino), mtdItId = Some(mtdItId), eoriNumber = Some(eoriNumber),
-      services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES))
+      saUtr = Some(saUtr), nino = Some(nino), mtdItId = Some(mtdItId), eoriNumber = Some(eoriNumber), vrn = Some(vrn),
+      services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
 
     "contain no enrolments when the individual has no services" in {
       val login = GovernmentGatewayLogin(individual.copy(services = Seq.empty))
@@ -102,7 +102,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
     "contain the right enrolments for the individual's services" in {
       val login = GovernmentGatewayLogin(individual)
 
-      login.enrolments should contain theSameElementsAs Seq(saEnrolment, mtdItEnrolment, customsEnrolment)
+      login.enrolments should contain theSameElementsAs Seq(saEnrolment, mtdItEnrolment, customsEnrolment, mtdVatEnrolment)
     }
 
     "contain the correct enrolments for customs services" in {
@@ -111,11 +111,17 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
       login.enrolments should contain theSameElementsAs Seq(customsEnrolment)
     }
 
+    "contain the correct enrolments for mtd vat" in {
+      val login = GovernmentGatewayLogin(individual.copy(services = Seq(MTD_VAT)))
+
+      login.enrolments should contain theSameElementsAs Seq(mtdVatEnrolment)
+    }
+
     "ignore services that are not applicable" in {
       val login = GovernmentGatewayLogin(individual.copy(services = Seq(
-        AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX)))
+        AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, MTD_VAT)))
 
-      login.enrolments should contain theSameElementsAs Seq(saEnrolment, mtdItEnrolment)
+      login.enrolments should contain theSameElementsAs Seq(saEnrolment, mtdItEnrolment, mtdVatEnrolment)
     }
 
     "not have the credential role populated" in {

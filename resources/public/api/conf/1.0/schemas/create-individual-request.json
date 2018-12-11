@@ -25,6 +25,10 @@
           {
             "enum": ["customs-services"],
             "description": "Generates an EORI number and enrols the user for Customs Services"
+          },
+          {
+            "enum": ["mtd-vat"],
+            "description": "Generates a VAT Registration Number and enrols the user for Making Tax Digital VAT"
           }
         ]
       },

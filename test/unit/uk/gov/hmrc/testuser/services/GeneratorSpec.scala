@@ -43,19 +43,20 @@ class GeneratorSpec extends UnitSpec {
   "generateTestIndividual" should {
 
     implicit def individualChecker(individual: TestIndividual) = new Checker {
-      def shouldHave(ninoDefined: Boolean = false, saUtrDefined: Boolean = false, mtdItIdDefined: Boolean = false,
+      def shouldHave(ninoDefined: Boolean = false, vrnDefined: Boolean = false, saUtrDefined: Boolean = false, mtdItIdDefined: Boolean = false,
                      eoriDefined: Boolean = false) = {
 
         check(individual.nino, ninoDefined)
         check(individual.saUtr, saUtrDefined)
         check(individual.mtdItId, mtdItIdDefined)
         check(individual.eoriNumber, eoriDefined)
+        check(individual.vrn, vrnDefined)
       }
     }
 
     "create a different test individual at every run" in {
       def generate(): TestIndividual =
-        underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES))
+        underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
 
       val individual1 = generate()
       val individual2 = generate()
@@ -92,6 +93,12 @@ class GeneratorSpec extends UnitSpec {
 
       individual.individualDetails shouldBe IndividualDetails("Adrian", "Adams", LocalDate.parse("1940-10-10"),
         Address("1 Abbey Road", "Aberdeen", "TS1 1PA"))
+    }
+
+    "generate a VRN when MTD_VAT service is included" in {
+      val individual = underTest.generateTestIndividual(Seq(MTD_VAT))
+
+      individual shouldHave(vrnDefined = true)
     }
 
     "set the userFullName and emailAddress" in {
