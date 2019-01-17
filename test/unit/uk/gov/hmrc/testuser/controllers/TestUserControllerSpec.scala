@@ -49,6 +49,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   val mtdItId = MtdItId("XGIT00000000054")
   val ctUtr = CtUtr("1555369053")
   val vrn = Vrn("999902541")
+  val vatRegistrationDate = LocalDate.parse("2011-07-07")
   val empRef = EmpRef("555","EIA000")
   val arn = AgentBusinessUtr("NARN0396245")
   val lisaManagerReferenceNumber = LisaManagerReferenceNumber("Z123456")
@@ -60,11 +61,11 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
 
   val testIndividual = TestIndividual(user, password, userFullName, emailAddress, individualDetails,
-    Some(saUtr), Some(nino), Some(mtdItId), Some(vrn), Some(eoriNumber))
+    Some(saUtr), Some(nino), Some(mtdItId), Some(vrn), Some(vatRegistrationDate), Some(eoriNumber))
 
   val testOrganisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,
     Some(saUtr), Some(nino), Some(mtdItId),
-    Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber), Some(secureElectronicTransferReferenceNumber),
+    Some(empRef), Some(ctUtr), Some(vrn), Some(vatRegistrationDate), Some(lisaManagerReferenceNumber), Some(secureElectronicTransferReferenceNumber),
     Some(pensionSchemeAdministratorIdentifier), Some(eoriNumber))
 
   val testAgent = TestAgent(user, password, userFullName, emailAddress, Some(arn))
@@ -107,7 +108,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
       status(result) shouldBe CREATED
       jsonBodyOf(result) shouldBe toJson(TestIndividualCreatedResponse(user, password, userFullName, emailAddress,
-        individualDetails, Some(saUtr), Some(nino), Some(mtdItId), Some(vrn) ,Some(eoriNumber)))
+        individualDetails, Some(saUtr), Some(nino), Some(mtdItId), Some(vrn), Some(vatRegistrationDate) ,Some(eoriNumber)))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
@@ -135,7 +136,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       status(result) shouldBe CREATED
       jsonBodyOf(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, userFullName, emailAddress,
         organisationDetails, Some(saUtr),
-        Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(lisaManagerReferenceNumber),
+        Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(vatRegistrationDate), Some(lisaManagerReferenceNumber),
         Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier), Some(eoriNumber)))
     }
 

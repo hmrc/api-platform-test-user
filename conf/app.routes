@@ -11,5 +11,7 @@ POST        /bas-gateway/session                @uk.gov.hmrc.testuser.controller
 GET         /individuals/nino/:nino             @uk.gov.hmrc.testuser.controllers.TestUserController.fetchIndividualByNino(nino: uk.gov.hmrc.domain.Nino)
 GET         /individuals/shortnino/:shortNino   @uk.gov.hmrc.testuser.controllers.TestUserController.fetchIndividualByShortNino(shortNino: uk.gov.hmrc.testuser.models.NinoNoSuffix)
 GET         /individuals/sautr/:saUtr           @uk.gov.hmrc.testuser.controllers.TestUserController.fetchIndividualBySaUtr(saUtr: uk.gov.hmrc.domain.SaUtr)
+GET         /individuals/vrn/:vrn               @uk.gov.hmrc.testuser.controllers.TestUserController.fetchIndividualByVrn(vrn: uk.gov.hmrc.domain.Vrn)
 
 GET         /organisations/empref/:empRef       @uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationByEmpRef(empRef: uk.gov.hmrc.domain.EmpRef)
+GET         /organisations/vrn/:vrn             @uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationByVrn(vrn: uk.gov.hmrc.domain.Vrn)

@@ -52,11 +52,12 @@ class Generator @Inject() extends Randomiser {
     val mtdItId = if(services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
     val eoriNumber = if(services.contains(CUSTOMS_SERVICES)) Some(generateEoriNumber) else None
     val vrn = if(services.contains(MTD_VAT)) Some(generateVrn) else None
+    val vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1,20).sample.get))
     val individualDetails = generateIndividualDetails
     val userFullName = generateUserFullName(individualDetails.firstName, individualDetails.lastName)
     val emailAddress = generateEmailAddress(individualDetails.firstName, individualDetails.lastName)
 
-    TestIndividual(generateUserId, generatePassword, userFullName, emailAddress, individualDetails, saUtr, nino, mtdItId, vrn, eoriNumber, services)
+    TestIndividual(generateUserId, generatePassword, userFullName, emailAddress, individualDetails, saUtr, nino, mtdItId, vrn, vatRegistrationDate, eoriNumber, services)
   }
 
   def generateTestOrganisation(services: Seq[ServiceName] = Seq.empty) = {
@@ -66,6 +67,7 @@ class Generator @Inject() extends Randomiser {
     val empRef = if (services.contains(PAYE_FOR_EMPLOYERS)) Some(generateEmpRef) else None
     val ctUtr = if (services.contains(CORPORATION_TAX)) Some(generateCtUtr) else None
     val vrn = if (services.contains(SUBMIT_VAT_RETURNS) || services.contains(MTD_VAT)) Some(generateVrn) else None
+    val vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1,20).sample.get))
     val lisaManRefNum = if (services.contains(LISA)) Some(generateLisaManRefNum) else None
     val setRefNum = if (services.contains(SECURE_ELECTRONIC_TRANSFER)) Some(generateSetRefNum) else None
     val psaId = if(services.contains(RELIEF_AT_SOURCE)) Some(generatePsaId) else None
@@ -77,7 +79,7 @@ class Generator @Inject() extends Randomiser {
     val emailAddress = generateEmailAddress(firstName, lastName)
 
     TestOrganisation(generateUserId, generatePassword, userFullName, emailAddress, generateOrganisationDetails, saUtr, nino, mtdItId, empRef, ctUtr,
-      vrn, lisaManRefNum, setRefNum, psaId, eoriNumber, services)
+      vrn,vatRegistrationDate, lisaManRefNum, setRefNum, psaId, eoriNumber, services)
   }
 
   def generateTestAgent(services: Seq[ServiceName] = Seq.empty) = {

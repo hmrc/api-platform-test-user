@@ -17,8 +17,7 @@
 package uk.gov.hmrc.testuser.services
 
 import javax.inject.{Inject, Singleton}
-
-import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr}
+import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr, Vrn}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
 import uk.gov.hmrc.testuser.models.ServiceName._
@@ -76,8 +75,16 @@ class TestUserService @Inject()(val passwordService: PasswordService,
     testUserRepository.fetchIndividualBySaUtr(saUtr) map getOrFailWithUserNotFound(INDIVIDUAL)
   }
 
+  def fetchIndividualByVrn(vrn: Vrn)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
+    testUserRepository.fetchIndividualByVrn(vrn) map getOrFailWithUserNotFound(INDIVIDUAL)
+  }
+
   def fetchOrganisationByEmpRef(empRef: EmpRef)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
     testUserRepository.fetchOrganisationByEmpRef(empRef) map getOrFailWithUserNotFound(ORGANISATION)
+  }
+
+  def fetchOrganisationByVrn(vrn: Vrn)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
+    testUserRepository.fetchOrganisationByVrn(vrn) map getOrFailWithUserNotFound(ORGANISATION)
   }
 
   def getOrFailWithUserNotFound[T <: TestUser](userType: UserType.Value) = PartialFunction[Option[T], T] {
