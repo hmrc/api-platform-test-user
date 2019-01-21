@@ -32,7 +32,7 @@ class FetchUserSpec extends BaseSpec {
     scenario("Fetch an individual by NINO") {
 
       Given("An individual")
-      val individual = createIndividual()
+      val individual = createIndividual("national-insurance", "self-assessment")
 
       When("I fetch the individual by its NINO")
       val response = Http(s"$serviceUrl/individuals/nino/${individual.nino.get}").asString
@@ -63,7 +63,7 @@ class FetchUserSpec extends BaseSpec {
     scenario("Fetch an individual by SHORTNINO") {
 
       Given("An individual")
-      val individual = createIndividual()
+      val individual = createIndividual("national-insurance", "self-assessment")
       val shortNino = NinoNoSuffix(individual.nino.get)
 
       When("I fetch the individual by its SHORTNINO")
@@ -86,7 +86,7 @@ class FetchUserSpec extends BaseSpec {
     scenario("Fetch an individual by SAUTR") {
 
       Given("An individual")
-      val individual = createIndividual()
+      val individual = createIndividual("national-insurance", "self-assessment")
 
       When("I fetch the individual by its SAUTR")
       val response = Http(s"$serviceUrl/individuals/sautr/${individual.saUtr.get}").asString
@@ -105,10 +105,32 @@ class FetchUserSpec extends BaseSpec {
       )
     }
 
+    scenario("Fetch an individual by VRN") {
+
+      Given("An individual")
+      val individual = createIndividual("mtd-vat")
+
+      When("I fetch the individual by its VRN")
+      val response = Http(s"$serviceUrl/individuals/vrn/${individual.vrn.get}").asString
+
+      Then("The individual is returned along with VAT Registration Date")
+      Json.parse(response.body) shouldBe Json.parse(
+        s"""{
+           |   "userId": "${individual.userId}",
+           |   "userFullName": "${individual.userFullName}",
+           |   "emailAddress": "${individual.emailAddress}",
+           |   "vatRegistrationDate": "${individual.vatRegistrationDate.get.toString("yyyy-MM-dd")}",
+           |   "vrn": "${individual.vrn.get}",
+           |   "individualDetails": ${toJson(individual.individualDetails)}
+           |}
+      """.stripMargin
+      )
+    }
+
     scenario("Fetch an organisation by EMPREF") {
 
       Given("An organisation")
-      val organisation = createOrganisation()
+      val organisation = createOrganisation("paye-for-employers")
 
       When("I fetch the organisation by its EMPREF")
       val response = Http(s"$serviceUrl/organisations/empref/${organisation.empRef.get.encodedValue}").asString
@@ -132,18 +154,47 @@ class FetchUserSpec extends BaseSpec {
       """.stripMargin
       )
     }
+
+    scenario("Fetch an organisation by VRN") {
+
+      Given("An organisation")
+      val organisation = createOrganisation("mtd-vat")
+
+      When("I fetch the organisation by its VRN")
+      val response = Http(s"$serviceUrl/organisations/vrn/${organisation.vrn.get}").asString
+
+      Then("The organisation is returned along with VAT Registration Date")
+      Json.parse(response.body) shouldBe Json.parse(
+        s"""{
+           |   "userId": "${organisation.userId}",
+           |   "userFullName": "${organisation.userFullName}",
+           |   "emailAddress": "${organisation.emailAddress}",
+           |   "vrn": "${organisation.vrn.get}",
+           |   "vatRegistrationDate": "${organisation.vatRegistrationDate.get.toString("yyyy-MM-dd")}",
+           |   "organisationDetails": {
+           |     "name": "${organisation.organisationDetails.name}",
+           |     "address": {
+           |       "line1": "${organisation.organisationDetails.address.line1}",
+           |       "line2": "${organisation.organisationDetails.address.line2}",
+           |       "postcode": "${organisation.organisationDetails.address.postcode}"
+           |     }
+           |   }
+           |}
+      """.stripMargin
+      )
+    }
   }
 
-  private def createIndividual(): TestIndividualCreatedResponse = {
+  private def createIndividual(services: String*): TestIndividualCreatedResponse = {
     val createdResponse = Http(s"$serviceUrl/individuals")
-      .postData(s"""{ "serviceNames": ["national-insurance", "self-assessment"] }""")
+      .postData(s"""{ "serviceNames": [${services.map(s => s""" "$s" """).mkString(",")}] }""")
       .header(HeaderNames.CONTENT_TYPE, "application/json").asString
     Json.parse(createdResponse.body).as[TestIndividualCreatedResponse]
   }
 
-  private def createOrganisation(): TestOrganisationCreatedResponse = {
+  private def createOrganisation(services: String*): TestOrganisationCreatedResponse = {
     val createdResponse = Http(s"$serviceUrl/organisations")
-      .postData(s"""{ "serviceNames": ["paye-for-employers"] }""")
+      .postData(s"""{ "serviceNames": [${services.map(s => s""" "$s" """).mkString(",")}] }""")
       .header(HeaderNames.CONTENT_TYPE, "application/json").asString
     Json.parse(createdResponse.body).as[TestOrganisationCreatedResponse]
   }
