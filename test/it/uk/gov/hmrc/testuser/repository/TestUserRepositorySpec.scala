@@ -35,8 +35,8 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
   }
   private val repository = new TestUserRepository(mongoComponent)
   private val generator = new Generator()
-  val testIndividual = generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE))
-  val testOrganisation = generator.generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS))
+  val testIndividual = generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_VAT))
+  val testOrganisation = generator.generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT))
 
   override def beforeEach() {
     await(repository.drop)
@@ -172,6 +172,31 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
     }
   }
 
+  "fetchIndividualByVrn" should {
+
+    "return the individual" in {
+      await(repository.createUser(testIndividual))
+
+      val result = await(repository.fetchIndividualByVrn(testIndividual.vrn.get))
+
+      result shouldBe Some(testIndividual)
+    }
+
+    "return None when there is an organisation matching" in {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchIndividualByVrn(testOrganisation.vrn.get))
+
+      result shouldBe None
+    }
+
+    "return None when there is no individual matching" in {
+      val result = await(repository.fetchIndividualByVrn(Vrn("1555369052")))
+
+      result shouldBe None
+    }
+  }
+
   "fetchOrganisationByEmpRef" should {
 
     "return the organisation" in {
@@ -184,6 +209,31 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
 
     "return None when there is an organisation matching" in {
       val result = await(repository.fetchOrganisationByEmpRef(testOrganisation.empRef.get))
+
+      result shouldBe None
+    }
+  }
+
+  "fetchOrganisationByVrn" should {
+
+    "return the organisation" in {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchOrganisationByVrn(testOrganisation.vrn.get))
+
+      result shouldBe Some(testOrganisation)
+    }
+
+    "return None when there is an individual matching" in {
+      await(repository.createUser(testIndividual))
+
+      val result = await(repository.fetchOrganisationByVrn(testIndividual.vrn.get))
+
+      result shouldBe None
+    }
+
+    "return None when there is an organisation matching" in {
+      val result = await(repository.fetchOrganisationByVrn(testOrganisation.vrn.get))
 
       result shouldBe None
     }

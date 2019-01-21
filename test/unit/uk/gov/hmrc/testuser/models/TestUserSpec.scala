@@ -56,6 +56,7 @@ class TestUserSpec extends FlatSpec with Matchers {
         None,
         None,
         None,
+        None,
         Some(LisaManagerReferenceNumber("Z123456")),
         None,
         None

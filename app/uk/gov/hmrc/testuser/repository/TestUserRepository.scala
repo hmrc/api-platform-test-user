@@ -17,12 +17,11 @@
 package uk.gov.hmrc.testuser.repository
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr}
+import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr, Vrn}
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.testuser.models._
@@ -63,7 +62,15 @@ class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)
     find("saUtr" -> saUtr, "userType" -> UserType.INDIVIDUAL) map(_.headOption map (_.asInstanceOf[TestIndividual]))
   }
 
+  def fetchIndividualByVrn(vrn: Vrn): Future[Option[TestIndividual]] = {
+    find("vrn" -> vrn, "userType" -> UserType.INDIVIDUAL) map(_.headOption map (_.asInstanceOf[TestIndividual]))
+  }
+
   def fetchOrganisationByEmpRef(empRef: EmpRef): Future[Option[TestOrganisation]] = {
     find("empRef" -> empRef.value) map(_.headOption map (_.asInstanceOf[TestOrganisation]))
+  }
+
+  def fetchOrganisationByVrn(vrn: Vrn): Future[Option[TestOrganisation]] = {
+    find("vrn" -> vrn.value, "userType" -> UserType.ORGANISATION) map(_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
 }

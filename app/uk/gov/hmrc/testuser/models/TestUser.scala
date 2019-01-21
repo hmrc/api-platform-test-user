@@ -57,6 +57,7 @@ case class TestIndividual(override val userId: String,
                           nino: Option[Nino] = None,
                           mtdItId: Option[MtdItId] = None,
                           vrn: Option[Vrn] = None,
+                          vatRegistrationDate: Option[LocalDate] = None,
                           eoriNumber: Option[EoriNumber] = None,
                           override val services: Seq[ServiceName] = Seq.empty,
                           override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
@@ -74,6 +75,7 @@ case class TestOrganisation(override val userId: String,
                             empRef: Option[EmpRef] = None,
                             ctUtr: Option[CtUtr] = None,
                             vrn: Option[Vrn] = None,
+                            vatRegistrationDate: Option[LocalDate] = None,
                             lisaManRefNum: Option[LisaManagerReferenceNumber] = None,
                             secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber] = None,
                             pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier] = None,
@@ -105,6 +107,7 @@ sealed trait TestIndividualResponse extends TestUserResponse {
   val nino: Option[Nino]
   val mtdItId: Option[MtdItId]
   val vrn: Option[Vrn]
+  val vatRegistrationDate: Option[LocalDate]
   val eoriNumber: Option[EoriNumber]
 }
 
@@ -116,6 +119,7 @@ sealed trait TestOrganisationResponse extends TestUserResponse {
   val empRef: Option[EmpRef]
   val ctUtr: Option[CtUtr]
   val vrn: Option[Vrn]
+  val vatRegistrationDate: Option[LocalDate]
   val lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber]
   val secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber]
   val pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier]
@@ -134,13 +138,14 @@ case class FetchTestIndividualResponse(override val userId: String,
                                        override val nino: Option[Nino] = None,
                                        override val mtdItId: Option[MtdItId] = None,
                                        override val vrn: Option[Vrn] = None,
+                                       override val vatRegistrationDate: Option[LocalDate] = None,
                                        override val eoriNumber: Option[EoriNumber] = None)
   extends TestIndividualResponse
 
 object FetchTestIndividualResponse {
   def from(individual: TestIndividual) = FetchTestIndividualResponse(individual.userId, individual.userFullName,
     individual.emailAddress, individual.individualDetails, individual.saUtr, individual.nino,
-    individual.mtdItId, individual.vrn, individual.eoriNumber)
+    individual.mtdItId, individual.vrn, individual.vatRegistrationDate, individual.eoriNumber)
 }
 
 case class TestIndividualCreatedResponse(override val userId: String,
@@ -152,13 +157,14 @@ case class TestIndividualCreatedResponse(override val userId: String,
                                          override val nino: Option[Nino],
                                          override val mtdItId: Option[MtdItId],
                                          override val vrn: Option[Vrn],
+                                         override val vatRegistrationDate: Option[LocalDate] = None,
                                          override val eoriNumber: Option[EoriNumber] = None)
   extends TestIndividualResponse
 
 object TestIndividualCreatedResponse {
   def from(individual: TestIndividual) = TestIndividualCreatedResponse(individual.userId, individual.password,
     individual.userFullName, individual.emailAddress, individual.individualDetails,
-    individual.saUtr, individual.nino, individual.mtdItId, individual.vrn, individual.eoriNumber)
+    individual.saUtr, individual.nino, individual.mtdItId, individual.vrn, individual.vatRegistrationDate, individual.eoriNumber)
 }
 
 case class FetchTestOrganisationResponse(override val userId: String,
@@ -171,6 +177,7 @@ case class FetchTestOrganisationResponse(override val userId: String,
                                          override val empRef: Option[EmpRef] = None,
                                          override val ctUtr: Option[CtUtr] = None,
                                          override val vrn: Option[Vrn] = None,
+                                         override val vatRegistrationDate: Option[LocalDate] = None,
                                          override val lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber] = None,
                                          override val secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber] = None,
                                          override val pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier] = None,
@@ -180,7 +187,7 @@ case class FetchTestOrganisationResponse(override val userId: String,
 object FetchTestOrganisationResponse {
   def from(organisation: TestOrganisation) = FetchTestOrganisationResponse(organisation.userId, organisation.userFullName,
     organisation.emailAddress, organisation.organisationDetails, organisation.saUtr, organisation.nino,
-    organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.lisaManRefNum,
+    organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.vatRegistrationDate, organisation.lisaManRefNum,
     organisation.secureElectronicTransferReferenceNumber, organisation.pensionSchemeAdministratorIdentifier,
     organisation.eoriNumber)
 }
@@ -196,6 +203,7 @@ case class TestOrganisationCreatedResponse(override val userId: String,
                                            override val empRef: Option[EmpRef],
                                            override val ctUtr: Option[CtUtr],
                                            override val vrn: Option[Vrn],
+                                           override val vatRegistrationDate: Option[LocalDate] = None,
                                            override val lisaManagerReferenceNumber: Option[LisaManagerReferenceNumber],
                                            override val secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber],
                                            override val pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier],
@@ -205,7 +213,7 @@ case class TestOrganisationCreatedResponse(override val userId: String,
 object TestOrganisationCreatedResponse {
   def from(organisation: TestOrganisation) = TestOrganisationCreatedResponse(organisation.userId, organisation.password,
     organisation.userFullName, organisation.emailAddress, organisation.organisationDetails, organisation.saUtr,
-    organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn,
+    organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.vatRegistrationDate,
     organisation.lisaManRefNum, organisation.secureElectronicTransferReferenceNumber,
     organisation.pensionSchemeAdministratorIdentifier, organisation.eoriNumber)
 }

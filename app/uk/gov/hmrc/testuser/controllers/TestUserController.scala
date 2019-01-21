@@ -17,11 +17,10 @@
 package uk.gov.hmrc.testuser.controllers
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.Logger
 import play.api.libs.json.Json.toJson
 import play.api.mvc.{Action, Result}
-import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr}
+import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr, Vrn}
 import uk.gov.hmrc.play.microservice.controller.BaseController
 import uk.gov.hmrc.testuser.models.ErrorResponse.{individualNotFoundError, organisationNotFoundError}
 import uk.gov.hmrc.testuser.models.JsonFormatters._
@@ -76,8 +75,20 @@ class TestUserController @Inject()(val testUserService: TestUserService) extends
     } recover recovery
   }
 
+  def fetchIndividualByVrn(vrn: Vrn) = Action.async { implicit request =>
+    testUserService.fetchIndividualByVrn(vrn) map { individual =>
+      Ok(toJson(FetchTestIndividualResponse.from(individual)))
+    } recover recovery
+  }
+
   def fetchOrganisationByEmpRef(empRef: EmpRef) = Action.async { implicit request =>
     testUserService.fetchOrganisationByEmpRef(empRef) map { organisation =>
+      Ok(toJson(FetchTestOrganisationResponse.from(organisation)))
+    } recover recovery
+  }
+
+  def fetchOrganisationByVrn(vrn: Vrn) = Action.async { implicit request =>
+    testUserService.fetchOrganisationByVrn(vrn) map { organisation =>
       Ok(toJson(FetchTestOrganisationResponse.from(organisation)))
     } recover recovery
   }

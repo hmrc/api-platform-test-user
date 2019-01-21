@@ -82,6 +82,11 @@
       "type": "string",
       "description": "VAT Reference Number"
     },
+    "vatRegistrationDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of registration for VAT"
+    },
     "lisaManagerReferenceNumber": {
       "type": "string",
       "description": "LISA Manager Reference Number, in either 4-digit format (Znnnn) or 6-digit format (Znnnnnn)"

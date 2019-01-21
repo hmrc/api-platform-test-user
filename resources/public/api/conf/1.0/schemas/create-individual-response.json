@@ -88,6 +88,11 @@
     "vrn": {
       "type": "string",
       "description": "VAT Reference Number"
+    },
+    "vatRegistrationDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of registration for VAT"
     }
   },
   "required": [
