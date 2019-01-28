@@ -17,17 +17,19 @@
 package unit.uk.gov.hmrc.testuser.services
 
 import org.joda.time.LocalDate
+import org.scalacheck.Gen
 import org.scalatest.enablers.{Definition, Emptiness}
 import org.scalatest.matchers.{MatchResult, Matcher}
+import org.scalatest.prop.PropertyChecks
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.models.ServiceName._
 import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.services.Generator
+import uk.gov.hmrc.testuser.services.{Generator, VrnChecksum}
 import unit.uk.gov.hmrc.testuser.services.CustomMatchers.haveDifferentPropertiesThan
 
 import scala.language.implicitConversions
 
-class GeneratorSpec extends UnitSpec {
+class GeneratorSpec extends UnitSpec with PropertyChecks {
 
   val underTest = new Generator {
     override val fileName = "randomiser-unique-values"
@@ -256,6 +258,15 @@ class GeneratorSpec extends UnitSpec {
       val nameParts = agent.userFullName.split(" ")
 
       agent.emailAddress shouldBe s"${nameParts(0)}.${nameParts(1)}@example.com".toLowerCase
+    }
+  }
+
+  "VrnChecksum" should {
+    "generate valid VRN checksum" in {
+      forAll(Gen.choose(6660000, 6669999)) { vrnBase =>
+        val vrn  = VrnChecksum.apply(vrnBase.toString)
+        VrnChecksum.isValid(vrn) shouldBe true
+      }
     }
   }
 }
