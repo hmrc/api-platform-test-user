@@ -268,6 +268,16 @@ class GeneratorSpec extends UnitSpec with PropertyChecks {
         VrnChecksum.isValid(vrn) shouldBe true
       }
     }
+
+    "validate VRN" in {
+      VrnChecksum.isValid("703850256") shouldBe true
+      VrnChecksum.isValid("834784495") shouldBe true
+      VrnChecksum.isValid("703850257") shouldBe false
+      VrnChecksum.isValid("03850256 ") shouldBe false
+      VrnChecksum.isValid("") shouldBe false
+      VrnChecksum.isValid("000000000") shouldBe false
+      VrnChecksum.isValid(" 703850256") shouldBe false
+    }
   }
 }
 

@@ -229,11 +229,8 @@ object VrnChecksum {
   }
 
   private def calcCheckSum97(total: Int): String = {
-    var x = total
-    while (x >= 0) {
-      x = x - 97
-    }
-    if (x > -10) s"0${-x}" else (-x).toString
+    val x = total % 97 - 97
+    f"${Math.abs(x)}%02d"
   }
 
   private def weightedTotal(reference: String): Int = {
