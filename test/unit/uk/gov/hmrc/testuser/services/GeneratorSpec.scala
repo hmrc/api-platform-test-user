@@ -266,17 +266,22 @@ class GeneratorSpec extends UnitSpec with PropertyChecks {
       forAll(Gen.choose(6660000, 6669999)) { vrnBase =>
         val vrn  = VrnChecksum.apply(vrnBase.toString)
         VrnChecksum.isValid(vrn) shouldBe true
+        println(vrn)
       }
     }
 
     "validate VRN" in {
-      VrnChecksum.isValid("703850256") shouldBe true
-      VrnChecksum.isValid("834784495") shouldBe true
-      VrnChecksum.isValid("703850257") shouldBe false
-      VrnChecksum.isValid("03850256 ") shouldBe false
+      VrnChecksum.isValid("666000754") shouldBe true
+      VrnChecksum.isValid("666163716") shouldBe true
+      VrnChecksum.isValid("666541906") shouldBe true
+      VrnChecksum.isValid("666163716") shouldBe true
+      VrnChecksum.isValid("666634014") shouldBe true
+      VrnChecksum.isValid("666159897") shouldBe true
+      VrnChecksum.isValid("666159896") shouldBe false
+      VrnChecksum.isValid("66159896 ") shouldBe false
       VrnChecksum.isValid("") shouldBe false
       VrnChecksum.isValid("000000000") shouldBe false
-      VrnChecksum.isValid(" 703850256") shouldBe false
+      VrnChecksum.isValid(" 666159896") shouldBe false
     }
   }
 }
