@@ -38,7 +38,8 @@ class Generator @Inject() extends Randomiser {
     taxOfficeNumber <- Gen.choose(100, 999).map(x => x.toString)
     taxOfficeReference <- Gen.listOfN(10, Gen.alphaNumChar).map(_.mkString.toUpperCase)
   } yield EmpRef.fromIdentifiers(s"$taxOfficeNumber/$taxOfficeReference")
-  private val vrnGenerator = Gen.choose(666000000, 666999999)
+
+  private val vrnGenerator: Gen[String] = Gen.choose(6660000, 6669999).map(i => VrnChecksum.apply(i.toString)).retryUntil(VrnChecksum.isValid)
   private val arnGenerator = new ArnGenerator()
   private val mtdItIdGenerator = new MtdItIdGenerator()
   private val lisaManRefNumGenerator = new LisaGenerator()
@@ -212,4 +213,36 @@ class PensionSchemeAdministratorIdentifierGenerator(random: Random = new Random)
     val remainingDigits = (for (i <- 1 to 7) yield random.nextInt(9)).mkString("")
     PensionSchemeAdministratorIdentifier(s"$initialCharacter$remainingDigits")
   }
+}
+
+object VrnChecksum {
+
+  def apply(s: String) = s + calcCheckSum97(weightedTotal(s))
+
+  def isValid(vrn: String): Boolean = {
+    if (regexCheck(vrn)) {
+      val total = weightedTotal(vrn)
+      val checkSumPart = takeCheckSumPart(vrn)
+      if (checkSumPart == calcCheckSum97(total).toInt) true
+      else checkSumPart == calcCheckSum9755(total)
+    } else false
+  }
+
+  private def calcCheckSum97(total: Int): String = {
+    val x = total % 97 - 97
+    f"${Math.abs(x)}%02d"
+  }
+
+  private def weightedTotal(reference: String): Int = {
+    val weighting = List(8, 7, 6, 5, 4, 3, 2)
+    val ref = reference.map(_.asDigit).take(7)
+    (ref, weighting).zipped.map(_ * _).sum
+  }
+
+  private def calcCheckSum9755(total: Int): Int = calcCheckSum97(total + 55).toInt
+
+  private def takeCheckSumPart(vrn: String): Int = vrn.takeRight(2).toInt
+
+  private def regexCheck(vrn: String): Boolean = vrn.matches("[0-9]{9}")
+
 }
