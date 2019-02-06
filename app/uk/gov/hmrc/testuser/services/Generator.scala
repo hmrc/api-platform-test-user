@@ -21,7 +21,7 @@ import javax.inject.{Inject, Singleton}
 import org.joda.time.LocalDate
 import org.scalacheck.Gen
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.testuser.models.ServiceName._
+import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.util.Randomiser
 
@@ -47,7 +47,7 @@ class Generator @Inject() extends Randomiser {
   private val psaIdGenerator = new PensionSchemeAdministratorIdentifierGenerator()
   private val eoriGenerator = Gen.listOfN(10, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
 
-  def generateTestIndividual(services: Seq[ServiceName] = Seq.empty) = {
+  def generateTestIndividual(services: Seq[ServiceKey] = Seq.empty) = {
     val saUtr = if (services.contains(SELF_ASSESSMENT)) Some(generateSaUtr) else None
     val nino = if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) Some(generateNino) else None
     val mtdItId = if(services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
@@ -61,7 +61,7 @@ class Generator @Inject() extends Randomiser {
     TestIndividual(generateUserId, generatePassword, userFullName, emailAddress, individualDetails, saUtr, nino, mtdItId, vrn, vatRegistrationDate, eoriNumber, services)
   }
 
-  def generateTestOrganisation(services: Seq[ServiceName] = Seq.empty) = {
+  def generateTestOrganisation(services: Seq[ServiceKey] = Seq.empty) = {
     val saUtr = if (services.contains(SELF_ASSESSMENT)) Some(generateSaUtr) else None
     val nino = if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) Some(generateNino) else None
     val mtdItId = if (services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
@@ -83,7 +83,7 @@ class Generator @Inject() extends Randomiser {
       vrn,vatRegistrationDate, lisaManRefNum, setRefNum, psaId, eoriNumber, services)
   }
 
-  def generateTestAgent(services: Seq[ServiceName] = Seq.empty) = {
+  def generateTestAgent(services: Seq[ServiceKey] = Seq.empty) = {
     val arn = if (services.contains(AGENT_SERVICES)) Some(generateArn) else None
     val firstName = generateFirstName
     val lastName = generateLastName

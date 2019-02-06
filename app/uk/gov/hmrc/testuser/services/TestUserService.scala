@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr, Vrn}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
-import uk.gov.hmrc.testuser.models.ServiceName._
+import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
@@ -34,30 +34,30 @@ class TestUserService @Inject()(val passwordService: PasswordService,
                                 val testUserRepository: TestUserRepository,
                                 val generator: Generator) {
 
-  def createTestIndividual(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier) = {
+  def createTestIndividual(serviceNames: Seq[ServiceKey])(implicit hc: HeaderCarrier) = {
     val individual = generator.generateTestIndividual(serviceNames)
     val hashedPassword = passwordService.hash(individual.password)
 
     testUserRepository.createUser(individual.copy(password = hashedPassword)) map {
-      case createdIndividual if createdIndividual.services.contains(ServiceName.MTD_INCOME_TAX) => desSimulatorConnector.createIndividual(createdIndividual)
+      case createdIndividual if createdIndividual.services.contains(ServiceKeys.MTD_INCOME_TAX) => desSimulatorConnector.createIndividual(createdIndividual)
       case _ => Future.successful(individual)
     } map {
       _ => individual
     }
   }
 
-  def createTestOrganisation(serviceNames: Seq[ServiceName])(implicit hc: HeaderCarrier) = {
+  def createTestOrganisation(serviceNames: Seq[ServiceKey])(implicit hc: HeaderCarrier) = {
     val organisation = generator.generateTestOrganisation(serviceNames)
     val hashedPassword = passwordService.hash(organisation.password)
     testUserRepository.createUser(organisation.copy(password = hashedPassword)) map {
-      case createdOrganisation if createdOrganisation.services.contains(ServiceName.MTD_INCOME_TAX) => desSimulatorConnector.createOrganisation(createdOrganisation)
+      case createdOrganisation if createdOrganisation.services.contains(ServiceKeys.MTD_INCOME_TAX) => desSimulatorConnector.createOrganisation(createdOrganisation)
       case _ => Future.successful(organisation)
     } map {
       _ => organisation
     }
   }
 
-  def createTestAgent(serviceNames: Seq[ServiceName]) = {
+  def createTestAgent(serviceNames: Seq[ServiceKey]) = {
     val agent = generator.generateTestAgent(serviceNames)
     val hashedPassword = passwordService.hash(agent.password)
     testUserRepository.createUser(agent.copy(password = hashedPassword)) map (_ => agent)

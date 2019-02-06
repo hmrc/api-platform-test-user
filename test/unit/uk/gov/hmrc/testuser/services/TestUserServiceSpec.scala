@@ -28,7 +28,7 @@ import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
-import uk.gov.hmrc.testuser.models.ServiceName.{ServiceName => _}
+import uk.gov.hmrc.testuser.models.ServiceKeys.{ServiceKey => _}
 import uk.gov.hmrc.testuser.models.{UserNotFound, _}
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.services.{Generator, PasswordService, TestUserService}
@@ -46,7 +46,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   val shortNino = NinoNoSuffix("CC333333")
   val empRef =  EmpRef("555","EIA000")
 
-  val individualServices = Seq(ServiceName.NATIONAL_INSURANCE, ServiceName.MTD_INCOME_TAX)
+  val individualServices = Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
   val generator = new Generator()
   val testIndividualWithNoServices = generator.generateTestIndividual()
     .copy(
@@ -57,7 +57,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     )
   val testIndividual = testIndividualWithNoServices.copy(services = individualServices)
 
-  val organisationServices = Seq(ServiceName.NATIONAL_INSURANCE, ServiceName.MTD_INCOME_TAX)
+  val organisationServices = Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
   val testOrganisationWithNoServices = generator.generateTestOrganisation()
     .copy(
       userId = userId,
@@ -65,7 +65,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
       empRef = Some(empRef))
   val testOrganisation = testOrganisationWithNoServices.copy(services = organisationServices)
 
-  val agentServices = Seq(ServiceName.AGENT_SERVICES)
+  val agentServices = Seq(ServiceKeys.AGENT_SERVICES)
   val testAgent = generator.generateTestAgent(agentServices).copy(userId = userId, password = password)
 
   trait Setup {

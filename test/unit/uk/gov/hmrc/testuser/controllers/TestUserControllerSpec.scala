@@ -70,9 +70,9 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
   val testAgent = TestAgent(user, password, userFullName, emailAddress, Some(arn))
 
-  val createIndividualServices = Seq(ServiceName.NATIONAL_INSURANCE)
-  val createOrganisationServices = Seq(ServiceName.NATIONAL_INSURANCE)
-  val createAgentServices = Seq(ServiceName.AGENT_SERVICES)
+  val createIndividualServices = Seq(ServiceKeys.NATIONAL_INSURANCE)
+  val createOrganisationServices = Seq(ServiceKeys.NATIONAL_INSURANCE)
+  val createAgentServices = Seq(ServiceKeys.AGENT_SERVICES)
 
   trait Setup {
     implicit lazy val materializer = fakeApplication.materializer
@@ -311,6 +311,14 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
         status(result) shouldBe INTERNAL_SERVER_ERROR
         jsonBodyOf(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
       }
+    }
+  }
+
+  "getServices" should {
+    "return the services" in new Setup {
+      val result = await(underTest.getServices()(request))
+
+      jsonBodyOf(result) shouldBe Json.toJson(Services)
     }
   }
 }

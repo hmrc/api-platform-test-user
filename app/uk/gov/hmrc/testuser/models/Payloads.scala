@@ -18,7 +18,7 @@ package uk.gov.hmrc.testuser.models
 
 import org.joda.time.LocalDate
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.testuser.models.ServiceName._
+import uk.gov.hmrc.testuser.models.ServiceKeys._
 
 case class AuthenticationRequest(username: String, password: String)
 
@@ -26,7 +26,7 @@ case class AuthenticationResponse(gatewayToken: String, affinityGroup: String)
 
 case class AuthSession(authBearerToken: String, authorityUri: String, gatewayToken: String)
 
-case class CreateUserRequest(serviceNames: Option[Seq[ServiceName]])
+case class CreateUserRequest(serviceNames: Option[Seq[ServiceKey]])
 
 
 object LegacySandboxUser {
