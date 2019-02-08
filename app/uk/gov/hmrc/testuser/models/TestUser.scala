@@ -20,22 +20,47 @@ import org.joda.time.LocalDate
 import play.api.libs.json.{Format, Reads, Writes}
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.testuser.models.ServiceName.ServiceName
+import uk.gov.hmrc.testuser.models.ServiceKeys.ServiceKey
+import uk.gov.hmrc.testuser.models.UserType.{AGENT, INDIVIDUAL, ORGANISATION, UserType}
 
-object ServiceName extends Enumeration {
-  type ServiceName = Value
-  val NATIONAL_INSURANCE = Value("national-insurance")
-  val SELF_ASSESSMENT = Value("self-assessment")
-  val CORPORATION_TAX = Value("corporation-tax")
-  val PAYE_FOR_EMPLOYERS = Value("paye-for-employers")
-  val SUBMIT_VAT_RETURNS = Value("submit-vat-returns")
-  val MTD_VAT = Value("mtd-vat")
-  val MTD_INCOME_TAX = Value("mtd-income-tax")
-  val AGENT_SERVICES = Value("agent-services")
-  val LISA = Value("lisa")
-  val SECURE_ELECTRONIC_TRANSFER = Value("secure-electronic-transfer")
-  val RELIEF_AT_SOURCE = Value("relief-at-source")
-  val CUSTOMS_SERVICES = Value("customs-services")
+object ServiceKeys extends Enumeration {
+  type ServiceKey = Value
+  val NATIONAL_INSURANCE: ServiceKeys.Value = Value("national-insurance")
+  val SELF_ASSESSMENT: ServiceKeys.Value = Value("self-assessment")
+  val CORPORATION_TAX: ServiceKeys.Value = Value("corporation-tax")
+  val PAYE_FOR_EMPLOYERS: ServiceKeys.Value = Value("paye-for-employers")
+  val SUBMIT_VAT_RETURNS: ServiceKeys.Value = Value("submit-vat-returns")
+  val MTD_VAT: ServiceKeys.Value = Value("mtd-vat")
+  val MTD_INCOME_TAX: ServiceKeys.Value = Value("mtd-income-tax")
+  val AGENT_SERVICES: ServiceKeys.Value = Value("agent-services")
+  val LISA: ServiceKeys.Value = Value("lisa")
+  val SECURE_ELECTRONIC_TRANSFER: ServiceKeys.Value = Value("secure-electronic-transfer")
+  val RELIEF_AT_SOURCE: ServiceKeys.Value = Value("relief-at-source")
+  val CUSTOMS_SERVICES: ServiceKeys.Value = Value("customs-services")
+}
+
+case class Service(key: ServiceKey, name: String, allowedUserTypes: Seq[UserType])
+
+object Services extends Seq[Service] {
+  val services = Seq(
+    Service(ServiceKeys.NATIONAL_INSURANCE, "National Insurance", Seq(INDIVIDUAL, ORGANISATION)),
+    Service(ServiceKeys.SELF_ASSESSMENT, "Self Assessment", Seq(INDIVIDUAL, ORGANISATION)),
+    Service(ServiceKeys.CORPORATION_TAX, "Corporation Tax", Seq(ORGANISATION)),
+    Service(ServiceKeys.PAYE_FOR_EMPLOYERS, "PAYE for Employers", Seq(ORGANISATION)),
+    Service(ServiceKeys.SUBMIT_VAT_RETURNS, "Submit VAT Returns", Seq(ORGANISATION)),
+    Service(ServiceKeys.MTD_VAT, "MTD VAT", Seq(INDIVIDUAL, ORGANISATION)),
+    Service(ServiceKeys.MTD_INCOME_TAX, "MTD Income Tax", Seq(INDIVIDUAL, ORGANISATION)),
+    Service(ServiceKeys.AGENT_SERVICES, "Agent Services", Seq(AGENT)),
+    Service(ServiceKeys.LISA, "Lifetime ISA", Seq(ORGANISATION)),
+    Service(ServiceKeys.SECURE_ELECTRONIC_TRANSFER, "Secure Electronic Transfer", Seq(ORGANISATION)),
+    Service(ServiceKeys.RELIEF_AT_SOURCE, "Relief at Source", Seq(ORGANISATION)),
+    Service(ServiceKeys.CUSTOMS_SERVICES, "Customs Services", Seq(INDIVIDUAL, ORGANISATION)))
+
+  override def length: Int = services.length
+
+  override def apply(idx: Int): Service = services.apply(idx)
+
+  override def iterator: Iterator[Service] = services.iterator
 }
 
 sealed trait TestUser {
@@ -44,7 +69,7 @@ sealed trait TestUser {
   val userFullName: String
   val emailAddress: String
   val affinityGroup: String
-  val services: Seq[ServiceName]
+  val services: Seq[ServiceKey]
   val _id: BSONObjectID
 }
 
@@ -59,7 +84,7 @@ case class TestIndividual(override val userId: String,
                           vrn: Option[Vrn] = None,
                           vatRegistrationDate: Option[LocalDate] = None,
                           eoriNumber: Option[EoriNumber] = None,
-                          override val services: Seq[ServiceName] = Seq.empty,
+                          override val services: Seq[ServiceKey] = Seq.empty,
                           override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Individual"
 }
@@ -80,7 +105,7 @@ case class TestOrganisation(override val userId: String,
                             secureElectronicTransferReferenceNumber: Option[SecureElectronicTransferReferenceNumber] = None,
                             pensionSchemeAdministratorIdentifier: Option[PensionSchemeAdministratorIdentifier] = None,
                             eoriNumber: Option[EoriNumber] = None,
-                            override val services: Seq[ServiceName] = Seq.empty,
+                            override val services: Seq[ServiceKey] = Seq.empty,
                             override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Organisation"
 }
@@ -90,7 +115,7 @@ case class TestAgent(override val userId: String,
                      override val userFullName: String,
                      override val emailAddress: String,
                      arn: Option[AgentBusinessUtr] = None,
-                     override val services: Seq[ServiceName] = Seq.empty,
+                     override val services: Seq[ServiceKey] = Seq.empty,
                      override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Agent"
 }
@@ -330,3 +355,4 @@ case class Address(line1: String, line2: String, postcode: String)
 case class IndividualDetails(firstName: String, lastName: String, dateOfBirth: LocalDate, address: Address)
 
 case class OrganisationDetails(name: String, address: Address)
+

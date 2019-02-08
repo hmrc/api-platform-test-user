@@ -22,7 +22,7 @@ import org.scalatest.enablers.{Definition, Emptiness}
 import org.scalatest.matchers.{MatchResult, Matcher}
 import org.scalatest.prop.PropertyChecks
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.models.ServiceName._
+import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.services.{Generator, VrnChecksum}
 import unit.uk.gov.hmrc.testuser.services.CustomMatchers.haveDifferentPropertiesThan

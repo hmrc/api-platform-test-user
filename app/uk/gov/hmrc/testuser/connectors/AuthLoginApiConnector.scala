@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.auth.microservice.connectors.ConfidenceLevel
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.testuser.config.WSHttp
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models.ServiceName._
+import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -74,7 +74,7 @@ object GovernmentGatewayLogin {
 
   private def fromIndividual(individual: TestIndividual) = {
 
-    def asEnrolment(serviceName: ServiceName) = {
+    def asEnrolment(serviceName: ServiceKey) = {
       serviceName match {
         case SELF_ASSESSMENT => individual.saUtr map { saUtr => Enrolment("IR-SA", taxIdentifier(saUtr)) }
         case MTD_INCOME_TAX => individual.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId)) }
@@ -90,7 +90,7 @@ object GovernmentGatewayLogin {
 
   private def fromOrganisation(organisation: TestOrganisation) = {
 
-    def asEnrolment(serviceName: ServiceName) = {
+    def asEnrolment(serviceName: ServiceKey) = {
       serviceName match {
         case SELF_ASSESSMENT => organisation.saUtr map { saUtr => Enrolment("IR-SA", taxIdentifier(saUtr)) }
         case CORPORATION_TAX => organisation.ctUtr map { ctUtr => Enrolment("IR-CT", taxIdentifier(ctUtr)) }
@@ -111,7 +111,7 @@ object GovernmentGatewayLogin {
   }
 
   private def fromAgent(agent: TestAgent) = {
-    def asEnrolment(serviceName: ServiceName) = {
+    def asEnrolment(serviceName: ServiceKey) = {
       serviceName match {
         case AGENT_SERVICES => agent.arn map { arn => Enrolment("HMRC-AS-AGENT", taxIdentifier(arn)) }
         case _ => None

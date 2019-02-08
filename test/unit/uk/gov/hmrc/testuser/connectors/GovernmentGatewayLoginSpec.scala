@@ -21,7 +21,7 @@ import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.connectors.{Enrolment, GovernmentGatewayLogin, Identifier}
 import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.models.ServiceName._
+import uk.gov.hmrc.testuser.models.ServiceKeys._
 
 class GovernmentGatewayLoginSpec extends UnitSpec {
   val user = "user"

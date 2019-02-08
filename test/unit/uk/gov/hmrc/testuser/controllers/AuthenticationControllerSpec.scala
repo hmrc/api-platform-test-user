@@ -32,7 +32,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.controllers.AuthenticationController
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.models.ServiceName._
+import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.services.AuthenticationService
 
 import scala.concurrent.Future.{failed, successful}

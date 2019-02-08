@@ -4,6 +4,7 @@ POST        /individuals                        @uk.gov.hmrc.testuser.controller
 POST        /organisations                      @uk.gov.hmrc.testuser.controllers.TestUserController.createOrganisation
 POST        /agents                             @uk.gov.hmrc.testuser.controllers.TestUserController.createAgent
 
+GET         /services                           @uk.gov.hmrc.testuser.controllers.TestUserController.getServices
 
 POST        /session                            @uk.gov.hmrc.testuser.controllers.AuthenticationController.authenticate
 POST        /bas-gateway/session                @uk.gov.hmrc.testuser.controllers.AuthenticationController.authenticate

@@ -22,7 +22,7 @@ import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models.ServiceName._
+import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
 
 import scala.concurrent.Await._

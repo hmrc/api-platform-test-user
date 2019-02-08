@@ -100,4 +100,8 @@ class TestUserController @Inject()(val testUserService: TestUserService) extends
       Logger.error(s"An unexpected error occurred: ${e.getMessage}", e)
       InternalServerError(toJson(ErrorResponse.internalServerError))
   }
+
+  def getServices() = Action { implicit request =>
+    Ok(toJson(Services))
+  }
 }
