@@ -12,7 +12,7 @@
         "oneOf": [
           {
             "enum": ["agent-services"],
-            "description" : "Generates an agent services account reference number and enrols the user for Agent Services."
+            "description" : "Generates an agent services account reference number and enrols the user for agent services."
           }
         ]
       },
