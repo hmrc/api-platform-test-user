@@ -36,7 +36,8 @@ lazy val test = Seq(
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
   "org.mockito" % "mockito-core" % "1.10.19" % scope,
   "org.scalaj" %% "scalaj-http" % "1.1.6" % scope,
-  "com.github.tomakehurst" % "wiremock" % "2.15.0" % "test,it"
+  "com.github.tomakehurst" % "wiremock" % "2.15.0" % scope,
+  "com.eclipsesource" %% "play-json-schema-validator" % "0.8.9" % scope
 )
 
 lazy val plugins: Seq[Plugins] = Seq.empty

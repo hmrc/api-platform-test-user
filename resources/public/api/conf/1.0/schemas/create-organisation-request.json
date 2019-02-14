@@ -58,5 +58,8 @@
       },
       "uniqueItems": true
     }
-  }
+  },
+  "required": [
+    "serviceNames"
+  ]
 }
