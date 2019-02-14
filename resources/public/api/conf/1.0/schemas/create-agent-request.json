@@ -5,14 +5,14 @@
   "properties": {
     "serviceNames": {
       "type": "array",
-      "description": "List of services that the user should be enrolled for",
+      "description": "Comma-separated list of zero or more services that the user should be enrolled for",
       "minItems": 0,
       "items": {
         "type": "string",
         "oneOf": [
           {
             "enum": ["agent-services"],
-            "description" : "Generates an Account Number for Agent Services and enrols the user for Agent Services"
+            "description" : "Generates an agent services account reference number and enrols the user for Agent Services"
           }
         ]
       },
