@@ -66,10 +66,6 @@
       "type": "string",
       "description": "Making Tax Digital Income Tax ID"
     },
-    "mtdVrn": {
-      "type": "string",
-      "description": "MTD VAT Reference Number"
-    },
     "empRef": {
       "type": "string",
       "description": "Employer Reference"
