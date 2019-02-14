@@ -263,7 +263,7 @@ class GeneratorSpec extends UnitSpec with PropertyChecks {
 
   "VrnChecksum" should {
     "generate valid VRN checksum" in {
-      forAll(Gen.choose(6660000, 6669999)) { vrnBase =>
+      forAll(Gen.choose(1000000, 1999999)) { vrnBase =>
         val vrn  = VrnChecksum.apply(vrnBase.toString)
         VrnChecksum.isValid(vrn) shouldBe true
         println(vrn)
@@ -291,20 +291,21 @@ object CustomMatchers {
 
     def apply(left: TestUser) = {
       MatchResult(
-        allFieldsDifferent(left),
+        allCriticalFieldsDifferent(left),
         s"""Individuals $left and $right have same fields"""",
         s"""Individuals are different""""
       )
     }
 
-    private def allFieldsDifferent(leftUser: TestUser) = {
+    private def allCriticalFieldsDifferent(leftUser: TestUser) = {
       (leftUser, right) match {
         case (i1: TestIndividual, i2: TestIndividual) => i1._id != i2._id  &&
           i1.userId != i2.userId &&
           i1.password != i2.password &&
           i1.nino != i2.nino &&
           i1.saUtr != i2.saUtr &&
-          i1.eoriNumber != i2.eoriNumber
+          i1.eoriNumber != i2.eoriNumber &&
+          i1.vrn != i2.vrn
 
         case (o1: TestOrganisation, o2: TestOrganisation) => o1._id != o2._id &&
           o1.userId != o2.userId &&
@@ -314,7 +315,8 @@ object CustomMatchers {
           o1.empRef != o2.empRef &&
           o1.vrn != o2.vrn &&
           o1.lisaManRefNum != o2.lisaManRefNum &&
-          o1.secureElectronicTransferReferenceNumber != o2.secureElectronicTransferReferenceNumber &&
+          // secureElectronicTransferReferenceNumber is not checked because it draws from such a limited pool that collisions occur relatively frequently
+          // o1.secureElectronicTransferReferenceNumber != o2.secureElectronicTransferReferenceNumber &&
           o1.pensionSchemeAdministratorIdentifier != o2.pensionSchemeAdministratorIdentifier &&
           o1.eoriNumber != o2.eoriNumber
 
