@@ -5,50 +5,50 @@
   "properties": {
     "userId": {
       "type": "string",
-      "description": "Government Gateway ID"
+      "description": "Government Gateway ID."
     },
     "password": {
       "type": "string",
-      "description": "Government Gateway password"
+      "description": "Government Gateway password."
     },
     "userFullName": {
       "type": "string",
-      "description": "Government Gateway user's full name"
+      "description": "Government Gateway user's full name."
     },
     "emailAddress": {
       "type": "string",
-      "description": "Government Gateway user's email address"
+      "description": "Government Gateway user's email address."
     },
     "individualDetails": {
       "type": "object",
       "properties": {
         "firstName": {
           "type": "string",
-          "description": "Individual's first name"
+          "description": "Individual's first name."
         },
         "lastName": {
           "type": "string",
-          "description": "Individual's last name"
+          "description": "Individual's last name."
         },
         "dateOfBirth": {
           "type": "string",
           "format": "date",
-          "description": "Individual's date of birth"
+          "description": "Individual's date of birth."
         },
         "address": {
           "type": "object",
           "properties": {
             "line1": {
               "type": "string",
-              "description": "Individual's first line of address"
+              "description": "Individual's first line of address."
             },
             "line2": {
               "type": "string",
-              "description": "Individual's second line of address"
+              "description": "Individual's second line of address."
             },
             "postcode": {
               "type": "string",
-              "description": "Individual's postcode"
+              "description": "Individual's postcode."
             }
           },
           "required": [
@@ -67,28 +67,28 @@
     },
     "saUtr": {
       "type": "string",
-      "description": "Self Assessment UTR"
+      "description": "Self Assessment UTR."
     },
     "nino": {
       "type": "string",
-      "description": "National Insurance number"
+      "description": "National Insurance number."
     },
     "mtdItId": {
       "type": "string",
-      "description": "Making Tax Digital Income Tax ID"
+      "description": "Making Tax Digital Income Tax ID."
     },
     "eoriNumber": {
       "type": "string",
-      "description": "Economic Operator Registration and Identification (EORI) number"
+      "description": "Economic Operator Registration and Identification (EORI) number."
     },
     "vrn": {
       "type": "string",
-      "description": "VAT Reference Number"
+      "description": "VAT Reference Number."
     },
     "vatRegistrationDate": {
       "type": "string",
       "format": "date",
-      "description": "Date of registration for VAT"
+      "description": "Date of registration for VAT."
     }
   },
   "required": [

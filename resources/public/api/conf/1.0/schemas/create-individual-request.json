@@ -5,30 +5,30 @@
   "properties": {
     "serviceNames": {
       "type": "array",
-      "description": "Comma-separated list of zero or more services that the user should be enrolled for",
+      "description": "A list of services that the user should be enrolled for. To create a test user with no services, leave the list empty.",
       "minItems": 0,
       "items": {
         "type": "string",
         "oneOf": [
           {
             "enum": ["national-insurance"],
-            "description": "Generates a National Insurance number and enrols the user for National Insurance"
+            "description": "Generates a National Insurance number and enrols the user for National Insurance."
           },
           {
             "enum": ["self-assessment"],
-            "description": "Generates a Self Assessment UTR and enrols the user for Self Assessment"
+            "description": "Generates a Self Assessment UTR and enrols the user for Self Assessment."
           },
           {
             "enum": ["mtd-income-tax"],
-            "description": "Generates a National Insurance number and a Making Tax Digital Income Tax ID and enrols the user for Making Tax Digital Income Tax"
+            "description": "Generates a National Insurance number and a Making Tax Digital Income Tax ID and enrols the user for Making Tax Digital Income Tax."
           },
           {
             "enum": ["customs-services"],
-            "description": "Generates an EORI number and enrols the user for Customs Services"
+            "description": "Generates an EORI number and enrols the user for Customs Services."
           },
           {
             "enum": ["mtd-vat"],
-            "description": "Generates a VAT Registration Number and a date of registration for VAT and enrols the user for Making Tax Digital VAT"
+            "description": "Generates a VAT Registration Number and a date of registration for VAT and enrols the user for Making Tax Digital VAT."
           }
         ]
       },
