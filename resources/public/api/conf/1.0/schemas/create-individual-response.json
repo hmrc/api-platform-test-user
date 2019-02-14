@@ -81,10 +81,6 @@
       "type": "string",
       "description": "Economic Operator Registration and Identification (EORI) number"
     },
-    "mtdVrn": {
-      "type": "string",
-      "description": "MTD VAT Reference Number"
-    },
     "vrn": {
       "type": "string",
       "description": "VAT Reference Number"
