@@ -21,7 +21,7 @@
     },
     "agentServicesAccountNumber": {
       "type": "string",
-      "description": "Account number for Agent Services"
+      "description": "Agent services account reference number"
     }
   },
   "required": [
