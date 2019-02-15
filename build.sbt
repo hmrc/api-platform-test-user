@@ -1,6 +1,4 @@
-import _root_.play.sbt.routes.RoutesKeys.routesGenerator
 import play.core.PlayVersion
-import play.routes.compiler.StaticRoutesGenerator
 import play.sbt.PlayImport._
 import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.DefaultBuildSettings._
@@ -41,7 +39,7 @@ lazy val test = Seq(
 )
 
 lazy val plugins: Seq[Plugins] = Seq.empty
-lazy val playSettings : Seq[Setting[_]] = Seq(routesImport ++= Seq("uk.gov.hmrc.domain._", "uk.gov.hmrc.testuser.models._", "uk.gov.hmrc.testuser.Binders._"))
+lazy val playSettings: Seq[Setting[_]] = Seq(routesImport ++= Seq("uk.gov.hmrc.domain._", "uk.gov.hmrc.testuser.models._", "uk.gov.hmrc.testuser.Binders._"))
 
 def unitFilter(name: String): Boolean = name startsWith "unit"
 def itTestFilter(name: String): Boolean = name startsWith "it"
@@ -63,7 +61,6 @@ lazy val microservice = (project in file("."))
     fork in Test := false,
     testOptions in Test := Seq(Tests.Filter(unitFilter)),
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
-    routesGenerator := StaticRoutesGenerator,
     majorVersion := 0
   )
   .settings(unmanagedResourceDirectories in Compile += baseDirectory.value / "resources")
@@ -73,7 +70,7 @@ lazy val microservice = (project in file("."))
     Keys.fork in IntegrationTest := false,
     testOptions in IntegrationTest := Seq(Tests.Filter(itTestFilter)),
     testOptions in IntegrationTest += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
-    unmanagedSourceDirectories in IntegrationTest := Seq((baseDirectory in IntegrationTest).value / "test" ),
+    unmanagedSourceDirectories in IntegrationTest := Seq((baseDirectory in IntegrationTest).value / "test"),
     addTestReportOption(IntegrationTest, "int-test-reports"),
     testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
     parallelExecution in IntegrationTest := false)
