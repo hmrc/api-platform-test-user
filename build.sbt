@@ -62,6 +62,7 @@ lazy val microservice = (project in file("."))
     parallelExecution in Test := false,
     fork in Test := false,
     testOptions in Test := Seq(Tests.Filter(unitFilter)),
+    testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
     routesGenerator := StaticRoutesGenerator,
     majorVersion := 0
   )
@@ -71,6 +72,7 @@ lazy val microservice = (project in file("."))
   .settings(
     Keys.fork in IntegrationTest := false,
     testOptions in IntegrationTest := Seq(Tests.Filter(itTestFilter)),
+    testOptions in IntegrationTest += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
     unmanagedSourceDirectories in IntegrationTest := Seq((baseDirectory in IntegrationTest).value / "test" ),
     addTestReportOption(IntegrationTest, "int-test-reports"),
     testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
