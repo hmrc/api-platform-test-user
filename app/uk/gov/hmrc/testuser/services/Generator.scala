@@ -39,7 +39,7 @@ class Generator @Inject() extends Randomiser {
     taxOfficeReference <- Gen.listOfN(10, Gen.alphaNumChar).map(_.mkString.toUpperCase)
   } yield EmpRef.fromIdentifiers(s"$taxOfficeNumber/$taxOfficeReference")
 
-  private val vrnGenerator: Gen[String] = Gen.choose(6660000, 6669999).map(i => VrnChecksum.apply(i.toString)).retryUntil(VrnChecksum.isValid)
+  private val vrnGenerator: Gen[String] = Gen.choose(1000000, 9999999).map(i => VrnChecksum.apply(i.toString)).retryUntil(VrnChecksum.isValid)
   private val arnGenerator = new ArnGenerator()
   private val mtdItIdGenerator = new MtdItIdGenerator()
   private val lisaManRefNumGenerator = new LisaGenerator()
