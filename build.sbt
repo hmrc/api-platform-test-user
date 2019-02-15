@@ -13,7 +13,7 @@ lazy val appDependencies: Seq[ModuleID] = compile ++ test
 lazy val compile = Seq(
   "uk.gov.hmrc" %% "play-reactivemongo" % "6.4.0", // TODO: Use simple-reactivemongo?
   ws,
-  "uk.gov.hmrc" %% "microservice-bootstrap" % "8.2.0",
+  "uk.gov.hmrc" %% "bootstrap-play-25" % "4.9.0",
   "uk.gov.hmrc" %% "play-ui" % "7.32.0-play-25",
   "uk.gov.hmrc" %% "play-hmrc-api" % "2.1.0", // TODO Check that we need this
   "uk.gov.hmrc" %% "play-json-union-formatter" % "1.5.0",
@@ -86,6 +86,6 @@ def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
   }
 
 // Coverage configuration
-coverageMinimum := 95
+coverageMinimum := 96
 coverageFailOnMinimum := true
 coverageExcludedPackages := "<empty>;com.kenshoo.play.metrics.*;.*definition.*;prod.*;testOnlyDoNotUseInAppConf.*;app.*;uk.gov.hmrc.BuildInfo"

@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 
 import controllers.AssetsBuilder
 import play.api.http.HttpErrorHandler
-import uk.gov.hmrc.play.microservice.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.controller.BaseController
 
 @Singleton
 class DocumentationController @Inject()(httpErrorHandler: HttpErrorHandler) extends AssetsBuilder(httpErrorHandler) with BaseController {

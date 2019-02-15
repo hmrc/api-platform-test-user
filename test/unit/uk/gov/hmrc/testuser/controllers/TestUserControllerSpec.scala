@@ -33,6 +33,7 @@ import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.services.TestUserService
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future.failed
 import uk.gov.hmrc.http.HeaderCarrier

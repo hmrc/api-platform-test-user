@@ -21,17 +21,17 @@ import play.api.Logger
 import play.api.libs.json.Json.toJson
 import play.api.mvc.{Action, Result}
 import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr, Vrn}
-import uk.gov.hmrc.play.microservice.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.controller.BaseController
 import uk.gov.hmrc.testuser.models.ErrorResponse.{individualNotFoundError, organisationNotFoundError}
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.services._
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 
 @Singleton
-class TestUserController @Inject()(val testUserService: TestUserService) extends BaseController {
+class TestUserController @Inject()(val testUserService: TestUserService)(implicit ec: ExecutionContext) extends BaseController {
 
   def createIndividual() = Action.async(parse.json) { implicit request =>
     withJsonBody[CreateUserRequest] { createUserRequest =>
@@ -101,7 +101,7 @@ class TestUserController @Inject()(val testUserService: TestUserService) extends
       InternalServerError(toJson(ErrorResponse.internalServerError))
   }
 
-  def getServices() = Action { implicit request =>
+  def getServices = Action { implicit request =>
     Ok(toJson(Services))
   }
 }

@@ -20,27 +20,33 @@ import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequest
 import it.uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import org.joda.time.LocalDate
 import org.scalatest.BeforeAndAfterEach
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.domain._
+import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
-import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
-import uk.gov.hmrc.http.{ HeaderCarrier, Upstream5xxResponse }
+import uk.gov.hmrc.testuser.models._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with WithFakeApplication {
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
-  val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
+  val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
   val userFullName = "John Doe"
   val emailAddress = "john.doe@example.com"
 
-  val testIndividual = TestIndividual("individualUser", "password", userFullName, emailAddress, individualDetails, Some(SaUtr("1555369052")), nino = Some(Nino("CC333333C")),
-   mtdItId =  Some(MtdItId("XGIT00000000054")), vrn = Some(Vrn("999902541")), vatRegistrationDate = Some(LocalDate.parse("1997-01-01")), eoriNumber = Some(EoriNumber("GB1234567890")), Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
+  val testIndividual = TestIndividual("individualUser", "password", userFullName, emailAddress, individualDetails, Some(SaUtr("1555369052")),
+    nino = Some(Nino("CC333333C")), mtdItId = Some(MtdItId("XGIT00000000054")), vrn = Some(Vrn("999902541")),
+    vatRegistrationDate = Some(LocalDate.parse("1997-01-01")), eoriNumber = Some(EoriNumber("GB1234567890")),
+    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
 
-  val testOrganisation = TestOrganisation("organisationUser", "password", userFullName, emailAddress,  organisationDetails, Some(SaUtr("1555369052")), Some(Nino("CC333333C")),
-    Some(MtdItId("XGIT00000000054")), Some(EmpRef("555","EIA000")), Some(CtUtr("1555369053")), Some(Vrn("999902541")), Some(LocalDate.parse("1997-01-01")),
-    Some(LisaManagerReferenceNumber("Z123456")), Some(SecureElectronicTransferReferenceNumber("123456789012")),
-    Some(PensionSchemeAdministratorIdentifier("A1234567")), Some(EoriNumber("GB1234567890")),
+  val testOrganisation = TestOrganisation("organisationUser", "password", userFullName, emailAddress, organisationDetails,
+    Some(SaUtr("1555369052")), Some(Nino("CC333333C")), Some(MtdItId("XGIT00000000054")), Some(EmpRef("555", "EIA000")), Some(CtUtr("1555369053")),
+    Some(Vrn("999902541")), Some(LocalDate.parse("1997-01-01")), Some(LisaManagerReferenceNumber("Z123456")),
+    Some(SecureElectronicTransferReferenceNumber("123456789012")), Some(PensionSchemeAdministratorIdentifier("A1234567")), Some(EoriNumber("GB1234567890")),
     Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX,
       MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES))
 
@@ -51,22 +57,26 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
   trait Setup {
     implicit val hc = HeaderCarrier()
 
-    val underTest = new AuthLoginApiConnector {
+    val underTest = new AuthLoginApiConnector(
+      fakeApplication.injector.instanceOf[HttpClient],
+      fakeApplication.injector.instanceOf[Configuration],
+      fakeApplication.injector.instanceOf[Environment]
+    ) {
       override lazy val serviceUrl: String = AuthLoginApiStub.url
     }
   }
 
-  override def beforeAll() = {
+  override def beforeAll(): Unit = {
     super.beforeAll()
     AuthLoginApiStub.server.start()
   }
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     AuthLoginApiStub.server.resetMappings()
   }
 
-  override def afterAll() = {
+  override def afterAll(): Unit = {
     super.afterAll()
     AuthLoginApiStub.server.stop()
   }
@@ -80,54 +90,54 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
       result shouldBe authSession
       AuthLoginApiStub.mock.verifyThat(postRequestedFor(urlPathEqualTo("/government-gateway/session/login"))
         .withRequestBody(equalToJson(
-        s"""
-          |{
-          |   "credId": "${testIndividual.userId}",
-          |   "affinityGroup": "Individual",
-          |   "nino": "${testIndividual.nino.get}",
-          |   "confidenceLevel": 200,
-          |   "credentialStrength": "strong",
-          |   "enrolments": [
-          |     {
-          |       "key": "IR-SA",
-          |       "state": "Activated",
-          |       "identifiers": [
-          |       {
-          |         "key":"UTR",
-          |         "value":"${testIndividual.saUtr.get.value}"
-          |       }]
-          |     },
-          |     {
-          |       "key": "HMRC-MTD-IT",
-          |       "state": "Activated",
-          |       "identifiers": [
-          |       {
-          |         "key":"MTDITID",
-          |         "value":"${testIndividual.mtdItId.get.value}"
-          |       }]
-          |     },
-          |     {
-          |       "key": "HMRC-CUS-ORG",
-          |       "state": "Activated",
-          |       "identifiers": [
-          |       {
-          |         "key":"EORINumber",
-          |         "value":"${testIndividual.eoriNumber.get.value}"
-          |       }]
-          |     },
-          |     {
-          |       "key": "HMRC-MTD-VAT",
-          |       "state": "Activated",
-          |       "identifiers": [
-          |       {
-          |         "key":"VRN",
-          |         "value":"${testIndividual.vrn.get.value}"
-          |       }]
-          |     }
-          |   ],
-          |   "usersName": "John Doe",
-          |   "email": "john.doe@example.com"
-          |}
+          s"""
+             |{
+             |   "credId": "${testIndividual.userId}",
+             |   "affinityGroup": "Individual",
+             |   "nino": "${testIndividual.nino.get}",
+             |   "confidenceLevel": 200,
+             |   "credentialStrength": "strong",
+             |   "enrolments": [
+             |     {
+             |       "key": "IR-SA",
+             |       "state": "Activated",
+             |       "identifiers": [
+             |       {
+             |         "key":"UTR",
+             |         "value":"${testIndividual.saUtr.get.value}"
+             |       }]
+             |     },
+             |     {
+             |       "key": "HMRC-MTD-IT",
+             |       "state": "Activated",
+             |       "identifiers": [
+             |       {
+             |         "key":"MTDITID",
+             |         "value":"${testIndividual.mtdItId.get.value}"
+             |       }]
+             |     },
+             |     {
+             |       "key": "HMRC-CUS-ORG",
+             |       "state": "Activated",
+             |       "identifiers": [
+             |       {
+             |         "key":"EORINumber",
+             |         "value":"${testIndividual.eoriNumber.get.value}"
+             |       }]
+             |     },
+             |     {
+             |       "key": "HMRC-MTD-VAT",
+             |       "state": "Activated",
+             |       "identifiers": [
+             |       {
+             |         "key":"VRN",
+             |         "value":"${testIndividual.vrn.get.value}"
+             |       }]
+             |     }
+             |   ],
+             |   "usersName": "John Doe",
+             |   "email": "john.doe@example.com"
+             |}
         """.stripMargin.replaceAll("\n", ""))))
     }
 
@@ -282,7 +292,9 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     "fail with Upstream5xxResponse when auth-login-api returns an error" in new Setup {
       AuthLoginApiStub.willFailToReturnASession()
 
-      intercept[Upstream5xxResponse]{await(underTest.createSession(testOrganisation))}
+      intercept[Upstream5xxResponse] {
+        await(underTest.createSession(testOrganisation))
+      }
     }
   }
 }

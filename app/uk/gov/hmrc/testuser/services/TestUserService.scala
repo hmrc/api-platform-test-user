@@ -25,14 +25,14 @@ import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class TestUserService @Inject()(val passwordService: PasswordService,
                                 val desSimulatorConnector: DesSimulatorConnector,
                                 val testUserRepository: TestUserRepository,
-                                val generator: Generator) {
+                                val generator: Generator)
+                               (implicit ec: ExecutionContext) {
 
   def createTestIndividual(serviceNames: Seq[ServiceKey])(implicit hc: HeaderCarrier) = {
     val individual = generator.generateTestIndividual(serviceNames)

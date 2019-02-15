@@ -22,6 +22,7 @@ import org.mockito.Matchers.anyString
 import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.domain._
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
 import uk.gov.hmrc.testuser.models.LegacySandboxUser._
@@ -30,8 +31,8 @@ import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.services.{AuthenticationService, PasswordService}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
-import uk.gov.hmrc.http.HeaderCarrier
 
 class AuthenticationServiceSpec extends UnitSpec with MockitoSugar {
 
@@ -81,14 +82,18 @@ class AuthenticationServiceSpec extends UnitSpec with MockitoSugar {
 
       given(underTest.testUserRepository.fetchByUserId(userId)).willReturn(None)
 
-      intercept[InvalidCredentials]{await(underTest.authenticate(AuthenticationRequest(userId, password)))}
+      intercept[InvalidCredentials] {
+        await(underTest.authenticate(AuthenticationRequest(userId, password)))
+      }
     }
 
     "fail with InvalidCredentials when the password is invalid" in new Setup {
       given(underTest.testUserRepository.fetchByUserId(userId)).willReturn(Some(storedTestIndividual))
       given(underTest.authLoginApiConnector.createSession(storedTestIndividual)).willReturn(authSession)
 
-      intercept[InvalidCredentials]{await(underTest.authenticate(AuthenticationRequest(userId, "wrong password")))}
+      intercept[InvalidCredentials] {
+        await(underTest.authenticate(AuthenticationRequest(userId, "wrong password")))
+      }
     }
 
   }

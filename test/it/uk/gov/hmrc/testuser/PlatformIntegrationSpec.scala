@@ -16,6 +16,7 @@
 
 package it.uk.gov.hmrc.testuser
 
+import akka.stream.Materializer
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -25,13 +26,12 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, TestData}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.http.LazyHttpErrorHandler
-import play.api.http.Status.OK
+import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.{Application, Mode}
 import uk.gov.hmrc.api.domain.Registration
-import uk.gov.hmrc.play.microservice.filters.MicroserviceFilterSupport
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.controllers.DocumentationController
 
@@ -47,9 +47,11 @@ import uk.gov.hmrc.testuser.controllers.DocumentationController
   */
 class PlatformIntegrationSpec extends UnitSpec with MockitoSugar with ScalaFutures with BeforeAndAfterEach with GuiceOneAppPerTest {
 
-  val stubHost = "localhost"
-  val stubPort = sys.env.getOrElse("WIREMOCK_SERVICE_LOCATOR_PORT", "11112").toInt
-  val wireMockServer = new WireMockServer(wireMockConfig().port(stubPort))
+  implicit val mat = app.injector.instanceOf[Materializer]
+
+  private val stubHost = "localhost"
+  private val stubPort = sys.env.getOrElse("WIREMOCK_SERVICE_LOCATOR_PORT", "11112").toInt
+  private val wireMockServer = new WireMockServer(wireMockConfig().port(stubPort))
 
   override def newAppForTest(testData: TestData): Application = GuiceApplicationBuilder()
     .configure("run.mode" -> "Stub")
@@ -64,10 +66,10 @@ class PlatformIntegrationSpec extends UnitSpec with MockitoSugar with ScalaFutur
   override def beforeEach() {
     wireMockServer.start()
     WireMock.configureFor(stubHost, stubPort)
-    stubFor(post(urlMatching("/registration")).willReturn(aResponse().withStatus(204)))
+    stubFor(post(urlMatching("/registration")).willReturn(aResponse().withStatus(NO_CONTENT)))
   }
 
-  trait Setup extends MicroserviceFilterSupport {
+  trait Setup {
     val documentationController = new DocumentationController(LazyHttpErrorHandler) {}
     val request = FakeRequest()
   }
@@ -97,7 +99,7 @@ class PlatformIntegrationSpec extends UnitSpec with MockitoSugar with ScalaFutur
     }
   }
 
-  override protected def afterEach() = {
+  override protected def afterEach(): Unit = {
     wireMockServer.stop()
     wireMockServer.resetMappings()
   }
