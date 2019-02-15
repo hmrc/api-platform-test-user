@@ -13,13 +13,13 @@ lazy val appName = "api-platform-test-user"
 lazy val appDependencies: Seq[ModuleID] = compile ++ test
 
 lazy val compile = Seq(
-  "uk.gov.hmrc" %% "play-reactivemongo" % "6.2.0",
+  "uk.gov.hmrc" %% "play-reactivemongo" % "6.4.0", // TODO: Use simple-reactivemongo?
   ws,
   "uk.gov.hmrc" %% "microservice-bootstrap" % "8.2.0",
-  "uk.gov.hmrc" %% "play-ui" % "7.22.0",
-  "uk.gov.hmrc" %% "play-hmrc-api" % "2.1.0",
-  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.3.0",
-  "uk.gov.hmrc" %% "domain" % "5.2.0",
+  "uk.gov.hmrc" %% "play-ui" % "7.32.0-play-25",
+  "uk.gov.hmrc" %% "play-hmrc-api" % "2.1.0", // TODO Check that we need this
+  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.5.0",
+  "uk.gov.hmrc" %% "domain" % "5.3.0",
   "uk.gov.hmrc" %% "mongo-lock" % "5.1.0",
   "org.scalacheck" %% "scalacheck" % "1.13.5",
   "org.mindrot" % "jbcrypt" % "0.4"
@@ -28,7 +28,7 @@ lazy val compile = Seq(
 lazy val scope: String = "test, it"
 
 lazy val test = Seq(
-  "uk.gov.hmrc" %% "hmrctest" % "3.0.0" % scope,
+  "uk.gov.hmrc" %% "hmrctest" % "3.4.0-play-25" % scope,
   "uk.gov.hmrc" %% "reactivemongo-test" % "3.1.0" % scope,
   "org.scalatest" %% "scalatest" % "3.0.4" % scope,
   "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0" % scope,
