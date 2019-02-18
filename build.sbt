@@ -11,8 +11,7 @@ lazy val appName = "api-platform-test-user"
 lazy val appDependencies: Seq[ModuleID] = compile ++ test
 
 lazy val compile = Seq(
-  "uk.gov.hmrc" %% "play-reactivemongo" % "6.4.0", // TODO: Use simple-reactivemongo?
-  ws,
+  "uk.gov.hmrc" %% "play-reactivemongo" % "6.4.0",
   "uk.gov.hmrc" %% "bootstrap-play-25" % "4.9.0",
   "uk.gov.hmrc" %% "play-ui" % "7.32.0-play-25",
   "uk.gov.hmrc" %% "play-hmrc-api" % "2.1.0", // TODO Check that we need this
@@ -26,13 +25,13 @@ lazy val compile = Seq(
 lazy val scope: String = "test, it"
 
 lazy val test = Seq(
-  "uk.gov.hmrc" %% "hmrctest" % "3.4.0-play-25" % scope,
+  "uk.gov.hmrc" %% "hmrctest" % "3.5.0-play-25" % scope,
   "uk.gov.hmrc" %% "reactivemongo-test" % "3.1.0" % scope,
   "org.scalatest" %% "scalatest" % "3.0.4" % scope,
   "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0" % scope,
   "org.pegdown" % "pegdown" % "1.6.0" % scope,
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-  "org.mockito" % "mockito-core" % "1.10.19" % scope,
+  "org.mockito" % "mockito-core" % "2.10.0" % scope,
   "org.scalaj" %% "scalaj-http" % "1.1.6" % scope,
   "com.github.tomakehurst" % "wiremock" % "2.15.0" % scope,
   "com.eclipsesource" %% "play-json-schema-validator" % "0.8.9" % scope

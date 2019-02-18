@@ -17,8 +17,8 @@
 package unit.uk.gov.hmrc.testuser.services
 
 import org.joda.time.LocalDate
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.BDDMockito.given
-import org.mockito.Matchers.anyString
 import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.domain._

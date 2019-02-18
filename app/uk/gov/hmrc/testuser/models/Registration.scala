@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.testuser.config
+package uk.gov.hmrc.testuser.models
 
-import javax.inject.{Singleton, Inject}
+import play.api.libs.json.Json
 
-import play.api.Configuration
+case class Registration(serviceName: String, serviceUrl: String, metadata:Option[Map[String, String]] = None)
 
-@Singleton
-class AppContext @Inject()(implicit val config: Configuration) {
-
-  lazy val passwordLogRounds = getConfigInt("passwordLogRounds")
-
-  private def getConfigInt(key: String) = config.getInt(key)
-    .getOrElse(throw new RuntimeException(s"[$key] is not configured!"))
-
+object Registration {
+  implicit val format = Json.format[Registration]
 }
+
+

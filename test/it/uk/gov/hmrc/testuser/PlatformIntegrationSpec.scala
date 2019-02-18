@@ -16,7 +16,6 @@
 
 package it.uk.gov.hmrc.testuser
 
-import akka.stream.Materializer
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -47,8 +46,6 @@ import uk.gov.hmrc.testuser.controllers.DocumentationController
   */
 class PlatformIntegrationSpec extends UnitSpec with MockitoSugar with ScalaFutures with BeforeAndAfterEach with GuiceOneAppPerTest {
 
-  implicit val mat = app.injector.instanceOf[Materializer]
-
   private val stubHost = "localhost"
   private val stubPort = sys.env.getOrElse("WIREMOCK_SERVICE_LOCATOR_PORT", "11112").toInt
   private val wireMockServer = new WireMockServer(wireMockConfig().port(stubPort))
@@ -70,6 +67,8 @@ class PlatformIntegrationSpec extends UnitSpec with MockitoSugar with ScalaFutur
   }
 
   trait Setup {
+    implicit def mat: akka.stream.Materializer = app.injector.instanceOf[akka.stream.Materializer]
+
     val documentationController = new DocumentationController(LazyHttpErrorHandler) {}
     val request = FakeRequest()
   }

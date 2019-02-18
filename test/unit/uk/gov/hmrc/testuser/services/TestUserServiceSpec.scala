@@ -17,8 +17,8 @@
 package unit.uk.gov.hmrc.testuser.services
 
 import common.LogSuppressing
+import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.BDDMockito.given
-import org.mockito.Matchers.{any, anyString}
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
