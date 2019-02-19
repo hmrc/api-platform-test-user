@@ -1,5 +1,4 @@
 import play.core.PlayVersion
-import play.sbt.PlayImport._
 import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.DefaultBuildSettings._
 import uk.gov.hmrc.SbtAutoBuildPlugin
@@ -14,7 +13,7 @@ lazy val compile = Seq(
   "uk.gov.hmrc" %% "play-reactivemongo" % "6.4.0",
   "uk.gov.hmrc" %% "bootstrap-play-25" % "4.9.0",
   "uk.gov.hmrc" %% "play-ui" % "7.32.0-play-25",
-  "uk.gov.hmrc" %% "play-hmrc-api" % "2.1.0", // TODO Check that we need this
+  "uk.gov.hmrc" %% "play-hmrc-api" % "3.4.0-play-25",
   "uk.gov.hmrc" %% "play-json-union-formatter" % "1.5.0",
   "uk.gov.hmrc" %% "domain" % "5.3.0",
   "uk.gov.hmrc" %% "mongo-lock" % "5.1.0",

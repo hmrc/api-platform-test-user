@@ -17,22 +17,27 @@
 package uk.gov.hmrc.testuser.config
 
 import com.google.inject.AbstractModule
-import uk.gov.hmrc.testuser.connectors.ServiceLocatorConnector
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
+import uk.gov.hmrc.api.connector.ServiceLocatorConnector
+import uk.gov.hmrc.http.{CorePost, HeaderCarrier}
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 class ServiceLocatorRegistrationModule extends AbstractModule {
   override def configure(): Unit = {
     bind(classOf[ServiceLocatorRegistration]).asEagerSingleton()
+    bind(classOf[CorePost]).to(classOf[DefaultHttpClient])
   }
 }
 
 @Singleton
 class ServiceLocatorRegistration @Inject()(config: ServiceLocatorRegistrationConfig, connector: ServiceLocatorConnector) {
 
+  implicit val hc = HeaderCarrier()
+
   if (config.registrationEnabled) {
     Logger.info(s"Service Locator registration is enabled")
-    connector.register()
+    connector.register
   } else {
     Logger.info(s"Service Locator registration is disabled")
   }

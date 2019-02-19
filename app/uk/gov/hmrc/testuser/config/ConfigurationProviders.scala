@@ -20,7 +20,6 @@ import javax.inject.{Inject, Provider}
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.testuser.connectors.ServiceLocatorConfig
 import uk.gov.hmrc.testuser.services.PasswordConfig
 
 class ConfigurationModule extends Module {
@@ -28,7 +27,6 @@ class ConfigurationModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
     Seq(
       bind[ServiceLocatorRegistrationConfig].toProvider[ServiceLocatorRegistrationConfigProvider],
-      bind[ServiceLocatorConfig].toProvider[ServiceLocatorConfigProvider],
       bind[PasswordConfig].toProvider[PasswordConfigProvider]
     )
   }
@@ -40,19 +38,6 @@ class ServiceLocatorRegistrationConfigProvider @Inject()(val runModeConfiguratio
   override def get() = {
     val registrationEnabled = getConfBool("service-locator.enabled", defBool = true)
     ServiceLocatorRegistrationConfig(registrationEnabled)
-  }
-
-  override protected def mode = environment.mode
-}
-
-class ServiceLocatorConfigProvider @Inject()(val runModeConfiguration: Configuration, environment: Environment)
-  extends Provider[ServiceLocatorConfig] with ServicesConfig {
-
-  override def get() = {
-    val appName = getString("appName")
-    val appUrl = getString("appUrl")
-    val serviceLocatorBaseUrl = baseUrl("service-locator")
-    ServiceLocatorConfig(appName, appUrl, serviceLocatorBaseUrl)
   }
 
   override protected def mode = environment.mode
