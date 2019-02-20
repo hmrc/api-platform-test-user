@@ -16,29 +16,31 @@
 
 package uk.gov.hmrc.testuser.connectors
 
-import javax.inject.Singleton
-
-import play.api.Logger
+import javax.inject.{Inject, Singleton}
+import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.testuser.config.WSHttp
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class DesSimulatorConnector extends ServicesConfig {
+class DesSimulatorConnector @Inject()(httpClient: HttpClient, override val runModeConfiguration: Configuration, environment: Environment)
+                           (implicit ec: ExecutionContext) extends ServicesConfig {
+
+  override protected def mode = environment.mode
+
   lazy val serviceUrl: String = baseUrl("des-simulator")
 
-  def createIndividual(individual: TestIndividual)(implicit hc:HeaderCarrier): Future[TestIndividual] = {
+  def createIndividual(individual: TestIndividual)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
     Logger.info(s"Calling des-simulator ($serviceUrl) to create individual $individual")
-    WSHttp.POST(s"$serviceUrl/test-users/individuals", DesSimulatorTestIndividual.from(individual)) map { request => individual }
+    httpClient.POST(s"$serviceUrl/test-users/individuals", DesSimulatorTestIndividual.from(individual)) map { _ => individual }
   }
 
-  def createOrganisation(organisation: TestOrganisation)(implicit hc:HeaderCarrier): Future[TestOrganisation] = {
+  def createOrganisation(organisation: TestOrganisation)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
     Logger.info(s"Calling des-simulator ($serviceUrl) to create organisation $organisation")
-    WSHttp.POST(s"$serviceUrl/test-users/organisations", DesSimulatorTestOrganisation.from(organisation)) map { request => organisation }
+    httpClient.POST(s"$serviceUrl/test-users/organisations", DesSimulatorTestOrganisation.from(organisation)) map { _ => organisation }
   }
 }

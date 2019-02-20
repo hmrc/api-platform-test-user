@@ -16,19 +16,16 @@
 
 package unit.uk.gov.hmrc.testuser.services
 
-import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.config.AppContext
-import uk.gov.hmrc.testuser.services.PasswordService
-import org.mockito.Mockito.when
+import uk.gov.hmrc.testuser.services.{PasswordConfig, PasswordService}
 
-class PasswordServiceSpec extends UnitSpec with MockitoSugar {
+class PasswordServiceSpec extends UnitSpec {
 
   trait Setup {
-    val mockAppContext = mock[AppContext]
-    when(mockAppContext.passwordLogRounds).thenReturn(12)
+    val passwordLogRounds = 12
+    val config = PasswordConfig(passwordLogRounds)
 
-    val underTest = new PasswordService(mockAppContext)
+    val underTest = new PasswordService(config)
   }
 
   "hash" should {

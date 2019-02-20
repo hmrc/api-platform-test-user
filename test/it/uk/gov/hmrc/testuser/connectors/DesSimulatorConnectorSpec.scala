@@ -18,11 +18,15 @@ package it.uk.gov.hmrc.testuser.connectors
 
 import it.uk.gov.hmrc.testuser.helpers.stubs.DesSimulatorStub
 import org.scalatest.BeforeAndAfterEach
+import play.api.{Configuration, Environment}
+import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.services.Generator
-import uk.gov.hmrc.http.{ HeaderCarrier, Upstream5xxResponse }
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class DesSimulatorConnectorSpec extends UnitSpec with BeforeAndAfterEach with WithFakeApplication {
 
@@ -33,22 +37,26 @@ class DesSimulatorConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
   trait Setup {
     implicit val hc = HeaderCarrier()
 
-    val underTest = new DesSimulatorConnector {
+    val underTest = new DesSimulatorConnector(
+      fakeApplication.injector.instanceOf[HttpClient],
+      fakeApplication.injector.instanceOf[Configuration],
+      fakeApplication.injector.instanceOf[Environment]
+    ) {
       override lazy val serviceUrl: String = DesSimulatorStub.url
     }
   }
 
-  override def beforeAll() = {
+  override def beforeAll(): Unit = {
     super.beforeAll()
     DesSimulatorStub.server.start()
   }
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     DesSimulatorStub.server.resetMappings()
   }
 
-  override def afterAll() = {
+  override def afterAll(): Unit = {
     super.afterAll()
     DesSimulatorStub.server.stop()
   }
@@ -64,7 +72,9 @@ class DesSimulatorConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     "fail when the DesSimulator returns an error" in new Setup {
       DesSimulatorStub.willFailWhenCreatingTestIndividual()
 
-      intercept[Upstream5xxResponse]{await(underTest.createIndividual(testIndividual))}
+      intercept[Upstream5xxResponse] {
+        await(underTest.createIndividual(testIndividual))
+      }
     }
   }
 
@@ -79,7 +89,9 @@ class DesSimulatorConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     "fail when the DesSimulator returns an error" in new Setup {
       DesSimulatorStub.willFailWhenCreatingTestOrganisation()
 
-      intercept[Upstream5xxResponse]{await(underTest.createOrganisation(testOrganisation))}
+      intercept[Upstream5xxResponse] {
+        await(underTest.createOrganisation(testOrganisation))
+      }
     }
   }
 }

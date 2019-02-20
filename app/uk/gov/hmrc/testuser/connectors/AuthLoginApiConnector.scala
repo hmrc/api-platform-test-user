@@ -16,29 +16,31 @@
 
 package uk.gov.hmrc.testuser.connectors
 
-import javax.inject.Singleton
-
+import javax.inject.{Inject, Singleton}
+import play.api.{Configuration, Environment}
 import play.api.http.HeaderNames.{AUTHORIZATION, LOCATION}
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.auth.microservice.connectors.ConfidenceLevel
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.testuser.config.WSHttp
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class AuthLoginApiConnector extends ServicesConfig {
+class AuthLoginApiConnector @Inject()(httpClient: HttpClient, override val runModeConfiguration: Configuration, environment: Environment)
+                           (implicit ec: ExecutionContext) extends ServicesConfig {
+
+  override protected def mode = environment.mode
 
   lazy val serviceUrl: String = baseUrl("auth-login-api")
 
   def createSession(testUser: TestUser)
                    (implicit hc: HeaderCarrier): Future[AuthSession] = {
-    WSHttp.POST(s"$serviceUrl/government-gateway/session/login", GovernmentGatewayLogin(testUser)) map { response =>
+    httpClient.POST(s"$serviceUrl/government-gateway/session/login", GovernmentGatewayLogin(testUser)) map { response =>
       val gatewayToken = (response.json \ "gatewayToken").as[String]
 
       (response.header(AUTHORIZATION), response.header(LOCATION)) match {
@@ -79,7 +81,7 @@ object GovernmentGatewayLogin {
         case SELF_ASSESSMENT => individual.saUtr map { saUtr => Enrolment("IR-SA", taxIdentifier(saUtr)) }
         case MTD_INCOME_TAX => individual.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId)) }
         case CUSTOMS_SERVICES => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", taxIdentifier(eoriNumber)) }
-        case MTD_VAT => individual.vrn map {vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString()))) }
+        case MTD_VAT => individual.vrn map { vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString()))) }
         case _ => None
       }
     }
@@ -97,7 +99,7 @@ object GovernmentGatewayLogin {
         case SUBMIT_VAT_RETURNS => organisation.vrn map { vrn => Enrolment("HMCE-VATDEC-ORG", taxIdentifier(vrn)) }
         case PAYE_FOR_EMPLOYERS => organisation.empRef map { empRef => Enrolment("IR-PAYE", taxIdentifier(empRef)) }
         case MTD_INCOME_TAX => organisation.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId)) }
-        case MTD_VAT => organisation.vrn map {vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString()))) }
+        case MTD_VAT => organisation.vrn map { vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString()))) }
         case LISA => organisation.lisaManRefNum map { lisaManRefNum => Enrolment("HMRC-LISA-ORG", taxIdentifier(lisaManRefNum)) }
         case SECURE_ELECTRONIC_TRANSFER => organisation.secureElectronicTransferReferenceNumber map { setRefNum => Enrolment("HMRC-SET-ORG", taxIdentifier(setRefNum)) }
         case RELIEF_AT_SOURCE => organisation.pensionSchemeAdministratorIdentifier map { psaId => Enrolment("HMRC-PSA-ORG", taxIdentifier(psaId)) }

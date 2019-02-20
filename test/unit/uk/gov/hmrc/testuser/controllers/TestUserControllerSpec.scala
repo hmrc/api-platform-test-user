@@ -16,28 +16,31 @@
 
 package unit.uk.gov.hmrc.testuser.controllers
 
+import akka.actor.ActorSystem
+import akka.stream.{ActorMaterializer, Materializer}
 import common.LogSuppressing
 import org.joda.time.LocalDate
+import org.mockito.ArgumentMatchers.{any, refEq}
 import org.mockito.BDDMockito.given
-import org.mockito.Matchers.{any, refEq}
 import org.scalatest.mockito.MockitoSugar
 import play.api.Logger
-import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, OK, NOT_FOUND}
+import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.Json.toJson
 import play.api.libs.json.{JsValue, Json}
 import play.api.test._
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.controllers.TestUserController
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.services.TestUserService
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.failed
-import uk.gov.hmrc.http.HeaderCarrier
 
-class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with LogSuppressing {
+class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppressing {
 
   val user = "user"
   val password = "password"
@@ -50,7 +53,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   val ctUtr = CtUtr("1555369053")
   val vrn = Vrn("999902541")
   val vatRegistrationDate = LocalDate.parse("2011-07-07")
-  val empRef = EmpRef("555","EIA000")
+  val empRef = EmpRef("555", "EIA000")
   val arn = AgentBusinessUtr("NARN0396245")
   val lisaManagerReferenceNumber = LisaManagerReferenceNumber("Z123456")
   val secureElectronicTransferReferenceNumber = SecureElectronicTransferReferenceNumber("123456789012")
@@ -58,7 +61,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   val eoriNumber = EoriNumber("GB1234567890")
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
-  val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
+  val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
 
   val testIndividual = TestIndividual(user, password, userFullName, emailAddress, individualDetails,
     Some(saUtr), Some(nino), Some(mtdItId), Some(vrn), Some(vatRegistrationDate), Some(eoriNumber))
@@ -75,7 +78,8 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   val createAgentServices = Seq(ServiceKeys.AGENT_SERVICES)
 
   trait Setup {
-    implicit lazy val materializer = fakeApplication.materializer
+    implicit val actorSystem: ActorSystem = ActorSystem("test")
+    implicit val materializer: Materializer = ActorMaterializer()
     implicit val hc = HeaderCarrier()
 
     val request = FakeRequest()
@@ -108,7 +112,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
       status(result) shouldBe CREATED
       jsonBodyOf(result) shouldBe toJson(TestIndividualCreatedResponse(user, password, userFullName, emailAddress,
-        individualDetails, Some(saUtr), Some(nino), Some(mtdItId), Some(vrn), Some(vatRegistrationDate) ,Some(eoriNumber)))
+        individualDetails, Some(saUtr), Some(nino), Some(mtdItId), Some(vrn), Some(vatRegistrationDate), Some(eoriNumber)))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {

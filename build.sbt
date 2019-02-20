@@ -1,7 +1,4 @@
-import _root_.play.sbt.routes.RoutesKeys.routesGenerator
 import play.core.PlayVersion
-import play.routes.compiler.StaticRoutesGenerator
-import play.sbt.PlayImport._
 import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.DefaultBuildSettings._
 import uk.gov.hmrc.SbtAutoBuildPlugin
@@ -13,13 +10,12 @@ lazy val appName = "api-platform-test-user"
 lazy val appDependencies: Seq[ModuleID] = compile ++ test
 
 lazy val compile = Seq(
-  "uk.gov.hmrc" %% "play-reactivemongo" % "6.2.0",
-  ws,
-  "uk.gov.hmrc" %% "microservice-bootstrap" % "8.2.0",
-  "uk.gov.hmrc" %% "play-ui" % "7.22.0",
-  "uk.gov.hmrc" %% "play-hmrc-api" % "2.1.0",
-  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.3.0",
-  "uk.gov.hmrc" %% "domain" % "5.2.0",
+  "uk.gov.hmrc" %% "play-reactivemongo" % "6.4.0",
+  "uk.gov.hmrc" %% "bootstrap-play-25" % "4.9.0",
+  "uk.gov.hmrc" %% "play-ui" % "7.32.0-play-25",
+  "uk.gov.hmrc" %% "play-hmrc-api" % "3.4.0-play-25",
+  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.5.0",
+  "uk.gov.hmrc" %% "domain" % "5.3.0",
   "uk.gov.hmrc" %% "mongo-lock" % "5.1.0",
   "org.scalacheck" %% "scalacheck" % "1.13.5",
   "org.mindrot" % "jbcrypt" % "0.4"
@@ -28,20 +24,20 @@ lazy val compile = Seq(
 lazy val scope: String = "test, it"
 
 lazy val test = Seq(
-  "uk.gov.hmrc" %% "hmrctest" % "3.0.0" % scope,
+  "uk.gov.hmrc" %% "hmrctest" % "3.5.0-play-25" % scope,
   "uk.gov.hmrc" %% "reactivemongo-test" % "3.1.0" % scope,
   "org.scalatest" %% "scalatest" % "3.0.4" % scope,
   "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0" % scope,
   "org.pegdown" % "pegdown" % "1.6.0" % scope,
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-  "org.mockito" % "mockito-core" % "1.10.19" % scope,
+  "org.mockito" % "mockito-core" % "2.10.0" % scope,
   "org.scalaj" %% "scalaj-http" % "1.1.6" % scope,
   "com.github.tomakehurst" % "wiremock" % "2.15.0" % scope,
   "com.eclipsesource" %% "play-json-schema-validator" % "0.8.9" % scope
 )
 
 lazy val plugins: Seq[Plugins] = Seq.empty
-lazy val playSettings : Seq[Setting[_]] = Seq(routesImport ++= Seq("uk.gov.hmrc.domain._", "uk.gov.hmrc.testuser.models._", "uk.gov.hmrc.testuser.Binders._"))
+lazy val playSettings: Seq[Setting[_]] = Seq(routesImport ++= Seq("uk.gov.hmrc.domain._", "uk.gov.hmrc.testuser.models._", "uk.gov.hmrc.testuser.Binders._"))
 
 def unitFilter(name: String): Boolean = name startsWith "unit"
 def itTestFilter(name: String): Boolean = name startsWith "it"
@@ -62,7 +58,7 @@ lazy val microservice = (project in file("."))
     parallelExecution in Test := false,
     fork in Test := false,
     testOptions in Test := Seq(Tests.Filter(unitFilter)),
-    routesGenerator := StaticRoutesGenerator,
+    testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
     majorVersion := 0
   )
   .settings(unmanagedResourceDirectories in Compile += baseDirectory.value / "resources")
@@ -71,7 +67,8 @@ lazy val microservice = (project in file("."))
   .settings(
     Keys.fork in IntegrationTest := false,
     testOptions in IntegrationTest := Seq(Tests.Filter(itTestFilter)),
-    unmanagedSourceDirectories in IntegrationTest := Seq((baseDirectory in IntegrationTest).value / "test" ),
+    testOptions in IntegrationTest += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
+    unmanagedSourceDirectories in IntegrationTest := Seq((baseDirectory in IntegrationTest).value / "test"),
     addTestReportOption(IntegrationTest, "int-test-reports"),
     testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
     parallelExecution in IntegrationTest := false)
@@ -87,6 +84,6 @@ def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
   }
 
 // Coverage configuration
-coverageMinimum := 95
+coverageMinimum := 96
 coverageFailOnMinimum := true
 coverageExcludedPackages := "<empty>;com.kenshoo.play.metrics.*;.*definition.*;prod.*;testOnlyDoNotUseInAppConf.*;app.*;uk.gov.hmrc.BuildInfo"

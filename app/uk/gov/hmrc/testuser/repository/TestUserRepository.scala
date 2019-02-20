@@ -26,11 +26,10 @@ import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.testuser.models._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)
+class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: ExecutionContext)
   extends ReactiveRepository[TestUser, BSONObjectID]("testUser", mongo.mongoConnector.db,
     JsonFormatters.formatTestUser, ReactiveMongoFormats.objectIdFormats) {
 
