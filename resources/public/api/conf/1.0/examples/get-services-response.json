@@ -1,0 +1,17 @@
+[
+  {
+    "key" : "service1",
+    "name": "Service 1",
+    "allowedUserTypes": [
+      "INDIVIDUAL",
+      "ORGANISATION"
+    ]
+  },
+  {
+    "key" : "service2",
+    "name": "Service 2",
+    "allowedUserTypes": [
+      "AGENT"
+    ]
+  }
+]

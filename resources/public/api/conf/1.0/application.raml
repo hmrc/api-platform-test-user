@@ -74,3 +74,16 @@ uses:
                   application/json:
                     schema: !include schemas/create-agent-response.json
                     example: !include examples/create-agent-response.json
+  /services:
+    get:
+      displayName: Get available services
+      description: This resource provides a list of all the available services together with which test user types can enrol to each.
+      is: [headers.acceptHeader]
+      securedBy: [ sec.x-application ]
+      responses:
+        200:
+          description: The services available for enrolment
+          body:
+            application/json:
+              schema: !include schemas/get-services-response.json
+              example: !include examples/get-services-response.json
