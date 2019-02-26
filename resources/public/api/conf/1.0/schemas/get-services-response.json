@@ -1,22 +1,25 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "description": "Get Services Response",
-  "type": "object",
-  "properties": {
-    "key": {
-      "type": "string",
-      "description": "The key of the service"
-    },
-    "name": {
-      "type": "string",
-      "description": "The human readable name of the service"
-    },
-    "allowedUserTypes": {
-      "type": "array",
-      "description": "The user types which may enrol to the service",
-      "items": {
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "key": {
         "type": "string",
-        "description": "The user type"
+        "description": "The key of the service"
+      },
+      "name": {
+        "type": "string",
+        "description": "The human readable name of the service"
+      },
+      "allowedUserTypes": {
+        "type": "array",
+        "description": "The user types which may enrol to the service",
+        "items": {
+          "type": "string",
+          "description": "The user type"
+        }
       }
     }
   }
