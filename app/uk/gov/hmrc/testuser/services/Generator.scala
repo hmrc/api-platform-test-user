@@ -23,12 +23,14 @@ import org.scalacheck.Gen
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.util.Randomiser
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 @Singleton
-class Generator @Inject() extends Randomiser {
+class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit ec: ExecutionContext) extends Randomiser {
 
   private val userIdGenerator = Gen.listOfN(12, Gen.numChar).map(_.mkString)
   private val passwordGenerator = Gen.listOfN(12, Gen.alphaNumChar).map(_.mkString)
@@ -47,40 +49,71 @@ class Generator @Inject() extends Randomiser {
   private val psaIdGenerator = new PensionSchemeAdministratorIdentifierGenerator()
   private val eoriGenerator = Gen.listOfN(10, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
 
-  def generateTestIndividual(services: Seq[ServiceKey] = Seq.empty) = {
-    val saUtr = if (services.contains(SELF_ASSESSMENT)) Some(generateSaUtr) else None
-    val nino = if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) Some(generateNino) else None
-    val mtdItId = if(services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
-    val eoriNumber = if(services.contains(CUSTOMS_SERVICES)) Some(generateEoriNumber) else None
-    val vrn = if(services.contains(MTD_VAT)) Some(generateVrn) else None
-    val vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1,20).sample.get))
-    val individualDetails = generateIndividualDetails
-    val userFullName = generateUserFullName(individualDetails.firstName, individualDetails.lastName)
-    val emailAddress = generateEmailAddress(individualDetails.firstName, individualDetails.lastName)
+  def generateTestIndividual(services: Seq[ServiceKey] = Seq.empty): Future[TestIndividual] = {
+    for {
+      saUtr <- if (services.contains(SELF_ASSESSMENT)) generateSaUtr.map(Some(_)) else Future.successful(None)
+      nino <- if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) generateNino.map(Some(_)) else Future.successful(None)
+      mtdItId = if(services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
+      eoriNumber = if(services.contains(CUSTOMS_SERVICES)) Some(generateEoriNumber) else None
+      vrn <- if(services.contains(MTD_VAT)) generateVrn.map(Some(_)) else Future.successful(None)
+      vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1,20).sample.get))
 
-    TestIndividual(generateUserId, generatePassword, userFullName, emailAddress, individualDetails, saUtr, nino, mtdItId, vrn, vatRegistrationDate, eoriNumber, services)
+      individualDetails = generateIndividualDetails
+      userFullName = generateUserFullName(individualDetails.firstName, individualDetails.lastName)
+      emailAddress = generateEmailAddress(individualDetails.firstName, individualDetails.lastName)
+    } yield
+      TestIndividual(
+        generateUserId,
+        generatePassword,
+        userFullName,
+        emailAddress,
+        individualDetails,
+        saUtr,
+        nino,
+        mtdItId,
+        vrn,
+        vatRegistrationDate,
+        eoriNumber,
+        services)
   }
 
-  def generateTestOrganisation(services: Seq[ServiceKey] = Seq.empty) = {
-    val saUtr = if (services.contains(SELF_ASSESSMENT)) Some(generateSaUtr) else None
-    val nino = if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) Some(generateNino) else None
-    val mtdItId = if (services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
-    val empRef = if (services.contains(PAYE_FOR_EMPLOYERS)) Some(generateEmpRef) else None
-    val ctUtr = if (services.contains(CORPORATION_TAX)) Some(generateCtUtr) else None
-    val vrn = if (services.contains(SUBMIT_VAT_RETURNS) || services.contains(MTD_VAT)) Some(generateVrn) else None
-    val vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1,20).sample.get))
-    val lisaManRefNum = if (services.contains(LISA)) Some(generateLisaManRefNum) else None
-    val setRefNum = if (services.contains(SECURE_ELECTRONIC_TRANSFER)) Some(generateSetRefNum) else None
-    val psaId = if(services.contains(RELIEF_AT_SOURCE)) Some(generatePsaId) else None
-    val eoriNumber = if(services.contains(CUSTOMS_SERVICES)) Some(generateEoriNumber) else None
+  def generateTestOrganisation(services: Seq[ServiceKey] = Seq.empty): Future[TestOrganisation] = {
+    for {
+      saUtr <- if (services.contains(SELF_ASSESSMENT)) generateSaUtr.map(Some(_)) else Future.successful(None)
+      nino <- if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) generateNino.map(Some(_)) else Future.successful(None)
+      mtdItId = if (services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
+      empRef <- if (services.contains(PAYE_FOR_EMPLOYERS)) generateEmpRef.map(Some(_)) else Future.successful(None)
+      ctUtr = if (services.contains(CORPORATION_TAX)) Some(generateCtUtr) else None
+      vrn <- if (services.contains(SUBMIT_VAT_RETURNS) || services.contains(MTD_VAT)) generateVrn.map(Some(_)) else Future.successful(None)
+      vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1, 20).sample.get))
+      lisaManRefNum = if (services.contains(LISA)) Some(generateLisaManRefNum) else None
+      setRefNum = if (services.contains(SECURE_ELECTRONIC_TRANSFER)) Some(generateSetRefNum) else None
+      psaId = if (services.contains(RELIEF_AT_SOURCE)) Some(generatePsaId) else None
+      eoriNumber = if (services.contains(CUSTOMS_SERVICES)) Some(generateEoriNumber) else None
 
-    val firstName = generateFirstName
-    val lastName = generateLastName
-    val userFullName = generateUserFullName(firstName, lastName)
-    val emailAddress = generateEmailAddress(firstName, lastName)
-
-    TestOrganisation(generateUserId, generatePassword, userFullName, emailAddress, generateOrganisationDetails, saUtr, nino, mtdItId, empRef, ctUtr,
-      vrn,vatRegistrationDate, lisaManRefNum, setRefNum, psaId, eoriNumber, services)
+      firstName = generateFirstName
+      lastName = generateLastName
+      userFullName = generateUserFullName(firstName, lastName)
+      emailAddress = generateEmailAddress(firstName, lastName)
+    } yield
+      TestOrganisation(
+        generateUserId,
+        generatePassword,
+        userFullName,
+        emailAddress,
+        generateOrganisationDetails,
+        saUtr,
+        nino,
+        mtdItId,
+        empRef,
+        ctUtr,
+        vrn,
+        vatRegistrationDate,
+        lisaManRefNum,
+        setRefNum,
+        psaId,
+        eoriNumber,
+        services)
   }
 
   def generateTestAgent(services: Seq[ServiceKey] = Seq.empty) = {
@@ -125,11 +158,30 @@ class Generator @Inject() extends Randomiser {
 
   private def generateUserId = userIdGenerator.sample.get
   private def generatePassword = passwordGenerator.sample.get
-  private def generateEmpRef: EmpRef = employerReferenceGenerator.sample.get
-  private def generateSaUtr: SaUtr = utrGenerator.nextSaUtr
-  private def generateNino: Nino = ninoGenerator.nextNino
+
+  private def generateEmpRef(implicit ec: ExecutionContext): Future[EmpRef] = {
+    val empRef = employerReferenceGenerator.sample.get
+    testUserRepository.identifierIsUnique(empRef).flatMap(unique => if(unique) Future(empRef) else generateEmpRef)
+  }
+
+  private def generateSaUtr(implicit ec: ExecutionContext): Future[SaUtr] = {
+    val saUTR = utrGenerator.nextSaUtr
+    testUserRepository.identifierIsUnique(saUTR).flatMap(unique => if(unique) Future(saUTR) else generateSaUtr)
+  }
+
+  private def generateNino(implicit ec: ExecutionContext): Future[Nino] = {
+    val nino = ninoGenerator.nextNino
+    testUserRepository.identifierIsUnique(nino).flatMap(unique => if(unique) Future(nino) else generateNino)
+  }
+
+
   private def generateCtUtr: CtUtr = CtUtr(utrGenerator.nextSaUtr.value)
-  private def generateVrn: Vrn = Vrn(vrnGenerator.sample.get.toString)
+
+  private def generateVrn(implicit ec: ExecutionContext): Future[Vrn] = {
+    val vrn = Vrn(vrnGenerator.sample.get.toString)
+    testUserRepository.identifierIsUnique(vrn).flatMap(unique => if(unique) Future(vrn) else generateVrn)
+  }
+
   private def generateLisaManRefNum: LisaManagerReferenceNumber = lisaManRefNumGenerator.next
   private def generateSetRefNum: SecureElectronicTransferReferenceNumber = setRefNumGenerator.next
   private def generatePsaId: PensionSchemeAdministratorIdentifier = psaIdGenerator.next

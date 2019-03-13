@@ -17,11 +17,12 @@
 package uk.gov.hmrc.testuser.repository
 
 import javax.inject.{Inject, Singleton}
+
 import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr, Vrn}
+import uk.gov.hmrc.domain._
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.testuser.models._
@@ -33,7 +34,15 @@ class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: E
   extends ReactiveRepository[TestUser, BSONObjectID]("testUser", mongo.mongoConnector.db,
     JsonFormatters.formatTestUser, ReactiveMongoFormats.objectIdFormats) {
 
+  // List of fields that contain generated identifiers
+  val IdentifierFields: Seq[String] = Seq("nino", "saUtr", "vrn", "empRef")
+
   ensureIndex("userId", "userIdIndex")
+
+  // Create indexes for ech identifier field - need to be non-unique as we may have existing duplicate values
+  IdentifierFields.foreach(
+    identifierField =>
+      ensureIndex(identifierField, s"$identifierField-Index", isUnique = false))
 
   def createUser[T <: TestUser](testUser: T): Future[T] = {
     insert(testUser) map {_ => testUser}
@@ -44,8 +53,8 @@ class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: E
   }
 
   private def ensureIndex(field: String, indexName: String, isUnique: Boolean = true): Future[Boolean] = {
-    collection.indexesManager.ensure(Index(Seq(field -> IndexType.Ascending),
-      name = Some(indexName), unique = isUnique, background = true))
+    collection.indexesManager
+      .ensure(Index(Seq(field -> IndexType.Ascending), name = Some(indexName), unique = isUnique, background = true))
   }
 
   def fetchIndividualByNino(nino: Nino): Future[Option[TestIndividual]] = {
@@ -71,5 +80,10 @@ class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: E
 
   def fetchOrganisationByVrn(vrn: Vrn): Future[Option[TestOrganisation]] = {
     find("vrn" -> vrn.value, "userType" -> UserType.ORGANISATION) map(_.headOption map (_.asInstanceOf[TestOrganisation]))
+  }
+
+  def identifierIsUnique(identifier: TaxIdentifier): Future[Boolean] = {
+    val query = Json.obj("$or" -> IdentifierFields.map(identifierField => Json.obj(identifierField -> identifier.toString)))
+    count(query).map(matchedIdentifiers => matchedIdentifiers == 0)
   }
 }

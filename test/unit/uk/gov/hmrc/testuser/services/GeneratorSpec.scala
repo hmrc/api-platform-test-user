@@ -20,21 +20,33 @@ import org.joda.time.LocalDate
 import org.scalacheck.Gen
 import org.scalatest.enablers.{Definition, Emptiness}
 import org.scalatest.matchers.{MatchResult, Matcher}
+import org.scalatest.mockito.MockitoSugar
+import org.mockito.Mockito.{times, verify, when}
+
 import org.scalatest.prop.PropertyChecks
+import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.services.{Generator, VrnChecksum}
 import unit.uk.gov.hmrc.testuser.services.CustomMatchers.haveDifferentPropertiesThan
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
 
-class GeneratorSpec extends UnitSpec with PropertyChecks {
+class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
 
-  val underTest = new Generator {
-    override val fileName = "randomiser-unique-values"
+  trait Setup {
+    implicit def ec = ExecutionContext.Implicits.global
+
+    val mockTestUserRepository = mock[TestUserRepository]
+
+    val underTest = new Generator(mockTestUserRepository) {
+      override val fileName = "randomiser-unique-values"
+    }
   }
-
+  
   trait Checker {
     def check[T](attribute: T, isDefined: Boolean)(implicit definition: Definition[T], emptiness: Emptiness[T]) = {
       if(isDefined) attribute shouldBe defined
@@ -56,9 +68,11 @@ class GeneratorSpec extends UnitSpec with PropertyChecks {
       }
     }
 
-    "create a different test individual at every run" in {
+    "create a different test individual at every run" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
       def generate(): TestIndividual =
-        underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
+        await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT)))
 
       val individual1 = generate()
       val individual2 = generate()
@@ -66,49 +80,81 @@ class GeneratorSpec extends UnitSpec with PropertyChecks {
       individual1 should haveDifferentPropertiesThan(individual2)
     }
 
-    "generate a NINO and MTD IT ID when MTD_INCOME_TAX service is included" in {
-      val individual = underTest.generateTestIndividual(Seq(MTD_INCOME_TAX))
+    "generate a NINO and MTD IT ID when MTD_INCOME_TAX service is included" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val individual = await(underTest.generateTestIndividual(Seq(MTD_INCOME_TAX)))
 
       individual shouldHave(mtdItIdDefined = true, ninoDefined = true)
     }
 
-    "generate a NINO when NATIONAL_INSURANCE service is included" in {
-      val individual = underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE))
+    "generate a NINO when NATIONAL_INSURANCE service is included" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE)))
 
       individual shouldHave(ninoDefined = true)
     }
 
-    "generate a SA UTR when SELF_ASSESSMENT service is included" in {
-      val individual = underTest.generateTestIndividual(Seq(SELF_ASSESSMENT))
+    "generate a SA UTR when SELF_ASSESSMENT service is included" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val individual = await(underTest.generateTestIndividual(Seq(SELF_ASSESSMENT)))
 
       individual shouldHave(saUtrDefined = true)
     }
 
-    "generate an EORI when CUSTOMS_SERVICES service is included" in {
-      val individual = underTest.generateTestIndividual(Seq(CUSTOMS_SERVICES))
+    "generate an EORI when CUSTOMS_SERVICES service is included" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val individual = await(underTest.generateTestIndividual(Seq(CUSTOMS_SERVICES)))
 
       individual shouldHave(eoriDefined = true)
     }
 
-    "generate individualDetails from the configuration file" in {
-      val individual = underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
+    "generate individualDetails from the configuration file" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX)))
 
       individual.individualDetails shouldBe IndividualDetails("Adrian", "Adams", LocalDate.parse("1940-10-10"),
         Address("1 Abbey Road", "Aberdeen", "TS1 1PA"))
     }
 
-    "generate a VRN when MTD_VAT service is included" in {
-      val individual = underTest.generateTestIndividual(Seq(MTD_VAT))
+    "generate a VRN when MTD_VAT service is included" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val individual = await(underTest.generateTestIndividual(Seq(MTD_VAT)))
 
       individual shouldHave(vrnDefined = true)
     }
 
-    "set the userFullName and emailAddress" in {
-      val individual = underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
+    "set the userFullName and emailAddress" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX)))
 
       individual.userFullName shouldBe s"${individual.individualDetails.firstName} ${individual.individualDetails.lastName}"
 
       individual.emailAddress shouldBe s"${individual.individualDetails.firstName}.${individual.individualDetails.lastName}@example.com".toLowerCase
+    }
+
+    "regenerate SA UTR if it is a duplicate" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[SaUtr])).thenReturn(Future(false), Future(true))
+
+      val individual = await(underTest.generateTestIndividual(Seq(SELF_ASSESSMENT)))
+
+      individual shouldHave(saUtrDefined = true)
+      verify(mockTestUserRepository, times(2)).identifierIsUnique(any[SaUtr])
+    }
+
+    "regenerate NINO if it is a duplicate" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[Nino])).thenReturn(Future(false), Future(true))
+
+      val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE)))
+
+      individual shouldHave(ninoDefined = true)
+      verify(mockTestUserRepository, times(2)).identifierIsUnique(any[Nino])
     }
   }
 
@@ -133,11 +179,13 @@ class GeneratorSpec extends UnitSpec with PropertyChecks {
       }
     }
 
-    "create a different test organisation at every run" in {
+    "create a different test organisation at every run" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
       def generate(): TestOrganisation =
-        underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, MTD_VAT,
+        await(underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, MTD_VAT,
           CORPORATION_TAX, PAYE_FOR_EMPLOYERS, SUBMIT_VAT_RETURNS, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE,
-          CUSTOMS_SERVICES))
+          CUSTOMS_SERVICES)))
 
       val organisation1 = generate()
       val organisation2 = generate()
@@ -145,73 +193,97 @@ class GeneratorSpec extends UnitSpec with PropertyChecks {
       organisation1 should haveDifferentPropertiesThan(organisation2)
     }
 
-    "generate a NINO and MTD IT ID when MTD_INCOME_TAX service is included" in {
-      val org = underTest.generateTestOrganisation(Seq(MTD_INCOME_TAX))
+    "generate a NINO and MTD IT ID when MTD_INCOME_TAX service is included" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(MTD_INCOME_TAX)))
 
       org shouldHave(mtdItIdDefined = true, ninoDefined = true)
     }
 
-    "generate a NINO when NATIONAL_INSURANCE service is included" in {
-      val org = underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE))
+    "generate a NINO when NATIONAL_INSURANCE service is included" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE)))
 
       org shouldHave(ninoDefined = true)
     }
 
-    "generate a EMPREF when PAYE_FOR_EMPLOYERS service is included" in {
-      val org = underTest.generateTestOrganisation(Seq(PAYE_FOR_EMPLOYERS))
+    "generate a EMPREF when PAYE_FOR_EMPLOYERS service is included" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(PAYE_FOR_EMPLOYERS)))
 
       org shouldHave(empRefDefined = true)
     }
 
-    "generate a CT UTR when CORPORATION_TAX service is included" in {
-      val org = underTest.generateTestOrganisation(Seq(CORPORATION_TAX))
+    "generate a CT UTR when CORPORATION_TAX service is included" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(CORPORATION_TAX)))
 
       org shouldHave(ctUtrDefined = true)
     }
 
-    "generate a SA UTR when SELF_ASSESSMENT service is included" in {
-      val org = underTest.generateTestOrganisation(Seq(SELF_ASSESSMENT))
+    "generate a SA UTR when SELF_ASSESSMENT service is included" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(SELF_ASSESSMENT)))
 
       org shouldHave(saUtrDefined = true)
     }
 
-    "generate a VRN when SUBMIT_VAT_RETURNS service is included" in {
-      val org = underTest.generateTestOrganisation(Seq(SUBMIT_VAT_RETURNS))
+    "generate a VRN when SUBMIT_VAT_RETURNS service is included" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(SUBMIT_VAT_RETURNS)))
 
       org shouldHave(vrnDefined = true)
     }
 
-    "generate a VRN when MTD_VAT service is included" in {
-      val org = underTest.generateTestOrganisation(Seq(MTD_VAT))
+    "generate a VRN when MTD_VAT service is included" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(MTD_VAT)))
 
       org shouldHave(vrnDefined = true)
     }
 
-    "generate a lisaManagerReferenceNumber when LISA service is included" in {
-      val org = underTest.generateTestOrganisation(Seq(LISA))
+    "generate a lisaManagerReferenceNumber when LISA service is included" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(LISA)))
 
       org shouldHave(lisaManRefNumDefined = true)
     }
 
-    "generate a secureElectronicTransferReferenceNumber when SECURE_ELECTRONIC_TRANSFER service is included" in {
-      val org = underTest.generateTestOrganisation(Seq(SECURE_ELECTRONIC_TRANSFER))
+    "generate a secureElectronicTransferReferenceNumber when SECURE_ELECTRONIC_TRANSFER service is included" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(SECURE_ELECTRONIC_TRANSFER)))
 
       org shouldHave(secureElectronicTransferReferenceNumberDefined = true)
     }
 
-    "generate a pensionSchemeAdministratorIdentifier when RELIEF_AT_SOURCE service is included" in {
-      val org = underTest.generateTestOrganisation(Seq(RELIEF_AT_SOURCE))
+    "generate a pensionSchemeAdministratorIdentifier when RELIEF_AT_SOURCE service is included" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(RELIEF_AT_SOURCE)))
 
       org shouldHave(pensionSchemeAdministratorIdentifierDefined = true)
     }
 
-    "generate an EORI when CUSTOMS_SERVICES service is included" in {
-      val org = underTest.generateTestOrganisation(Seq(CUSTOMS_SERVICES))
+    "generate an EORI when CUSTOMS_SERVICES service is included" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(CUSTOMS_SERVICES)))
 
       org shouldHave(eoriDefined = true)
     }
 
-    "set the userFullName and emailAddress" in {
+    "set the userFullName and emailAddress" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+
       val organisation = underTest.generateTestOrganisation(Seq(MTD_INCOME_TAX))
 
       organisation.userFullName.matches("[a-zA-Z]+ [a-zA-Z]+") shouldBe true
@@ -219,6 +291,24 @@ class GeneratorSpec extends UnitSpec with PropertyChecks {
       val nameParts = organisation.userFullName.split(" ")
 
       organisation.emailAddress shouldBe s"${nameParts(0)}.${nameParts(1)}@example.com".toLowerCase
+    }
+
+    "regenerate VRN if it is a duplicate" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[Vrn])).thenReturn(Future(false), Future(true))
+
+      val organisation = await(underTest.generateTestOrganisation(Seq(SUBMIT_VAT_RETURNS)))
+
+      organisation shouldHave(vrnDefined = true)
+      verify(mockTestUserRepository, times(2)).identifierIsUnique(any[Vrn])
+    }
+
+    "regenerate Employer Reference if it is a duplicate" in new Setup {
+      when(mockTestUserRepository.identifierIsUnique(any[EmpRef])).thenReturn(Future(false), Future(true))
+
+      val organisation = await(underTest.generateTestOrganisation(Seq(PAYE_FOR_EMPLOYERS)))
+
+      organisation shouldHave(empRefDefined = true)
+      verify(mockTestUserRepository, times(2)).identifierIsUnique(any[EmpRef])
     }
   }
 
@@ -231,26 +321,26 @@ class GeneratorSpec extends UnitSpec with PropertyChecks {
       }
     }
 
-    "create a different test agent at every run" in {
+    "create a different test agent at every run" in new Setup {
       val agent1 = underTest.generateTestAgent(Seq(AGENT_SERVICES))
       val agent2 = underTest.generateTestAgent(Seq(AGENT_SERVICES))
 
       agent1 should haveDifferentPropertiesThan(agent2)
     }
 
-    "not generate any identifiers when no services are included" in {
+    "not generate any identifiers when no services are included" in new Setup {
       val agent = underTest.generateTestAgent(Seq.empty)
 
       agent shouldHave(arnDefined = false)
     }
 
-    "generate an agent reference number when AGENT_SERVICES service is included" in {
+    "generate an agent reference number when AGENT_SERVICES service is included" in new Setup {
       val agent = underTest.generateTestAgent(Seq(AGENT_SERVICES))
 
       agent shouldHave(arnDefined = true)
     }
 
-    "set the userFullName and emailAddress" in {
+    "set the userFullName and emailAddress" in new Setup {
       val agent = underTest.generateTestAgent(Seq(AGENT_SERVICES))
 
       agent.userFullName.matches("[a-zA-Z]+ [a-zA-Z]+") shouldBe true
@@ -262,7 +352,7 @@ class GeneratorSpec extends UnitSpec with PropertyChecks {
   }
 
   "VrnChecksum" should {
-    "generate valid VRN checksum" in {
+    "generate valid VRN checksum" in new Setup {
       forAll(Gen.choose(1000000, 1999999)) { vrnBase =>
         val vrn  = VrnChecksum.apply(vrnBase.toString)
         VrnChecksum.isValid(vrn) shouldBe true
@@ -270,7 +360,7 @@ class GeneratorSpec extends UnitSpec with PropertyChecks {
       }
     }
 
-    "validate VRN" in {
+    "validate VRN" in new Setup {
       VrnChecksum.isValid("666000754") shouldBe true
       VrnChecksum.isValid("666163716") shouldBe true
       VrnChecksum.isValid("666541906") shouldBe true
