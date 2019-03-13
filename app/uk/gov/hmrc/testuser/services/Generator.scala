@@ -54,7 +54,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
       saUtr <- if (services.contains(SELF_ASSESSMENT)) generateSaUtr.map(Some(_)) else Future.successful(None)
       nino <- if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) generateNino.map(Some(_)) else Future.successful(None)
       mtdItId <- if(services.contains(MTD_INCOME_TAX)) generateMtdId.map(Some(_)) else Future.successful(None)
-      eoriNumber = if(services.contains(CUSTOMS_SERVICES)) Some(generateEoriNumber) else None
+      eoriNumber <- if(services.contains(CUSTOMS_SERVICES)) generateEoriNumber.map(Some(_)) else Future.successful(None)
       vrn <- if(services.contains(MTD_VAT)) generateVrn.map(Some(_)) else Future.successful(None)
       vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1,20).sample.get))
 
@@ -86,10 +86,10 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
       ctUtr <- if (services.contains(CORPORATION_TAX)) generateCtUtr.map(Some(_)) else Future.successful(None)
       vrn <- if (services.contains(SUBMIT_VAT_RETURNS) || services.contains(MTD_VAT)) generateVrn.map(Some(_)) else Future.successful(None)
       vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1, 20).sample.get))
-      lisaManRefNum = if (services.contains(LISA)) Some(generateLisaManRefNum) else None
+      lisaManRefNum <- if (services.contains(LISA)) generateLisaManRefNum.map(Some(_)) else Future.successful(None)
       setRefNum = if (services.contains(SECURE_ELECTRONIC_TRANSFER)) Some(generateSetRefNum) else None
       psaId = if (services.contains(RELIEF_AT_SOURCE)) Some(generatePsaId) else None
-      eoriNumber = if (services.contains(CUSTOMS_SERVICES)) Some(generateEoriNumber) else None
+      eoriNumber <- if (services.contains(CUSTOMS_SERVICES)) generateEoriNumber.map(Some(_)) else Future.successful(None)
 
       firstName = generateFirstName
       lastName = generateLastName
@@ -190,7 +190,11 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
     generateUniqueIdentifier(generatorFunction)
   }
 
-  private def generateLisaManRefNum: LisaManagerReferenceNumber = lisaManRefNumGenerator.next
+  private def generateLisaManRefNum: Future[LisaManagerReferenceNumber] = {
+    def generatorFunction() = { lisaManRefNumGenerator.next }
+    generateUniqueIdentifier(generatorFunction)
+  }
+
   private def generateSetRefNum: SecureElectronicTransferReferenceNumber = setRefNumGenerator.next
   private def generatePsaId: PensionSchemeAdministratorIdentifier = psaIdGenerator.next
   private def generateArn: AgentBusinessUtr = arnGenerator.next
@@ -200,7 +204,10 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
     generateUniqueIdentifier(generatorFunction)
   }
 
-  private def generateEoriNumber: EoriNumber = eoriGenerator.sample.get
+  private def generateEoriNumber(implicit ec: ExecutionContext): Future[EoriNumber] = {
+    def generatorFunction() = { eoriGenerator.sample.get }
+    generateUniqueIdentifier(generatorFunction)
+  }
 }
 
 class ArnGenerator(random: Random = new Random) extends Modulus23Check {

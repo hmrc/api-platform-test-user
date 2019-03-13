@@ -38,12 +38,14 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
   val generator = new Generator(repository)
 
   trait GeneratedTestIndividual {
-    val testIndividual = await(generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_VAT)))
+    val testIndividual = await(generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_VAT, CUSTOMS_SERVICES)))
   }
 
   trait GeneratedTestOrganisation {
     val testOrganisation =
-      await(generator.generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT)))
+      await(
+        generator.generateTestOrganisation(
+          Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT, LISA, CUSTOMS_SERVICES)))
   }
 
   override def afterEach: Unit = {
@@ -263,6 +265,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
       await(repository.identifierIsUnique(testUser.nino.get)) shouldBe false
       await(repository.identifierIsUnique(testUser.vrn.get)) shouldBe false
       await(repository.identifierIsUnique(testUser.mtdItId.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.eoriNumber.get)) shouldBe false
     }
 
     "return false when organisation identifiers already exist" in new GeneratedTestOrganisation {
@@ -274,6 +277,8 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
       await(repository.identifierIsUnique(testUser.empRef.get)) shouldBe false
       await(repository.identifierIsUnique(testUser.ctUtr.get)) shouldBe false
       await(repository.identifierIsUnique(testUser.mtdItId.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.lisaManRefNum.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.eoriNumber.get)) shouldBe false
     }
   }
 }

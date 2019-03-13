@@ -35,7 +35,7 @@ class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: E
     JsonFormatters.formatTestUser, ReactiveMongoFormats.objectIdFormats) {
 
   // List of fields that contain generated identifiers
-  val IdentifierFields: Seq[String] = Seq("nino", "saUtr", "vrn", "empRef", "mtdItId", "ctUtr")
+  val IdentifierFields: Seq[String] = Seq("nino", "saUtr", "vrn", "empRef", "mtdItId", "ctUtr", "lisaManRefNum", "eoriNumber")
 
   ensureIndex("userId", "userIdIndex")
 
@@ -83,7 +83,7 @@ class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: E
   }
 
   def identifierIsUnique(identifier: TaxIdentifier): Future[Boolean] = {
-    val query = Json.obj("$or" -> IdentifierFields.map(identifierField => Json.obj(identifierField -> identifier.toString)))
+    val query = Json.obj("$or" -> IdentifierFields.map(identifierField => Json.obj(identifierField -> identifier.value)))
     count(query).map(matchedIdentifiers => matchedIdentifiers == 0)
   }
 }
