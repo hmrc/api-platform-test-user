@@ -159,30 +159,35 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
   private def generateUserId = userIdGenerator.sample.get
   private def generatePassword = passwordGenerator.sample.get
 
+  private def generateUniqueIdentifier[T <: TaxIdentifier](generatorFunction: () => T)(implicit ec: ExecutionContext): Future[T] = {
+    val generatedIdentifier = generatorFunction()
+    testUserRepository.identifierIsUnique(generatedIdentifier)
+      .flatMap(unique => if (unique) Future(generatedIdentifier) else generateUniqueIdentifier(generatorFunction))
+  }
+
   private def generateEmpRef(implicit ec: ExecutionContext): Future[EmpRef] = {
-    val empRef = employerReferenceGenerator.sample.get
-    testUserRepository.identifierIsUnique(empRef).flatMap(unique => if(unique) Future(empRef) else generateEmpRef)
+    def generatorFunction() = { employerReferenceGenerator.sample.get }
+    generateUniqueIdentifier(generatorFunction)
   }
 
   private def generateSaUtr(implicit ec: ExecutionContext): Future[SaUtr] = {
-    val saUTR = utrGenerator.nextSaUtr
-    testUserRepository.identifierIsUnique(saUTR).flatMap(unique => if(unique) Future(saUTR) else generateSaUtr)
+    def generatorFunction() = {utrGenerator.nextSaUtr }
+    generateUniqueIdentifier(generatorFunction)
   }
 
   private def generateNino(implicit ec: ExecutionContext): Future[Nino] = {
-    val nino = ninoGenerator.nextNino
-    testUserRepository.identifierIsUnique(nino).flatMap(unique => if(unique) Future(nino) else generateNino)
+    def generatorFunction() = { ninoGenerator.nextNino }
+    generateUniqueIdentifier(generatorFunction)
   }
 
-
   private def generateCtUtr(implicit ec: ExecutionContext): Future[CtUtr] = {
-    val ctUtr = CtUtr(utrGenerator.nextSaUtr.value)
-    testUserRepository.identifierIsUnique(ctUtr).flatMap(unique => if(unique) Future(ctUtr) else generateCtUtr)
+    def generatorFunction() = { CtUtr(utrGenerator.nextSaUtr.value) }
+    generateUniqueIdentifier(generatorFunction)
   }
 
   private def generateVrn(implicit ec: ExecutionContext): Future[Vrn] = {
-    val vrn = Vrn(vrnGenerator.sample.get.toString)
-    testUserRepository.identifierIsUnique(vrn).flatMap(unique => if(unique) Future(vrn) else generateVrn)
+    def generatorFunction() = { Vrn(vrnGenerator.sample.get.toString) }
+    generateUniqueIdentifier(generatorFunction)
   }
 
   private def generateLisaManRefNum: LisaManagerReferenceNumber = lisaManRefNumGenerator.next
@@ -191,8 +196,8 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
   private def generateArn: AgentBusinessUtr = arnGenerator.next
 
   private def generateMtdId(implicit ec: ExecutionContext): Future[MtdItId] = {
-    val mtdItId = mtdItIdGenerator.next
-    testUserRepository.identifierIsUnique(mtdItId).flatMap(unique => if(unique) Future(mtdItId) else generateMtdId)
+    def generatorFunction() = { mtdItIdGenerator.next }
+    generateUniqueIdentifier(generatorFunction)
   }
 
   private def generateEoriNumber: EoriNumber = eoriGenerator.sample.get
