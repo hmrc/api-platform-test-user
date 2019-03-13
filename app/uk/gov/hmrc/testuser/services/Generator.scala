@@ -53,7 +53,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
     for {
       saUtr <- if (services.contains(SELF_ASSESSMENT)) generateSaUtr.map(Some(_)) else Future.successful(None)
       nino <- if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) generateNino.map(Some(_)) else Future.successful(None)
-      mtdItId = if(services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
+      mtdItId <- if(services.contains(MTD_INCOME_TAX)) generateMtdId.map(Some(_)) else Future.successful(None)
       eoriNumber = if(services.contains(CUSTOMS_SERVICES)) Some(generateEoriNumber) else None
       vrn <- if(services.contains(MTD_VAT)) generateVrn.map(Some(_)) else Future.successful(None)
       vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1,20).sample.get))
@@ -81,9 +81,9 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
     for {
       saUtr <- if (services.contains(SELF_ASSESSMENT)) generateSaUtr.map(Some(_)) else Future.successful(None)
       nino <- if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) generateNino.map(Some(_)) else Future.successful(None)
-      mtdItId = if (services.contains(MTD_INCOME_TAX)) Some(generateMtdId) else None
+      mtdItId <- if (services.contains(MTD_INCOME_TAX)) generateMtdId.map(Some(_)) else Future.successful(None)
       empRef <- if (services.contains(PAYE_FOR_EMPLOYERS)) generateEmpRef.map(Some(_)) else Future.successful(None)
-      ctUtr = if (services.contains(CORPORATION_TAX)) Some(generateCtUtr) else None
+      ctUtr <- if (services.contains(CORPORATION_TAX)) generateCtUtr.map(Some(_)) else Future.successful(None)
       vrn <- if (services.contains(SUBMIT_VAT_RETURNS) || services.contains(MTD_VAT)) generateVrn.map(Some(_)) else Future.successful(None)
       vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1, 20).sample.get))
       lisaManRefNum = if (services.contains(LISA)) Some(generateLisaManRefNum) else None
@@ -175,7 +175,10 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
   }
 
 
-  private def generateCtUtr: CtUtr = CtUtr(utrGenerator.nextSaUtr.value)
+  private def generateCtUtr(implicit ec: ExecutionContext): Future[CtUtr] = {
+    val ctUtr = CtUtr(utrGenerator.nextSaUtr.value)
+    testUserRepository.identifierIsUnique(ctUtr).flatMap(unique => if(unique) Future(ctUtr) else generateCtUtr)
+  }
 
   private def generateVrn(implicit ec: ExecutionContext): Future[Vrn] = {
     val vrn = Vrn(vrnGenerator.sample.get.toString)
@@ -186,7 +189,12 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
   private def generateSetRefNum: SecureElectronicTransferReferenceNumber = setRefNumGenerator.next
   private def generatePsaId: PensionSchemeAdministratorIdentifier = psaIdGenerator.next
   private def generateArn: AgentBusinessUtr = arnGenerator.next
-  private def generateMtdId: MtdItId = mtdItIdGenerator.next
+
+  private def generateMtdId(implicit ec: ExecutionContext): Future[MtdItId] = {
+    val mtdItId = mtdItIdGenerator.next
+    testUserRepository.identifierIsUnique(mtdItId).flatMap(unique => if(unique) Future(mtdItId) else generateMtdId)
+  }
+
   private def generateEoriNumber: EoriNumber = eoriGenerator.sample.get
 }
 

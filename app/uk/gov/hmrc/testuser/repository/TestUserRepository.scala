@@ -35,7 +35,7 @@ class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: E
     JsonFormatters.formatTestUser, ReactiveMongoFormats.objectIdFormats) {
 
   // List of fields that contain generated identifiers
-  val IdentifierFields: Seq[String] = Seq("nino", "saUtr", "vrn", "empRef")
+  val IdentifierFields: Seq[String] = Seq("nino", "saUtr", "vrn", "empRef", "mtdItId", "ctUtr")
 
   ensureIndex("userId", "userIdIndex")
 

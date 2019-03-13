@@ -136,19 +136,20 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
 
   "fetchIndividualByShortNino" should {
     val nino = Nino("CC333333C")
-    val shortNino = NinoNoSuffix("CC333333")
+    val validShortNino = NinoNoSuffix("CC333333")
+    val invalidShortNino = NinoNoSuffix("CC333334")
 
     "return the individual" in new GeneratedTestIndividual {
       val individual = testIndividual.copy(nino = Some(nino))
       await(repository.createUser(individual))
 
-      val result = await(repository.fetchIndividualByShortNino(shortNino))
+      val result = await(repository.fetchIndividualByShortNino(validShortNino))
 
       result shouldBe Some(individual)
     }
 
     "return None when there is no individual matching" in {
-      val result = await(repository.fetchIndividualByShortNino(shortNino))
+      val result = await(repository.fetchIndividualByShortNino(invalidShortNino))
 
       result shouldBe None
     }
@@ -261,6 +262,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
       await(repository.identifierIsUnique(testUser.saUtr.get)) shouldBe false
       await(repository.identifierIsUnique(testUser.nino.get)) shouldBe false
       await(repository.identifierIsUnique(testUser.vrn.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.mtdItId.get)) shouldBe false
     }
 
     "return false when organisation identifiers already exist" in new GeneratedTestOrganisation {
@@ -270,6 +272,8 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
       await(repository.identifierIsUnique(testUser.nino.get)) shouldBe false
       await(repository.identifierIsUnique(testUser.vrn.get)) shouldBe false
       await(repository.identifierIsUnique(testUser.empRef.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.ctUtr.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.mtdItId.get)) shouldBe false
     }
   }
 }
