@@ -165,49 +165,18 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
       .flatMap(unique => if (unique) Future(generatedIdentifier) else generateUniqueIdentifier(generatorFunction))
   }
 
-  private def generateEmpRef(implicit ec: ExecutionContext): Future[EmpRef] = {
-    def generatorFunction() = { employerReferenceGenerator.sample.get }
-    generateUniqueIdentifier(generatorFunction)
-  }
-
-  private def generateSaUtr(implicit ec: ExecutionContext): Future[SaUtr] = {
-    def generatorFunction() = {utrGenerator.nextSaUtr }
-    generateUniqueIdentifier(generatorFunction)
-  }
-
-  private def generateNino(implicit ec: ExecutionContext): Future[Nino] = {
-    def generatorFunction() = { ninoGenerator.nextNino }
-    generateUniqueIdentifier(generatorFunction)
-  }
-
-  private def generateCtUtr(implicit ec: ExecutionContext): Future[CtUtr] = {
-    def generatorFunction() = { CtUtr(utrGenerator.nextSaUtr.value) }
-    generateUniqueIdentifier(generatorFunction)
-  }
-
-  private def generateVrn(implicit ec: ExecutionContext): Future[Vrn] = {
-    def generatorFunction() = { Vrn(vrnGenerator.sample.get.toString) }
-    generateUniqueIdentifier(generatorFunction)
-  }
-
-  private def generateLisaManRefNum: Future[LisaManagerReferenceNumber] = {
-    def generatorFunction() = { lisaManRefNumGenerator.next }
-    generateUniqueIdentifier(generatorFunction)
-  }
+  private def generateEmpRef(implicit ec: ExecutionContext): Future[EmpRef] = generateUniqueIdentifier(() => { employerReferenceGenerator.sample.get })
+  private def generateSaUtr(implicit ec: ExecutionContext): Future[SaUtr] = generateUniqueIdentifier(() => { utrGenerator.nextSaUtr })
+  private def generateNino(implicit ec: ExecutionContext): Future[Nino] = generateUniqueIdentifier(() => { ninoGenerator.nextNino })
+  private def generateCtUtr(implicit ec: ExecutionContext): Future[CtUtr] = generateUniqueIdentifier(() => { CtUtr(utrGenerator.nextSaUtr.value) })
+  private def generateVrn(implicit ec: ExecutionContext): Future[Vrn] = generateUniqueIdentifier(() => { Vrn(vrnGenerator.sample.get.toString) })
+  private def generateLisaManRefNum: Future[LisaManagerReferenceNumber] = generateUniqueIdentifier(() => { lisaManRefNumGenerator.next })
+  private def generateMtdId(implicit ec: ExecutionContext): Future[MtdItId] = generateUniqueIdentifier(() => { mtdItIdGenerator.next })
+  private def generateEoriNumber(implicit ec: ExecutionContext): Future[EoriNumber] = generateUniqueIdentifier(() => { eoriGenerator.sample.get })
 
   private def generateSetRefNum: SecureElectronicTransferReferenceNumber = setRefNumGenerator.next
   private def generatePsaId: PensionSchemeAdministratorIdentifier = psaIdGenerator.next
   private def generateArn: AgentBusinessUtr = arnGenerator.next
-
-  private def generateMtdId(implicit ec: ExecutionContext): Future[MtdItId] = {
-    def generatorFunction() = { mtdItIdGenerator.next }
-    generateUniqueIdentifier(generatorFunction)
-  }
-
-  private def generateEoriNumber(implicit ec: ExecutionContext): Future[EoriNumber] = {
-    def generatorFunction() = { eoriGenerator.sample.get }
-    generateUniqueIdentifier(generatorFunction)
-  }
 }
 
 class ArnGenerator(random: Random = new Random) extends Modulus23Check {
