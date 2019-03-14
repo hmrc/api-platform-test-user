@@ -165,14 +165,14 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
       .flatMap(unique => if (unique) Future(generatedIdentifier) else generateUniqueIdentifier(generatorFunction))
   }
 
-  private def generateEmpRef(implicit ec: ExecutionContext): Future[EmpRef] = generateUniqueIdentifier(() => { employerReferenceGenerator.sample.get })
-  private def generateSaUtr(implicit ec: ExecutionContext): Future[SaUtr] = generateUniqueIdentifier(() => { utrGenerator.nextSaUtr })
-  private def generateNino(implicit ec: ExecutionContext): Future[Nino] = generateUniqueIdentifier(() => { ninoGenerator.nextNino })
-  private def generateCtUtr(implicit ec: ExecutionContext): Future[CtUtr] = generateUniqueIdentifier(() => { CtUtr(utrGenerator.nextSaUtr.value) })
-  private def generateVrn(implicit ec: ExecutionContext): Future[Vrn] = generateUniqueIdentifier(() => { Vrn(vrnGenerator.sample.get.toString) })
+  private def generateEmpRef: Future[EmpRef] = generateUniqueIdentifier(() => { employerReferenceGenerator.sample.get })
+  private def generateSaUtr: Future[SaUtr] = generateUniqueIdentifier(() => { utrGenerator.nextSaUtr })
+  private def generateNino: Future[Nino] = generateUniqueIdentifier(() => { ninoGenerator.nextNino })
+  private def generateCtUtr: Future[CtUtr] = generateUniqueIdentifier(() => { CtUtr(utrGenerator.nextSaUtr.value) })
+  private def generateVrn: Future[Vrn] = generateUniqueIdentifier(() => { Vrn(vrnGenerator.sample.get.toString) })
   private def generateLisaManRefNum: Future[LisaManagerReferenceNumber] = generateUniqueIdentifier(() => { lisaManRefNumGenerator.next })
-  private def generateMtdId(implicit ec: ExecutionContext): Future[MtdItId] = generateUniqueIdentifier(() => { mtdItIdGenerator.next })
-  private def generateEoriNumber(implicit ec: ExecutionContext): Future[EoriNumber] = generateUniqueIdentifier(() => { eoriGenerator.sample.get })
+  private def generateMtdId: Future[MtdItId] = generateUniqueIdentifier(() => { mtdItIdGenerator.next })
+  private def generateEoriNumber: Future[EoriNumber] = generateUniqueIdentifier(() => { eoriGenerator.sample.get })
 
   private def generateSetRefNum: SecureElectronicTransferReferenceNumber = setRefNumGenerator.next
   private def generatePsaId: PensionSchemeAdministratorIdentifier = psaIdGenerator.next
