@@ -18,6 +18,8 @@ package it.uk.gov.hmrc.testuser.repository
 
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.modules.reactivemongo.ReactiveMongoComponent
+import reactivemongo.api.indexes.Index
+import reactivemongo.api.indexes.IndexType.Ascending
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.mongo.MongoSpecSupport
 import uk.gov.hmrc.play.test.UnitSpec
@@ -28,37 +30,54 @@ import uk.gov.hmrc.testuser.services.Generator
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with BeforeAndAfterAll with MongoSpecSupport {
-
+class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with BeforeAndAfterAll with MongoSpecSupport with IndexVerification {
   private val mongoComponent = new ReactiveMongoComponent {
     override def mongoConnector = mongoConnectorForTest
   }
-  private val repository = new TestUserRepository(mongoComponent)
-  private val generator = new Generator()
-  val testIndividual = generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_VAT))
-  val testOrganisation = generator.generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT))
+  val repository = new TestUserRepository(mongoComponent)
+  val generator = new Generator(repository)
 
-  override def beforeEach() {
-    await(repository.drop)
-    await(repository.ensureIndexes)
+  trait GeneratedTestIndividual {
+    val testIndividual = await(generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_VAT, CUSTOMS_SERVICES)))
   }
 
-  override protected def afterAll() {
-    await(repository.drop)
+  trait GeneratedTestOrganisation {
+    val testOrganisation =
+      await(
+        generator.generateTestOrganisation(
+          Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT, LISA, CUSTOMS_SERVICES)))
+  }
+
+  override def afterEach: Unit = {
+    repository.removeAll()
+  }
+
+  "indexes" should {
+    "be created for userId" in {
+      val expectedIndex = Set(Index(key = Seq("userId" -> Ascending), name = Some("userIdIndex"), unique = true, background = true))
+      verifyIndexesVersionAgnostic(repository, expectedIndex)
+    }
+
+    "be created for all identifier fields" in {
+      def expectedIndexes: Set[Index] =
+        repository.IdentifierFields
+          .map(identifierField => Index(key = Seq(identifierField -> Ascending), name = Some(s"$identifierField-Index"), unique = false, background = true))
+          .toSet
+
+      verifyIndexesVersionAgnostic(repository, expectedIndexes)
+    }
   }
 
   "createUser" should {
 
-    "create a test individual in the repository" in {
-
+    "create a test individual in the repository" in new GeneratedTestIndividual {
       val result = await(repository.createUser(testIndividual))
 
       result shouldBe testIndividual
       await(repository.findById(testIndividual._id)) shouldBe Some(testIndividual)
     }
 
-    "create a test organisation in the repository" in {
-
+    "create a test organisation in the repository" in new GeneratedTestOrganisation {
       val result = await(repository.createUser(testOrganisation))
 
       result shouldBe testOrganisation
@@ -67,9 +86,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
   }
 
   "fetchByUserId" should {
-
-    "return an individual when the individual exists for the userId" in {
-
+    "return an individual when the individual exists for the userId" in new GeneratedTestIndividual {
       await(repository.createUser(testIndividual))
 
       val result = await(repository.fetchByUserId(testIndividual.userId))
@@ -77,7 +94,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
       result shouldBe Some(testIndividual)
     }
 
-    "return an organisation when the organisation exists for the userId" in {
+    "return an organisation when the organisation exists for the userId" in new GeneratedTestOrganisation {
 
       await(repository.createUser(testOrganisation))
 
@@ -96,7 +113,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
 
   "fetchIndividualByNino" should {
 
-    "return the individual" in {
+    "return the individual" in new GeneratedTestIndividual {
       await(repository.createUser(testIndividual))
 
       val result = await(repository.fetchIndividualByNino(testIndividual.nino.get))
@@ -105,12 +122,12 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
     }
 
     "return None when there is no individual matching" in {
-      val result = await(repository.fetchIndividualByNino(Nino("CC333333C")))
+      val result = await(repository.fetchIndividualByNino(Nino("CC333334C")))
 
       result shouldBe None
     }
 
-    "return None when there is an organisation matching" in {
+    "return None when there is an organisation matching" in new GeneratedTestOrganisation {
       await(repository.createUser(testOrganisation))
 
       val result = await(repository.fetchIndividualByNino(testOrganisation.nino.get))
@@ -121,24 +138,25 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
 
   "fetchIndividualByShortNino" should {
     val nino = Nino("CC333333C")
-    val shortNino = NinoNoSuffix("CC333333")
-    val individual = testIndividual.copy(nino = Some(nino))
+    val validShortNino = NinoNoSuffix("CC333333")
+    val invalidShortNino = NinoNoSuffix("CC333334")
 
-    "return the individual" in {
+    "return the individual" in new GeneratedTestIndividual {
+      val individual = testIndividual.copy(nino = Some(nino))
       await(repository.createUser(individual))
 
-      val result = await(repository.fetchIndividualByShortNino(shortNino))
+      val result = await(repository.fetchIndividualByShortNino(validShortNino))
 
       result shouldBe Some(individual)
     }
 
     "return None when there is no individual matching" in {
-      val result = await(repository.fetchIndividualByShortNino(shortNino))
+      val result = await(repository.fetchIndividualByShortNino(invalidShortNino))
 
       result shouldBe None
     }
 
-    "return None when there is an organisation matching" in {
+    "return None when there is an organisation matching" in new GeneratedTestOrganisation {
       await(repository.createUser(testOrganisation))
 
       val result = await(repository.fetchIndividualByShortNino(NinoNoSuffix(testOrganisation.nino.get)))
@@ -147,9 +165,9 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
     }
   }
 
-  "fetchIndividualBySautr" should {
+  "fetchIndividualBySaUtr" should {
 
-    "return the individual" in {
+    "return the individual" in new GeneratedTestIndividual {
       await(repository.createUser(testIndividual))
 
       val result = await(repository.fetchIndividualBySaUtr(testIndividual.saUtr.get))
@@ -157,7 +175,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
       result shouldBe Some(testIndividual)
     }
 
-    "return None when there is an organisation matching" in {
+    "return None when there is an organisation matching" in new GeneratedTestOrganisation {
       await(repository.createUser(testOrganisation))
 
       val result = await(repository.fetchIndividualBySaUtr(testOrganisation.saUtr.get))
@@ -174,7 +192,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
 
   "fetchIndividualByVrn" should {
 
-    "return the individual" in {
+    "return the individual" in new GeneratedTestIndividual {
       await(repository.createUser(testIndividual))
 
       val result = await(repository.fetchIndividualByVrn(testIndividual.vrn.get))
@@ -182,7 +200,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
       result shouldBe Some(testIndividual)
     }
 
-    "return None when there is an organisation matching" in {
+    "return None when there is an organisation matching" in new GeneratedTestOrganisation {
       await(repository.createUser(testOrganisation))
 
       val result = await(repository.fetchIndividualByVrn(testOrganisation.vrn.get))
@@ -199,7 +217,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
 
   "fetchOrganisationByEmpRef" should {
 
-    "return the organisation" in {
+    "return the organisation" in new GeneratedTestOrganisation {
       await(repository.createUser(testOrganisation))
 
       val result = await(repository.fetchOrganisationByEmpRef(testOrganisation.empRef.get))
@@ -207,7 +225,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
       result shouldBe Some(testOrganisation)
     }
 
-    "return None when there is an organisation matching" in {
+    "return None when there is an organisation matching" in new GeneratedTestOrganisation {
       val result = await(repository.fetchOrganisationByEmpRef(testOrganisation.empRef.get))
 
       result shouldBe None
@@ -216,7 +234,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
 
   "fetchOrganisationByVrn" should {
 
-    "return the organisation" in {
+    "return the organisation" in new GeneratedTestOrganisation {
       await(repository.createUser(testOrganisation))
 
       val result = await(repository.fetchOrganisationByVrn(testOrganisation.vrn.get))
@@ -224,7 +242,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
       result shouldBe Some(testOrganisation)
     }
 
-    "return None when there is an individual matching" in {
+    "return None when there is an individual matching" in new GeneratedTestIndividual {
       await(repository.createUser(testIndividual))
 
       val result = await(repository.fetchOrganisationByVrn(testIndividual.vrn.get))
@@ -232,10 +250,35 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
       result shouldBe None
     }
 
-    "return None when there is an organisation matching" in {
+    "return None when there is an organisation matching" in new GeneratedTestOrganisation {
       val result = await(repository.fetchOrganisationByVrn(testOrganisation.vrn.get))
 
       result shouldBe None
+    }
+  }
+
+  "identifierIsUnique" should {
+    "return false when individual identifiers already exist" in new GeneratedTestIndividual {
+      val testUser = await(repository.createUser(testIndividual))
+
+      await(repository.identifierIsUnique(testUser.saUtr.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.nino.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.vrn.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.mtdItId.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.eoriNumber.get)) shouldBe false
+    }
+
+    "return false when organisation identifiers already exist" in new GeneratedTestOrganisation {
+      val testUser = await(repository.createUser(testOrganisation))
+
+      await(repository.identifierIsUnique(testUser.saUtr.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.nino.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.vrn.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.empRef.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.ctUtr.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.mtdItId.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.lisaManRefNum.get)) shouldBe false
+      await(repository.identifierIsUnique(testUser.eoriNumber.get)) shouldBe false
     }
   }
 }

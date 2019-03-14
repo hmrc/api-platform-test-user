@@ -33,11 +33,13 @@ import uk.gov.hmrc.testuser.models.{UserNotFound, _}
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.services.{Generator, PasswordService, TestUserService}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{failed, successful}
 
 class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing {
+  implicit def ec = ExecutionContext.global
+
+  val mockTestUserRepository = mock[TestUserRepository]
 
   val userId = "user"
   val password = "password"
@@ -48,7 +50,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   val empRef = EmpRef("555", "EIA000")
 
   val individualServices = Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
-  val generator = new Generator()
+  val generator = new Generator(mockTestUserRepository)
   val testIndividualWithNoServices = generator.generateTestIndividual()
     .copy(
       userId = userId,
@@ -71,8 +73,9 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
 
   trait Setup {
     implicit val hc = HeaderCarrier()
+    implicit def executionContext = mock[ExecutionContext]
 
-    val underTest = new TestUserService(mock[PasswordService], mock[DesSimulatorConnector], mock[TestUserRepository], mock[Generator])
+    val underTest = new TestUserService(mock[PasswordService], mock[DesSimulatorConnector], mockTestUserRepository, mock[Generator])
     when(underTest.testUserRepository.createUser(any[TestUser]())).thenAnswer(sameUserCreated)
     when(underTest.testUserRepository.fetchByUserId(anyString())).thenReturn(successful(None))
     when(underTest.passwordService.validate(anyString(), anyString())).thenReturn(false)
