@@ -17,9 +17,9 @@
 package uk.gov.hmrc.testuser.services
 
 import javax.inject.{Inject, Singleton}
-
 import org.joda.time.LocalDate
 import org.scalacheck.Gen
+import play.api.Logger
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
@@ -159,10 +159,11 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
   private def generateUserId = userIdGenerator.sample.get
   private def generatePassword = passwordGenerator.sample.get
 
-  private def generateUniqueIdentifier[T <: TaxIdentifier](generatorFunction: () => T)(implicit ec: ExecutionContext): Future[T] = {
+  private def generateUniqueIdentifier[T <: TaxIdentifier](generatorFunction: () => T, count: Int = 1)(implicit ec: ExecutionContext): Future[T] = {
+    Logger.info(s"Generating tax identifier attempt $count")
     val generatedIdentifier = generatorFunction()
     testUserRepository.identifierIsUnique(generatedIdentifier)
-      .flatMap(unique => if (unique) Future(generatedIdentifier) else generateUniqueIdentifier(generatorFunction))
+      .flatMap(unique => if (unique) Future(generatedIdentifier) else generateUniqueIdentifier(generatorFunction, count + 1))
   }
 
   private def generateEmpRef: Future[EmpRef] = generateUniqueIdentifier(() => { employerReferenceGenerator.sample.get })
