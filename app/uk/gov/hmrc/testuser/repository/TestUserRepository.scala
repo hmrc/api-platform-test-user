@@ -87,7 +87,7 @@ class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: E
     val query = Json.obj("$or" -> IdentifierFields.map(identifierField => Json.obj(identifierField -> identifier.value)))
     count(query).map{ matchedIdentifiers =>
       val isUnique = matchedIdentifiers == 0
-      Logger.debug(s"Completed checking tax identifier uniqueness - $identifier")
+      Logger.info(s"Completed checking tax identifier uniqueness - $identifier")
       isUnique
     }
   }
