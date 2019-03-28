@@ -38,19 +38,19 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
   val userFullName = "John Doe"
   val emailAddress = "john.doe@example.com"
 
-  val testIndividual = TestIndividual("individualUser", "password", userFullName, emailAddress, individualDetails, Some(SaUtr("1555369052")),
-    nino = Some(Nino("CC333333C")), mtdItId = Some(MtdItId("XGIT00000000054")), vrn = Some(Vrn("999902541")),
-    vatRegistrationDate = Some(LocalDate.parse("1997-01-01")), eoriNumber = Some(EoriNumber("GB1234567890")),
-    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
-
+  val testIndividual = TestIndividual("individualUser", "password", userFullName, emailAddress, individualDetails, Some("1555369052"),
+    vatRegistrationDate = Some(LocalDate.parse("1997-01-01")), eoriNumber = Some("GB1234567890"), nino = Some("CC444444C"), vrn = Some("999902541"),
+    mtdItId = Some("XGIT00000000054"), services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
+  val taxOfficeNumber = "555"
+  val taxOfficeReference =  "EIA000"
   val testOrganisation = TestOrganisation("organisationUser", "password", userFullName, emailAddress, organisationDetails,
-    Some(SaUtr("1555369052")), Some(Nino("CC333333C")), Some(MtdItId("XGIT00000000054")), Some(EmpRef("555", "EIA000")), Some(CtUtr("1555369053")),
-    Some(Vrn("999902541")), Some(LocalDate.parse("1997-01-01")), Some(LisaManagerReferenceNumber("Z123456")),
-    Some(SecureElectronicTransferReferenceNumber("123456789012")), Some(PensionSchemeAdministratorIdentifier("A1234567")), Some(EoriNumber("GB1234567890")),
+    Some("1555369052"), Some("CC333333C"), Some("XGIT00000000054"), Some(s"$taxOfficeNumber/$taxOfficeReference"), Some("1555369053"),
+    Some("999902541"), Some(LocalDate.parse("1997-01-01")), Some("Z123456"),
+    Some("123456789012"), Some("A1234567"), Some("GB1234567890"),
     Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX,
       MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES))
 
-  val testAgent = TestAgent("agentUser", "password", userFullName, emailAddress, Some(AgentBusinessUtr("NARN0396245")), Seq(AGENT_SERVICES))
+  val testAgent = TestAgent("agentUser", "password", userFullName, emailAddress, Some("NARN0396245"), Seq(AGENT_SERVICES))
 
   val authSession = AuthSession("Bearer 12345", "/auth/oid/12345", "ggToken")
 
@@ -104,7 +104,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
              |       "identifiers": [
              |       {
              |         "key":"UTR",
-             |         "value":"${testIndividual.saUtr.get.value}"
+             |         "value":"${testIndividual.saUtr.get}"
              |       }]
              |     },
              |     {
@@ -113,7 +113,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
              |       "identifiers": [
              |       {
              |         "key":"MTDITID",
-             |         "value":"${testIndividual.mtdItId.get.value}"
+             |         "value":"${testIndividual.mtdItId.get}"
              |       }]
              |     },
              |     {
@@ -122,7 +122,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
              |       "identifiers": [
              |       {
              |         "key":"EORINumber",
-             |         "value":"${testIndividual.eoriNumber.get.value}"
+             |         "value":"${testIndividual.eoriNumber.get}"
              |       }]
              |     },
              |     {
@@ -131,7 +131,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
              |       "identifiers": [
              |       {
              |         "key":"VRN",
-             |         "value":"${testIndividual.vrn.get.value}"
+             |         "value":"${testIndividual.vrn.get}"
              |       }]
              |     }
              |   ],
@@ -162,7 +162,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "identifiers": [
            |       {
            |         "key":"UTR",
-           |         "value":"${testOrganisation.saUtr.get.value}"
+           |         "value":"${testOrganisation.saUtr.get}"
            |       }]
            |     },
            |     {
@@ -171,7 +171,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "identifiers": [
            |       {
            |         "key":"UTR",
-           |         "value":"${testOrganisation.ctUtr.get.value}"
+           |         "value":"${testOrganisation.ctUtr.get}"
            |       }]
            |     },
            |     {
@@ -180,7 +180,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "identifiers": [
            |       {
            |         "key":"VATRegNo",
-           |         "value":"${testOrganisation.vrn.get.value}"
+           |         "value":"${testOrganisation.vrn.get}"
            |       }]
            |     },
            |     {
@@ -189,11 +189,11 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "identifiers": [
            |       {
            |         "key":"TaxOfficeNumber",
-           |         "value":"${testOrganisation.empRef.get.taxOfficeNumber}"
+           |         "value":"${taxOfficeNumber}"
            |       },
            |       {
            |         "key":"TaxOfficeReference",
-           |         "value":"${testOrganisation.empRef.get.taxOfficeReference}"
+           |         "value":"${taxOfficeReference}"
            |       }]
            |     },
            |     {
@@ -202,7 +202,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "identifiers": [
            |       {
            |         "key":"MTDITID",
-           |         "value":"${testOrganisation.mtdItId.get.value}"
+           |         "value":"${testOrganisation.mtdItId.get}"
            |       }]
            |     },
            |     {
@@ -211,7 +211,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "identifiers": [
            |       {
            |         "key":"VRN",
-           |         "value":"${testOrganisation.vrn.get.value}"
+           |         "value":"${testOrganisation.vrn.get}"
            |       }]
            |     },
            |     {
@@ -220,7 +220,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "identifiers": [
            |       {
            |         "key":"ZREF",
-           |         "value":"${testOrganisation.lisaManRefNum.get.value}"
+           |         "value":"${testOrganisation.lisaManRefNum.get}"
            |       }]
            |     },
            |     {
@@ -229,7 +229,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "identifiers": [
            |       {
            |         "key":"SRN",
-           |         "value":"${testOrganisation.secureElectronicTransferReferenceNumber.get.value}"
+           |         "value":"${testOrganisation.secureElectronicTransferReferenceNumber.get}"
            |       }]
            |     },
            |     {
@@ -238,7 +238,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "identifiers": [
            |       {
            |         "key":"PSAID",
-           |         "value":"${testOrganisation.pensionSchemeAdministratorIdentifier.get.value}"
+           |         "value":"${testOrganisation.pensionSchemeAdministratorIdentifier.get}"
            |       }]
            |     },
            |     {
@@ -247,7 +247,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "identifiers": [
            |       {
            |         "key":"EORINumber",
-           |         "value":"${testOrganisation.eoriNumber.get.value}"
+           |         "value":"${testOrganisation.eoriNumber.get}"
            |       }]
            |     }
            |   ],
@@ -279,7 +279,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
              |       "identifiers": [
              |       {
              |         "key":"AgentReferenceNumber",
-             |         "value":"${testAgent.arn.get.value}"
+             |         "value":"${testAgent.arn.get}"
              |       }]
              |     }
              |   ],

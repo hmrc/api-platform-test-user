@@ -78,15 +78,15 @@ object GovernmentGatewayLogin {
 
     def asEnrolment(serviceName: ServiceKey) = {
       serviceName match {
-        case SELF_ASSESSMENT => individual.saUtr map { saUtr => Enrolment("IR-SA", taxIdentifier(saUtr)) }
-        case MTD_INCOME_TAX => individual.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId)) }
-        case CUSTOMS_SERVICES => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", taxIdentifier(eoriNumber)) }
-        case MTD_VAT => individual.vrn map { vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString()))) }
+        case SELF_ASSESSMENT => individual.saUtr map { saUtr => Enrolment("IR-SA", Seq(Identifier("UTR", saUtr))) }
+        case MTD_INCOME_TAX => individual.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId))) }
+        case CUSTOMS_SERVICES => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
+        case MTD_VAT => individual.vrn map { vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn))) }
         case _ => None
       }
     }
 
-    GovernmentGatewayLogin(individual.userId, individual.affinityGroup, individual.nino.map(_.value),
+    GovernmentGatewayLogin(individual.userId, individual.affinityGroup, individual.nino,
       individual.services.flatMap(asEnrolment), individual.userFullName, individual.emailAddress)
   }
 
@@ -94,28 +94,32 @@ object GovernmentGatewayLogin {
 
     def asEnrolment(serviceName: ServiceKey) = {
       serviceName match {
-        case SELF_ASSESSMENT => organisation.saUtr map { saUtr => Enrolment("IR-SA", taxIdentifier(saUtr)) }
-        case CORPORATION_TAX => organisation.ctUtr map { ctUtr => Enrolment("IR-CT", taxIdentifier(ctUtr)) }
-        case SUBMIT_VAT_RETURNS => organisation.vrn map { vrn => Enrolment("HMCE-VATDEC-ORG", taxIdentifier(vrn)) }
-        case PAYE_FOR_EMPLOYERS => organisation.empRef map { empRef => Enrolment("IR-PAYE", taxIdentifier(empRef)) }
-        case MTD_INCOME_TAX => organisation.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", taxIdentifier(mtdItId)) }
+        case SELF_ASSESSMENT => organisation.saUtr map { saUtr => Enrolment("IR-SA", Seq(Identifier("UTR", saUtr))) }
+        case CORPORATION_TAX => organisation.ctUtr map { ctUtr => Enrolment("IR-CT", Seq(Identifier("UTR", ctUtr))) }
+        case SUBMIT_VAT_RETURNS => organisation.vrn map { vrn => Enrolment("HMCE-VATDEC-ORG", Seq(Identifier("VATRegNo", vrn))) }
+        case PAYE_FOR_EMPLOYERS => organisation.empRef map { empRef => {
+          val ref = EmpRef.fromIdentifiers(empRef)
+          Enrolment("IR-PAYE", Seq(Identifier("TaxOfficeNumber", ref.taxOfficeNumber),
+            Identifier("TaxOfficeReference", ref.taxOfficeReference)))
+        }}
+        case MTD_INCOME_TAX => organisation.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId))) }
         case MTD_VAT => organisation.vrn map { vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString()))) }
-        case LISA => organisation.lisaManRefNum map { lisaManRefNum => Enrolment("HMRC-LISA-ORG", taxIdentifier(lisaManRefNum)) }
-        case SECURE_ELECTRONIC_TRANSFER => organisation.secureElectronicTransferReferenceNumber map { setRefNum => Enrolment("HMRC-SET-ORG", taxIdentifier(setRefNum)) }
-        case RELIEF_AT_SOURCE => organisation.pensionSchemeAdministratorIdentifier map { psaId => Enrolment("HMRC-PSA-ORG", taxIdentifier(psaId)) }
-        case CUSTOMS_SERVICES => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", taxIdentifier(eoriNumber)) }
+        case LISA => organisation.lisaManRefNum map { lisaManRefNum => Enrolment("HMRC-LISA-ORG", Seq(Identifier("ZREF", lisaManRefNum))) }
+        case SECURE_ELECTRONIC_TRANSFER => organisation.secureElectronicTransferReferenceNumber map { setRefNum => Enrolment("HMRC-SET-ORG", Seq(Identifier("SRN", setRefNum))) }
+        case RELIEF_AT_SOURCE => organisation.pensionSchemeAdministratorIdentifier map { psaId => Enrolment("HMRC-PSA-ORG", Seq(Identifier("PSAID", psaId))) }
+        case CUSTOMS_SERVICES => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case _ => None
       }
     }
 
-    GovernmentGatewayLogin(organisation.userId, organisation.affinityGroup, organisation.nino.map(_.value),
+    GovernmentGatewayLogin(organisation.userId, organisation.affinityGroup, organisation.nino,
       organisation.services.flatMap(asEnrolment), organisation.userFullName, organisation.emailAddress)
   }
 
   private def fromAgent(agent: TestAgent) = {
     def asEnrolment(serviceName: ServiceKey) = {
       serviceName match {
-        case AGENT_SERVICES => agent.arn map { arn => Enrolment("HMRC-AS-AGENT", taxIdentifier(arn)) }
+        case AGENT_SERVICES => agent.arn map { arn => Enrolment("HMRC-AS-AGENT", Seq(Identifier("AgentReferenceNumber", arn))) }
         case _ => None
       }
     }
@@ -124,22 +128,4 @@ object GovernmentGatewayLogin {
       agent.userFullName, agent.emailAddress,
       credentialRole = Some("user"))
   }
-
-  private def taxIdentifier(taxIdentifier: TaxIdentifier) = {
-    taxIdentifier match {
-      case saUtr: SaUtr => Seq(Identifier("UTR", saUtr.toString))
-      case ctUtr: CtUtr => Seq(Identifier("UTR", ctUtr.toString))
-      case vrn: Vrn => Seq(Identifier("VATRegNo", vrn.toString))
-      case empRef: EmpRef => Seq(Identifier("TaxOfficeNumber", empRef.taxOfficeNumber),
-        Identifier("TaxOfficeReference", empRef.taxOfficeReference))
-      case arn: AgentBusinessUtr => Seq(Identifier("AgentReferenceNumber", arn.toString))
-      case mtdItId: MtdItId => Seq(Identifier("MTDITID", mtdItId.toString))
-      case lisaManRefNum: LisaManagerReferenceNumber => Seq(Identifier("ZREF", lisaManRefNum.toString))
-      case setRefNum: SecureElectronicTransferReferenceNumber => Seq(Identifier("SRN", setRefNum.toString))
-      case psaId: PensionSchemeAdministratorIdentifier => Seq(Identifier("PSAID", psaId.toString))
-      case EoriNumber(value) => Seq(Identifier("EORINumber", value))
-      case _ => Seq.empty
-    }
-  }
-
 }

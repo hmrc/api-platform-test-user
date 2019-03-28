@@ -31,19 +31,21 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
 
-  val arn = AgentBusinessUtr("NARN0396245")
-  val saUtr = SaUtr("1555369052")
-  val nino = Nino("CC333333C")
-  val mtdItId = MtdItId("XGIT00000000054")
-  val ctUtr = CtUtr("1555369053")
-  val vrn = Vrn("999902541")
-  val lisaManRefNum = LisaManagerReferenceNumber("Z123456")
-  val secureElectronicTransferReferenceNumber = SecureElectronicTransferReferenceNumber("123456789012")
-  val pensionSchemeAdministratorIdentifier = PensionSchemeAdministratorIdentifier("A1234567")
-  val eoriNumber = EoriNumber("GB1234567890")
-  val empRef = EmpRef("555","EIA000")
+  val arn = "NARN0396245"
+  val saUtr = "1555369052"
+  val nino = "CC333333C"
+  val mtdItId = "XGIT00000000054"
+  val ctUtr = "1555369053"
+  val vrn = "999902541"
+  val lisaManRefNum = "Z123456"
+  val secureElectronicTransferReferenceNumber = "123456789012"
+  val pensionSchemeAdministratorIdentifier = "A1234567"
+  val eoriNumber = "GB1234567890"
+  private val taxOfficeNumber = "555"
+  private val taxOfficeReference = "EIA000"
+  val empRef = s"$taxOfficeNumber/$taxOfficeReference"
 
-  val agentEnrolment = Enrolment("HMRC-AS-AGENT", Seq(Identifier("AgentReferenceNumber", arn.utr)))
+  val agentEnrolment = Enrolment("HMRC-AS-AGENT", Seq(Identifier("AgentReferenceNumber", arn)))
   val saEnrolment = Enrolment("IR-SA", Seq(Identifier("UTR", saUtr.toString)))
   val mtdItEnrolment = Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId.toString)))
   val mtdVatEnrolment = Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString)))
@@ -52,9 +54,9 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
   val psaEnrolment = Enrolment("HMRC-PSA-ORG", Seq(Identifier("PSAID", pensionSchemeAdministratorIdentifier.toString))) // Used for Relief at Source
   val ctEnrolment = Enrolment("IR-CT", Seq(Identifier("UTR", ctUtr.toString)))
   val vatEnrolment = Enrolment("HMCE-VATDEC-ORG", Seq(Identifier("VATRegNo", vrn.toString)))
-  val payeEnrolment = Enrolment("IR-PAYE", Seq(Identifier("TaxOfficeNumber", empRef.taxOfficeNumber),
-    Identifier("TaxOfficeReference", empRef.taxOfficeReference)))
-  val customsEnrolment = Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber.value)))
+  val payeEnrolment = Enrolment("IR-PAYE", Seq(Identifier("TaxOfficeNumber", taxOfficeNumber),
+    Identifier("TaxOfficeReference", taxOfficeReference)))
+  val customsEnrolment = Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
 
   "A GovernmentGatewayLogin created from a TestAgent" should {
 
@@ -89,8 +91,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
 
   "A GovernmentGatewayLogin created from a TestIndividual" should {
 
-    val individual = TestIndividual(user, password, userFullName, emailAddress,individualDetails,
-      saUtr = Some(saUtr), nino = Some(nino), mtdItId = Some(mtdItId), eoriNumber = Some(eoriNumber), vrn = Some(vrn),
+    val individual = TestIndividual(user, password, userFullName, emailAddress,individualDetails, Some(saUtr), Some(nino), Some(mtdItId), eoriNumber = Some(eoriNumber), vrn = Some(vrn),
       services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
 
     "contain no enrolments when the individual has no services" in {
@@ -135,8 +136,8 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
   "A GovernmentGatewayLogin created from a TestOrganisation" should {
 
     val organisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,
-      saUtr = Some(saUtr), nino = Some(nino), mtdItId = Some(mtdItId), empRef = Some(empRef), ctUtr = Some(ctUtr),
-      vrn = Some(vrn), lisaManRefNum = Some(lisaManRefNum), secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
+      Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr),
+      Some(vrn), lisaManRefNum = Some(lisaManRefNum), secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
       pensionSchemeAdministratorIdentifier = Some(pensionSchemeAdministratorIdentifier), eoriNumber = Some(eoriNumber),
       services = Seq(AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, CORPORATION_TAX, SUBMIT_VAT_RETURNS,
         PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES))

@@ -38,7 +38,7 @@ object LegacySandboxUser {
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"),
     Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val sandboxUser = TestIndividual(userId, password, userFullName, emailAddress, individualDetails,
-    saUtr = Some(SaUtr("1700000000")), nino = Some(Nino("AA000017A")),
+    saUtr = Some("1700000000"), nino = Some("AA000017A"),
     services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT))
 }
 

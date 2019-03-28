@@ -60,9 +60,10 @@ class TestUserService @Inject()(val passwordService: PasswordService,
   }
 
   def createTestAgent(serviceNames: Seq[ServiceKey]) = {
-    val agent = generator.generateTestAgent(serviceNames)
-    val hashedPassword = passwordService.hash(agent.password)
-    testUserRepository.createUser(agent.copy(password = hashedPassword)) map (_ => agent)
+    generator.generateTestAgent(serviceNames).flatMap { agent =>
+      val hashedPassword = passwordService.hash(agent.password)
+      testUserRepository.createUser(agent.copy(password = hashedPassword)) map (_ => agent)
+    }
   }
 
   def fetchIndividualByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
