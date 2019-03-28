@@ -16,14 +16,16 @@
 
 package it.uk.gov.hmrc.testuser
 
+import java.net.URLEncoder
+
 import it.uk.gov.hmrc.testuser.helpers.BaseSpec
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJson
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models._
-
 import scalaj.http.Http
+import uk.gov.hmrc.domain.EmpRef
 
 class FetchUserSpec extends BaseSpec {
 
@@ -64,7 +66,7 @@ class FetchUserSpec extends BaseSpec {
 
       Given("An individual")
       val individual = createIndividual("national-insurance", "self-assessment")
-      val shortNino = NinoNoSuffix(individual.nino.get)
+      val shortNino = NinoNoSuffix(individual.nino.get.substring(0,8))
 
       When("I fetch the individual by its SHORTNINO")
       val response = Http(s"$serviceUrl/individuals/shortnino/$shortNino").asString
@@ -133,7 +135,8 @@ class FetchUserSpec extends BaseSpec {
       val organisation = createOrganisation("paye-for-employers")
 
       When("I fetch the organisation by its EMPREF")
-      val response = Http(s"$serviceUrl/organisations/empref/${organisation.empRef.get.encodedValue}").asString
+      val encodedEmpRef = URLEncoder.encode(organisation.empRef.get, "UTF-8")
+      val response = Http(s"$serviceUrl/organisations/empref/${encodedEmpRef}").asString
 
       Then("The organisation is returned")
       Json.parse(response.body) shouldBe Json.parse(

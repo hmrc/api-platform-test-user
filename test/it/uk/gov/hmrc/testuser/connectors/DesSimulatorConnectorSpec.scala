@@ -36,7 +36,7 @@ import scala.concurrent.Future
 
 class DesSimulatorConnectorSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach with WithFakeApplication {
   val generatorTestUserRepository = mock[TestUserRepository]
-  when(generatorTestUserRepository.identifierIsUnique(any[TaxIdentifier])).thenReturn(Future(true))
+  when(generatorTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
   val generator = new Generator(generatorTestUserRepository)
   val testIndividual = await(generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE)))

@@ -25,7 +25,7 @@ class TestUserSpec extends FlatSpec with Matchers {
   val password = "l3tm31n"
   val userFullName = "John Doe"
   val emailAddress = "john.doe@example.com"
-  val arn = AgentBusinessUtr("NARN0396245")
+  val arn = "NARN0396245"
 
 
   "MTD ID" should "accept a valid ID" in {
@@ -42,7 +42,7 @@ class TestUserSpec extends FlatSpec with Matchers {
 
   "TestOrganisationCreatedResponse" should "be properly constructed from a TestOrganisation" in {
     val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
-    val testOrganisation = TestOrganisation(userId, password, userFullName, emailAddress, organisationDetails = organisationDetails, lisaManRefNum = Some(LisaManagerReferenceNumber("Z123456")))
+    val testOrganisation = TestOrganisation(userId, password, userFullName, emailAddress, organisationDetails = organisationDetails, lisaManRefNum = Some("Z123456"))
     TestOrganisationCreatedResponse.from(testOrganisation) shouldBe
       TestOrganisationCreatedResponse(
         userId,
@@ -57,7 +57,7 @@ class TestUserSpec extends FlatSpec with Matchers {
         None,
         None,
         None,
-        Some(LisaManagerReferenceNumber("Z123456")),
+        Some("Z123456"),
         None,
         None
       )

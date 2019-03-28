@@ -47,15 +47,17 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with LogSu
   val password = "password"
   val userFullName = "John Doe"
   val emailAddress = "john.doe@example.com"
-  val saUtr = SaUtr("1555369052")
-  val nino = Nino("CC333333C")
-  val mtdItId = MtdItId("XGIT00000000054")
-  val ctUtr = CtUtr("1555369053")
-  val vrn = Vrn("999902541")
+  val saUtr = "1555369052"
+  val nino = "CC333333C"
+  val mtdItId = "XGIT00000000054"
+  val ctUtr = "1555369053"
+  val vrn = "999902541"
   val vatRegistrationDate = LocalDate.parse("2016-12-31")
-  val lisaManRefNum = LisaManagerReferenceNumber("Z123456")
-  val empRef = EmpRef("555", "EIA000")
-  val eoriNumber = EoriNumber("GB1234567890")
+  val lisaManRefNum = "Z123456"
+  private val taxOfficeNum = "555"
+  private val taxOfficeRef = "EIA000"
+  val empRef = s"$taxOfficeNum/$taxOfficeRef"
+  val eoriNumber = "GB1234567890"
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val testIndividual = TestIndividual(user, password, userFullName, emailAddress, individualDetails,

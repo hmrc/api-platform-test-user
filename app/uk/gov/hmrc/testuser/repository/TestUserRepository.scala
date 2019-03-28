@@ -35,7 +35,7 @@ class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: E
     JsonFormatters.formatTestUser, ReactiveMongoFormats.objectIdFormats) {
 
   // List of fields that contain generated identifiers
-  val IdentifierFields: Seq[String] = Seq("nino", "saUtr", "vrn", "empRef", "mtdItId", "ctUtr", "lisaManRefNum", "eoriNumber")
+  val IdentifierFields: Seq[String] = Seq("nino", "saUtr", "vrn", "empRef", "mtdItId", "ctUtr", "lisaManRefNum", "eoriNumber", "arn")
 
   ensureIndex("userId", "userIdIndex")
 
@@ -82,9 +82,9 @@ class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: E
     find("vrn" -> vrn.value, "userType" -> UserType.ORGANISATION) map(_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
 
-  def identifierIsUnique(identifier: TaxIdentifier): Future[Boolean] = {
+  def identifierIsUnique(identifier: String): Future[Boolean] = {
     Logger.info(s"Checking tax identifier uniqueness - $identifier")
-    val query = Json.obj("$or" -> IdentifierFields.map(identifierField => Json.obj(identifierField -> identifier.value)))
+    val query = Json.obj("$or" -> IdentifierFields.map(identifierField => Json.obj(identifierField -> identifier)))
     count(query).map{ matchedIdentifiers =>
       val isUnique = matchedIdentifiers == 0
       Logger.info(s"Completed checking tax identifier uniqueness - $identifier")
