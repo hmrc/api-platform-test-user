@@ -34,7 +34,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
 
   private val userIdGenerator = Gen.listOfN(12, Gen.numChar).map(_.mkString)
   private val passwordGenerator = Gen.listOfN(12, Gen.alphaNumChar).map(_.mkString)
-  private val defaultGenerator = new DefaultGenerator()
+  private val utrGenerator = new UtrGenerator()
   private val ninoGenerator = new uk.gov.hmrc.domain.Generator()
   private val employerReferenceGenerator: Gen[EmpRef] = for {
     taxOfficeNumber <- Gen.choose(100, 999).map(x => x.toString)
@@ -168,9 +168,9 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
   }
 
   private def generateEmpRef: Future[String] = generateUniqueIdentifier(() => { employerReferenceGenerator.sample.get.toString() })
-  private def generateSaUtr: Future[String] = generateUniqueIdentifier(() => { defaultGenerator.next })
+  private def generateSaUtr: Future[String] = generateUniqueIdentifier(() => { utrGenerator.next })
   private def generateNino: Future[String] = generateUniqueIdentifier(() => { ninoGenerator.nextNino.value })
-  private def generateCtUtr: Future[String] = generateUniqueIdentifier(() => { defaultGenerator.next })
+  private def generateCtUtr: Future[String] = generateUniqueIdentifier(() => { utrGenerator.next })
   private def generateVrn: Future[String] = generateUniqueIdentifier(() => { Vrn(vrnGenerator.sample.get.toString).vrn })
   private def generateLisaManRefNum: Future[String] = generateUniqueIdentifier(() => { lisaManRefNumGenerator.next.lisaManagerReferenceNumber })
   private def generateMtdId: Future[String] = generateUniqueIdentifier(() => { mtdItIdGenerator.next.mtdItId })
@@ -181,7 +181,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
   private def generateArn: Future[String] = generateUniqueIdentifier(() => { arnGenerator.next })
 }
 
-class DefaultGenerator(random: Random = new Random) extends Modulus23Check {
+class UtrGenerator(random: Random = new Random) extends Modulus11Check {
   def this(seed: Int) = this(new scala.util.Random(seed))
 
   def next: String = {
