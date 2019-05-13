@@ -67,27 +67,27 @@ class TestUserService @Inject()(val passwordService: PasswordService,
   }
 
   def fetchIndividualByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    testUserRepository.fetchIndividualByNino(nino) map getOrFailWithUserNotFound(INDIVIDUAL)
+    testUserRepository.fetchIndividualByNino(nino) map getOrFailWithUserNotFound[TestIndividual](INDIVIDUAL)
   }
 
   def fetchIndividualByShortNino(shortNino: NinoNoSuffix)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    testUserRepository.fetchIndividualByShortNino(shortNino) map getOrFailWithUserNotFound(INDIVIDUAL)
+    testUserRepository.fetchIndividualByShortNino(shortNino) map getOrFailWithUserNotFound[TestIndividual](INDIVIDUAL)
   }
 
   def fetchIndividualBySaUtr(saUtr: SaUtr)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    testUserRepository.fetchIndividualBySaUtr(saUtr) map getOrFailWithUserNotFound(INDIVIDUAL)
+    testUserRepository.fetchIndividualBySaUtr(saUtr) map getOrFailWithUserNotFound[TestIndividual](INDIVIDUAL)
   }
 
   def fetchIndividualByVrn(vrn: Vrn)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    testUserRepository.fetchIndividualByVrn(vrn) map getOrFailWithUserNotFound(INDIVIDUAL)
+    testUserRepository.fetchIndividualByVrn(vrn) map getOrFailWithUserNotFound[TestIndividual](INDIVIDUAL)
   }
 
   def fetchOrganisationByEmpRef(empRef: EmpRef)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
-    testUserRepository.fetchOrganisationByEmpRef(empRef) map getOrFailWithUserNotFound(ORGANISATION)
+    testUserRepository.fetchOrganisationByEmpRef(empRef) map getOrFailWithUserNotFound[TestOrganisation](ORGANISATION)
   }
 
   def fetchOrganisationByVrn(vrn: Vrn)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
-    testUserRepository.fetchOrganisationByVrn(vrn) map getOrFailWithUserNotFound(ORGANISATION)
+    testUserRepository.fetchOrganisationByVrn(vrn) map getOrFailWithUserNotFound[TestOrganisation](ORGANISATION)
   }
 
   def getOrFailWithUserNotFound[T <: TestUser](userType: UserType.Value) = PartialFunction[Option[T], T] {

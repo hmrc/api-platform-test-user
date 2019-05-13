@@ -64,14 +64,15 @@ case class GovernmentGatewayLogin(credId: String,
                                   email: String,
                                   confidenceLevel: Int = ConfidenceLevel.L200.level,
                                   credentialStrength: String = "strong",
+                                  groupIdentifier: String,
                                   credentialRole: Option[String] = None)
 
 object GovernmentGatewayLogin {
 
   def apply(testUser: TestUser): GovernmentGatewayLogin = testUser match {
-    case individual: TestIndividual => fromIndividual(individual)
+    case individual: TestIndividual     => fromIndividual(individual)
     case organisation: TestOrganisation => fromOrganisation(organisation)
-    case agent: TestAgent => fromAgent(agent)
+    case agent: TestAgent               => fromAgent(agent)
   }
 
   private def fromIndividual(individual: TestIndividual) = {
@@ -86,11 +87,18 @@ object GovernmentGatewayLogin {
       }
     }
 
-    GovernmentGatewayLogin(individual.userId, individual.affinityGroup, individual.nino,
-      individual.services.flatMap(asEnrolment), individual.userFullName, individual.emailAddress)
+    GovernmentGatewayLogin(
+      credId = individual.userId,
+      affinityGroup = individual.affinityGroup,
+      nino = individual.nino,
+      enrolments = individual.services.flatMap(asEnrolment),
+      usersName = individual.userFullName,
+      email = individual.emailAddress,
+      groupIdentifier = individual.groupIdentifier
+    )
   }
 
-  private def fromOrganisation(organisation: TestOrganisation) = {
+  private def fromOrganisation(organisation: TestOrganisation): GovernmentGatewayLogin = {
 
     def asEnrolment(serviceName: ServiceKey) = {
       serviceName match {
@@ -112,11 +120,17 @@ object GovernmentGatewayLogin {
       }
     }
 
-    GovernmentGatewayLogin(organisation.userId, organisation.affinityGroup, organisation.nino,
-      organisation.services.flatMap(asEnrolment), organisation.userFullName, organisation.emailAddress)
+    GovernmentGatewayLogin(
+      credId = organisation.userId,
+      affinityGroup = organisation.affinityGroup,
+      nino = organisation.nino,
+      enrolments = organisation.services.flatMap(asEnrolment),
+      usersName = organisation.userFullName,
+      email = organisation.emailAddress,
+      groupIdentifier = organisation.groupIdentifier)
   }
 
-  private def fromAgent(agent: TestAgent) = {
+  private def fromAgent(agent: TestAgent): GovernmentGatewayLogin = {
     def asEnrolment(serviceName: ServiceKey) = {
       serviceName match {
         case AGENT_SERVICES => agent.arn map { arn => Enrolment("HMRC-AS-AGENT", Seq(Identifier("AgentReferenceNumber", arn))) }
@@ -124,8 +138,14 @@ object GovernmentGatewayLogin {
       }
     }
 
-    GovernmentGatewayLogin(agent.userId, agent.affinityGroup, None, agent.services.flatMap(asEnrolment),
-      agent.userFullName, agent.emailAddress,
-      credentialRole = Some("user"))
+    GovernmentGatewayLogin(
+      credId = agent.userId,
+      affinityGroup = agent.affinityGroup,
+      nino = None,
+      enrolments = agent.services.flatMap(asEnrolment),
+      usersName = agent.userFullName,
+      email = agent.emailAddress,
+      credentialRole = Some("user"),
+      groupIdentifier = agent.groupIdentifier)
   }
 }

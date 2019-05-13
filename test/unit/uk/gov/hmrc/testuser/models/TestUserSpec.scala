@@ -22,6 +22,7 @@ import uk.gov.hmrc.testuser.models._
 
 class TestUserSpec extends FlatSpec with Matchers {
   val userId = "1234567890"
+  val groupIdentifier = "groupIdentifier"
   val password = "l3tm31n"
   val userFullName = "John Doe"
   val emailAddress = "john.doe@example.com"
@@ -42,29 +43,44 @@ class TestUserSpec extends FlatSpec with Matchers {
 
   "TestOrganisationCreatedResponse" should "be properly constructed from a TestOrganisation" in {
     val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
-    val testOrganisation = TestOrganisation(userId, password, userFullName, emailAddress, organisationDetails = organisationDetails, lisaManRefNum = Some("Z123456"))
+    val testOrganisation = TestOrganisation(
+      userId = userId,
+      password = password,
+      userFullName = userFullName,
+      emailAddress = emailAddress,
+      organisationDetails = organisationDetails,
+      lisaManRefNum = Some("Z123456"),
+      groupIdentifier = groupIdentifier)
+
     TestOrganisationCreatedResponse.from(testOrganisation) shouldBe
       TestOrganisationCreatedResponse(
-        userId,
-        password,
-        userFullName,
-        emailAddress,
-        organisationDetails,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        Some("Z123456"),
-        None,
-        None
+        userId = userId,
+        password = password,
+        userFullName = userFullName,
+        emailAddress = emailAddress,
+        organisationDetails = organisationDetails,
+        saUtr = None,
+        nino = None,
+        mtdItId = None,
+        empRef = None,
+        ctUtr = None,
+        vrn = None,
+        vatRegistrationDate = None,
+        lisaManagerReferenceNumber = Some("Z123456"),
+        secureElectronicTransferReferenceNumber = None,
+        pensionSchemeAdministratorIdentifier = None
       )
   }
 
   "TestAgentCreatedResponse" should "be properly constructed from the TestAgent" in {
-    val testAgent = TestAgent(userId, password, userFullName, emailAddress, arn = Some(arn))
+    val testAgent = TestAgent(
+      userId = userId,
+      password = password,
+      userFullName = userFullName,
+      emailAddress = emailAddress,
+      arn = Some(arn),
+      groupIdentifier = groupIdentifier)
+
     TestAgentCreatedResponse.from(testAgent) shouldBe TestAgentCreatedResponse(userId, password, userFullName, emailAddress, Some(arn))
   }
 }

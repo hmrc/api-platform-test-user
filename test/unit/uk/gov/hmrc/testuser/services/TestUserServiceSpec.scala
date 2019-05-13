@@ -42,6 +42,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   val mockTestUserRepository = mock[TestUserRepository]
 
   val userId = "user"
+  val groupIdentifier = "groupIdentifier"
   val password = "password"
   val hashedPassword = "hashedPassword"
   val saUtr = "1555369052"
@@ -69,7 +70,13 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   val testOrganisation = testOrganisationWithNoServices.copy(services = organisationServices)
 
   val agentServices = Seq(ServiceKeys.AGENT_SERVICES)
-  val testAgent = TestAgent(userId, password, "name", "email")
+  val testAgent = TestAgent(
+    userId = userId,
+    password = password,
+    userFullName = "name",
+    emailAddress = "email",
+    groupIdentifier = groupIdentifier
+  )
 
   trait Setup {
     implicit val hc = HeaderCarrier()

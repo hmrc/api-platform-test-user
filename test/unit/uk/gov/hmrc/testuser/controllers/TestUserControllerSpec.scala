@@ -43,6 +43,7 @@ import scala.concurrent.Future.failed
 class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppressing {
 
   val user = "user"
+  val groupIdentifier = "groupIdentifier"
   val password = "password"
   val userFullName = "John Doe"
   val emailAddress = "john.doe@example.com"
@@ -65,15 +66,46 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
 
-  val testIndividual = TestIndividual(user, password, userFullName, emailAddress, individualDetails,
-    Some(saUtr), Some(nino), Some(mtdItId), Some(vrn), Some(vatRegistrationDate), Some(eoriNumber))
+  val testIndividual = TestIndividual(
+    userId = user,
+    password = password,
+    userFullName = userFullName,
+    emailAddress = emailAddress,
+    individualDetails = individualDetails,
+    saUtr = Some(saUtr),
+    nino = Some(nino),
+    mtdItId = Some(mtdItId),
+    vrn = Some(vrn),
+    vatRegistrationDate = Some(vatRegistrationDate),
+    eoriNumber = Some(eoriNumber),
+    groupIdentifier = groupIdentifier)
 
-  val testOrganisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,
-    Some(saUtr), Some(nino), Some(mtdItId),
-    Some(empRef), Some(ctUtr), Some(vrn), Some(vatRegistrationDate), Some(lisaManagerReferenceNumber), Some(secureElectronicTransferReferenceNumber),
-    Some(pensionSchemeAdministratorIdentifier), Some(eoriNumber))
+  val testOrganisation = TestOrganisation(
+    userId = user,
+    password = password,
+    userFullName = userFullName,
+    emailAddress = emailAddress,
+    organisationDetails = organisationDetails,
+    saUtr = Some(saUtr),
+    nino = Some(nino),
+    mtdItId = Some(mtdItId),
+    empRef = Some(empRef),
+    ctUtr = Some(ctUtr),
+    vrn = Some(vrn),
+    vatRegistrationDate = Some(vatRegistrationDate),
+    lisaManRefNum = Some(lisaManagerReferenceNumber),
+    secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
+    pensionSchemeAdministratorIdentifier = Some(pensionSchemeAdministratorIdentifier),
+    eoriNumber = Some(eoriNumber),
+    groupIdentifier = groupIdentifier)
 
-  val testAgent = TestAgent(user, password, userFullName, emailAddress, Some(arn))
+  val testAgent = TestAgent(
+    user,
+    password,
+    userFullName,
+    emailAddress,
+    Some(arn),
+    groupIdentifier = groupIdentifier)
 
   val createIndividualServices = Seq(ServiceKeys.NATIONAL_INSURANCE)
   val createOrganisationServices = Seq(ServiceKeys.NATIONAL_INSURANCE)
