@@ -38,19 +38,54 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
   val userFullName = "John Doe"
   val emailAddress = "john.doe@example.com"
 
-  val testIndividual = TestIndividual("individualUser", "password", userFullName, emailAddress, individualDetails, Some("1555369052"),
-    vatRegistrationDate = Some(LocalDate.parse("1997-01-01")), eoriNumber = Some("GB1234567890"), nino = Some("CC444444C"), vrn = Some("999902541"),
-    mtdItId = Some("XGIT00000000054"), services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
+  val testIndividual = TestIndividual(
+    "individualUser",
+    "password",
+    userFullName,
+    emailAddress,
+    individualDetails,
+    Some("1555369052"),
+    vatRegistrationDate = Some(LocalDate.parse("1997-01-01")),
+    eoriNumber = Some("GB1234567890"),
+    nino = Some("CC444444C"),
+    vrn = Some("999902541"),
+    mtdItId = Some("XGIT00000000054"),
+    groupIdentifier = "individualGroup",
+    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
+
   val taxOfficeNumber = "555"
+
   val taxOfficeReference =  "EIA000"
-  val testOrganisation = TestOrganisation("organisationUser", "password", userFullName, emailAddress, organisationDetails,
-    Some("1555369052"), Some("CC333333C"), Some("XGIT00000000054"), Some(s"$taxOfficeNumber/$taxOfficeReference"), Some("1555369053"),
-    Some("999902541"), Some(LocalDate.parse("1997-01-01")), Some("Z123456"),
-    Some("123456789012"), Some("A1234567"), Some("GB1234567890"),
-    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX,
+
+  val testOrganisation = TestOrganisation(
+    userId = "organisationUser",
+    password = "password",
+    userFullName = userFullName,
+    emailAddress = emailAddress,
+    organisationDetails = organisationDetails,
+    saUtr = Some("1555369052"),
+    nino = Some("CC333333C"),
+    mtdItId = Some("XGIT00000000054"),
+    empRef = Some(s"$taxOfficeNumber/$taxOfficeReference"),
+    ctUtr = Some("1555369053"),
+    vrn = Some("999902541"),
+    vatRegistrationDate = Some(LocalDate.parse("1997-01-01")),
+    lisaManRefNum = Some("Z123456"),
+    secureElectronicTransferReferenceNumber = Some("123456789012"),
+    pensionSchemeAdministratorIdentifier = Some("A1234567"),
+    eoriNumber = Some("GB1234567890"),
+    groupIdentifier = "organsiationGroup",
+    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX,
       MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES))
 
-  val testAgent = TestAgent("agentUser", "password", userFullName, emailAddress, Some("NARN0396245"), Seq(AGENT_SERVICES))
+  val testAgent = TestAgent(
+    userId = "agentUser",
+    password = "password",
+    userFullName = userFullName,
+    emailAddress = emailAddress,
+    arn = Some("NARN0396245"),
+    groupIdentifier = "agentGroup",
+    services = Seq(AGENT_SERVICES))
 
   val authSession = AuthSession("Bearer 12345", "/auth/oid/12345", "ggToken")
 
@@ -97,6 +132,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
              |   "nino": "${testIndividual.nino.get}",
              |   "confidenceLevel": 200,
              |   "credentialStrength": "strong",
+             |   "groupIdentifier": "${testIndividual.groupIdentifier}",
              |   "enrolments": [
              |     {
              |       "key": "IR-SA",
@@ -155,6 +191,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |   "nino": "${testOrganisation.nino.get}",
            |   "confidenceLevel": 200,
            |   "credentialStrength": "strong",
+           |   "groupIdentifier": "${testOrganisation.groupIdentifier}",
            |   "enrolments": [
            |     {
            |       "key": "IR-SA",
@@ -272,6 +309,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
              |   "confidenceLevel": 200,
              |   "credentialStrength": "strong",
              |   "credentialRole": "user",
+             |   "groupIdentifier": "${testAgent.groupIdentifier}",
              |   "enrolments": [
              |     {
              |       "key": "HMRC-AS-AGENT",

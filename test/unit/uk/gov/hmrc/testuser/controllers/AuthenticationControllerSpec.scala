@@ -44,6 +44,7 @@ import scala.concurrent.Future.{failed, successful}
 class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with LogSuppressing {
 
   val user = "user"
+  val groupIdentifier = "groupIdentifier"
   val password = "password"
   val userFullName = "John Doe"
   val emailAddress = "john.doe@example.com"
@@ -60,14 +61,42 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with LogSu
   val eoriNumber = "GB1234567890"
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
-  val testIndividual = TestIndividual(user, password, userFullName, emailAddress, individualDetails,
-    Some(saUtr), Some(nino), Some(mtdItId), Some(vrn), Some(vatRegistrationDate), Some(eoriNumber),
-    Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
-
-  val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
-  val testOrganisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,
-    Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(vatRegistrationDate), Some(lisaManRefNum),
+  val testIndividual = TestIndividual(
+    userId = user,
+    password = password,
+    userFullName = userFullName,
+    emailAddress = emailAddress,
+    individualDetails = individualDetails,
+    saUtr = Some(saUtr),
+    nino = Some(nino),
+    mtdItId = Some(mtdItId),
+    vrn = Some(vrn),
+    vatRegistrationDate = Some(vatRegistrationDate),
     eoriNumber = Some(eoriNumber),
+    groupIdentifier = groupIdentifier,
+    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
+
+  val organisationDetails = OrganisationDetails(
+    name = "Company ABCDEF",
+    address = Address("225 Baker St", "Marylebone", "NW1 6XE")
+  )
+
+  val testOrganisation = TestOrganisation(
+    userId = user,
+    password = password,
+    userFullName = userFullName,
+    emailAddress = emailAddress,
+    organisationDetails = organisationDetails,
+    saUtr = Some(saUtr),
+    nino = Some(nino),
+    mtdItId = Some(mtdItId),
+    empRef = Some(empRef),
+    ctUtr = Some(ctUtr),
+    vrn = Some(vrn),
+    vatRegistrationDate = Some(vatRegistrationDate),
+    lisaManRefNum = Some(lisaManRefNum),
+    eoriNumber = Some(eoriNumber),
+    groupIdentifier = groupIdentifier,
     services =
       Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, MTD_VAT, PAYE_FOR_EMPLOYERS, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA, CUSTOMS_SERVICES))
 

@@ -74,6 +74,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
         vrn,
         vatRegistrationDate,
         eoriNumber,
+        generateGroupIdentifier,
         services)
   }
 
@@ -113,6 +114,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
         setRefNum,
         psaId,
         eoriNumber,
+        generateGroupIdentifier,
         services)
   }
 
@@ -123,7 +125,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
     val emailAddress = generateEmailAddress(firstName, lastName)
 
     (if (services.contains(AGENT_SERVICES)) generateArn.map(Some(_)) else Future.successful(None))
-      .map(arn => TestAgent(generateUserId, generatePassword, userFullName, emailAddress, arn, services))
+      .map(arn => TestAgent(generateUserId, generatePassword, userFullName, emailAddress, arn, generateGroupIdentifier, services))
 
   }
 
@@ -158,6 +160,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
   }
 
   private def generateUserId = userIdGenerator.sample.get
+  private def generateGroupIdentifier = userIdGenerator.sample.get
   private def generatePassword = passwordGenerator.sample.get
 
   private def generateUniqueIdentifier[T <: String](generatorFunction: () => T, count: Int = 1)(implicit ec: ExecutionContext): Future[T] = {

@@ -69,6 +69,7 @@ sealed trait TestUser {
   val userFullName: String
   val emailAddress: String
   val affinityGroup: String
+  def groupIdentifier: String
   val services: Seq[ServiceKey]
   val _id: BSONObjectID
 }
@@ -84,6 +85,7 @@ case class TestIndividual(override val userId: String,
                           vrn: Option[String] = None,
                           vatRegistrationDate: Option[LocalDate] = None,
                           eoriNumber: Option[String] = None,
+                          groupIdentifier: String,
                           override val services: Seq[ServiceKey] = Seq.empty,
                           override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Individual"
@@ -105,6 +107,7 @@ case class TestOrganisation(override val userId: String,
                             secureElectronicTransferReferenceNumber: Option[String] = None,
                             pensionSchemeAdministratorIdentifier: Option[String] = None,
                             eoriNumber: Option[String] = None,
+                            groupIdentifier: String,
                             override val services: Seq[ServiceKey] = Seq.empty,
                             override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Organisation"
@@ -115,6 +118,7 @@ case class TestAgent(override val userId: String,
                      override val userFullName: String,
                      override val emailAddress: String,
                      arn: Option[String] = None,
+                     groupIdentifier: String,
                      override val services: Seq[ServiceKey] = Seq.empty,
                      override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Agent"

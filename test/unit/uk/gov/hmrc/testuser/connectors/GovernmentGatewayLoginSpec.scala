@@ -25,6 +25,7 @@ import uk.gov.hmrc.testuser.models.ServiceKeys._
 
 class GovernmentGatewayLoginSpec extends UnitSpec {
   val user = "user"
+  val groupIdentifier = "groupIdentifier"
   val password = "password"
   val userFullName = "John Doe"
   val emailAddress = "john.doe@example.com"
@@ -60,8 +61,14 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
 
   "A GovernmentGatewayLogin created from a TestAgent" should {
 
-    val agent = TestAgent(user, password, userFullName, emailAddress,
-      arn = Some(arn), services = Seq(AGENT_SERVICES))
+    val agent = TestAgent(
+      userId = user,
+      password = password,
+      userFullName = userFullName,
+      emailAddress = emailAddress,
+      arn = Some(arn),
+      groupIdentifier = groupIdentifier,
+      services = Seq(AGENT_SERVICES))
 
     "contain no enrolments when the agent has no services" in {
       val login = GovernmentGatewayLogin(agent.copy(services = Seq.empty))
@@ -91,7 +98,18 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
 
   "A GovernmentGatewayLogin created from a TestIndividual" should {
 
-    val individual = TestIndividual(user, password, userFullName, emailAddress,individualDetails, Some(saUtr), Some(nino), Some(mtdItId), eoriNumber = Some(eoriNumber), vrn = Some(vrn),
+    val individual = TestIndividual(
+      userId = user,
+      password = password,
+      userFullName = userFullName,
+      emailAddress = emailAddress,
+      individualDetails = individualDetails,
+      saUtr = Some(saUtr),
+      nino = Some(nino),
+      mtdItId = Some(mtdItId),
+      eoriNumber = Some(eoriNumber),
+      vrn = Some(vrn),
+      groupIdentifier = groupIdentifier,
       services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
 
     "contain no enrolments when the individual has no services" in {
@@ -135,10 +153,23 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
 
   "A GovernmentGatewayLogin created from a TestOrganisation" should {
 
-    val organisation = TestOrganisation(user, password, userFullName, emailAddress, organisationDetails,
-      Some(saUtr), Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr),
-      Some(vrn), lisaManRefNum = Some(lisaManRefNum), secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
-      pensionSchemeAdministratorIdentifier = Some(pensionSchemeAdministratorIdentifier), eoriNumber = Some(eoriNumber),
+    val organisation = TestOrganisation(
+      userId = user,
+      password = password,
+      userFullName = userFullName,
+      emailAddress = emailAddress,
+      organisationDetails = organisationDetails,
+      saUtr = Some(saUtr),
+      nino = Some(nino),
+      mtdItId = Some(mtdItId),
+      empRef = Some(empRef),
+      ctUtr = Some(ctUtr),
+      vrn = Some(vrn),
+      lisaManRefNum = Some(lisaManRefNum),
+      secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
+      pensionSchemeAdministratorIdentifier = Some(pensionSchemeAdministratorIdentifier),
+      eoriNumber = Some(eoriNumber),
+      groupIdentifier = groupIdentifier,
       services = Seq(AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, CORPORATION_TAX, SUBMIT_VAT_RETURNS,
         PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES))
 
