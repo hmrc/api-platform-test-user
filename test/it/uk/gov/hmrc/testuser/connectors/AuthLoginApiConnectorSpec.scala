@@ -50,7 +50,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     nino = Some("CC444444C"),
     vrn = Some("999902541"),
     mtdItId = Some("XGIT00000000054"),
-    groupIdentifier = "individualGroup",
+    groupIdentifier = Some("individualGroup"),
     services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
 
   val taxOfficeNumber = "555"
@@ -74,7 +74,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     secureElectronicTransferReferenceNumber = Some("123456789012"),
     pensionSchemeAdministratorIdentifier = Some("A1234567"),
     eoriNumber = Some("GB1234567890"),
-    groupIdentifier = "organsiationGroup",
+    groupIdentifier = Some("organsiationGroup"),
     services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX,
       MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES))
 
@@ -84,7 +84,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     userFullName = userFullName,
     emailAddress = emailAddress,
     arn = Some("NARN0396245"),
-    groupIdentifier = "agentGroup",
+    groupIdentifier = Some("agentGroup"),
     services = Seq(AGENT_SERVICES))
 
   val authSession = AuthSession("Bearer 12345", "/auth/oid/12345", "ggToken")
@@ -132,7 +132,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
              |   "nino": "${testIndividual.nino.get}",
              |   "confidenceLevel": 200,
              |   "credentialStrength": "strong",
-             |   "groupIdentifier": "${testIndividual.groupIdentifier}",
+             |   "groupIdentifier": "${testIndividual.groupIdentifier.get}",
              |   "enrolments": [
              |     {
              |       "key": "IR-SA",
@@ -191,7 +191,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |   "nino": "${testOrganisation.nino.get}",
            |   "confidenceLevel": 200,
            |   "credentialStrength": "strong",
-           |   "groupIdentifier": "${testOrganisation.groupIdentifier}",
+           |   "groupIdentifier": "${testOrganisation.groupIdentifier.get}",
            |   "enrolments": [
            |     {
            |       "key": "IR-SA",
@@ -309,7 +309,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
              |   "confidenceLevel": 200,
              |   "credentialStrength": "strong",
              |   "credentialRole": "user",
-             |   "groupIdentifier": "${testAgent.groupIdentifier}",
+             |   "groupIdentifier": "${testAgent.groupIdentifier.get}",
              |   "enrolments": [
              |     {
              |       "key": "HMRC-AS-AGENT",

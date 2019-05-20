@@ -73,7 +73,7 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with LogSu
     vrn = Some(vrn),
     vatRegistrationDate = Some(vatRegistrationDate),
     eoriNumber = Some(eoriNumber),
-    groupIdentifier = groupIdentifier,
+    groupIdentifier = Some(groupIdentifier),
     services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
 
   val organisationDetails = OrganisationDetails(
@@ -96,7 +96,7 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with LogSu
     vatRegistrationDate = Some(vatRegistrationDate),
     lisaManRefNum = Some(lisaManRefNum),
     eoriNumber = Some(eoriNumber),
-    groupIdentifier = groupIdentifier,
+    groupIdentifier = Some(groupIdentifier),
     services =
       Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, MTD_VAT, PAYE_FOR_EMPLOYERS, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA, CUSTOMS_SERVICES))
 

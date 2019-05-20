@@ -78,7 +78,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
     vrn = Some(vrn),
     vatRegistrationDate = Some(vatRegistrationDate),
     eoriNumber = Some(eoriNumber),
-    groupIdentifier = groupIdentifier)
+    groupIdentifier = Some(groupIdentifier))
 
   val testOrganisation = TestOrganisation(
     userId = user,
@@ -97,7 +97,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
     secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
     pensionSchemeAdministratorIdentifier = Some(pensionSchemeAdministratorIdentifier),
     eoriNumber = Some(eoriNumber),
-    groupIdentifier = groupIdentifier)
+    groupIdentifier = Some(groupIdentifier))
 
   val testAgent = TestAgent(
     user,
@@ -105,7 +105,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
     userFullName,
     emailAddress,
     Some(arn),
-    groupIdentifier = groupIdentifier)
+    groupIdentifier = Some(groupIdentifier))
 
   val createIndividualServices = Seq(ServiceKeys.NATIONAL_INSURANCE)
   val createOrganisationServices = Seq(ServiceKeys.NATIONAL_INSURANCE)
@@ -146,7 +146,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
 
       status(result) shouldBe CREATED
       jsonBodyOf(result) shouldBe toJson(TestIndividualCreatedResponse(user, password, userFullName, emailAddress,
-        individualDetails, Some(saUtr), Some(nino), Some(mtdItId), Some(vrn), Some(vatRegistrationDate), Some(eoriNumber)))
+        individualDetails, Some(saUtr), Some(nino), Some(mtdItId), Some(vrn), Some(vatRegistrationDate), Some(eoriNumber), Some(groupIdentifier)))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
@@ -175,7 +175,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
       jsonBodyOf(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, userFullName, emailAddress,
         organisationDetails, Some(saUtr),
         Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(vatRegistrationDate), Some(lisaManagerReferenceNumber),
-        Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier), Some(eoriNumber)))
+        Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier), Some(eoriNumber), Some(groupIdentifier)))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
@@ -200,7 +200,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
       val result = await(underTest.createAgent()(createAgentRequest))
 
       status(result) shouldBe CREATED
-      jsonBodyOf(result) shouldBe toJson(TestAgentCreatedResponse(user, password, userFullName, emailAddress, Some(arn)))
+      jsonBodyOf(result) shouldBe toJson(TestAgentCreatedResponse(user, password, userFullName, emailAddress, Some(arn), Some(groupIdentifier)))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the agent failed" in new Setup {
