@@ -31,7 +31,7 @@ case class CreateUserRequest(serviceNames: Option[Seq[ServiceKey]])
 
 object LegacySandboxUser {
   private val userId = "user1"
-  private val groupIdentifier = "groupIdentifier1"
+  private val groupIdentifier = Some("groupIdentifier1")
   private val password = "password1"
   private val userFullName = "John Doe"
   private val emailAddress = "john.doe@example.com"

@@ -94,7 +94,7 @@ object GovernmentGatewayLogin {
       enrolments = individual.services.flatMap(asEnrolment),
       usersName = individual.userFullName,
       email = individual.emailAddress,
-      groupIdentifier = individual.groupIdentifier
+      groupIdentifier = individual.groupIdentifier.getOrElse("")
     )
   }
 
@@ -127,7 +127,7 @@ object GovernmentGatewayLogin {
       enrolments = organisation.services.flatMap(asEnrolment),
       usersName = organisation.userFullName,
       email = organisation.emailAddress,
-      groupIdentifier = organisation.groupIdentifier)
+      groupIdentifier = organisation.groupIdentifier.getOrElse(""))
   }
 
   private def fromAgent(agent: TestAgent): GovernmentGatewayLogin = {
@@ -146,6 +146,6 @@ object GovernmentGatewayLogin {
       usersName = agent.userFullName,
       email = agent.emailAddress,
       credentialRole = Some("user"),
-      groupIdentifier = agent.groupIdentifier)
+      groupIdentifier = agent.groupIdentifier.getOrElse(""))
   }
 }

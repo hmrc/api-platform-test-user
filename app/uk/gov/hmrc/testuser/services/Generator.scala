@@ -57,7 +57,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
       eoriNumber <- if(services.contains(CUSTOMS_SERVICES)) generateEoriNumber.map(Some(_)) else Future.successful(None)
       vrn <- if(services.contains(MTD_VAT)) generateVrn.map(Some(_)) else Future.successful(None)
       vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1,20).sample.get))
-
+      groupIdentifier = Some(generateGroupIdentifier)
       individualDetails = generateIndividualDetails
       userFullName = generateUserFullName(individualDetails.firstName, individualDetails.lastName)
       emailAddress = generateEmailAddress(individualDetails.firstName, individualDetails.lastName)
@@ -74,7 +74,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
         vrn,
         vatRegistrationDate,
         eoriNumber,
-        generateGroupIdentifier,
+        groupIdentifier,
         services)
   }
 
@@ -91,7 +91,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
       setRefNum = if (services.contains(SECURE_ELECTRONIC_TRANSFER)) Some(generateSetRefNum) else None
       psaId = if (services.contains(RELIEF_AT_SOURCE)) Some(generatePsaId) else None
       eoriNumber <- if (services.contains(CUSTOMS_SERVICES)) generateEoriNumber.map(Some(_)) else Future.successful(None)
-
+      groupIdentifier = Some(generateGroupIdentifier)
       firstName = generateFirstName
       lastName = generateLastName
       userFullName = generateUserFullName(firstName, lastName)
@@ -114,7 +114,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
         setRefNum,
         psaId,
         eoriNumber,
-        generateGroupIdentifier,
+        groupIdentifier,
         services)
   }
 
@@ -123,9 +123,10 @@ class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit e
     val lastName = generateLastName
     val userFullName = generateUserFullName(firstName, lastName)
     val emailAddress = generateEmailAddress(firstName, lastName)
+    val groupIdentifier = Some(generateGroupIdentifier)
 
     (if (services.contains(AGENT_SERVICES)) generateArn.map(Some(_)) else Future.successful(None))
-      .map(arn => TestAgent(generateUserId, generatePassword, userFullName, emailAddress, arn, generateGroupIdentifier, services))
+      .map(arn => TestAgent(generateUserId, generatePassword, userFullName, emailAddress, arn, groupIdentifier, services))
 
   }
 
