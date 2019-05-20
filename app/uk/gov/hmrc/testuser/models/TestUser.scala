@@ -69,7 +69,6 @@ sealed trait TestUser {
   val userFullName: String
   val emailAddress: String
   val affinityGroup: String
-  def groupIdentifier: String
   val services: Seq[ServiceKey]
   val _id: BSONObjectID
 }
@@ -85,7 +84,7 @@ case class TestIndividual(override val userId: String,
                           vrn: Option[String] = None,
                           vatRegistrationDate: Option[LocalDate] = None,
                           eoriNumber: Option[String] = None,
-                          groupIdentifier: String,
+                          groupIdentifier: Option[String] = None,
                           override val services: Seq[ServiceKey] = Seq.empty,
                           override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Individual"
@@ -107,7 +106,7 @@ case class TestOrganisation(override val userId: String,
                             secureElectronicTransferReferenceNumber: Option[String] = None,
                             pensionSchemeAdministratorIdentifier: Option[String] = None,
                             eoriNumber: Option[String] = None,
-                            groupIdentifier: String,
+                            groupIdentifier: Option[String] = None,
                             override val services: Seq[ServiceKey] = Seq.empty,
                             override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Organisation"
@@ -118,7 +117,7 @@ case class TestAgent(override val userId: String,
                      override val userFullName: String,
                      override val emailAddress: String,
                      arn: Option[String] = None,
-                     groupIdentifier: String,
+                     groupIdentifier: Option[String] = None,
                      override val services: Seq[ServiceKey] = Seq.empty,
                      override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Agent"
@@ -138,6 +137,7 @@ sealed trait TestIndividualResponse extends TestUserResponse {
   val vrn: Option[String]
   val vatRegistrationDate: Option[LocalDate]
   val eoriNumber: Option[String]
+  val groupIdentifier: Option[String]
 }
 
 sealed trait TestOrganisationResponse extends TestUserResponse {
@@ -153,10 +153,12 @@ sealed trait TestOrganisationResponse extends TestUserResponse {
   val secureElectronicTransferReferenceNumber: Option[String]
   val pensionSchemeAdministratorIdentifier: Option[String]
   val eoriNumber: Option[String]
+  val groupIdentifier: Option[String]
 }
 
 sealed trait TestAgentResponse extends TestUserResponse {
   val agentServicesAccountNumber: Option[String]
+  val groupIdentifier: Option[String]
 }
 
 case class FetchTestIndividualResponse(override val userId: String,
@@ -168,13 +170,14 @@ case class FetchTestIndividualResponse(override val userId: String,
                                        override val mtdItId: Option[String] = None,
                                        override val vrn: Option[String] = None,
                                        override val vatRegistrationDate: Option[LocalDate] = None,
-                                       override val eoriNumber: Option[String] = None)
+                                       override val eoriNumber: Option[String] = None,
+                                       override val groupIdentifier: Option[String] = None)
   extends TestIndividualResponse
 
 object FetchTestIndividualResponse {
   def from(individual: TestIndividual) = FetchTestIndividualResponse(individual.userId, individual.userFullName,
     individual.emailAddress, individual.individualDetails, individual.saUtr, individual.nino,
-    individual.mtdItId, individual.vrn, individual.vatRegistrationDate, individual.eoriNumber)
+    individual.mtdItId, individual.vrn, individual.vatRegistrationDate, individual.eoriNumber, individual.groupIdentifier)
 }
 
 case class TestIndividualCreatedResponse(override val userId: String,
@@ -187,13 +190,15 @@ case class TestIndividualCreatedResponse(override val userId: String,
                                          override val mtdItId: Option[String],
                                          override val vrn: Option[String],
                                          override val vatRegistrationDate: Option[LocalDate] = None,
-                                         override val eoriNumber: Option[String] = None)
+                                         override val eoriNumber: Option[String] = None,
+                                         override val groupIdentifier: Option[String] = None)
   extends TestIndividualResponse
 
 object TestIndividualCreatedResponse {
   def from(individual: TestIndividual) = TestIndividualCreatedResponse(individual.userId, individual.password,
     individual.userFullName, individual.emailAddress, individual.individualDetails,
-    individual.saUtr, individual.nino, individual.mtdItId, individual.vrn, individual.vatRegistrationDate, individual.eoriNumber)
+    individual.saUtr, individual.nino, individual.mtdItId, individual.vrn, individual.vatRegistrationDate, individual.eoriNumber,
+    individual.groupIdentifier)
 }
 
 case class FetchTestOrganisationResponse(override val userId: String,
@@ -210,7 +215,8 @@ case class FetchTestOrganisationResponse(override val userId: String,
                                          override val lisaManagerReferenceNumber: Option[String] = None,
                                          override val secureElectronicTransferReferenceNumber: Option[String] = None,
                                          override val pensionSchemeAdministratorIdentifier: Option[String] = None,
-                                         override val eoriNumber: Option[String] = None)
+                                         override val eoriNumber: Option[String] = None,
+                                         override val groupIdentifier: Option[String] = None)
   extends TestOrganisationResponse
 
 object FetchTestOrganisationResponse {
@@ -218,7 +224,7 @@ object FetchTestOrganisationResponse {
     organisation.emailAddress, organisation.organisationDetails, organisation.saUtr, organisation.nino,
     organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.vatRegistrationDate, organisation.lisaManRefNum,
     organisation.secureElectronicTransferReferenceNumber, organisation.pensionSchemeAdministratorIdentifier,
-    organisation.eoriNumber)
+    organisation.eoriNumber, organisation.groupIdentifier)
 }
 
 case class TestOrganisationCreatedResponse(override val userId: String,
@@ -236,7 +242,8 @@ case class TestOrganisationCreatedResponse(override val userId: String,
                                            override val lisaManagerReferenceNumber: Option[String],
                                            override val secureElectronicTransferReferenceNumber: Option[String],
                                            override val pensionSchemeAdministratorIdentifier: Option[String],
-                                           override val eoriNumber: Option[String] = None)
+                                           override val eoriNumber: Option[String] = None,
+                                           override val groupIdentifier: Option[String] = None)
   extends TestOrganisationResponse
 
 object TestOrganisationCreatedResponse {
@@ -244,18 +251,19 @@ object TestOrganisationCreatedResponse {
     organisation.userFullName, organisation.emailAddress, organisation.organisationDetails, organisation.saUtr,
     organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.vatRegistrationDate,
     organisation.lisaManRefNum, organisation.secureElectronicTransferReferenceNumber,
-    organisation.pensionSchemeAdministratorIdentifier, organisation.eoriNumber)
+    organisation.pensionSchemeAdministratorIdentifier, organisation.eoriNumber, organisation.groupIdentifier)
 }
 
 case class TestAgentCreatedResponse(override val userId: String, password: String,
                                     override val userFullName: String,
                                     override val emailAddress: String,
-                                    override val agentServicesAccountNumber: Option[String])
+                                    override val agentServicesAccountNumber: Option[String],
+                                    override val groupIdentifier: Option[String])
   extends TestAgentResponse
 
 object TestAgentCreatedResponse {
   def from(agent: TestAgent) = TestAgentCreatedResponse(agent.userId, agent.password,
-    agent.userFullName, agent.emailAddress, agent.arn)
+    agent.userFullName, agent.emailAddress, agent.arn, agent.groupIdentifier)
 }
 
 case class DesSimulatorTestIndividual(mtdItId: Option[String], vrn: Option[String], nino: Option[String], saUtr: Option[String])
