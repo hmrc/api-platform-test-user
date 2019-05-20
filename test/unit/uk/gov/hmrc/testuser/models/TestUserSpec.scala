@@ -50,7 +50,7 @@ class TestUserSpec extends FlatSpec with Matchers {
       emailAddress = emailAddress,
       organisationDetails = organisationDetails,
       lisaManRefNum = Some("Z123456"),
-      groupIdentifier = groupIdentifier)
+      groupIdentifier = Some(groupIdentifier))
 
     TestOrganisationCreatedResponse.from(testOrganisation) shouldBe
       TestOrganisationCreatedResponse(
@@ -68,8 +68,8 @@ class TestUserSpec extends FlatSpec with Matchers {
         vatRegistrationDate = None,
         lisaManagerReferenceNumber = Some("Z123456"),
         secureElectronicTransferReferenceNumber = None,
-        pensionSchemeAdministratorIdentifier = None
-      )
+        pensionSchemeAdministratorIdentifier = None,
+        groupIdentifier = Some(groupIdentifier))
   }
 
   "TestAgentCreatedResponse" should "be properly constructed from the TestAgent" in {
@@ -79,8 +79,8 @@ class TestUserSpec extends FlatSpec with Matchers {
       userFullName = userFullName,
       emailAddress = emailAddress,
       arn = Some(arn),
-      groupIdentifier = groupIdentifier)
+      groupIdentifier = Some(groupIdentifier))
 
-    TestAgentCreatedResponse.from(testAgent) shouldBe TestAgentCreatedResponse(userId, password, userFullName, emailAddress, Some(arn))
+    TestAgentCreatedResponse.from(testAgent) shouldBe TestAgentCreatedResponse(userId, password, userFullName, emailAddress, Some(arn), Some(groupIdentifier))
   }
 }

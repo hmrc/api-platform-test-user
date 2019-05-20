@@ -67,7 +67,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
       userFullName = userFullName,
       emailAddress = emailAddress,
       arn = Some(arn),
-      groupIdentifier = groupIdentifier,
+      groupIdentifier = Some(groupIdentifier),
       services = Seq(AGENT_SERVICES))
 
     "contain no enrolments when the agent has no services" in {
@@ -109,7 +109,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
       mtdItId = Some(mtdItId),
       eoriNumber = Some(eoriNumber),
       vrn = Some(vrn),
-      groupIdentifier = groupIdentifier,
+      groupIdentifier = Some(groupIdentifier),
       services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
 
     "contain no enrolments when the individual has no services" in {
@@ -169,7 +169,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
       secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
       pensionSchemeAdministratorIdentifier = Some(pensionSchemeAdministratorIdentifier),
       eoriNumber = Some(eoriNumber),
-      groupIdentifier = groupIdentifier,
+      groupIdentifier = Some(groupIdentifier),
       services = Seq(AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, CORPORATION_TAX, SUBMIT_VAT_RETURNS,
         PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES))
 

@@ -47,6 +47,7 @@ class FetchUserSpec extends BaseSpec {
         |   "emailAddress": "${individual.emailAddress}",
         |   "saUtr": "${individual.saUtr.get}",
         |   "nino": "${individual.nino.get}",
+        |   "groupIdentifier": "${individual.groupIdentifier.get}",
         |   "individualDetails": {
         |     "firstName": "${individual.individualDetails.firstName}",
         |     "lastName": "${individual.individualDetails.lastName}",
@@ -79,6 +80,7 @@ class FetchUserSpec extends BaseSpec {
             |   "emailAddress": "${individual.emailAddress}",
             |   "saUtr": "${individual.saUtr.get}",
             |   "nino": "${individual.nino.get}",
+            |   "groupIdentifier": "${individual.groupIdentifier.get}",
             |   "individualDetails": ${toJson(individual.individualDetails)}
             |}
       """.stripMargin
@@ -101,6 +103,7 @@ class FetchUserSpec extends BaseSpec {
             |   "emailAddress": "${individual.emailAddress}",
             |   "saUtr": "${individual.saUtr.get}",
             |   "nino": "${individual.nino.get}",
+            |   "groupIdentifier": "${individual.groupIdentifier.get}",
             |   "individualDetails": ${toJson(individual.individualDetails)}
             |}
       """.stripMargin
@@ -123,6 +126,7 @@ class FetchUserSpec extends BaseSpec {
            |   "emailAddress": "${individual.emailAddress}",
            |   "vatRegistrationDate": "${individual.vatRegistrationDate.get.toString("yyyy-MM-dd")}",
            |   "vrn": "${individual.vrn.get}",
+           |   "groupIdentifier": "${individual.groupIdentifier.get}",
            |   "individualDetails": ${toJson(individual.individualDetails)}
            |}
       """.stripMargin
@@ -145,6 +149,7 @@ class FetchUserSpec extends BaseSpec {
             |   "userFullName": "${organisation.userFullName}",
             |   "emailAddress": "${organisation.emailAddress}",
             |   "empRef": "${organisation.empRef.get}",
+            |   "groupIdentifier": "${organisation.groupIdentifier.get}",
             |   "organisationDetails": {
             |     "name": "${organisation.organisationDetails.name}",
             |     "address": {
@@ -174,6 +179,7 @@ class FetchUserSpec extends BaseSpec {
            |   "emailAddress": "${organisation.emailAddress}",
            |   "vrn": "${organisation.vrn.get}",
            |   "vatRegistrationDate": "${organisation.vatRegistrationDate.get.toString("yyyy-MM-dd")}",
+           |   "groupIdentifier": "${organisation.groupIdentifier.get}",
            |   "organisationDetails": {
            |     "name": "${organisation.organisationDetails.name}",
            |     "address": {

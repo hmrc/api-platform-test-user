@@ -53,7 +53,7 @@ class AuthenticationServiceSpec extends UnitSpec with MockitoSugar {
     saUtr = Some("1555369052"),
     nino = Some("CC333333C"),
     mtdItId = Some("XGIT00000000054"),
-    groupIdentifier = groupIdentifier,
+    groupIdentifier = Some(groupIdentifier),
     services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
 
   trait Setup {

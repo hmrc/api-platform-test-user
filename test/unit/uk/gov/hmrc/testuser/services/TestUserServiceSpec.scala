@@ -75,7 +75,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     password = password,
     userFullName = "name",
     emailAddress = "email",
-    groupIdentifier = groupIdentifier
+    groupIdentifier = Some(groupIdentifier)
   )
 
   trait Setup {
