@@ -26,21 +26,9 @@ class ConfigurationModule extends Module {
 
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
     Seq(
-      bind[ServiceLocatorRegistrationConfig].toProvider[ServiceLocatorRegistrationConfigProvider],
       bind[PasswordConfig].toProvider[PasswordConfigProvider]
     )
   }
-}
-
-class ServiceLocatorRegistrationConfigProvider @Inject()(val runModeConfiguration: Configuration, environment: Environment)
-  extends Provider[ServiceLocatorRegistrationConfig] with ServicesConfig {
-
-  override def get() = {
-    val registrationEnabled = getConfBool("service-locator.enabled", defBool = true)
-    ServiceLocatorRegistrationConfig(registrationEnabled)
-  }
-
-  override protected def mode = environment.mode
 }
 
 class PasswordConfigProvider @Inject()(val runModeConfiguration: Configuration, environment: Environment)
@@ -53,7 +41,3 @@ class PasswordConfigProvider @Inject()(val runModeConfiguration: Configuration, 
 
   override protected def mode = environment.mode
 }
-
-
-
-
