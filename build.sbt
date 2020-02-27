@@ -34,7 +34,7 @@ lazy val test = Seq(
   "org.scalaj" %% "scalaj-http" % "1.1.6" % scope,
   "com.github.tomakehurst" % "wiremock" % "2.15.0" % scope,
   "org.scalacheck" %% "scalacheck" % "1.13.5",
-  "com.eclipsesource" %% "play-json-schema-validator" % "0.8.9" % scope
+  "com.eclipsesource" %% "play-json-schema-validator" % "0.9.4" % scope
 )
 
 lazy val plugins: Seq[Plugins] = Seq.empty
