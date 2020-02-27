@@ -8,6 +8,8 @@ import uk.gov.hmrc.versioning.SbtGitVersioning
 
 lazy val appName = "api-platform-test-user"
 lazy val appDependencies: Seq[ModuleID] = compile ++ test
+lazy val akkaVersion = "2.5.23"
+lazy val akkaHttpVersion = "10.0.15"
 
 lazy val compile = Seq(
   "uk.gov.hmrc" %% "bootstrap-play-26" % "1.4.0",
@@ -16,9 +18,17 @@ lazy val compile = Seq(
   "uk.gov.hmrc" %% "play-json-union-formatter" % "1.5.0",
   "uk.gov.hmrc" %% "domain" % "5.6.0-play-26",
   "uk.gov.hmrc" %% "mongo-lock" % "6.15.0-play-26",
+
   "org.mindrot" % "jbcrypt" % "0.4",
+
   "com.typesafe.play" %% "play-json" % "2.6.14",
-  "com.typesafe.play" %% "play-json-joda" % "2.6.4"
+  "com.typesafe.play" %% "play-json-joda" % "2.6.4",
+
+  "com.typesafe.akka" %% "akka-stream"    % akkaVersion     force(),
+  "com.typesafe.akka" %% "akka-protobuf"  % akkaVersion     force(),
+  "com.typesafe.akka" %% "akka-slf4j"     % akkaVersion     force(),
+  "com.typesafe.akka" %% "akka-actor"     % akkaVersion     force(),
+  "com.typesafe.akka" %% "akka-http-core" % akkaHttpVersion force()
 )
 
 lazy val scope: String = "test, it"
@@ -32,7 +42,7 @@ lazy val test = Seq(
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
   "org.mockito" % "mockito-core" % "2.10.0" % scope,
   "org.scalaj" %% "scalaj-http" % "1.1.6" % scope,
-  "com.github.tomakehurst" % "wiremock" % "2.15.0" % scope,
+  "com.github.tomakehurst" % "wiremock-jre8" % "2.21.0" % scope,
   "org.scalacheck" %% "scalacheck" % "1.13.5",
   "com.eclipsesource" %% "play-json-schema-validator" % "0.9.4" % scope
 )
