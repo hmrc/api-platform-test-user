@@ -19,18 +19,18 @@ package uk.gov.hmrc.testuser.connectors
 import javax.inject.{Inject, Singleton}
 import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.models.JsonFormatters._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class DesSimulatorConnector @Inject()(httpClient: HttpClient, override val runModeConfiguration: Configuration, environment: Environment)
-                           (implicit ec: ExecutionContext) extends ServicesConfig {
+class DesSimulatorConnector @Inject()(httpClient: HttpClient, runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)
+                           (implicit ec: ExecutionContext) {
 
-  override protected def mode = environment.mode
+  import config.baseUrl
 
   lazy val serviceUrl: String = baseUrl("des-simulator")
 

@@ -22,19 +22,19 @@ import play.api.http.HeaderNames.{AUTHORIZATION, LOCATION}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
-import uk.gov.hmrc.testuser.models._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class AuthLoginApiConnector @Inject()(httpClient: HttpClient, override val runModeConfiguration: Configuration, environment: Environment)
-                           (implicit ec: ExecutionContext) extends ServicesConfig {
+class AuthLoginApiConnector @Inject()(httpClient: HttpClient, val configuration: Configuration, environment: Environment, config: ServicesConfig)
+                           (implicit ec: ExecutionContext) {
 
-  override protected def mode = environment.mode
+  import config.baseUrl
 
   lazy val serviceUrl: String = baseUrl("auth-login-api")
 

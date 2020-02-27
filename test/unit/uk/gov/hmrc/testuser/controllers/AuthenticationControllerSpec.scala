@@ -26,16 +26,16 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, UNAUTHORIZED}
+import play.api.libs.json.{Json, JsValue}
 import play.api.libs.json.Json.toJson
-import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.ControllerComponents
 import play.api.test._
-import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.controllers.AuthenticationController
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
-import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.services.AuthenticationService
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -114,7 +114,7 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with LogSu
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
-    val underTest = new AuthenticationController(mock[AuthenticationService])
+    val underTest = new AuthenticationController(mock[AuthenticationService], Helpers.stubControllerComponents())
   }
 
   "authenticate" should {

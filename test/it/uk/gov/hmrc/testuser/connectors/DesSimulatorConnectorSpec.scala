@@ -30,6 +30,7 @@ import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.services.Generator
 import org.mockito.Mockito.when
 import org.mockito.ArgumentMatchers.any
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -48,7 +49,8 @@ class DesSimulatorConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
     val underTest = new DesSimulatorConnector(
       fakeApplication.injector.instanceOf[HttpClient],
       fakeApplication.injector.instanceOf[Configuration],
-      fakeApplication.injector.instanceOf[Environment]
+      fakeApplication.injector.instanceOf[Environment],
+      fakeApplication.injector.instanceOf[ServicesConfig]
     ) {
       override lazy val serviceUrl: String = DesSimulatorStub.url
     }

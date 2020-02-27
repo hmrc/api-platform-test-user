@@ -16,16 +16,16 @@
 
 package uk.gov.hmrc.testuser.controllers
 
+import controllers.Assets
 import javax.inject.{Inject, Singleton}
-
-import controllers.AssetsBuilder
-import play.api.http.HttpErrorHandler
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 @Singleton
-class DocumentationController @Inject()(httpErrorHandler: HttpErrorHandler) extends AssetsBuilder(httpErrorHandler) with BaseController {
+class DocumentationController @Inject()(assets: Assets, cc: ControllerComponents)
+  extends BackendController(cc) {
 
-  def definition = super.at(s"/public/api", "definition.json")
+  def definition: Action[AnyContent] = assets.at(s"/public/api", "definition.json")
 
-  def raml(version: String, file: String) = super.at(s"/public/api/conf/$version", file)
+  def raml(version: String, file: String): Action[AnyContent] = assets.at(s"/public/api/conf/$version", file)
 }

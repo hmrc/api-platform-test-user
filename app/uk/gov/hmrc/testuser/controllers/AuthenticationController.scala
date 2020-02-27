@@ -20,16 +20,17 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.libs.json.Json._
-import play.api.mvc.{Action, Result}
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
-import uk.gov.hmrc.testuser.models.JsonFormatters._
+import play.api.mvc.{ControllerComponents, Result}
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import uk.gov.hmrc.testuser.models.{AuthenticationRequest, AuthenticationResponse, ErrorResponse, InvalidCredentials}
+import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.services.AuthenticationService
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class AuthenticationController @Inject()(val authenticationService: AuthenticationService)(implicit ec: ExecutionContext) extends BaseController {
+class AuthenticationController @Inject()(val authenticationService: AuthenticationService, val cc: ControllerComponents)
+                                        (implicit ec: ExecutionContext) extends BackendController(cc) {
 
   def authenticate() = {
     Action.async(parse.json) { implicit request =>

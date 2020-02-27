@@ -14,30 +14,30 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.testuser.config
+//package uk.gov.hmrc.testuser.config
+//
+//import javax.inject.{Inject, Provider}
+//import play.api.inject.{Binding, Module}
+//import play.api.{Configuration, Environment}
+//import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+//import uk.gov.hmrc.testuser.services.PasswordConfig
 
-import javax.inject.{Inject, Provider}
-import play.api.inject.{Binding, Module}
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.testuser.services.PasswordConfig
+//class ConfigurationModule extends Module {
+//
+//  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
+//    Seq(
+//      bind[PasswordConfig].toProvider[PasswordConfigProvider]
+//    )
+//  }
+//}
 
-class ConfigurationModule extends Module {
+//class PasswordConfigProvider @Inject()(val runModeConfiguration: Configuration, environment: Environment)
+//  extends Provider[PasswordConfig] with ServicesConfig {
+//
+//  override def get() = {
+//    val passwordLogRounds = getInt("passwordLogRounds")
+//    PasswordConfig(passwordLogRounds)
+//  }
 
-  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
-    Seq(
-      bind[PasswordConfig].toProvider[PasswordConfigProvider]
-    )
-  }
-}
-
-class PasswordConfigProvider @Inject()(val runModeConfiguration: Configuration, environment: Environment)
-  extends Provider[PasswordConfig] with ServicesConfig {
-
-  override def get() = {
-    val passwordLogRounds = getInt("passwordLogRounds")
-    PasswordConfig(passwordLogRounds)
-  }
-
-  override protected def mode = environment.mode
-}
+//  override protected def mode = environment.mode
+//}
