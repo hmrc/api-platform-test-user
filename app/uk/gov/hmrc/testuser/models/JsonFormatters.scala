@@ -24,8 +24,8 @@ import uk.gov.hmrc.testuser.connectors.{Enrolment, GovernmentGatewayLogin, Ident
 
 object JsonFormatters {
 
-  implicit val formatLocalDateWriter: Writes[LocalDate] = JodaWrites.jodaLocalDateWrites("dd/MM/yyyy")
-  implicit val formatLocalDateReader: Reads[LocalDate] = JodaReads.jodaLocalDateReads("dd/MM/yyyy")
+  implicit val formatLocalDateWriter: Writes[LocalDate] = JodaWrites.jodaLocalDateWrites("yyyy-MM-dd")
+  implicit val formatLocalDateReader: Reads[LocalDate] = JodaReads.jodaLocalDateReads("yyyy-MM-dd")
 
   implicit val formatObjectId = ReactiveMongoFormats.objectIdFormats
   implicit val formatServiceName = EnumJson.enumFormat(ServiceKeys)
