@@ -35,10 +35,10 @@ lazy val scope: String = "test, it"
 lazy val test = Seq(
   "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-26" % scope,
   "uk.gov.hmrc" %% "reactivemongo-test" % "4.15.0-play-26" % scope,
-  "org.scalatest" %% "scalatest" % "3.0.4" % scope,
+//  "org.scalatest" %% "scalatest" % "3.0.4" % scope,
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % scope,
   "org.pegdown" % "pegdown" % "1.6.0" % scope,
-  "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
+//  "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
   "org.mockito" % "mockito-core" % "2.10.0" % scope,
   "org.scalaj" %% "scalaj-http" % "1.1.6" % scope,
   "com.github.tomakehurst" % "wiremock-jre8" % "2.21.0" % scope,
