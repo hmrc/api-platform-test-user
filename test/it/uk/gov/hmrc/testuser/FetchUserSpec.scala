@@ -22,10 +22,9 @@ import it.uk.gov.hmrc.testuser.helpers.BaseSpec
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJson
-import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models._
 import scalaj.http.Http
-import uk.gov.hmrc.domain.EmpRef
+import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.models.JsonFormatters._
 
 class FetchUserSpec extends BaseSpec {
 

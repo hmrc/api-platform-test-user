@@ -20,9 +20,9 @@ import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr, Vrn}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
-import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 import scala.concurrent.{ExecutionContext, Future}

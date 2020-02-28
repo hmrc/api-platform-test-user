@@ -18,18 +18,14 @@ package it.uk.gov.hmrc.testuser
 
 import it.uk.gov.hmrc.testuser.helpers.BaseSpec
 import it.uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
-import org.apache.http.HttpStatus._
-import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
 import play.api.http.HeaderNames
 import play.api.http.Status.{CREATED, UNAUTHORIZED}
 import play.api.libs.json.Json
 import play.api.libs.json.Json.{obj, stringify}
+import scalaj.http.Http
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ErrorResponse.invalidCredentialsError
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models._
-
-import scala.concurrent.Await._
-import scalaj.http.Http
 
 class AuthenticationSpec extends BaseSpec {
 
@@ -98,7 +94,7 @@ class AuthenticationSpec extends BaseSpec {
       val response = authenticate("unknown_user", "password")
 
       Then("The response says that the credentials are invalid")
-      response.code shouldBe SC_UNAUTHORIZED
+      response.code shouldBe UNAUTHORIZED
       Json.parse(response.body).as[ErrorResponse] shouldBe invalidCredentialsError
     }
 

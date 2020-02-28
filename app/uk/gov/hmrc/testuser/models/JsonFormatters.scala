@@ -17,7 +17,7 @@
 package uk.gov.hmrc.testuser.models
 
 import org.joda.time.LocalDate
-import play.api.libs.json.{Format, JodaReads, JodaWrites, Json, Reads, Writes}
+import play.api.libs.json._
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.play.json.Union
 import uk.gov.hmrc.testuser.connectors.{Enrolment, GovernmentGatewayLogin, Identifier}

@@ -37,7 +37,7 @@ lazy val test = Seq(
   "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-26" % scope,
   "uk.gov.hmrc" %% "reactivemongo-test" % "4.15.0-play-26" % scope,
   "org.scalatest" %% "scalatest" % "3.0.4" % scope,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0" % scope,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % scope,
   "org.pegdown" % "pegdown" % "1.6.0" % scope,
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
   "org.mockito" % "mockito-core" % "2.10.0" % scope,
@@ -97,4 +97,13 @@ def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
 // Coverage configuration
 coverageMinimum := 93
 coverageFailOnMinimum := true
-coverageExcludedPackages := "<empty>;com.kenshoo.play.metrics.*;.*definition.*;prod.*;testOnlyDoNotUseInAppConf.*;app.*;uk.gov.hmrc.BuildInfo"
+coverageExcludedPackages :=
+  "<empty>;" +
+  "com.kenshoo.play.metrics.*;" +
+  ".*definition.*;" +
+  "prod.*;" +
+  "testOnlyDoNotUseInAppConf.*;" +
+  "app.*;" +
+  "uk.gov.hmrc.BuildInfo;" +
+  "uk.gov.hmrc.testuser.controllers.javascript.*;" +
+  "uk.gov.hmrc.testuser.controllers.ReverseDocumentationController;"
