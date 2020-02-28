@@ -46,8 +46,6 @@ class MicroserviceModule(val environment: Environment, val configuration: Config
     val appName = "api-platform-test-user"
     Logger(getClass).info(s"Starting microservice : $appName : in mode : ${environment.mode}")
 
-    bind(classOf[HttpGet]).to(classOf[DefaultHttpClient])
-    bind(classOf[HttpPost]).to(classOf[DefaultHttpClient])
     bind(classOf[PasswordConfig]).toProvider(classOf[PasswordConfigProvider])
   }
 }
