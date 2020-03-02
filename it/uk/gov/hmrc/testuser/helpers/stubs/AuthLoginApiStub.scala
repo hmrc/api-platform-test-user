@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package it.uk.gov.hmrc.testuser.helpers.stubs
+package uk.gov.hmrc.testuser.helpers.stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import it.uk.gov.hmrc.testuser.helpers.MockHost
 import play.api.http.HeaderNames.{AUTHORIZATION, LOCATION}
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR}
+import uk.gov.hmrc.testuser.helpers.MockHost
 import uk.gov.hmrc.testuser.models.AuthSession
 
 object AuthLoginApiStub extends MockHost(11111) {

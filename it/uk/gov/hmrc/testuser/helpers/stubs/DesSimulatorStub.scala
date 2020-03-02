@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package it.uk.gov.hmrc.testuser.helpers.stubs
+package uk.gov.hmrc.testuser.helpers.stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import it.uk.gov.hmrc.testuser.helpers.MockHost
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR}
+import uk.gov.hmrc.testuser.helpers.MockHost
 
 object DesSimulatorStub extends MockHost(11112) {
 

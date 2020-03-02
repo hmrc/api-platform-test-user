@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package it.uk.gov.hmrc.testuser.connectors
+package uk.gov.hmrc.testuser.connectors
 
-import it.uk.gov.hmrc.testuser.helpers.stubs.DesSimulatorStub
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.domain.TaxIdentifier
 import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
+import uk.gov.hmrc.testuser.helpers.stubs.DesSimulatorStub
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.services.Generator
-import org.mockito.Mockito.when
-import org.mockito.ArgumentMatchers.any
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

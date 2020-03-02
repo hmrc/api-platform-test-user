@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package it.uk.gov.hmrc.testuser
+package uk.gov.hmrc.testuser
 
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
-import play.api.http.LazyHttpErrorHandler
 import play.api.http.Status._
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec

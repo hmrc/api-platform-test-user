@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package it.uk.gov.hmrc.testuser
+package uk.gov.hmrc.testuser
 
-import it.uk.gov.hmrc.testuser.helpers.BaseSpec
-import it.uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import play.api.http.HeaderNames
 import play.api.http.Status.{CREATED, UNAUTHORIZED}
 import play.api.libs.json.Json
 import play.api.libs.json.Json.{obj, stringify}
 import scalaj.http.Http
+import uk.gov.hmrc.testuser.helpers.BaseSpec
+import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ErrorResponse.invalidCredentialsError
 import uk.gov.hmrc.testuser.models.JsonFormatters._

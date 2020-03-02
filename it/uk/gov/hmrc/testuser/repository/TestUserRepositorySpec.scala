@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package it.uk.gov.hmrc.testuser.repository
+package uk.gov.hmrc.testuser.repository
 
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.modules.reactivemongo.ReactiveMongoComponent
@@ -23,9 +23,8 @@ import reactivemongo.api.indexes.IndexType.Ascending
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.mongo.MongoSpecSupport
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.repository.TestUserRepository
+import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.services.Generator
 
 import scala.concurrent.ExecutionContext.Implicits.global

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package it.uk.gov.hmrc.testuser
+package uk.gov.hmrc.testuser
 
 import java.net.URLEncoder
 
-import it.uk.gov.hmrc.testuser.helpers.BaseSpec
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJson
 import scalaj.http.Http
+import uk.gov.hmrc.testuser.helpers.BaseSpec
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 

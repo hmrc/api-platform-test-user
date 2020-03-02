@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package it.uk.gov.hmrc.testuser
+package uk.gov.hmrc.testuser
 
-import it.uk.gov.hmrc.testuser.helpers.BaseSpec
 import org.apache.http.HttpStatus._
 import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
+import scalaj.http.Http
+import uk.gov.hmrc.testuser.helpers.BaseSpec
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
-import uk.gov.hmrc.testuser.models._
 
 import scala.concurrent.Await._
-import scalaj.http.Http
 
 class TestUserSpec extends BaseSpec {
 

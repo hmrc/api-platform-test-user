@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package it.uk.gov.hmrc.testuser.repository
+package uk.gov.hmrc.testuser.repository
 
 import org.scalatest.concurrent.Eventually
 import reactivemongo.api.indexes.Index

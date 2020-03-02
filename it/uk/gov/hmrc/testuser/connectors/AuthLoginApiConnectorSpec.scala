@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package it.uk.gov.hmrc.testuser.connectors
+package uk.gov.hmrc.testuser.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequestedFor, urlPathEqualTo}
-import it.uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import org.joda.time.LocalDate
 import org.scalatest.BeforeAndAfterEach
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
-import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.models.ServiceKeys._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

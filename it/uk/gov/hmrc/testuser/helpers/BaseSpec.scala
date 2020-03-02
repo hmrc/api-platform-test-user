@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package it.uk.gov.hmrc.testuser.helpers
+package uk.gov.hmrc.testuser.helpers
 
 import java.util.concurrent.TimeUnit
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import it.uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import org.scalatest._
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 import scala.concurrent.Await._
