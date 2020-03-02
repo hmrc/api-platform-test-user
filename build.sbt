@@ -13,7 +13,7 @@ lazy val akkaHttpVersion = "10.0.15"
 lazy val compile = Seq(
   "uk.gov.hmrc" %% "bootstrap-play-26" % "1.4.0",
   "uk.gov.hmrc" %% "play-ui" % "8.8.0-play-26",
-  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.5.0",
+  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.11.0",
   "uk.gov.hmrc" %% "domain" % "5.6.0-play-26",
   "uk.gov.hmrc" %% "mongo-lock" % "6.15.0-play-26",
 
@@ -37,7 +37,7 @@ lazy val test = Seq(
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % scope,
   "org.pegdown" % "pegdown" % "1.6.0" % scope,
   "org.mockito" % "mockito-core" % "2.10.0" % scope,
-  "org.scalaj" %% "scalaj-http" % "1.1.6" % scope,
+  "org.scalaj" %% "scalaj-http" % "2.4.2" % scope,
   "com.github.tomakehurst" % "wiremock-jre8" % "2.21.0" % scope,
   "org.scalacheck" %% "scalacheck" % "1.13.5",
   "com.eclipsesource" %% "play-json-schema-validator" % "0.9.4" % scope
@@ -58,7 +58,7 @@ lazy val microservice = (project in file("."))
   .settings(
     name := appName,
     targetJvm := "jvm-1.8",
-    scalaVersion := "2.11.11",
+    scalaVersion := "2.12.10",
     libraryDependencies ++= appDependencies,
     retrieveManaged := true,
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),

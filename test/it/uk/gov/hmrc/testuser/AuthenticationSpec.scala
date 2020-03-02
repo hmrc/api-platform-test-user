@@ -46,8 +46,8 @@ class AuthenticationSpec extends BaseSpec {
       Then("The response contains the auth session and the 'Individual' affinity group")
       response.code shouldBe CREATED
       Json.parse(response.body).as[AuthenticationResponse] shouldBe AuthenticationResponse(authSession.gatewayToken, "Individual")
-      response.headers(HeaderNames.LOCATION) shouldBe authSession.authorityUri
-      response.headers(HeaderNames.AUTHORIZATION) shouldBe authSession.authBearerToken
+      response.headers(HeaderNames.LOCATION).mkString shouldBe authSession.authorityUri
+      response.headers(HeaderNames.AUTHORIZATION).mkString shouldBe authSession.authBearerToken
     }
 
     scenario("Valid credentials for an organisation") {
@@ -65,8 +65,8 @@ class AuthenticationSpec extends BaseSpec {
       Then("The response contains the auth session and the 'Organisation' affinity group")
       response.code shouldBe CREATED
       Json.parse(response.body).as[AuthenticationResponse] shouldBe AuthenticationResponse(authSession.gatewayToken, "Organisation")
-      response.headers(HeaderNames.LOCATION) shouldBe authSession.authorityUri
-      response.headers(HeaderNames.AUTHORIZATION) shouldBe authSession.authBearerToken
+      response.headers(HeaderNames.LOCATION).mkString shouldBe authSession.authorityUri
+      response.headers(HeaderNames.AUTHORIZATION).mkString shouldBe authSession.authBearerToken
     }
 
     scenario("Valid credentials for an agent") {
@@ -84,8 +84,8 @@ class AuthenticationSpec extends BaseSpec {
       Then("The response contains the auth session and the 'Agent' affinity group")
       response.code shouldBe CREATED
       Json.parse(response.body).as[AuthenticationResponse] shouldBe AuthenticationResponse(authSession.gatewayToken, "Agent")
-      response.headers(HeaderNames.LOCATION) shouldBe authSession.authorityUri
-      response.headers(HeaderNames.AUTHORIZATION) shouldBe authSession.authBearerToken
+      response.headers(HeaderNames.LOCATION).mkString shouldBe authSession.authorityUri
+      response.headers(HeaderNames.AUTHORIZATION).mkString shouldBe authSession.authBearerToken
     }
 
     scenario("UserId not found") {
