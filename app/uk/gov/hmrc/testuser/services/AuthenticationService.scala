@@ -19,12 +19,12 @@ package uk.gov.hmrc.testuser.services
 import javax.inject.Inject
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
+import uk.gov.hmrc.testuser.models.{AuthenticationRequest, AuthSession, InvalidCredentials, TestUser}
 import uk.gov.hmrc.testuser.models.LegacySandboxUser._
-import uk.gov.hmrc.testuser.models.{AuthSession, AuthenticationRequest, InvalidCredentials, TestUser}
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
-import scala.concurrent.Future._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future._
 
 class AuthenticationService @Inject()(val passwordService: PasswordService,
                                       val authLoginApiConnector: AuthLoginApiConnector,

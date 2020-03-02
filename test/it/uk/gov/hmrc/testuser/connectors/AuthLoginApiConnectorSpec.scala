@@ -23,6 +23,7 @@ import org.scalatest.BeforeAndAfterEach
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
@@ -95,7 +96,8 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     val underTest = new AuthLoginApiConnector(
       fakeApplication.injector.instanceOf[HttpClient],
       fakeApplication.injector.instanceOf[Configuration],
-      fakeApplication.injector.instanceOf[Environment]
+      fakeApplication.injector.instanceOf[Environment],
+      fakeApplication.injector.instanceOf[ServicesConfig]
     ) {
       override lazy val serviceUrl: String = AuthLoginApiStub.url
     }

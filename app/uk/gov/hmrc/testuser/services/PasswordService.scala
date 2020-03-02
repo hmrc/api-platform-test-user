@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.testuser.services
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
 
+@Singleton
 class PasswordService @Inject()(config: PasswordConfig) {
 
   def hash(password: String): String = BCryptUtils.hashpw(password, BCryptUtils.gensalt(config.passwordLogRounds))

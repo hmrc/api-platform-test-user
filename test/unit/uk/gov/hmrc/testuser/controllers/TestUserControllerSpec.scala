@@ -20,21 +20,22 @@ import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import common.LogSuppressing
 import org.joda.time.LocalDate
-import org.mockito.ArgumentMatchers.{any, refEq}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.BDDMockito.given
 import org.scalatest.mockito.MockitoSugar
 import play.api.Logger
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
+import play.api.libs.json.{Json, JsValue}
 import play.api.libs.json.Json.toJson
-import play.api.libs.json.{JsValue, Json}
 import play.api.test._
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.controllers.TestUserController
-import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.models.JsonFormatters._
+import uk.gov.hmrc.testuser.models.ServiceKeys.ServiceKey
+import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.services.TestUserService
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -119,44 +120,61 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
     val request = FakeRequest()
 
     def createIndividualRequest = {
-      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["national-insurance"]}""")
+      val jsonPayload: JsValue = Json.parse("""{"serviceNames":["national-insurance"]}""")
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
     def createOrganisationRequest = {
-      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["national-insurance"]}""")
+      val jsonPayload: JsValue = Json.parse("""{"serviceNames":["national-insurance"]}""")
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
     def createAgentRequest = {
-      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["agent-services"]}""")
+      val jsonPayload: JsValue = Json.parse("""{"serviceNames":["agent-services"]}""")
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
-    val underTest = new TestUserController(mock[TestUserService])
+    val underTest = new TestUserController(mock[TestUserService], Helpers.stubControllerComponents())
   }
 
   "createIndividual" should {
-
     "return 201 (Created) with the created individual" in new Setup {
-
-      given(underTest.testUserService.createTestIndividual(refEq(createIndividualServices))(any())).willReturn(testIndividual)
+      given(
+        underTest.testUserService.createTestIndividual(eqTo(createIndividualServices))(any[HeaderCarrier])
+      ).willReturn(testIndividual)
 
       val result = await(underTest.createIndividual()(createIndividualRequest))
 
       status(result) shouldBe CREATED
-      jsonBodyOf(result) shouldBe toJson(TestIndividualCreatedResponse(user, password, userFullName, emailAddress,
-        individualDetails, Some(saUtr), Some(nino), Some(mtdItId), Some(vrn), Some(vatRegistrationDate), Some(eoriNumber), Some(groupIdentifier)))
+
+      jsonBodyOf(result) shouldBe toJson(
+        TestIndividualCreatedResponse(
+          user,
+          password,
+          userFullName,
+          emailAddress,
+          individualDetails,
+          Some(saUtr),
+          Some(nino),
+          Some(mtdItId),
+          Some(vrn),
+          Some(vatRegistrationDate),
+          Some(eoriNumber),
+          Some(groupIdentifier)
+        )
+      )
     }
 
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        given(underTest.testUserService.createTestIndividual(any())(any()))
-          .willReturn(failed(new RuntimeException("expected test error")))
+        given(
+          underTest.testUserService.createTestIndividual(any[Seq[ServiceKey]])(any[HeaderCarrier])
+        ).willReturn(failed(new RuntimeException("expected test error")))
 
         val result = await(underTest.createIndividual()(createIndividualRequest))
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
+
         jsonBodyOf(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
       }
     }
@@ -167,7 +185,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
 
     "return 201 (Created) with the created organisation" in new Setup {
 
-      given(underTest.testUserService.createTestOrganisation(refEq(createOrganisationServices))(any())).willReturn(testOrganisation)
+      given(underTest.testUserService.createTestOrganisation(eqTo(createOrganisationServices))(any[HeaderCarrier])).willReturn(testOrganisation)
 
       val result = await(underTest.createOrganisation()(createOrganisationRequest))
 
@@ -180,7 +198,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
 
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        given(underTest.testUserService.createTestOrganisation(any())(any()))
+        given(underTest.testUserService.createTestOrganisation(any[Seq[ServiceKey]])(any[HeaderCarrier]))
           .willReturn(failed(new RuntimeException("expected test error")))
 
         val result = await(underTest.createOrganisation()(createOrganisationRequest))
@@ -219,7 +237,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
   "fetchIndividualByNino" should {
     "return 200 (Ok) with the individual" in new Setup {
 
-      given(underTest.testUserService.fetchIndividualByNino(refEq(Nino(nino)))(any())).willReturn(testIndividual)
+      given(underTest.testUserService.fetchIndividualByNino(eqTo(Nino(nino)))(any())).willReturn(testIndividual)
 
       val result = await(underTest.fetchIndividualByNino(Nino(nino))(request))
 
@@ -229,7 +247,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
 
     "return a 404 (Not Found) when there is no individual matching the NINO" in new Setup {
 
-      given(underTest.testUserService.fetchIndividualByNino(refEq(Nino(nino)))(any())).willReturn(failed(UserNotFound(INDIVIDUAL)))
+      given(underTest.testUserService.fetchIndividualByNino(eqTo(Nino(nino)))(any())).willReturn(failed(UserNotFound(INDIVIDUAL)))
 
       val result = await(underTest.fetchIndividualByNino(Nino(nino))(request))
 
@@ -239,7 +257,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
 
     "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        given(underTest.testUserService.fetchIndividualByNino(refEq(Nino(nino)))(any()))
+        given(underTest.testUserService.fetchIndividualByNino(eqTo(Nino(nino)))(any()))
           .willReturn(failed(new RuntimeException("expected test error")))
 
         val result = await(underTest.fetchIndividualByNino(Nino(nino))(request))
@@ -253,7 +271,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
   "fetchIndividualByShortNino" should {
     "return 200 (Ok) with the individual" in new Setup {
 
-      given(underTest.testUserService.fetchIndividualByShortNino(refEq(NinoNoSuffix(shortNino)))(any())).willReturn(testIndividual)
+      given(underTest.testUserService.fetchIndividualByShortNino(eqTo(NinoNoSuffix(shortNino)))(any())).willReturn(testIndividual)
 
       val result = await(underTest.fetchIndividualByShortNino(NinoNoSuffix(shortNino))(request))
 
@@ -263,7 +281,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
 
     "return a 404 (Not Found) when there is no individual matching the short nino" in new Setup {
 
-      given(underTest.testUserService.fetchIndividualByShortNino(refEq(NinoNoSuffix(shortNino)))(any())).willReturn(failed(UserNotFound(INDIVIDUAL)))
+      given(underTest.testUserService.fetchIndividualByShortNino(eqTo(NinoNoSuffix(shortNino)))(any())).willReturn(failed(UserNotFound(INDIVIDUAL)))
 
       val result = await(underTest.fetchIndividualByShortNino(NinoNoSuffix(shortNino))(request))
 
@@ -273,7 +291,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
 
     "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        given(underTest.testUserService.fetchIndividualByShortNino(refEq(NinoNoSuffix(shortNino)))(any()))
+        given(underTest.testUserService.fetchIndividualByShortNino(eqTo(NinoNoSuffix(shortNino)))(any()))
           .willReturn(failed(new RuntimeException("expected test error")))
 
         val result = await(underTest.fetchIndividualByShortNino(NinoNoSuffix(shortNino))(request))
@@ -287,7 +305,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
   "fetchIndividualBySaUtr" should {
     "return 200 (Ok) with the individual" in new Setup {
 
-      given(underTest.testUserService.fetchIndividualBySaUtr(refEq(SaUtr(saUtr)))(any())).willReturn(testIndividual)
+      given(underTest.testUserService.fetchIndividualBySaUtr(eqTo(SaUtr(saUtr)))(any())).willReturn(testIndividual)
 
       val result = await(underTest.fetchIndividualBySaUtr(SaUtr(saUtr))(request))
 
@@ -297,7 +315,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
 
     "return a 404 (Not Found) when there is no individual matching the saUtr" in new Setup {
 
-      given(underTest.testUserService.fetchIndividualBySaUtr(refEq(SaUtr(saUtr)))(any())).willReturn(failed(UserNotFound(INDIVIDUAL)))
+      given(underTest.testUserService.fetchIndividualBySaUtr(eqTo(SaUtr(saUtr)))(any())).willReturn(failed(UserNotFound(INDIVIDUAL)))
 
       val result = await(underTest.fetchIndividualBySaUtr(SaUtr(saUtr))(request))
 
@@ -307,7 +325,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
 
     "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        given(underTest.testUserService.fetchIndividualBySaUtr(refEq(SaUtr(saUtr)))(any()))
+        given(underTest.testUserService.fetchIndividualBySaUtr(eqTo(SaUtr(saUtr)))(any()))
           .willReturn(failed(new RuntimeException("expected test error")))
 
         val result = await(underTest.fetchIndividualBySaUtr(SaUtr(saUtr))(request))
@@ -321,7 +339,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
   "fetchOrganisationByEmpref" should {
     "return 200 (Ok) with the organisation" in new Setup {
 
-      given(underTest.testUserService.fetchOrganisationByEmpRef(refEq(EmpRef.fromIdentifiers(empRef)))(any())).willReturn(testOrganisation)
+      given(underTest.testUserService.fetchOrganisationByEmpRef(eqTo(EmpRef.fromIdentifiers(empRef)))(any())).willReturn(testOrganisation)
 
       val result = await(underTest.fetchOrganisationByEmpRef(EmpRef.fromIdentifiers(empRef))(request))
 
@@ -331,7 +349,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
 
     "return a 404 (Not Found) when there is no organisation matching the empRef" in new Setup {
 
-      given(underTest.testUserService.fetchOrganisationByEmpRef(refEq(EmpRef.fromIdentifiers(empRef)))(any())).
+      given(underTest.testUserService.fetchOrganisationByEmpRef(eqTo(EmpRef.fromIdentifiers(empRef)))(any())).
         willReturn(failed(UserNotFound(ORGANISATION)))
 
       val result = await(underTest.fetchOrganisationByEmpRef(EmpRef.fromIdentifiers(empRef))(request))
@@ -342,7 +360,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
 
     "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        given(underTest.testUserService.fetchOrganisationByEmpRef(refEq(EmpRef.fromIdentifiers(empRef)))(any()))
+        given(underTest.testUserService.fetchOrganisationByEmpRef(eqTo(EmpRef.fromIdentifiers(empRef)))(any()))
           .willReturn(failed(new RuntimeException("expected test error")))
 
         val result = await(underTest.fetchOrganisationByEmpRef(EmpRef.fromIdentifiers(empRef))(request))

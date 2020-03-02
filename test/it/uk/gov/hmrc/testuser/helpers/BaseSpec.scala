@@ -23,7 +23,7 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import it.uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import org.scalatest._
-import org.scalatestplus.play.OneServerPerSuite
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.testuser.repository.TestUserRepository
@@ -32,11 +32,10 @@ import scala.concurrent.Await._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
-trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with OneServerPerSuite
+trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with GuiceOneServerPerSuite
 with GivenWhenThen {
 
-  override lazy val port = 9000
-  implicit override lazy val app: Application = GuiceApplicationBuilder().configure(
+    override def fakeApplication(): Application =  GuiceApplicationBuilder().configure(
       "auditing.enabled" -> false,
       "auditing.traceRequests" -> false,
       "microservice.services.auth-login-api.port" -> AuthLoginApiStub.port,

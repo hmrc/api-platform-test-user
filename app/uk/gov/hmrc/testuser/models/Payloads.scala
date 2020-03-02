@@ -17,7 +17,6 @@
 package uk.gov.hmrc.testuser.models
 
 import org.joda.time.LocalDate
-import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 
 case class AuthenticationRequest(username: String, password: String)

@@ -34,7 +34,7 @@ class PlatformIntegrationSpec extends UnitSpec with ScalaFutures with GuiceOneAp
   trait Setup {
     implicit def mat: akka.stream.Materializer = app.injector.instanceOf[akka.stream.Materializer]
 
-    val documentationController = new DocumentationController(LazyHttpErrorHandler) {}
+    val documentationController = app.injector.instanceOf[DocumentationController]
     val request = FakeRequest()
   }
 
