@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.testuser.util
+package uk.gov.hmrc.testuser.util
 
 import org.joda.time.LocalDate
 import org.scalatest.{FlatSpec, Matchers}
-import uk.gov.hmrc.testuser.util.Randomiser
 
 class RandomiserSpec extends FlatSpec with Matchers {
 

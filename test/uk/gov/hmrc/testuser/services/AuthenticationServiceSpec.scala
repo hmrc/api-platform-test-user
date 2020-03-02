@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.testuser.services
+package uk.gov.hmrc.testuser.services
 
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.BDDMockito.given
 import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
-import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.LegacySandboxUser._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
-import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
-import uk.gov.hmrc.testuser.services.{AuthenticationService, PasswordService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful

@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.testuser.models
+package uk.gov.hmrc.testuser.models
 
 import org.scalatest.{FlatSpec, Matchers}
-import uk.gov.hmrc.domain.AgentBusinessUtr
-import uk.gov.hmrc.testuser.models._
 
 class TestUserSpec extends FlatSpec with Matchers {
   val userId = "1234567890"

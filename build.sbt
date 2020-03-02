@@ -46,7 +46,7 @@ lazy val test = Seq(
 lazy val plugins: Seq[Plugins] = Seq.empty
 lazy val playSettings: Seq[Setting[_]] = Seq(routesImport ++= Seq("uk.gov.hmrc.domain._", "uk.gov.hmrc.testuser.models._", "uk.gov.hmrc.testuser.Binders._"))
 
-def unitFilter(name: String): Boolean = name startsWith "unit"
+//def unitFilter(name: String): Boolean = name startsWith "unit"
 
 lazy val microservice = (project in file("."))
   .enablePlugins(Seq(_root_.play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory) ++ plugins: _*)
@@ -63,7 +63,7 @@ lazy val microservice = (project in file("."))
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     parallelExecution in Test := false,
     fork in Test := false,
-    testOptions in Test := Seq(Tests.Filter(unitFilter)),
+//    testOptions in Test := Seq(Tests.Filter(unitFilter)),
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
     majorVersion := 0
   )

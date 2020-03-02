@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.testuser.connectors
+package uk.gov.hmrc.testuser.connectors
 
 import org.joda.time.LocalDate
-import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.connectors.{Enrolment, GovernmentGatewayLogin, Identifier}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 

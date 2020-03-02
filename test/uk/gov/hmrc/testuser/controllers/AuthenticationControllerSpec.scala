@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.testuser.controllers
+package uk.gov.hmrc.testuser.controllers
 
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
-import common.LogSuppressing
+import uk.gov.hmrc.testuser.common.LogSuppressing
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.{any, refEq}
 import org.mockito.Mockito._
@@ -28,11 +28,9 @@ import play.api.http.HeaderNames
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, UNAUTHORIZED}
 import play.api.libs.json.{Json, JsValue}
 import play.api.libs.json.Json.toJson
-import play.api.mvc.ControllerComponents
 import play.api.test._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.controllers.AuthenticationController
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.ServiceKeys._

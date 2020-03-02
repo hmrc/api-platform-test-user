@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.testuser.services
+package uk.gov.hmrc.testuser.services
 
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.services.{PasswordConfig, PasswordService}
 
 class PasswordServiceSpec extends UnitSpec {
 

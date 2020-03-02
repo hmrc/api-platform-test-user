@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.testuser.docs
+package uk.gov.hmrc.testuser.docs
 
 import com.eclipsesource.schema._
 import org.scalatest.mockito.MockitoSugar

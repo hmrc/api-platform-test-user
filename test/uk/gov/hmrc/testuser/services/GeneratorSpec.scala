@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.testuser.services
+package uk.gov.hmrc.testuser.services
 
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.any
@@ -24,10 +24,9 @@ import org.scalatest.enablers.{Definition, Emptiness}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.prop.PropertyChecks
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
-import uk.gov.hmrc.testuser.services.{Generator, VrnChecksum}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions

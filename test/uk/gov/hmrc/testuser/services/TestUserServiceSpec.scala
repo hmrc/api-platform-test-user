@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.testuser.services
+package uk.gov.hmrc.testuser.services
 
-import common.LogSuppressing
+import uk.gov.hmrc.testuser.common.LogSuppressing
 import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.BDDMockito.given
 import org.mockito.Mockito.{times, verify, when}
@@ -28,10 +28,9 @@ import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
-import uk.gov.hmrc.testuser.models.ServiceKeys.{ServiceKey => _}
 import uk.gov.hmrc.testuser.models.{UserNotFound, _}
+import uk.gov.hmrc.testuser.models.ServiceKeys.{ServiceKey => _}
 import uk.gov.hmrc.testuser.repository.TestUserRepository
-import uk.gov.hmrc.testuser.services.{Generator, PasswordService, TestUserService}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{failed, successful}
