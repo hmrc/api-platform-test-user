@@ -101,5 +101,6 @@ coverageExcludedPackages :=
   "testOnlyDoNotUseInAppConf.*;" +
   "app.*;" +
   "uk.gov.hmrc.BuildInfo;" +
+  "uk.gov.hmrc.testuser.MicroserviceModule;" +
   "uk.gov.hmrc.testuser.controllers.javascript.*;" +
-  "uk.gov.hmrc.testuser.controllers.ReverseDocumentationController;"
+  "uk.gov.hmrc.testuser.controllers.Reverse.*;"
