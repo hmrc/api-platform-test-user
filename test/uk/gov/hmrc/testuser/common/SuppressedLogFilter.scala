@@ -54,7 +54,7 @@ trait LogSuppressing {
   def withSuppressedLoggingFrom(logger: Logger, messagesContaining: String)(body: (=> SuppressedLogFilter) => Unit) {
 
     val appenders = logger.iteratorForAppenders().toList
-    val appendersWithFilters = appenders.map(appender => appender->appender.getCopyOfAttachedFiltersList)
+    val appendersWithFilters = appenders.map(appender => appender -> appender.getCopyOfAttachedFiltersList)
 
     val filter = new SuppressedLogFilter(messagesContaining)
     appenders.foreach(_.addFilter(filter))
@@ -62,8 +62,8 @@ trait LogSuppressing {
     try body(filter)
     finally {
       appendersWithFilters.foreach { case(appender, filters) =>
-        appender.clearAllFilters
-        filters.foreach(appender.addFilter(_))
+        appender.clearAllFilters()
+        filters.foreach(appender.addFilter)
       }
     }
   }
