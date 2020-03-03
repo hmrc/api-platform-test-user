@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.testuser.services
 
+import com.typesafe.config.Config
 import javax.inject.{Inject, Singleton}
 import org.joda.time.LocalDate
 import org.scalacheck.Gen
 import play.api.Logger
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.util.Randomiser
 
@@ -30,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 @Singleton
-class Generator @Inject()(val testUserRepository: TestUserRepository)(implicit ec: ExecutionContext) extends Randomiser {
+class Generator @Inject()(val testUserRepository: TestUserRepository, val config: Config)(implicit ec: ExecutionContext) extends Randomiser {
 
   private val userIdGenerator = Gen.listOfN(12, Gen.numChar).map(_.mkString)
   private val passwordGenerator = Gen.listOfN(12, Gen.alphaNumChar).map(_.mkString)

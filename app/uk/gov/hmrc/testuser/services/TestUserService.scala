@@ -51,7 +51,8 @@ class TestUserService @Inject()(val passwordService: PasswordService,
     generator.generateTestOrganisation(serviceNames).flatMap { organisation =>
       val hashedPassword = passwordService.hash(organisation.password)
       testUserRepository.createUser(organisation.copy(password = hashedPassword)) map {
-        case createdOrganisation if createdOrganisation.services.contains(ServiceKeys.MTD_INCOME_TAX) => desSimulatorConnector.createOrganisation(createdOrganisation)
+        case createdOrganisation
+          if createdOrganisation.services.contains(ServiceKeys.MTD_INCOME_TAX) => desSimulatorConnector.createOrganisation(createdOrganisation)
         case _ => Future.successful(organisation)
       } map {
         _ => organisation
@@ -67,31 +68,26 @@ class TestUserService @Inject()(val passwordService: PasswordService,
   }
 
   def fetchIndividualByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    testUserRepository.fetchIndividualByNino(nino) map getOrFailWithUserNotFound[TestIndividual](INDIVIDUAL)
+    testUserRepository.fetchIndividualByNino(nino) map(t => t.getOrElse(throw UserNotFound(INDIVIDUAL)))
   }
 
   def fetchIndividualByShortNino(shortNino: NinoNoSuffix)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    testUserRepository.fetchIndividualByShortNino(shortNino) map getOrFailWithUserNotFound[TestIndividual](INDIVIDUAL)
+    testUserRepository.fetchIndividualByShortNino(shortNino) map(t => t.getOrElse(throw UserNotFound(INDIVIDUAL)))
   }
 
   def fetchIndividualBySaUtr(saUtr: SaUtr)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    testUserRepository.fetchIndividualBySaUtr(saUtr) map getOrFailWithUserNotFound[TestIndividual](INDIVIDUAL)
+    testUserRepository.fetchIndividualBySaUtr(saUtr) map(t => t.getOrElse(throw UserNotFound(INDIVIDUAL)))
   }
 
   def fetchIndividualByVrn(vrn: Vrn)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    testUserRepository.fetchIndividualByVrn(vrn) map getOrFailWithUserNotFound[TestIndividual](INDIVIDUAL)
+    testUserRepository.fetchIndividualByVrn(vrn) map(t => t.getOrElse(throw UserNotFound(INDIVIDUAL)))
   }
 
   def fetchOrganisationByEmpRef(empRef: EmpRef)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
-    testUserRepository.fetchOrganisationByEmpRef(empRef) map getOrFailWithUserNotFound[TestOrganisation](ORGANISATION)
+    testUserRepository.fetchOrganisationByEmpRef(empRef) map(t => t.getOrElse(throw UserNotFound(ORGANISATION)))
   }
 
   def fetchOrganisationByVrn(vrn: Vrn)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
-    testUserRepository.fetchOrganisationByVrn(vrn) map getOrFailWithUserNotFound[TestOrganisation](ORGANISATION)
-  }
-
-  def getOrFailWithUserNotFound[T <: TestUser](userType: UserType.Value) = PartialFunction[Option[T], T] {
-    case Some(t) => t
-    case _ => throw UserNotFound(userType)
+    testUserRepository.fetchOrganisationByVrn(vrn) map(t => t.getOrElse(throw UserNotFound(ORGANISATION)))
   }
 }

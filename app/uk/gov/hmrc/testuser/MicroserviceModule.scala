@@ -35,9 +35,7 @@ package uk.gov.hmrc.testuser
 import com.google.inject.AbstractModule
 import javax.inject.{Inject, Provider}
 import play.api.{Configuration, Environment, Logger}
-import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import uk.gov.hmrc.testuser.services.PasswordConfig
 
 class MicroserviceModule(val environment: Environment, val configuration: Configuration) extends AbstractModule {

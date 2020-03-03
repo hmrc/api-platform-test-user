@@ -1,3 +1,5 @@
+import sbt.Keys.baseDirectory
+import sbt.Test
 import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.DefaultBuildSettings._
 import uk.gov.hmrc.SbtAutoBuildPlugin
@@ -9,11 +11,12 @@ lazy val appName = "api-platform-test-user"
 lazy val appDependencies: Seq[ModuleID] = compile ++ test
 lazy val akkaVersion = "2.5.23"
 lazy val akkaHttpVersion = "10.0.15"
+lazy val scope: String = "test, it"
 
 lazy val compile = Seq(
   "uk.gov.hmrc" %% "bootstrap-play-26" % "1.4.0",
   "uk.gov.hmrc" %% "play-ui" % "8.8.0-play-26",
-  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.5.0",
+  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.11.0",
   "uk.gov.hmrc" %% "domain" % "5.6.0-play-26",
   "uk.gov.hmrc" %% "mongo-lock" % "6.15.0-play-26",
 
@@ -29,25 +32,23 @@ lazy val compile = Seq(
   "com.typesafe.akka" %% "akka-http-core" % akkaHttpVersion force()
 )
 
-lazy val scope: String = "test, it"
-
 lazy val test = Seq(
   "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-26" % scope,
   "uk.gov.hmrc" %% "reactivemongo-test" % "4.15.0-play-26" % scope,
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % scope,
   "org.pegdown" % "pegdown" % "1.6.0" % scope,
   "org.mockito" % "mockito-core" % "2.10.0" % scope,
-  "org.scalaj" %% "scalaj-http" % "1.1.6" % scope,
+  "org.scalaj" %% "scalaj-http" % "2.4.2" % scope,
   "com.github.tomakehurst" % "wiremock-jre8" % "2.21.0" % scope,
   "org.scalacheck" %% "scalacheck" % "1.13.5",
   "com.eclipsesource" %% "play-json-schema-validator" % "0.9.4" % scope
 )
 
 lazy val plugins: Seq[Plugins] = Seq.empty
+
 lazy val playSettings: Seq[Setting[_]] = Seq(routesImport ++= Seq("uk.gov.hmrc.domain._", "uk.gov.hmrc.testuser.models._", "uk.gov.hmrc.testuser.Binders._"))
 
-def unitFilter(name: String): Boolean = name startsWith "unit"
-def itTestFilter(name: String): Boolean = name startsWith "it"
+def emuellerBintrayResolver: MavenRepository = "emueller-bintray" at "https://dl.bintray.com/emueller/maven"
 
 lazy val microservice = (project in file("."))
   .enablePlugins(Seq(_root_.play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory) ++ plugins: _*)
@@ -58,36 +59,39 @@ lazy val microservice = (project in file("."))
   .settings(
     name := appName,
     targetJvm := "jvm-1.8",
-    scalaVersion := "2.11.11",
+    scalaVersion := "2.12.10",
     libraryDependencies ++= appDependencies,
     retrieveManaged := true,
-    evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
-    parallelExecution in Test := false,
-    fork in Test := false,
-    testOptions in Test := Seq(Tests.Filter(unitFilter)),
-    testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
+    evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(warnScalaVersionEviction = false),
+    resolvers ++= Seq(
+      Resolver.bintrayRepo("hmrc", "releases"),
+      Resolver.jcenterRepo,
+      emuellerBintrayResolver
+    ),
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
     majorVersion := 0
   )
-  .settings(unmanagedResourceDirectories in Compile += baseDirectory.value / "resources")
-  .configs(IntegrationTest)
-  .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
+  .configs(Test)
   .settings(
-    Keys.fork in IntegrationTest := false,
-    testOptions in IntegrationTest := Seq(Tests.Filter(itTestFilter)),
-    testOptions in IntegrationTest += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
-    unmanagedSourceDirectories in IntegrationTest := Seq((baseDirectory in IntegrationTest).value / "test"),
-    addTestReportOption(IntegrationTest, "int-test-reports"),
-    testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
-    parallelExecution in IntegrationTest := false)
-  .settings(resolvers ++= Seq(
-    Resolver.bintrayRepo("hmrc", "releases"),
-    Resolver.jcenterRepo,
-    "emueller-bintray" at "http://dl.bintray.com/emueller/maven"
-  ))
+    Test / parallelExecution := false,
+    Test / fork := false,
+    Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
+    Test / unmanagedResourceDirectories += baseDirectory.value / "test" / "resources"
+  )
+  .configs(IntegrationTest)
+  .settings(
+    Defaults.itSettings,
+    IntegrationTest / Keys.fork := false,
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it",
+    IntegrationTest / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
+    IntegrationTest / testGrouping := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
+    IntegrationTest / parallelExecution := false,
+    addTestReportOption(IntegrationTest, "int-test-reports")
+  )
 
-def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
-  tests map {
-    test => Group(test.name, Seq(test), SubProcess(ForkOptions(runJVMOptions = Seq("-Dtest.name=" + test.name))))
+def oneForkedJvmPerTest(tests: Seq[TestDefinition]): Seq[Group] =
+  tests map { test =>
+    Group(test.name, Seq(test), SubProcess(ForkOptions().withRunJVMOptions(Vector("-Dtest.name=" + test.name))))
   }
 
 // Coverage configuration
