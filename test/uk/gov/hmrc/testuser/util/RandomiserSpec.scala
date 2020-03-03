@@ -16,13 +16,29 @@
 
 package uk.gov.hmrc.testuser.util
 
+import com.typesafe.config.ConfigFactory
 import org.joda.time.LocalDate
 import org.scalatest.{FlatSpec, Matchers}
 
 class RandomiserSpec extends FlatSpec with Matchers {
 
   private val randomiser = new Randomiser {
-    override val fileName = "randomiser-test"
+    val config = ConfigFactory.parseString(
+      """
+        |randomiser {
+        |
+        |  oneEntry = [
+        |      "entry"
+        |    ]
+        |
+        |  twoEntries = [
+        |    "entry1",
+        |    "entry2"
+        |  ]
+        |
+        |}
+        |""".stripMargin
+    )
   }
 
   "Randomiser" should "generate a random nino eligible date of birth" in {

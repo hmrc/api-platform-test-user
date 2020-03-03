@@ -1,3 +1,5 @@
+import sbt.Keys.baseDirectory
+import sbt.Test
 import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.DefaultBuildSettings._
 import uk.gov.hmrc.SbtAutoBuildPlugin
@@ -66,6 +68,7 @@ lazy val microservice = (project in file("."))
       Resolver.jcenterRepo,
       emuellerBintrayResolver
     ),
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
     majorVersion := 0
   )
   .configs(Test)

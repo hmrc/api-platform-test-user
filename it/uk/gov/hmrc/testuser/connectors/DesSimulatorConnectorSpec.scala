@@ -25,23 +25,22 @@ import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.testuser.helpers.GeneratorProvider
 import uk.gov.hmrc.testuser.helpers.stubs.DesSimulatorStub
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
-import uk.gov.hmrc.testuser.services.Generator
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class DesSimulatorConnectorSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach with WithFakeApplication {
-  val generatorTestUserRepository = mock[TestUserRepository]
-  when(generatorTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-  val generator = new Generator(generatorTestUserRepository)
-  val testIndividual = await(generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE)))
-  val testOrganisation = await(generator.generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX)))
+  trait Setup extends GeneratorProvider {
+    val repository = mock[TestUserRepository]
+    when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-  trait Setup {
+    val testIndividual = await(generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE)))
+    val testOrganisation = await(generator.generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX)))
+
     implicit val hc = HeaderCarrier()
 
     val underTest = new DesSimulatorConnector(

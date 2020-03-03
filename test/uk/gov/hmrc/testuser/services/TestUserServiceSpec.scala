@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.testuser.services
 
-import uk.gov.hmrc.testuser.common.LogSuppressing
+import com.typesafe.config.ConfigFactory
 import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.BDDMockito.given
 import org.mockito.Mockito.{times, verify, when}
@@ -27,13 +27,14 @@ import play.api.Logger
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.testuser.common.LogSuppressing
 import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
-import uk.gov.hmrc.testuser.models.{UserNotFound, _}
 import uk.gov.hmrc.testuser.models.ServiceKeys.{ServiceKey => _}
+import uk.gov.hmrc.testuser.models.{UserNotFound, _}
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{failed, successful}
+import scala.concurrent.{ExecutionContext, Future}
 
 class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing {
   implicit def ec = ExecutionContext.global
@@ -50,7 +51,40 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   val empRef = "555/EIA000"
 
   val individualServices = Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
-  val generator = new Generator(mockTestUserRepository)
+  val config = ConfigFactory.parseString(
+    """randomiser {
+      |  individualDetails {
+      |    firstName = [
+      |      "Adrian"
+      |    ]
+      |
+      |    lastName = [
+      |      "Adams"
+      |    ]
+      |
+      |    dateOfBirth = [
+      |      "1940-10-10"
+      |    ]
+      |  }
+      |
+      |  address {
+      |    line1 = [
+      |      "1 Abbey Road"
+      |    ]
+      |
+      |    line2 = [
+      |      "Aberdeen"
+      |    ]
+      |
+      |    postcode = [
+      |      "TS1 1PA"
+      |    ]
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  val generator = new Generator(mockTestUserRepository, config)
   val testIndividualWithNoServices = generator.generateTestIndividual()
     .copy(
       userId = userId,

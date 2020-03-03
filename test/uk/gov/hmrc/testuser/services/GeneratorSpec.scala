@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.testuser.services
 
+import com.typesafe.config.ConfigFactory
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -24,23 +25,62 @@ import org.scalatest.enablers.{Definition, Emptiness}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.prop.PropertyChecks
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
 
+trait GeneratorProvider {
+
+  val config = ConfigFactory.parseString(
+    """randomiser {
+      |  individualDetails {
+      |    firstName = [
+      |      "Adrian"
+      |    ]
+      |
+      |    lastName = [
+      |      "Adams"
+      |    ]
+      |
+      |    dateOfBirth = [
+      |      "1940-10-10"
+      |    ]
+      |  }
+      |
+      |  address {
+      |    line1 = [
+      |      "1 Abbey Road"
+      |    ]
+      |
+      |    line2 = [
+      |      "Aberdeen"
+      |    ]
+      |
+      |    postcode = [
+      |      "TS1 1PA"
+      |    ]
+      |  }
+      |}
+      |""".stripMargin)
+
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
+  def repository: TestUserRepository
+
+  def generator: Generator = new Generator(repository, config)
+}
+
+
 class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
 
-  trait Setup {
-    implicit def ec = ExecutionContext.Implicits.global
+  trait Setup extends GeneratorProvider {
 
-    val mockTestUserRepository = mock[TestUserRepository]
+    val repository = mock[TestUserRepository]
 
-    val underTest = new Generator(mockTestUserRepository) {
-      override val fileName = "randomiser-unique-values"
-    }
+   val underTest = generator
   }
   
   trait Checker {
@@ -65,7 +105,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate a NINO and MTD IT ID when MTD_INCOME_TAX service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val individual = await(underTest.generateTestIndividual(Seq(MTD_INCOME_TAX)))
 
@@ -73,7 +113,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate a NINO when NATIONAL_INSURANCE service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE)))
 
@@ -81,7 +121,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate a SA UTR when SELF_ASSESSMENT service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val individual = await(underTest.generateTestIndividual(Seq(SELF_ASSESSMENT)))
 
@@ -89,7 +129,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate an EORI when CUSTOMS_SERVICES service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val individual = await(underTest.generateTestIndividual(Seq(CUSTOMS_SERVICES)))
 
@@ -97,7 +137,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate individualDetails from the configuration file" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX)))
 
@@ -106,7 +146,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate a VRN when MTD_VAT service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val individual = await(underTest.generateTestIndividual(Seq(MTD_VAT)))
 
@@ -114,7 +154,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "set the userFullName and emailAddress" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX)))
 
@@ -124,21 +164,21 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "regenerate SA UTR if it is a duplicate" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(false), Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(false), Future(true))
 
       val individual = await(underTest.generateTestIndividual(Seq(SELF_ASSESSMENT)))
 
       individual shouldHave(saUtrDefined = true)
-      verify(mockTestUserRepository, times(2)).identifierIsUnique(any[String])
+      verify(repository, times(2)).identifierIsUnique(any[String])
     }
 
     "regenerate NINO if it is a duplicate" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(false), Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(false), Future(true))
 
       val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE)))
 
       individual shouldHave(ninoDefined = true)
-      verify(mockTestUserRepository, times(2)).identifierIsUnique(any[String])
+      verify(repository, times(2)).identifierIsUnique(any[String])
     }
   }
 
@@ -164,7 +204,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate a NINO and MTD IT ID when MTD_INCOME_TAX service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val org = await(underTest.generateTestOrganisation(Seq(MTD_INCOME_TAX)))
 
@@ -172,7 +212,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate a NINO when NATIONAL_INSURANCE service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val org = await(underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE)))
 
@@ -180,7 +220,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate a EMPREF when PAYE_FOR_EMPLOYERS service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val org = await(underTest.generateTestOrganisation(Seq(PAYE_FOR_EMPLOYERS)))
 
@@ -188,7 +228,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate a CT UTR when CORPORATION_TAX service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val org = await(underTest.generateTestOrganisation(Seq(CORPORATION_TAX)))
 
@@ -196,7 +236,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate a SA UTR when SELF_ASSESSMENT service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val org = await(underTest.generateTestOrganisation(Seq(SELF_ASSESSMENT)))
 
@@ -204,7 +244,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate a VRN when SUBMIT_VAT_RETURNS service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val org = await(underTest.generateTestOrganisation(Seq(SUBMIT_VAT_RETURNS)))
 
@@ -212,7 +252,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate a VRN when MTD_VAT service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val org = await(underTest.generateTestOrganisation(Seq(MTD_VAT)))
 
@@ -220,7 +260,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate a lisaManagerReferenceNumber when LISA service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val org = await(underTest.generateTestOrganisation(Seq(LISA)))
 
@@ -228,7 +268,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate a secureElectronicTransferReferenceNumber when SECURE_ELECTRONIC_TRANSFER service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val org = await(underTest.generateTestOrganisation(Seq(SECURE_ELECTRONIC_TRANSFER)))
 
@@ -236,7 +276,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate a pensionSchemeAdministratorIdentifier when RELIEF_AT_SOURCE service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val org = await(underTest.generateTestOrganisation(Seq(RELIEF_AT_SOURCE)))
 
@@ -244,7 +284,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate an EORI when CUSTOMS_SERVICES service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val org = await(underTest.generateTestOrganisation(Seq(CUSTOMS_SERVICES)))
 
@@ -252,7 +292,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "set the userFullName and emailAddress" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val organisation = underTest.generateTestOrganisation(Seq(MTD_INCOME_TAX))
 
@@ -264,27 +304,27 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "regenerate VRN if it is a duplicate" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(false), Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(false), Future(true))
 
       val organisation = await(underTest.generateTestOrganisation(Seq(SUBMIT_VAT_RETURNS)))
 
       organisation shouldHave(vrnDefined = true)
-      verify(mockTestUserRepository, times(2)).identifierIsUnique(any[String])
+      verify(repository, times(2)).identifierIsUnique(any[String])
     }
 
     "regenerate Employer Reference if it is a duplicate" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(false), Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(false), Future(true))
 
       val organisation = await(underTest.generateTestOrganisation(Seq(PAYE_FOR_EMPLOYERS)))
 
       organisation shouldHave(empRefDefined = true)
-      verify(mockTestUserRepository, times(2)).identifierIsUnique(any[String])
+      verify(repository, times(2)).identifierIsUnique(any[String])
     }
   }
 
   "generateTestAgent" should {
     "not generate any identifiers when no services are included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val agent = underTest.generateTestAgent(Seq.empty)
 
@@ -292,7 +332,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "generate an agent reference number when AGENT_SERVICES service is included" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val agent = underTest.generateTestAgent(Seq(AGENT_SERVICES))
 
@@ -300,7 +340,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
     }
 
     "set the userFullName and emailAddress" in new Setup {
-      when(mockTestUserRepository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val agent = underTest.generateTestAgent(Seq(AGENT_SERVICES))
 

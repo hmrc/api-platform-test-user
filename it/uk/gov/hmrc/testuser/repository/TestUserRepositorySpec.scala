@@ -23,24 +23,29 @@ import reactivemongo.api.indexes.IndexType.Ascending
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.mongo.MongoSpecSupport
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.helpers.GeneratorProvider
 import uk.gov.hmrc.testuser.models.ServiceKeys._
-import uk.gov.hmrc.testuser.services.Generator
+import uk.gov.hmrc.testuser.models._
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 
 class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with BeforeAndAfterAll with MongoSpecSupport with IndexVerification {
   private val mongoComponent = new ReactiveMongoComponent {
     override def mongoConnector = mongoConnectorForTest
   }
-  val repository = new TestUserRepository(mongoComponent)
-  val generator = new Generator(repository)
 
-  trait GeneratedTestIndividual {
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  val userRepository = new TestUserRepository(mongoComponent)
+
+  trait GeneratedTestIndividual extends GeneratorProvider {
+    val repository = userRepository
+
     val testIndividual = await(generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_VAT, CUSTOMS_SERVICES)))
   }
 
-  trait GeneratedTestOrganisation {
+  trait GeneratedTestOrganisation extends GeneratorProvider {
+    val repository = userRepository
+
     val testOrganisation =
       await(
         generator.generateTestOrganisation(
@@ -48,22 +53,22 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
   }
 
   override def afterEach: Unit = {
-    repository.removeAll()
+    userRepository.removeAll()
   }
 
   "indexes" should {
     "be created for userId" in {
       val expectedIndex = Set(Index(key = Seq("userId" -> Ascending), name = Some("userIdIndex"), unique = true, background = true))
-      verifyIndexesVersionAgnostic(repository, expectedIndex)
+      verifyIndexesVersionAgnostic(userRepository, expectedIndex)
     }
 
     "be created for all identifier fields" in {
       def expectedIndexes: Set[Index] =
-        repository.IdentifierFields
+        userRepository.IdentifierFields
           .map(identifierField => Index(key = Seq(identifierField -> Ascending), name = Some(s"$identifierField-Index"), unique = false, background = true))
           .toSet
 
-      verifyIndexesVersionAgnostic(repository, expectedIndexes)
+      verifyIndexesVersionAgnostic(userRepository, expectedIndexes)
     }
   }
 
@@ -104,7 +109,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
 
     "return None when no user matches the userId" in {
 
-      val result = await(repository.fetchByUserId("unknown"))
+      val result = await(userRepository.fetchByUserId("unknown"))
 
       result shouldBe None
     }
@@ -121,7 +126,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
     }
 
     "return None when there is no individual matching" in {
-      val result = await(repository.fetchIndividualByNino(Nino("CC333334C")))
+      val result = await(userRepository.fetchIndividualByNino(Nino("CC333334C")))
 
       result shouldBe None
     }
@@ -150,7 +155,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
     }
 
     "return None when there is no individual matching" in {
-      val result = await(repository.fetchIndividualByShortNino(invalidShortNino))
+      val result = await(userRepository.fetchIndividualByShortNino(invalidShortNino))
 
       result shouldBe None
     }
@@ -183,7 +188,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
     }
 
     "return None when there is no individual matching" in {
-      val result = await(repository.fetchIndividualBySaUtr(SaUtr("1555369052")))
+      val result = await(userRepository.fetchIndividualBySaUtr(SaUtr("1555369052")))
 
       result shouldBe None
     }
@@ -208,7 +213,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
     }
 
     "return None when there is no individual matching" in {
-      val result = await(repository.fetchIndividualByVrn(Vrn("1555369052")))
+      val result = await(userRepository.fetchIndividualByVrn(Vrn("1555369052")))
 
       result shouldBe None
     }

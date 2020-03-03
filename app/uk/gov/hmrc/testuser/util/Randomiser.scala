@@ -16,16 +16,15 @@
 
 package uk.gov.hmrc.testuser.util
 
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.Config
 import org.joda.time.LocalDate
 
 import scala.collection.JavaConverters._
 import scala.util.Random
 
 trait Randomiser {
-  val fileName = "randomiser"
+  def config: Config
 
-  private lazy val config = ConfigFactory.load(fileName)
   private lazy val minimumSchoolLeavingAge = 16
   private lazy val maximumAgeOfIndividual = 100
   private lazy val ageRange = minimumSchoolLeavingAge to maximumAgeOfIndividual
