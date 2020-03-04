@@ -22,8 +22,8 @@ lazy val compile = Seq(
 
   "org.mindrot" % "jbcrypt" % "0.4",
 
-  "com.typesafe.play" %% "play-json" % "2.6.14",
-  "com.typesafe.play" %% "play-json-joda" % "2.6.4",
+  "com.typesafe.play" %% "play-json" % "2.8.1",
+  "com.typesafe.play" %% "play-json-joda" % "2.8.1",
 
   "com.typesafe.akka" %% "akka-stream"    % akkaVersion     force(),
   "com.typesafe.akka" %% "akka-protobuf"  % akkaVersion     force(),
