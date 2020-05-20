@@ -37,6 +37,7 @@ object ServiceKeys extends Enumeration {
   val SECURE_ELECTRONIC_TRANSFER: ServiceKeys.Value = Value("secure-electronic-transfer")
   val RELIEF_AT_SOURCE: ServiceKeys.Value = Value("relief-at-source")
   val CUSTOMS_SERVICES: ServiceKeys.Value = Value("customs-services")
+  val ICS_SAFETY_AND_SECURITY: ServiceKeys.Value = Value("ics-safety-and-security")
 }
 
 case class Service(key: ServiceKey, name: String, allowedUserTypes: Seq[UserType])
@@ -54,7 +55,9 @@ object Services extends Seq[Service] {
     Service(ServiceKeys.LISA, "Lifetime ISA", Seq(ORGANISATION)),
     Service(ServiceKeys.SECURE_ELECTRONIC_TRANSFER, "Secure Electronic Transfer", Seq(ORGANISATION)),
     Service(ServiceKeys.RELIEF_AT_SOURCE, "Relief at Source", Seq(ORGANISATION)),
-    Service(ServiceKeys.CUSTOMS_SERVICES, "Customs Services", Seq(INDIVIDUAL, ORGANISATION)))
+    Service(ServiceKeys.CUSTOMS_SERVICES, "Customs Services", Seq(INDIVIDUAL, ORGANISATION)),
+    Service(ServiceKeys.ICS_SAFETY_AND_SECURITY, "ICS Safety and Security", Seq(INDIVIDUAL, ORGANISATION)))
+
 
   override def length: Int = services.length
 
