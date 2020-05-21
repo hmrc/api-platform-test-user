@@ -53,6 +53,10 @@
           {
             "enum": ["customs-services"],
             "description": "Generates an EORI number and enrols the user for Customs Services."
+          },
+          {
+            "enum": ["ics-safety-and-security"],
+            "description": "Generates an EORI number and enrols the user for Import Control System."
           }
         ]
       },
