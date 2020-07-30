@@ -18,7 +18,7 @@ lazy val compile = Seq(
   "uk.gov.hmrc" %% "play-ui" % "8.8.0-play-26",
   "uk.gov.hmrc" %% "play-json-union-formatter" % "1.11.0",
   "uk.gov.hmrc" %% "domain" % "5.6.0-play-26",
-  "uk.gov.hmrc" %% "mongo-lock" % "6.15.0-play-26",
+  "uk.gov.hmrc" %% "mongo-lock" % "6.23.0-play-26",
 
   "org.mindrot" % "jbcrypt" % "0.4",
 
@@ -34,7 +34,7 @@ lazy val compile = Seq(
 
 lazy val test = Seq(
   "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-26" % scope,
-  "uk.gov.hmrc" %% "reactivemongo-test" % "4.15.0-play-26" % scope,
+  "uk.gov.hmrc" %% "reactivemongo-test" % "4.21.0-play-26" % scope,
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % scope,
   "org.pegdown" % "pegdown" % "1.6.0" % scope,
   "org.mockito" % "mockito-core" % "2.10.0" % scope,
