@@ -26,7 +26,6 @@ class TestUserSpec extends FlatSpec with Matchers {
   val emailAddress = "john.doe@example.com"
   val arn = "NARN0396245"
 
-
   "MTD ID" should "accept a valid ID" in {
     val mtdItId = MtdItId("XGIT00000000054")
 
@@ -40,7 +39,9 @@ class TestUserSpec extends FlatSpec with Matchers {
   }
 
   "TestOrganisationCreatedResponse" should "be properly constructed from a TestOrganisation" in {
-    val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
+    val organisationDetails =
+      OrganisationDetails("Company ABCDEF",
+                          Address("225 Baker St", "Marylebone", "NW1 6XE"))
     val testOrganisation = TestOrganisation(
       userId = userId,
       password = password,
@@ -48,7 +49,8 @@ class TestUserSpec extends FlatSpec with Matchers {
       emailAddress = emailAddress,
       organisationDetails = organisationDetails,
       lisaManRefNum = Some("Z123456"),
-      groupIdentifier = Some(groupIdentifier))
+      groupIdentifier = Some(groupIdentifier)
+    )
 
     TestOrganisationCreatedResponse.from(testOrganisation) shouldBe
       TestOrganisationCreatedResponse(
@@ -67,18 +69,24 @@ class TestUserSpec extends FlatSpec with Matchers {
         lisaManagerReferenceNumber = Some("Z123456"),
         secureElectronicTransferReferenceNumber = None,
         pensionSchemeAdministratorIdentifier = None,
-        groupIdentifier = Some(groupIdentifier))
+        groupIdentifier = Some(groupIdentifier)
+      )
   }
 
   "TestAgentCreatedResponse" should "be properly constructed from the TestAgent" in {
-    val testAgent = TestAgent(
-      userId = userId,
-      password = password,
-      userFullName = userFullName,
-      emailAddress = emailAddress,
-      arn = Some(arn),
-      groupIdentifier = Some(groupIdentifier))
+    val testAgent = TestAgent(userId = userId,
+                              password = password,
+                              userFullName = userFullName,
+                              emailAddress = emailAddress,
+                              arn = Some(arn),
+                              groupIdentifier = Some(groupIdentifier))
 
-    TestAgentCreatedResponse.from(testAgent) shouldBe TestAgentCreatedResponse(userId, password, userFullName, emailAddress, Some(arn), Some(groupIdentifier))
+    TestAgentCreatedResponse.from(testAgent) shouldBe TestAgentCreatedResponse(
+      userId,
+      password,
+      userFullName,
+      emailAddress,
+      Some(arn),
+      Some(groupIdentifier))
   }
 }

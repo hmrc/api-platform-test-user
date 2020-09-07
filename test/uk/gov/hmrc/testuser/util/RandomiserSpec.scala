@@ -49,13 +49,14 @@ class RandomiserSpec extends FlatSpec with Matchers {
     for (date <- Set(date1, date2)) {
       val now = LocalDate.now()
 
-       date.isBefore(now.minusYears(16)) && date.isAfter(now.minusYears(101)) shouldBe true
+      date.isBefore(now.minusYears(16)) && date.isAfter(now.minusYears(101)) shouldBe true
     }
   }
 
   it should "retrieve a random string value form a random string configuration key" in {
     randomiser.randomConfigString("randomiser.oneEntry") shouldBe "entry"
-    randomiser.randomConfigString("randomiser.twoEntries") should (equal("entry1") or equal("entry2"))
+    randomiser.randomConfigString("randomiser.twoEntries") should (equal(
+      "entry1") or equal("entry2"))
   }
 
 }

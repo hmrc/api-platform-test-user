@@ -55,6 +55,10 @@
             "description": "Generates an EORI number and enrols the user for Customs Services."
           },
           {
+            "enum": ["goods-vehicle-movements"],
+            "description": "Generates an EORI number and enrols the user for Goods Vehicle Movements."
+          },
+          {
             "enum": ["ics-safety-and-security"],
             "description": "Generates an EORI number and enrols the user for Import Control System."
           }

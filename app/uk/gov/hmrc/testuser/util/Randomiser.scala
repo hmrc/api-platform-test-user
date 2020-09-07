@@ -29,10 +29,11 @@ trait Randomiser {
   private lazy val maximumAgeOfIndividual = 100
   private lazy val ageRange = minimumSchoolLeavingAge to maximumAgeOfIndividual
 
-  def randomNinoEligibleDateOfBirth(): LocalDate = LocalDate.now
-    .withDayOfMonth(nextInt(28))
-    .withMonthOfYear(nextInt(12))
-    .minusYears(minimumSchoolLeavingAge + nextInt(ageRange.length))
+  def randomNinoEligibleDateOfBirth(): LocalDate =
+    LocalDate.now
+      .withDayOfMonth(nextInt(28))
+      .withMonthOfYear(nextInt(12))
+      .minusYears(minimumSchoolLeavingAge + nextInt(ageRange.length))
 
   def randomConfigString(configKey: String): String = {
     val strings = config.getStringList(configKey).asScala

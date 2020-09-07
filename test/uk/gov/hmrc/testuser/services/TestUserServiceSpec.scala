@@ -36,7 +36,10 @@ import uk.gov.hmrc.testuser.repository.TestUserRepository
 import scala.concurrent.Future.{failed, successful}
 import scala.concurrent.{ExecutionContext, Future}
 
-class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing {
+class TestUserServiceSpec
+    extends UnitSpec
+    with MockitoSugar
+    with LogSuppressing {
   implicit def ec = ExecutionContext.global
 
   val mockTestUserRepository = mock[TestUserRepository]
@@ -50,7 +53,8 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   val shortNino = "CC333333"
   val empRef = "555/EIA000"
 
-  val individualServices = Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
+  val individualServices =
+    Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
   val config = ConfigFactory.parseString(
     """randomiser {
       |  individualDetails {
@@ -85,22 +89,24 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   )
 
   val generator = new Generator(mockTestUserRepository, config)
-  val testIndividualWithNoServices = generator.generateTestIndividual()
+  val testIndividualWithNoServices = generator
+    .generateTestIndividual()
     .copy(
       userId = userId,
       password = password,
       nino = Some(nino),
       saUtr = Some(saUtr)
     )
-  val testIndividual = testIndividualWithNoServices.copy(services = individualServices)
+  val testIndividual =
+    testIndividualWithNoServices.copy(services = individualServices)
 
-  val organisationServices = Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
-  val testOrganisationWithNoServices = generator.generateTestOrganisation()
-    .copy(
-      userId = userId,
-      password = password,
-      empRef = Some(empRef))
-  val testOrganisation = testOrganisationWithNoServices.copy(services = organisationServices)
+  val organisationServices =
+    Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
+  val testOrganisationWithNoServices = generator
+    .generateTestOrganisation()
+    .copy(userId = userId, password = password, empRef = Some(empRef))
+  val testOrganisation =
+    testOrganisationWithNoServices.copy(services = organisationServices)
 
   val agentServices = Seq(ServiceKeys.AGENT_SERVICES)
   val testAgent = TestAgent(
@@ -115,11 +121,18 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     implicit val hc = HeaderCarrier()
     implicit def executionContext = mock[ExecutionContext]
 
-    val underTest = new TestUserService(mock[PasswordService], mock[DesSimulatorConnector], mockTestUserRepository, mock[Generator])
-    when(underTest.testUserRepository.createUser(any[TestUser]())).thenAnswer(sameUserCreated)
-    when(underTest.testUserRepository.fetchByUserId(anyString())).thenReturn(successful(None))
-    when(underTest.passwordService.validate(anyString(), anyString())).thenReturn(false)
-    when(underTest.passwordService.validate(password, hashedPassword)).thenReturn(true)
+    val underTest = new TestUserService(mock[PasswordService],
+                                        mock[DesSimulatorConnector],
+                                        mockTestUserRepository,
+                                        mock[Generator])
+    when(underTest.testUserRepository.createUser(any[TestUser]()))
+      .thenAnswer(sameUserCreated)
+    when(underTest.testUserRepository.fetchByUserId(anyString()))
+      .thenReturn(successful(None))
+    when(underTest.passwordService.validate(anyString(), anyString()))
+      .thenReturn(false)
+    when(underTest.passwordService.validate(password, hashedPassword))
+      .thenReturn(true)
   }
 
   "createTestIndividual" should {
@@ -127,41 +140,54 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     "Generate an individual and save it with hashed password in the database" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      given(underTest.generator.generateTestIndividual(individualServices)).willReturn(testIndividual)
-      given(underTest.passwordService.hash(testIndividual.password)).willReturn(hashedPassword)
+      given(underTest.generator.generateTestIndividual(individualServices))
+        .willReturn(testIndividual)
+      given(underTest.passwordService.hash(testIndividual.password))
+        .willReturn(hashedPassword)
 
       val result = await(underTest.createTestIndividual(individualServices))
 
       result shouldBe testIndividual
 
-      val testIndividualWithHashedPassword = testIndividual.copy(password = hashedPassword)
-      verify(underTest.testUserRepository).createUser(testIndividualWithHashedPassword)
-      verify(underTest.desSimulatorConnector).createIndividual(testIndividualWithHashedPassword)
+      val testIndividualWithHashedPassword =
+        testIndividual.copy(password = hashedPassword)
+      verify(underTest.testUserRepository)
+        .createUser(testIndividualWithHashedPassword)
+      verify(underTest.desSimulatorConnector)
+        .createIndividual(testIndividualWithHashedPassword)
     }
 
     "Not call the DES simulator when the individual does not have the mtd-income-tax service" in new Setup {
       val hashedPassword = "hashedPassword"
-      given(underTest.generator.generateTestIndividual(Seq.empty)).willReturn(testIndividualWithNoServices)
-      given(underTest.passwordService.hash(testIndividualWithNoServices.password)).willReturn(hashedPassword)
+      given(underTest.generator.generateTestIndividual(Seq.empty))
+        .willReturn(testIndividualWithNoServices)
+      given(
+        underTest.passwordService.hash(testIndividualWithNoServices.password))
+        .willReturn(hashedPassword)
 
       val result = await(underTest.createTestIndividual(Seq.empty))
 
       result shouldBe testIndividualWithNoServices
 
-      val testIndividualWithHashedPassword = testIndividualWithNoServices.copy(password = hashedPassword)
-      verify(underTest.testUserRepository).createUser(testIndividualWithHashedPassword)
-      verify(underTest.desSimulatorConnector, times(0)).createIndividual(testIndividualWithHashedPassword)
+      val testIndividualWithHashedPassword =
+        testIndividualWithNoServices.copy(password = hashedPassword)
+      verify(underTest.testUserRepository)
+        .createUser(testIndividualWithHashedPassword)
+      verify(underTest.desSimulatorConnector, times(0))
+        .createIndividual(testIndividualWithHashedPassword)
     }
 
     "fail when the repository fails" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
-        given(underTest.generator.generateTestIndividual(individualServices)).willReturn(testIndividual)
-        given(underTest.testUserRepository.createUser(any[TestUser]()))
-          .willReturn(failed(new RuntimeException("expected test error")))
+      withSuppressedLoggingFrom(Logger, "expected test error") {
+        suppressedLogs =>
+          given(underTest.generator.generateTestIndividual(individualServices))
+            .willReturn(testIndividual)
+          given(underTest.testUserRepository.createUser(any[TestUser]()))
+            .willReturn(failed(new RuntimeException("expected test error")))
 
-        intercept[RuntimeException] {
-          await(underTest.createTestIndividual(individualServices))
-        }
+          intercept[RuntimeException] {
+            await(underTest.createTestIndividual(individualServices))
+          }
       }
     }
   }
@@ -171,42 +197,54 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     "Generate an organisation and save it in the database" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      given(underTest.generator.generateTestOrganisation(organisationServices)).willReturn(testOrganisation)
-      given(underTest.passwordService.hash(testOrganisation.password)).willReturn(hashedPassword)
+      given(underTest.generator.generateTestOrganisation(organisationServices))
+        .willReturn(testOrganisation)
+      given(underTest.passwordService.hash(testOrganisation.password))
+        .willReturn(hashedPassword)
 
       val result = await(underTest.createTestOrganisation(organisationServices))
 
       result shouldBe testOrganisation
 
-      val testOrgWithHashedPassword = testOrganisation.copy(password = hashedPassword)
+      val testOrgWithHashedPassword =
+        testOrganisation.copy(password = hashedPassword)
       verify(underTest.testUserRepository).createUser(testOrgWithHashedPassword)
-      verify(underTest.desSimulatorConnector).createOrganisation(testOrgWithHashedPassword)
+      verify(underTest.desSimulatorConnector)
+        .createOrganisation(testOrgWithHashedPassword)
     }
 
     "Not call the DES simulator when the organisation does not have the mtd-income-tax service" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      given(underTest.generator.generateTestOrganisation(Seq.empty)).willReturn(testOrganisationWithNoServices)
-      given(underTest.passwordService.hash(testOrganisationWithNoServices.password)).willReturn(hashedPassword)
+      given(underTest.generator.generateTestOrganisation(Seq.empty))
+        .willReturn(testOrganisationWithNoServices)
+      given(
+        underTest.passwordService.hash(testOrganisationWithNoServices.password))
+        .willReturn(hashedPassword)
 
       val result = await(underTest.createTestOrganisation(Seq.empty))
 
       result shouldBe testOrganisationWithNoServices
 
-      val testOrgWithHashedPassword = testOrganisationWithNoServices.copy(password = hashedPassword)
+      val testOrgWithHashedPassword =
+        testOrganisationWithNoServices.copy(password = hashedPassword)
       verify(underTest.testUserRepository).createUser(testOrgWithHashedPassword)
-      verify(underTest.desSimulatorConnector, times(0)).createOrganisation(testOrgWithHashedPassword)
+      verify(underTest.desSimulatorConnector, times(0))
+        .createOrganisation(testOrgWithHashedPassword)
     }
 
     "fail when the repository fails" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
-        given(underTest.generator.generateTestOrganisation(organisationServices)).willReturn(testOrganisation)
-        given(underTest.testUserRepository.createUser(any[TestUser]()))
-          .willReturn(failed(new RuntimeException("expected test error")))
+      withSuppressedLoggingFrom(Logger, "expected test error") {
+        suppressedLogs =>
+          given(
+            underTest.generator.generateTestOrganisation(organisationServices))
+            .willReturn(testOrganisation)
+          given(underTest.testUserRepository.createUser(any[TestUser]()))
+            .willReturn(failed(new RuntimeException("expected test error")))
 
-        intercept[RuntimeException] {
-          await(underTest.createTestOrganisation(organisationServices))
-        }
+          intercept[RuntimeException] {
+            await(underTest.createTestOrganisation(organisationServices))
+          }
       }
     }
   }
@@ -216,31 +254,37 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     "Generate an agent and save it in the database" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      given(underTest.generator.generateTestAgent(agentServices)).willReturn(testAgent)
-      given(underTest.passwordService.hash(testAgent.password)).willReturn(hashedPassword)
+      given(underTest.generator.generateTestAgent(agentServices))
+        .willReturn(testAgent)
+      given(underTest.passwordService.hash(testAgent.password))
+        .willReturn(hashedPassword)
 
       val result = await(underTest.createTestAgent(agentServices))
 
       result shouldBe testAgent
-      verify(underTest.testUserRepository).createUser(testAgent.copy(password = hashedPassword))
+      verify(underTest.testUserRepository)
+        .createUser(testAgent.copy(password = hashedPassword))
     }
 
     "fail when the repository fails" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
-        given(underTest.generator.generateTestAgent(any())).willReturn(testAgent)
-        given(underTest.testUserRepository.createUser(any[TestUser]()))
-          .willReturn(failed(new RuntimeException("expected test error")))
+      withSuppressedLoggingFrom(Logger, "expected test error") {
+        suppressedLogs =>
+          given(underTest.generator.generateTestAgent(any()))
+            .willReturn(testAgent)
+          given(underTest.testUserRepository.createUser(any[TestUser]()))
+            .willReturn(failed(new RuntimeException("expected test error")))
 
-        intercept[RuntimeException] {
-          await(underTest.createTestAgent(agentServices))
-        }
+          intercept[RuntimeException] {
+            await(underTest.createTestAgent(agentServices))
+          }
       }
     }
   }
 
   "fetchIndividualByNino" should {
     "return the individual when it exists in the repository" in new Setup {
-      given(underTest.testUserRepository.fetchIndividualByNino(Nino(nino))).willReturn(Some(testIndividual))
+      given(underTest.testUserRepository.fetchIndividualByNino(Nino(nino)))
+        .willReturn(Some(testIndividual))
 
       val result = await(underTest.fetchIndividualByNino(Nino(nino)))
 
@@ -248,7 +292,8 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     }
 
     "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
-      given(underTest.testUserRepository.fetchIndividualByNino(Nino(nino))).willReturn(None)
+      given(underTest.testUserRepository.fetchIndividualByNino(Nino(nino)))
+        .willReturn(None)
 
       intercept[UserNotFound] {
         await(underTest.fetchIndividualByNino(Nino(nino)))
@@ -256,26 +301,33 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     }
 
     "propagate the error when the repository fails" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
-        given(underTest.testUserRepository.fetchIndividualByNino(any())).willReturn(failed(new RuntimeException("expected test error")))
-        intercept[RuntimeException] {
-          await(underTest.fetchIndividualByNino(Nino(nino)))
-        }
+      withSuppressedLoggingFrom(Logger, "expected test error") {
+        suppressedLogs =>
+          given(underTest.testUserRepository.fetchIndividualByNino(any()))
+            .willReturn(failed(new RuntimeException("expected test error")))
+          intercept[RuntimeException] {
+            await(underTest.fetchIndividualByNino(Nino(nino)))
+          }
       }
     }
   }
 
   "fetchIndividualByShortNino" should {
     "return the individual when it exists in the repository" in new Setup {
-      given(underTest.testUserRepository.fetchIndividualByShortNino(NinoNoSuffix(shortNino))).willReturn(Some(testIndividual))
+      given(
+        underTest.testUserRepository.fetchIndividualByShortNino(
+          NinoNoSuffix(shortNino))).willReturn(Some(testIndividual))
 
-      val result = await(underTest.fetchIndividualByShortNino(NinoNoSuffix(shortNino)))
+      val result =
+        await(underTest.fetchIndividualByShortNino(NinoNoSuffix(shortNino)))
 
       result shouldBe testIndividual
     }
 
     "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
-      given(underTest.testUserRepository.fetchIndividualByShortNino(NinoNoSuffix(shortNino))).willReturn(None)
+      given(
+        underTest.testUserRepository.fetchIndividualByShortNino(
+          NinoNoSuffix(shortNino))).willReturn(None)
 
       intercept[UserNotFound] {
         await(underTest.fetchIndividualByShortNino(NinoNoSuffix(shortNino)))
@@ -283,18 +335,21 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     }
 
     "propagate the error when the repository fails" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
-        given(underTest.testUserRepository.fetchIndividualByShortNino(any())).willReturn(failed(new RuntimeException("expected test error")))
-        intercept[RuntimeException] {
-          await(underTest.fetchIndividualByShortNino(NinoNoSuffix(shortNino)))
-        }
+      withSuppressedLoggingFrom(Logger, "expected test error") {
+        suppressedLogs =>
+          given(underTest.testUserRepository.fetchIndividualByShortNino(any()))
+            .willReturn(failed(new RuntimeException("expected test error")))
+          intercept[RuntimeException] {
+            await(underTest.fetchIndividualByShortNino(NinoNoSuffix(shortNino)))
+          }
       }
     }
   }
 
   "fetchIndividualBySaUtr" should {
     "return the individual when it exists in the repository" in new Setup {
-      given(underTest.testUserRepository.fetchIndividualBySaUtr(SaUtr(saUtr))).willReturn(Some(testIndividual))
+      given(underTest.testUserRepository.fetchIndividualBySaUtr(SaUtr(saUtr)))
+        .willReturn(Some(testIndividual))
 
       val result = await(underTest.fetchIndividualBySaUtr(SaUtr(saUtr)))
 
@@ -302,7 +357,8 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     }
 
     "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
-      given(underTest.testUserRepository.fetchIndividualBySaUtr(SaUtr(saUtr))).willReturn(None)
+      given(underTest.testUserRepository.fetchIndividualBySaUtr(SaUtr(saUtr)))
+        .willReturn(None)
 
       intercept[UserNotFound] {
         await(underTest.fetchIndividualBySaUtr(SaUtr(saUtr)))
@@ -310,44 +366,57 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     }
 
     "propagate the error when the repository fails" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
-        given(underTest.testUserRepository.fetchIndividualBySaUtr(any())).willReturn(failed(new RuntimeException("expected test error")))
-        intercept[RuntimeException] {
-          await(underTest.fetchIndividualBySaUtr(SaUtr(saUtr)))
-        }
+      withSuppressedLoggingFrom(Logger, "expected test error") {
+        suppressedLogs =>
+          given(underTest.testUserRepository.fetchIndividualBySaUtr(any()))
+            .willReturn(failed(new RuntimeException("expected test error")))
+          intercept[RuntimeException] {
+            await(underTest.fetchIndividualBySaUtr(SaUtr(saUtr)))
+          }
       }
     }
   }
 
   "fetchOrganisationByEmpRef" should {
     "return the organisation when it exists in the repository" in new Setup {
-      given(underTest.testUserRepository.fetchOrganisationByEmpRef(EmpRef.fromIdentifiers(empRef))).willReturn(Some(testOrganisation))
+      given(
+        underTest.testUserRepository.fetchOrganisationByEmpRef(
+          EmpRef.fromIdentifiers(empRef))).willReturn(Some(testOrganisation))
 
-      val result = await(underTest.fetchOrganisationByEmpRef(EmpRef.fromIdentifiers(empRef)))
+      val result = await(
+        underTest.fetchOrganisationByEmpRef(EmpRef.fromIdentifiers(empRef)))
 
       result shouldBe testOrganisation
     }
 
     "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
-      given(underTest.testUserRepository.fetchOrganisationByEmpRef(EmpRef.fromIdentifiers(empRef))).willReturn(None)
+      given(
+        underTest.testUserRepository.fetchOrganisationByEmpRef(
+          EmpRef.fromIdentifiers(empRef))).willReturn(None)
 
       intercept[UserNotFound] {
-        await(underTest.fetchOrganisationByEmpRef(EmpRef.fromIdentifiers(empRef)))
+        await(
+          underTest.fetchOrganisationByEmpRef(EmpRef.fromIdentifiers(empRef)))
       }
     }
 
     "propagate the error when the repository fails" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
-        given(underTest.testUserRepository.fetchOrganisationByEmpRef(any())).willReturn(failed(new RuntimeException("expected test error")))
-        intercept[RuntimeException] {
-          await(underTest.fetchOrganisationByEmpRef(EmpRef.fromIdentifiers(empRef)))
-        }
+      withSuppressedLoggingFrom(Logger, "expected test error") {
+        suppressedLogs =>
+          given(underTest.testUserRepository.fetchOrganisationByEmpRef(any()))
+            .willReturn(failed(new RuntimeException("expected test error")))
+          intercept[RuntimeException] {
+            await(
+              underTest.fetchOrganisationByEmpRef(
+                EmpRef.fromIdentifiers(empRef)))
+          }
       }
     }
   }
 
   val sameUserCreated = new Answer[Future[TestUser]] {
-    override def answer(invocationOnMock: InvocationOnMock): Future[TestUser] = {
+    override def answer(
+        invocationOnMock: InvocationOnMock): Future[TestUser] = {
       successful(invocationOnMock.getArguments.head.asInstanceOf[TestUser])
     }
   }

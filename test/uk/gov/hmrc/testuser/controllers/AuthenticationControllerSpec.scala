@@ -39,7 +39,10 @@ import uk.gov.hmrc.testuser.services.AuthenticationService
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.{failed, successful}
 
-class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with LogSuppressing {
+class AuthenticationControllerSpec
+    extends UnitSpec
+    with MockitoSugar
+    with LogSuppressing {
 
   val user = "user"
   val groupIdentifier = "groupIdentifier"
@@ -58,7 +61,11 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with LogSu
   val empRef = s"$taxOfficeNum/$taxOfficeRef"
   val eoriNumber = "GB1234567890"
 
-  val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
+  val individualDetails = IndividualDetails(
+    "John",
+    "Doe",
+    LocalDate.parse("1980-01-10"),
+    Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val testIndividual = TestIndividual(
     userId = user,
     password = password,
@@ -72,7 +79,13 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with LogSu
     vatRegistrationDate = Some(vatRegistrationDate),
     eoriNumber = Some(eoriNumber),
     groupIdentifier = Some(groupIdentifier),
-    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
+    services = Seq(SELF_ASSESSMENT,
+                   NATIONAL_INSURANCE,
+                   MTD_INCOME_TAX,
+                   CUSTOMS_SERVICES,
+                   GOODS_VEHICLE_MOVEMENTS,
+                   MTD_VAT)
+  )
 
   val organisationDetails = OrganisationDetails(
     name = "Company ABCDEF",
@@ -95,10 +108,22 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with LogSu
     lisaManRefNum = Some(lisaManRefNum),
     eoriNumber = Some(eoriNumber),
     groupIdentifier = Some(groupIdentifier),
-    services =
-      Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, MTD_VAT, PAYE_FOR_EMPLOYERS, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA, CUSTOMS_SERVICES))
+    services = Seq(
+      SELF_ASSESSMENT,
+      NATIONAL_INSURANCE,
+      MTD_INCOME_TAX,
+      MTD_VAT,
+      PAYE_FOR_EMPLOYERS,
+      CORPORATION_TAX,
+      SUBMIT_VAT_RETURNS,
+      LISA,
+      CUSTOMS_SERVICES,
+      GOODS_VEHICLE_MOVEMENTS
+    )
+  )
 
-  val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
+  val authSession =
+    AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
 
   trait Setup {
     implicit val hc = HeaderCarrier()
@@ -108,34 +133,45 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with LogSu
     val createRequest = FakeRequest()
 
     def authenticationRequest(usr: String, pwd: String) = {
-      val jsonPayload: JsValue = Json.parse(s"""{ "username": "$usr", "password" :"$pwd" }""")
+      val jsonPayload: JsValue =
+        Json.parse(s"""{ "username": "$usr", "password" :"$pwd" }""")
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
-    val underTest = new AuthenticationController(mock[AuthenticationService], Helpers.stubControllerComponents())
+    val underTest = new AuthenticationController(
+      mock[AuthenticationService],
+      Helpers.stubControllerComponents())
   }
 
   "authenticate" should {
 
     "return 201 (Created), with the auth session and affinity group, when both username and password are correct" in new Setup {
 
-      when(underTest.authenticationService.authenticate(refEq(AuthenticationRequest(user, password)))(any()))
+      when(
+        underTest.authenticationService.authenticate(
+          refEq(AuthenticationRequest(user, password)))(any()))
         .thenReturn(successful((testIndividual, authSession)))
 
-      val result = await(underTest.authenticate()(authenticationRequest(user, password)))
+      val result =
+        await(underTest.authenticate()(authenticationRequest(user, password)))
 
       status(result) shouldBe CREATED
-      jsonBodyOf(result) shouldBe toJson(AuthenticationResponse(authSession.gatewayToken, testIndividual.affinityGroup))
+      jsonBodyOf(result) shouldBe toJson(
+        AuthenticationResponse(authSession.gatewayToken,
+                               testIndividual.affinityGroup))
       result.header.headers(HeaderNames.AUTHORIZATION) shouldBe authSession.authBearerToken
       result.header.headers(HeaderNames.LOCATION) shouldBe authSession.authorityUri
     }
 
     "return 401 (Unauthorized) when the credentials are not valid" in new Setup {
 
-      when(underTest.authenticationService.authenticate(refEq(AuthenticationRequest(user, password)))(any()))
+      when(
+        underTest.authenticationService.authenticate(
+          refEq(AuthenticationRequest(user, password)))(any()))
         .thenReturn(failed(InvalidCredentials("")))
 
-      val result = await(underTest.authenticate()(authenticationRequest(user, password)))
+      val result =
+        await(underTest.authenticate()(authenticationRequest(user, password)))
 
       status(result) shouldBe UNAUTHORIZED
       jsonBodyOf(result) shouldBe toJson(ErrorResponse.invalidCredentialsError)
@@ -143,10 +179,13 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with LogSu
 
     "fail with 500 (Internal Server Error) when an error has occurred " in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        when(underTest.authenticationService.authenticate(refEq(AuthenticationRequest(user, password)))(any()))
+        when(
+          underTest.authenticationService.authenticate(
+            refEq(AuthenticationRequest(user, password)))(any()))
           .thenReturn(failed(new RuntimeException("expected test error")))
 
-        val result = await(underTest.authenticate()(authenticationRequest(user, password)))
+        val result =
+          await(underTest.authenticate()(authenticationRequest(user, password)))
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
         jsonBodyOf(result) shouldBe toJson(ErrorResponse.internalServerError)

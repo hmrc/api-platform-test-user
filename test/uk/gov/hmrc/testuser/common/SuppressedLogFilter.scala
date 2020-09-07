@@ -25,7 +25,8 @@ import play.api.LoggerLike
 import scala.collection.mutable
 import scala.collection.JavaConversions._
 
-class SuppressedLogFilter(val messagesContaining: String) extends Filter[ILoggingEvent] {
+class SuppressedLogFilter(val messagesContaining: String)
+    extends Filter[ILoggingEvent] {
   private val suppressedEntries = new mutable.MutableList[ILoggingEvent]()
 
   override def decide(event: ILoggingEvent): FilterReply = {
@@ -38,37 +39,45 @@ class SuppressedLogFilter(val messagesContaining: String) extends Filter[ILoggin
   }
 
   def hasError(msg: String) = {
-    suppressedEntries.exists(entry => entry.getLevel == Level.ERROR && entry.getMessage.contains(msg))
+    suppressedEntries.exists(entry =>
+      entry.getLevel == Level.ERROR && entry.getMessage.contains(msg))
   }
 
   def hasWarn(msg: String) = {
-    suppressedEntries.exists(entry => entry.getLevel == Level.WARN && entry.getMessage.contains(msg))
+    suppressedEntries.exists(entry =>
+      entry.getLevel == Level.WARN && entry.getMessage.contains(msg))
   }
 
   def hasInfo(msg: String) = {
-    suppressedEntries.exists(entry => entry.getLevel == Level.INFO && entry.getMessage.contains(msg))
+    suppressedEntries.exists(entry =>
+      entry.getLevel == Level.INFO && entry.getMessage.contains(msg))
   }
 }
 
 trait LogSuppressing {
-  def withSuppressedLoggingFrom(logger: Logger, messagesContaining: String)(body: (=> SuppressedLogFilter) => Unit) {
+  def withSuppressedLoggingFrom(logger: Logger, messagesContaining: String)(
+      body: (=> SuppressedLogFilter) => Unit) {
 
     val appenders = logger.iteratorForAppenders().toList
-    val appendersWithFilters = appenders.map(appender => appender -> appender.getCopyOfAttachedFiltersList)
+    val appendersWithFilters = appenders.map(appender =>
+      appender -> appender.getCopyOfAttachedFiltersList)
 
     val filter = new SuppressedLogFilter(messagesContaining)
     appenders.foreach(_.addFilter(filter))
 
     try body(filter)
     finally {
-      appendersWithFilters.foreach { case(appender, filters) =>
-        appender.clearAllFilters()
-        filters.foreach(appender.addFilter)
+      appendersWithFilters.foreach {
+        case (appender, filters) =>
+          appender.clearAllFilters()
+          filters.foreach(appender.addFilter)
       }
     }
   }
 
-  def withSuppressedLoggingFrom(logger: LoggerLike, messagesContaining: String)(body: (=> SuppressedLogFilter) => Unit) {
-    withSuppressedLoggingFrom(logger.logger.asInstanceOf[Logger], messagesContaining)(body)
+  def withSuppressedLoggingFrom(logger: LoggerLike, messagesContaining: String)(
+      body: (=> SuppressedLogFilter) => Unit) {
+    withSuppressedLoggingFrom(logger.logger.asInstanceOf[Logger],
+                              messagesContaining)(body)
   }
 }

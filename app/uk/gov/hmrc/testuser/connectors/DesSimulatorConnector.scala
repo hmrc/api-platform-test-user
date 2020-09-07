@@ -27,20 +27,33 @@ import uk.gov.hmrc.testuser.models.JsonFormatters._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class DesSimulatorConnector @Inject()(httpClient: HttpClient, runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)
-                           (implicit ec: ExecutionContext) {
+class DesSimulatorConnector @Inject()(
+    httpClient: HttpClient,
+    runModeConfiguration: Configuration,
+    environment: Environment,
+    config: ServicesConfig)(implicit ec: ExecutionContext) {
 
   import config.baseUrl
 
   lazy val serviceUrl: String = baseUrl("des-simulator")
 
-  def createIndividual(individual: TestIndividual)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    Logger.info(s"Calling des-simulator ($serviceUrl) to create individual $individual")
-    httpClient.POST(s"$serviceUrl/test-users/individuals", DesSimulatorTestIndividual.from(individual)) map { _ => individual }
+  def createIndividual(individual: TestIndividual)(
+      implicit hc: HeaderCarrier): Future[TestIndividual] = {
+    Logger.info(
+      s"Calling des-simulator ($serviceUrl) to create individual $individual")
+    httpClient.POST(s"$serviceUrl/test-users/individuals",
+                    DesSimulatorTestIndividual.from(individual)) map { _ =>
+      individual
+    }
   }
 
-  def createOrganisation(organisation: TestOrganisation)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
-    Logger.info(s"Calling des-simulator ($serviceUrl) to create organisation $organisation")
-    httpClient.POST(s"$serviceUrl/test-users/organisations", DesSimulatorTestOrganisation.from(organisation)) map { _ => organisation }
+  def createOrganisation(organisation: TestOrganisation)(
+      implicit hc: HeaderCarrier): Future[TestOrganisation] = {
+    Logger.info(
+      s"Calling des-simulator ($serviceUrl) to create organisation $organisation")
+    httpClient.POST(s"$serviceUrl/test-users/organisations",
+                    DesSimulatorTestOrganisation.from(organisation)) map { _ =>
+      organisation
+    }
   }
 }

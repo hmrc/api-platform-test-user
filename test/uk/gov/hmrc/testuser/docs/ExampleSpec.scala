@@ -105,7 +105,8 @@ class ExampleSpec extends UnitSpec with MockitoSugar {
     }
   }
 
-  private def testDeserialization[A](filename: String)(implicit fjs: Reads[A]) = {
+  private def testDeserialization[A](filename: String)(
+      implicit fjs: Reads[A]) = {
     val examplePath = generateExamplePath(filename)
     safelyReadFileContents(examplePath) { exampleContents =>
       val deserialized = Json.fromJson[A](Json.parse(exampleContents))
@@ -118,7 +119,8 @@ class ExampleSpec extends UnitSpec with MockitoSugar {
     val schemaPath = generateSchemaPath(filename)
     safelyReadFileContents(schemaPath) { schemaContents =>
       safelyReadFileContents(examplePath) { exampleContents =>
-        val schema: SchemaType = Json.fromJson[SchemaType](Json.parse(schemaContents)).get
+        val schema: SchemaType =
+          Json.fromJson[SchemaType](Json.parse(schemaContents)).get
         val validator = SchemaValidator().validate(schema)(_)
         val result: JsResult[JsValue] = validator(Json.parse(exampleContents))
         result.isSuccess shouldBe true
@@ -128,9 +130,11 @@ class ExampleSpec extends UnitSpec with MockitoSugar {
 
   val resourcesPathV10 = "./resources/public/api/conf/1.0/"
 
-  private def generateExamplePath(filename: String) = resourcesPathV10 + "examples/" + filename + ".json"
+  private def generateExamplePath(filename: String) =
+    resourcesPathV10 + "examples/" + filename + ".json"
 
-  private def generateSchemaPath(filename: String) = resourcesPathV10 + "schemas/" + filename + ".json"
+  private def generateSchemaPath(filename: String) =
+    resourcesPathV10 + "schemas/" + filename + ".json"
 
   private def safelyReadFileContents[A](path: String)(f: String => A): A = {
     val bufferedSource = Source.fromFile(path)

@@ -20,10 +20,12 @@ import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr, Vrn}
 import uk.gov.hmrc.play.binders.SimpleObjectBinder
 import uk.gov.hmrc.testuser.models.NinoNoSuffix
 
-object NinoNoSuffixBinder extends SimpleObjectBinder[NinoNoSuffix](NinoNoSuffix.apply, _.value)
+object NinoNoSuffixBinder
+    extends SimpleObjectBinder[NinoNoSuffix](NinoNoSuffix.apply, _.value)
 object NinoBinder extends SimpleObjectBinder[Nino](Nino.apply, _.value)
 object SaUtrBinder extends SimpleObjectBinder[SaUtr](SaUtr.apply, _.value)
-object EmpRefBinder extends SimpleObjectBinder[EmpRef](EmpRef.fromIdentifiers, _.value)
+object EmpRefBinder
+    extends SimpleObjectBinder[EmpRef](EmpRef.fromIdentifiers, _.value)
 object VrnBinder extends SimpleObjectBinder[Vrn](Vrn.apply, _.value)
 
 package object Binders {

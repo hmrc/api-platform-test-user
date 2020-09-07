@@ -38,18 +38,23 @@ import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.testuser.services.PasswordConfig
 
-class MicroserviceModule(val environment: Environment, val configuration: Configuration) extends AbstractModule {
+class MicroserviceModule(val environment: Environment,
+                         val configuration: Configuration)
+    extends AbstractModule {
 
   def configure(): Unit = {
     val appName = "api-platform-test-user"
-    Logger(getClass).info(s"Starting microservice : $appName : in mode : ${environment.mode}")
+    Logger(getClass).info(
+      s"Starting microservice : $appName : in mode : ${environment.mode}")
 
     bind(classOf[PasswordConfig]).toProvider(classOf[PasswordConfigProvider])
   }
 }
 
-class PasswordConfigProvider @Inject()(val runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)
-  extends Provider[PasswordConfig] {
+class PasswordConfigProvider @Inject()(val runModeConfiguration: Configuration,
+                                       environment: Environment,
+                                       config: ServicesConfig)
+    extends Provider[PasswordConfig] {
 
   import config.getInt
 

@@ -22,10 +22,13 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 @Singleton
-class DocumentationController @Inject()(assets: Assets, cc: ControllerComponents)
-  extends BackendController(cc) {
+class DocumentationController @Inject()(assets: Assets,
+                                        cc: ControllerComponents)
+    extends BackendController(cc) {
 
-  def definition: Action[AnyContent] = assets.at(s"/public/api", "definition.json")
+  def definition: Action[AnyContent] =
+    assets.at(s"/public/api", "definition.json")
 
-  def raml(version: String, file: String): Action[AnyContent] = assets.at(s"/public/api/conf/$version", file)
+  def raml(version: String, file: String): Action[AnyContent] =
+    assets.at(s"/public/api/conf/$version", file)
 }

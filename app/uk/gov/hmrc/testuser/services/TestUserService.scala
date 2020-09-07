@@ -28,34 +28,43 @@ import uk.gov.hmrc.testuser.repository.TestUserRepository
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TestUserService @Inject()(val passwordService: PasswordService,
-                                val desSimulatorConnector: DesSimulatorConnector,
-                                val testUserRepository: TestUserRepository,
-                                val generator: Generator)
-                               (implicit ec: ExecutionContext) {
+class TestUserService @Inject()(
+    val passwordService: PasswordService,
+    val desSimulatorConnector: DesSimulatorConnector,
+    val testUserRepository: TestUserRepository,
+    val generator: Generator)(implicit ec: ExecutionContext) {
 
-  def createTestIndividual(serviceNames: Seq[ServiceKey])(implicit hc: HeaderCarrier): Future[TestIndividual] = {
+  def createTestIndividual(serviceNames: Seq[ServiceKey])(
+      implicit hc: HeaderCarrier): Future[TestIndividual] = {
     generator.generateTestIndividual(serviceNames).flatMap { individual =>
       val hashedPassword = passwordService.hash(individual.password)
 
-      testUserRepository.createUser(individual.copy(password = hashedPassword)) map {
-        case createdIndividual if createdIndividual.services.contains(ServiceKeys.MTD_INCOME_TAX) => desSimulatorConnector.createIndividual(createdIndividual)
+      testUserRepository
+        .createUser(individual.copy(password = hashedPassword)) map {
+        case createdIndividual
+            if createdIndividual.services.contains(
+              ServiceKeys.MTD_INCOME_TAX) =>
+          desSimulatorConnector.createIndividual(createdIndividual)
         case _ => Future.successful(individual)
-      } map {
-        _ => individual
+      } map { _ =>
+        individual
       }
     }
   }
 
-  def createTestOrganisation(serviceNames: Seq[ServiceKey])(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
+  def createTestOrganisation(serviceNames: Seq[ServiceKey])(
+      implicit hc: HeaderCarrier): Future[TestOrganisation] = {
     generator.generateTestOrganisation(serviceNames).flatMap { organisation =>
       val hashedPassword = passwordService.hash(organisation.password)
-      testUserRepository.createUser(organisation.copy(password = hashedPassword)) map {
+      testUserRepository.createUser(
+        organisation.copy(password = hashedPassword)) map {
         case createdOrganisation
-          if createdOrganisation.services.contains(ServiceKeys.MTD_INCOME_TAX) => desSimulatorConnector.createOrganisation(createdOrganisation)
+            if createdOrganisation.services.contains(
+              ServiceKeys.MTD_INCOME_TAX) =>
+          desSimulatorConnector.createOrganisation(createdOrganisation)
         case _ => Future.successful(organisation)
-      } map {
-        _ => organisation
+      } map { _ =>
+        organisation
       }
     }
   }
@@ -63,31 +72,44 @@ class TestUserService @Inject()(val passwordService: PasswordService,
   def createTestAgent(serviceNames: Seq[ServiceKey]) = {
     generator.generateTestAgent(serviceNames).flatMap { agent =>
       val hashedPassword = passwordService.hash(agent.password)
-      testUserRepository.createUser(agent.copy(password = hashedPassword)) map (_ => agent)
+      testUserRepository.createUser(agent.copy(password = hashedPassword)) map (
+          _ => agent)
     }
   }
 
-  def fetchIndividualByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    testUserRepository.fetchIndividualByNino(nino) map(t => t.getOrElse(throw UserNotFound(INDIVIDUAL)))
+  def fetchIndividualByNino(nino: Nino)(
+      implicit hc: HeaderCarrier): Future[TestIndividual] = {
+    testUserRepository.fetchIndividualByNino(nino) map (t =>
+      t.getOrElse(throw UserNotFound(INDIVIDUAL)))
   }
 
-  def fetchIndividualByShortNino(shortNino: NinoNoSuffix)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    testUserRepository.fetchIndividualByShortNino(shortNino) map(t => t.getOrElse(throw UserNotFound(INDIVIDUAL)))
+  def fetchIndividualByShortNino(shortNino: NinoNoSuffix)(
+      implicit hc: HeaderCarrier): Future[TestIndividual] = {
+    testUserRepository.fetchIndividualByShortNino(shortNino) map (t =>
+      t.getOrElse(throw UserNotFound(INDIVIDUAL)))
   }
 
-  def fetchIndividualBySaUtr(saUtr: SaUtr)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    testUserRepository.fetchIndividualBySaUtr(saUtr) map(t => t.getOrElse(throw UserNotFound(INDIVIDUAL)))
+  def fetchIndividualBySaUtr(saUtr: SaUtr)(
+      implicit hc: HeaderCarrier): Future[TestIndividual] = {
+    testUserRepository.fetchIndividualBySaUtr(saUtr) map (t =>
+      t.getOrElse(throw UserNotFound(INDIVIDUAL)))
   }
 
-  def fetchIndividualByVrn(vrn: Vrn)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    testUserRepository.fetchIndividualByVrn(vrn) map(t => t.getOrElse(throw UserNotFound(INDIVIDUAL)))
+  def fetchIndividualByVrn(vrn: Vrn)(
+      implicit hc: HeaderCarrier): Future[TestIndividual] = {
+    testUserRepository.fetchIndividualByVrn(vrn) map (t =>
+      t.getOrElse(throw UserNotFound(INDIVIDUAL)))
   }
 
-  def fetchOrganisationByEmpRef(empRef: EmpRef)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
-    testUserRepository.fetchOrganisationByEmpRef(empRef) map(t => t.getOrElse(throw UserNotFound(ORGANISATION)))
+  def fetchOrganisationByEmpRef(empRef: EmpRef)(
+      implicit hc: HeaderCarrier): Future[TestOrganisation] = {
+    testUserRepository.fetchOrganisationByEmpRef(empRef) map (t =>
+      t.getOrElse(throw UserNotFound(ORGANISATION)))
   }
 
-  def fetchOrganisationByVrn(vrn: Vrn)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
-    testUserRepository.fetchOrganisationByVrn(vrn) map(t => t.getOrElse(throw UserNotFound(ORGANISATION)))
+  def fetchOrganisationByVrn(vrn: Vrn)(
+      implicit hc: HeaderCarrier): Future[TestOrganisation] = {
+    testUserRepository.fetchOrganisationByVrn(vrn) map (t =>
+      t.getOrElse(throw UserNotFound(ORGANISATION)))
   }
 }

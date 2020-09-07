@@ -30,62 +30,91 @@ import uk.gov.hmrc.testuser.models._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: ExecutionContext)
-  extends ReactiveRepository[TestUser, BSONObjectID]("testUser", mongo.mongoConnector.db,
-    JsonFormatters.formatTestUser, ReactiveMongoFormats.objectIdFormats) {
+class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(
+    implicit ec: ExecutionContext)
+    extends ReactiveRepository[TestUser, BSONObjectID](
+      "testUser",
+      mongo.mongoConnector.db,
+      JsonFormatters.formatTestUser,
+      ReactiveMongoFormats.objectIdFormats) {
 
   // List of fields that contain generated identifiers
-  val IdentifierFields: Seq[String] = Seq("nino", "saUtr", "vrn", "empRef", "mtdItId", "ctUtr", "lisaManRefNum", "eoriNumber", "arn", "groupIdentifier")
+  val IdentifierFields: Seq[String] = Seq("nino",
+                                          "saUtr",
+                                          "vrn",
+                                          "empRef",
+                                          "mtdItId",
+                                          "ctUtr",
+                                          "lisaManRefNum",
+                                          "eoriNumber",
+                                          "arn",
+                                          "groupIdentifier")
 
   ensureIndex("userId", "userIdIndex")
 
   // Create indexes for ech identifier field - need to be non-unique as we may have existing duplicate values
-  IdentifierFields.foreach(
-    identifierField =>
-      ensureIndex(identifierField, s"$identifierField-Index", isUnique = false))
+  IdentifierFields.foreach(identifierField =>
+    ensureIndex(identifierField, s"$identifierField-Index", isUnique = false))
 
   def createUser[T <: TestUser](testUser: T): Future[T] = {
-    insert(testUser) map {_ => testUser}
+    insert(testUser) map { _ =>
+      testUser
+    }
   }
 
   def fetchByUserId(userId: String): Future[Option[TestUser]] = {
-    find("userId" -> userId) map(_.headOption)
+    find("userId" -> userId) map (_.headOption)
   }
 
-  private def ensureIndex(field: String, indexName: String, isUnique: Boolean = true): Future[Boolean] = {
+  private def ensureIndex(field: String,
+                          indexName: String,
+                          isUnique: Boolean = true): Future[Boolean] = {
     collection.indexesManager
-      .ensure(Index(Seq(field -> IndexType.Ascending), name = Some(indexName), unique = isUnique, background = true))
+      .ensure(
+        Index(Seq(field -> IndexType.Ascending),
+              name = Some(indexName),
+              unique = isUnique,
+              background = true))
   }
 
   def fetchIndividualByNino(nino: Nino): Future[Option[TestIndividual]] = {
-    find("nino" -> nino, "userType" -> UserType.INDIVIDUAL) map(_.headOption map (_.asInstanceOf[TestIndividual]))
+    find("nino" -> nino, "userType" -> UserType.INDIVIDUAL) map (_.headOption map (_.asInstanceOf[
+      TestIndividual]))
   }
 
-  def fetchIndividualByShortNino(shortNino: NinoNoSuffix): Future[Option[TestIndividual]] = {
-    val matchShortNino = Json.obj("$regex" ->  s"${shortNino.value}\\w")
-    find("nino" -> matchShortNino, "userType" -> UserType.INDIVIDUAL) map(_.headOption map (_.asInstanceOf[TestIndividual]))
+  def fetchIndividualByShortNino(
+      shortNino: NinoNoSuffix): Future[Option[TestIndividual]] = {
+    val matchShortNino = Json.obj("$regex" -> s"${shortNino.value}\\w")
+    find("nino" -> matchShortNino, "userType" -> UserType.INDIVIDUAL) map (_.headOption map (_.asInstanceOf[
+      TestIndividual]))
   }
 
   def fetchIndividualBySaUtr(saUtr: SaUtr): Future[Option[TestIndividual]] = {
-    find("saUtr" -> saUtr, "userType" -> UserType.INDIVIDUAL) map(_.headOption map (_.asInstanceOf[TestIndividual]))
+    find("saUtr" -> saUtr, "userType" -> UserType.INDIVIDUAL) map (_.headOption map (_.asInstanceOf[
+      TestIndividual]))
   }
 
   def fetchIndividualByVrn(vrn: Vrn): Future[Option[TestIndividual]] = {
-    find("vrn" -> vrn, "userType" -> UserType.INDIVIDUAL) map(_.headOption map (_.asInstanceOf[TestIndividual]))
+    find("vrn" -> vrn, "userType" -> UserType.INDIVIDUAL) map (_.headOption map (_.asInstanceOf[
+      TestIndividual]))
   }
 
-  def fetchOrganisationByEmpRef(empRef: EmpRef): Future[Option[TestOrganisation]] = {
-    find("empRef" -> empRef.value) map(_.headOption map (_.asInstanceOf[TestOrganisation]))
+  def fetchOrganisationByEmpRef(
+      empRef: EmpRef): Future[Option[TestOrganisation]] = {
+    find("empRef" -> empRef.value) map (_.headOption map (_.asInstanceOf[
+      TestOrganisation]))
   }
 
   def fetchOrganisationByVrn(vrn: Vrn): Future[Option[TestOrganisation]] = {
-    find("vrn" -> vrn.value, "userType" -> UserType.ORGANISATION) map(_.headOption map (_.asInstanceOf[TestOrganisation]))
+    find("vrn" -> vrn.value, "userType" -> UserType.ORGANISATION) map (_.headOption map (_.asInstanceOf[
+      TestOrganisation]))
   }
 
   def identifierIsUnique(identifier: String): Future[Boolean] = {
     Logger.info(s"Checking tax identifier uniqueness - $identifier")
-    val query = Json.obj("$or" -> IdentifierFields.map(identifierField => Json.obj(identifierField -> identifier)))
-    count(query).map{ matchedIdentifiers =>
+    val query = Json.obj("$or" -> IdentifierFields.map(identifierField =>
+      Json.obj(identifierField -> identifier)))
+    count(query).map { matchedIdentifiers =>
       val isUnique = matchedIdentifiers == 0
       Logger.info(s"Completed checking tax identifier uniqueness - $identifier")
       isUnique

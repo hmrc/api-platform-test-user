@@ -26,5 +26,6 @@ case class NinoNoSuffix(value: String) {
 
 object NinoNoSuffix {
   def isValid(nino: String) = nino != null && Nino.isValid(nino + "A")
-  def apply(nino: Nino): NinoNoSuffix = NinoNoSuffix(nino.nino.substring(0, nino.nino.length - 1))
+  def apply(nino: Nino): NinoNoSuffix =
+    NinoNoSuffix(nino.nino.substring(0, nino.nino.length - 1))
 }

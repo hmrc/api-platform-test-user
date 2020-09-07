@@ -22,9 +22,11 @@ import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
 @Singleton
 class PasswordService @Inject()(config: PasswordConfig) {
 
-  def hash(password: String): String = BCryptUtils.hashpw(password, BCryptUtils.gensalt(config.passwordLogRounds))
+  def hash(password: String): String =
+    BCryptUtils.hashpw(password, BCryptUtils.gensalt(config.passwordLogRounds))
 
-  def validate(password: String, hashedPassword: String) = BCryptUtils.checkpw(password, hashedPassword)
+  def validate(password: String, hashedPassword: String) =
+    BCryptUtils.checkpw(password, hashedPassword)
 }
 
 case class PasswordConfig(passwordLogRounds: Int)
