@@ -56,6 +56,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
   val payeEnrolment = Enrolment("IR-PAYE", Seq(Identifier("TaxOfficeNumber", taxOfficeNumber),
     Identifier("TaxOfficeReference", taxOfficeReference)))
   val customsEnrolment = Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
+  val goodsVehicleMovementsEnrolment = Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
   val icsEnrolment = Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber)))
 
   "A GovernmentGatewayLogin created from a TestAgent" should {
@@ -109,7 +110,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
       eoriNumber = Some(eoriNumber),
       vrn = Some(vrn),
       groupIdentifier = Some(groupIdentifier),
-      services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT, ICS_SAFETY_AND_SECURITY))
+      services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, ICS_SAFETY_AND_SECURITY))
 
     "contain no enrolments when the individual has no services" in {
       val login = GovernmentGatewayLogin(individual.copy(services = Seq.empty))
@@ -120,13 +121,19 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
     "contain the right enrolments for the individual's services" in {
       val login = GovernmentGatewayLogin(individual)
 
-      login.enrolments should contain theSameElementsAs Seq(saEnrolment, mtdItEnrolment, customsEnrolment, mtdVatEnrolment, icsEnrolment)
+      login.enrolments should contain theSameElementsAs Seq(saEnrolment, mtdItEnrolment, customsEnrolment, goodsVehicleMovementsEnrolment, mtdVatEnrolment, icsEnrolment)
     }
 
     "contain the correct enrolments for customs services" in {
       val login = GovernmentGatewayLogin(individual.copy(services = Seq(CUSTOMS_SERVICES)))
 
       login.enrolments should contain theSameElementsAs Seq(customsEnrolment)
+    }
+
+    "contain the correct enrolments for goods vehicle movements" in {
+      val login = GovernmentGatewayLogin(individual.copy(services = Seq(GOODS_VEHICLE_MOVEMENTS)))
+
+      login.enrolments should contain theSameElementsAs Seq(goodsVehicleMovementsEnrolment)
     }
 
     "contain the correct enrolments for ics safety and security" in {
@@ -176,7 +183,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
       eoriNumber = Some(eoriNumber),
       groupIdentifier = Some(groupIdentifier),
       services = Seq(AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, CORPORATION_TAX, SUBMIT_VAT_RETURNS,
-        PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES, ICS_SAFETY_AND_SECURITY))
+        PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, ICS_SAFETY_AND_SECURITY))
 
     "contain no enrolments when the organisation has no services" in {
       val login = GovernmentGatewayLogin(organisation.copy(services = Seq.empty))
@@ -189,7 +196,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
 
       login.enrolments should contain theSameElementsAs
         Seq(saEnrolment, ctEnrolment, vatEnrolment, payeEnrolment, mtdItEnrolment, mtdVatEnrolment, lisaEnrolment, setEnrolment,
-          psaEnrolment, customsEnrolment, icsEnrolment)
+          psaEnrolment, customsEnrolment, goodsVehicleMovementsEnrolment, icsEnrolment)
     }
 
     "ignore services that are not applicable" in {
@@ -209,6 +216,12 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
       val login = GovernmentGatewayLogin(organisation.copy(services = Seq(CUSTOMS_SERVICES)))
 
       login.enrolments should contain theSameElementsAs Seq(customsEnrolment)
+    }
+
+    "contain the correct enrolments for goods vehicle movements" in {
+      val login = GovernmentGatewayLogin(organisation.copy(services = Seq(GOODS_VEHICLE_MOVEMENTS)))
+
+      login.enrolments should contain theSameElementsAs Seq(goodsVehicleMovementsEnrolment)
     }
 
     "contain the correct enrolments for ics safety and security" in {

@@ -136,6 +136,15 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
       individual shouldHave(eoriDefined = true)
     }
 
+    "generate an EORI when GOODS_VEHICLE_MOVEMENTS service is included" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+
+      val individual =
+        await(underTest.generateTestIndividual(Seq(GOODS_VEHICLE_MOVEMENTS)))
+
+      individual shouldHave (eoriDefined = true)
+    }
+
     "generate an EORI when ICS_SAFETY_AND_SECURITY service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
@@ -297,6 +306,15 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
       val org = await(underTest.generateTestOrganisation(Seq(CUSTOMS_SERVICES)))
 
       org shouldHave(eoriDefined = true)
+    }
+
+    "generate an EORI when GOODS_VEHICLE_MOVEMENTS service is included" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+
+      val org =
+        await(underTest.generateTestOrganisation(Seq(GOODS_VEHICLE_MOVEMENTS)))
+
+      org shouldHave (eoriDefined = true)
     }
 
     "generate an EORI when ICS_SAFETY_AND_SECURITY service is included" in new Setup {

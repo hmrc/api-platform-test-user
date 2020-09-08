@@ -72,7 +72,7 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with LogSu
     vatRegistrationDate = Some(vatRegistrationDate),
     eoriNumber = Some(eoriNumber),
     groupIdentifier = Some(groupIdentifier),
-    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, MTD_VAT))
+    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT))
 
   val organisationDetails = OrganisationDetails(
     name = "Company ABCDEF",
@@ -96,7 +96,7 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with LogSu
     eoriNumber = Some(eoriNumber),
     groupIdentifier = Some(groupIdentifier),
     services =
-      Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, MTD_VAT, PAYE_FOR_EMPLOYERS, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA, CUSTOMS_SERVICES))
+      Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, MTD_VAT, PAYE_FOR_EMPLOYERS, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS))
 
   val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
 
