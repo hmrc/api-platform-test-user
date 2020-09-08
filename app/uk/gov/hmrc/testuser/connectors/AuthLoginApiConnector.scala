@@ -82,6 +82,7 @@ object GovernmentGatewayLogin {
         case SELF_ASSESSMENT => individual.saUtr map { saUtr => Enrolment("IR-SA", Seq(Identifier("UTR", saUtr))) }
         case MTD_INCOME_TAX => individual.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId))) }
         case CUSTOMS_SERVICES => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
+        case GOODS_VEHICLE_MOVEMENTS => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber)))}
         case ICS_SAFETY_AND_SECURITY => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber))) }
         case MTD_VAT => individual.vrn map { vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn))) }
         case _ => None
@@ -117,6 +118,7 @@ object GovernmentGatewayLogin {
         case SECURE_ELECTRONIC_TRANSFER => organisation.secureElectronicTransferReferenceNumber map { setRefNum => Enrolment("HMRC-SET-ORG", Seq(Identifier("SRN", setRefNum))) }
         case RELIEF_AT_SOURCE => organisation.pensionSchemeAdministratorIdentifier map { psaId => Enrolment("HMRC-PSA-ORG", Seq(Identifier("PSAID", psaId))) }
         case CUSTOMS_SERVICES => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
+        case GOODS_VEHICLE_MOVEMENTS => organisation.eoriNumber map { eoriNumber =>Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber)))}
         case ICS_SAFETY_AND_SECURITY => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber))) }
         case _ => None
       }

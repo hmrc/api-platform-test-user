@@ -37,6 +37,7 @@ object ServiceKeys extends Enumeration {
   val SECURE_ELECTRONIC_TRANSFER: ServiceKeys.Value = Value("secure-electronic-transfer")
   val RELIEF_AT_SOURCE: ServiceKeys.Value = Value("relief-at-source")
   val CUSTOMS_SERVICES: ServiceKeys.Value = Value("customs-services")
+  val GOODS_VEHICLE_MOVEMENTS: ServiceKeys.Value = Value("goods-vehicle-movements")
   val ICS_SAFETY_AND_SECURITY: ServiceKeys.Value = Value("ics-safety-and-security")
 }
 
@@ -56,6 +57,7 @@ object Services extends Seq[Service] {
     Service(ServiceKeys.SECURE_ELECTRONIC_TRANSFER, "Secure Electronic Transfer", Seq(ORGANISATION)),
     Service(ServiceKeys.RELIEF_AT_SOURCE, "Relief at Source", Seq(ORGANISATION)),
     Service(ServiceKeys.CUSTOMS_SERVICES, "Customs Services", Seq(INDIVIDUAL, ORGANISATION)),
+    Service(ServiceKeys.GOODS_VEHICLE_MOVEMENTS, "Goods Vehicle Services", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.ICS_SAFETY_AND_SECURITY, "ICS Safety and Security", Seq(INDIVIDUAL, ORGANISATION)))
 
 

@@ -47,7 +47,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   private val lisaManRefNumGenerator = new LisaGenerator()
   private val setRefNumGenerator = new SecureElectronicTransferReferenceNumberGenerator()
   private val psaIdGenerator = new PensionSchemeAdministratorIdentifierGenerator()
-  private val eoriGenerator = Gen.listOfN(10, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
+  private val eoriGenerator = Gen.listOfN(12, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
   private val arnGenerator = new ArnGenerator()
 
   def generateTestIndividual(services: Seq[ServiceKey] = Seq.empty): Future[TestIndividual] = {
@@ -55,7 +55,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
       saUtr <- if (services.contains(SELF_ASSESSMENT)) generateSaUtr.map(Some(_)) else Future.successful(None)
       nino <- if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) generateNino.map(Some(_)) else Future.successful(None)
       mtdItId <- if(services.contains(MTD_INCOME_TAX)) generateMtdId.map(Some(_)) else Future.successful(None)
-      eoriNumber <- if(services.contains(CUSTOMS_SERVICES) || services.contains(ICS_SAFETY_AND_SECURITY)) generateEoriNumber.map(Some(_)) else Future.successful(None)
+      eoriNumber <- if(services.contains(CUSTOMS_SERVICES) || services.contains(ICS_SAFETY_AND_SECURITY) || services.contains(GOODS_VEHICLE_MOVEMENTS)) generateEoriNumber.map(Some(_)) else Future.successful(None)
       vrn <- if(services.contains(MTD_VAT)) generateVrn.map(Some(_)) else Future.successful(None)
       vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1,20).sample.get))
       groupIdentifier = Some(generateGroupIdentifier)
@@ -91,7 +91,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
       lisaManRefNum <- if (services.contains(LISA)) generateLisaManRefNum.map(Some(_)) else Future.successful(None)
       setRefNum = if (services.contains(SECURE_ELECTRONIC_TRANSFER)) Some(generateSetRefNum) else None
       psaId = if (services.contains(RELIEF_AT_SOURCE)) Some(generatePsaId) else None
-      eoriNumber <- if (services.contains(CUSTOMS_SERVICES) || services.contains(ICS_SAFETY_AND_SECURITY)) generateEoriNumber.map(Some(_)) else Future.successful(None)
+      eoriNumber <- if (services.contains(CUSTOMS_SERVICES) || services.contains(ICS_SAFETY_AND_SECURITY)|| services.contains(GOODS_VEHICLE_MOVEMENTS)) generateEoriNumber.map(Some(_)) else Future.successful(None)
       groupIdentifier = Some(generateGroupIdentifier)
       firstName = generateFirstName
       lastName = generateLastName
