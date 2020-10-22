@@ -50,7 +50,8 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     vrn = Some("999902541"),
     mtdItId = Some("XGIT00000000054"),
     groupIdentifier = Some("individualGroup"),
-    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, ICS_SAFETY_AND_SECURITY))
+    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT,
+      ICS_SAFETY_AND_SECURITY, SAFETY_AND_SECURITY))
 
   val taxOfficeNumber = "555"
 
@@ -75,7 +76,8 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     eoriNumber = Some("GB1234567890"),
     groupIdentifier = Some("organsiationGroup"),
     services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX,
-      MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, ICS_SAFETY_AND_SECURITY))
+      MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS,
+      ICS_SAFETY_AND_SECURITY, SAFETY_AND_SECURITY))
 
   val testAgent = TestAgent(
     userId = "agentUser",
@@ -181,6 +183,15 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
              |     },
              |     {
              |       "key": "HMRC-ICS-ORG",
+             |       "state": "Activated",
+             |       "identifiers": [
+             |       {
+             |         "key":"EoriTin",
+             |         "value":"${testIndividual.eoriNumber.get}"
+             |       }]
+             |     },
+             |     {
+             |       "key": "HMRC-SS-ORG",
              |       "state": "Activated",
              |       "identifiers": [
              |       {
@@ -316,6 +327,15 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |     },
            |     {
            |       "key": "HMRC-ICS-ORG",
+           |       "state": "Activated",
+           |       "identifiers": [
+           |       {
+           |         "key":"EoriTin",
+           |         "value":"${testOrganisation.eoriNumber.get}"
+           |       }]
+           |     },
+           |     {
+           |       "key": "HMRC-SS-ORG",
            |       "state": "Activated",
            |       "identifiers": [
            |       {
