@@ -58,7 +58,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
   val customsEnrolment = Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
   val goodsVehicleMovementsEnrolment = Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
   val icsEnrolment = Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber)))
-  val ssEnrolment = Enrolment("HMRC-SS-ORG", Seq(Identifier("EoriTin", eoriNumber)))
+  val ssEnrolment = Enrolment("HMRC-SS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
 
   "A GovernmentGatewayLogin created from a TestAgent" should {
 
@@ -112,7 +112,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
       vrn = Some(vrn),
       groupIdentifier = Some(groupIdentifier),
       services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT,
-        ICS_SAFETY_AND_SECURITY, SAFETY_AND_SECURITY))
+        ICS_SAFETY_AND_SECURITY))
 
     "contain no enrolments when the individual has no services" in {
       val login = GovernmentGatewayLogin(individual.copy(services = Seq.empty))
@@ -124,7 +124,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
       val login = GovernmentGatewayLogin(individual)
 
       login.enrolments should contain theSameElementsAs Seq(saEnrolment, mtdItEnrolment, customsEnrolment,
-        goodsVehicleMovementsEnrolment, mtdVatEnrolment, icsEnrolment, ssEnrolment)
+        goodsVehicleMovementsEnrolment, mtdVatEnrolment, icsEnrolment)
     }
 
     "contain the correct enrolments for customs services" in {
@@ -143,12 +143,6 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
       val login = GovernmentGatewayLogin(individual.copy(services = Seq(ICS_SAFETY_AND_SECURITY)))
 
       login.enrolments should contain theSameElementsAs Seq(icsEnrolment)
-    }
-
-    "contain the correct enrolments for safety and security" in {
-      val login = GovernmentGatewayLogin(individual.copy(services = Seq(SAFETY_AND_SECURITY)))
-
-      login.enrolments should contain theSameElementsAs Seq(ssEnrolment)
     }
 
     "contain the correct enrolments for mtd vat" in {

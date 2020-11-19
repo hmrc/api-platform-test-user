@@ -37,10 +37,6 @@
           {
             "enum": ["ics-safety-and-security"],
             "description": "Generates an EORI number and enrols the user for Import Control System."
-          },
-          {
-            "enum": ["safety-and-security"],
-            "description": "Generates an EORI number and enrols the user for Safety and Security."
           }
         ]
       },

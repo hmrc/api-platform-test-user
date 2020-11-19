@@ -51,7 +51,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     mtdItId = Some("XGIT00000000054"),
     groupIdentifier = Some("individualGroup"),
     services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT,
-      ICS_SAFETY_AND_SECURITY, SAFETY_AND_SECURITY))
+      ICS_SAFETY_AND_SECURITY))
 
   val taxOfficeNumber = "555"
 
@@ -183,15 +183,6 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
              |     },
              |     {
              |       "key": "HMRC-ICS-ORG",
-             |       "state": "Activated",
-             |       "identifiers": [
-             |       {
-             |         "key":"EoriTin",
-             |         "value":"${testIndividual.eoriNumber.get}"
-             |       }]
-             |     },
-             |     {
-             |       "key": "HMRC-SS-ORG",
              |       "state": "Activated",
              |       "identifiers": [
              |       {
@@ -339,7 +330,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "state": "Activated",
            |       "identifiers": [
            |       {
-           |         "key":"EoriTin",
+           |         "key":"EORINumber",
            |         "value":"${testOrganisation.eoriNumber.get}"
            |       }]
            |     }
