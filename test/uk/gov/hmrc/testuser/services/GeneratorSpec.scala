@@ -153,14 +153,6 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
       individual shouldHave(eoriDefined = true)
     }
 
-    "generate an EORI when SAFETY_AND_SECURITY service is included" in new Setup {
-      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
-
-      val individual = await(underTest.generateTestIndividual(Seq(SAFETY_AND_SECURITY)))
-
-      individual shouldHave(eoriDefined = true)
-    }
-
     "generate individualDetails from the configuration file" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 

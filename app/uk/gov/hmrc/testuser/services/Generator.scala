@@ -56,7 +56,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
       nino <- if (services.contains(NATIONAL_INSURANCE) || services.contains(MTD_INCOME_TAX)) generateNino.map(Some(_)) else Future.successful(None)
       mtdItId <- if(services.contains(MTD_INCOME_TAX)) generateMtdId.map(Some(_)) else Future.successful(None)
       eoriNumber <- if(services.contains(CUSTOMS_SERVICES) ||
-        services.contains(ICS_SAFETY_AND_SECURITY) || services.contains(SAFETY_AND_SECURITY) ||
+        services.contains(ICS_SAFETY_AND_SECURITY) ||
         services.contains(GOODS_VEHICLE_MOVEMENTS)) generateEoriNumber.map(Some(_)) else Future.successful(None)
       vrn <- if(services.contains(MTD_VAT)) generateVrn.map(Some(_)) else Future.successful(None)
       vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1,20).sample.get))
