@@ -37,6 +37,10 @@
           {
             "enum": ["ics-safety-and-security"],
             "description": "Generates an EORI number and enrols the user for Import Control System."
+          },
+          {
+            "enum": ["common-transit-convention-traders"],
+            "description": "Generates an EORI number and enrols the user for Common Transit Convention Traders."
           }
         ]
       },
