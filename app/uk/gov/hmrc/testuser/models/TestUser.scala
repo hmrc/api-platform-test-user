@@ -61,7 +61,7 @@ object Services extends Seq[Service] {
     Service(ServiceKeys.CUSTOMS_SERVICES, "Customs Services", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.GOODS_VEHICLE_MOVEMENTS, "Goods Vehicle Services", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.ICS_SAFETY_AND_SECURITY, "ICS Safety and Security", Seq(INDIVIDUAL, ORGANISATION)),
-    Service(ServiceKeys.CTC, "Common Transit Convention Traders", Seq(INDIVIDUAL)),
+    Service(ServiceKeys.CTC, "Common Transit Convention Traders", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.SAFETY_AND_SECURITY, "Safety and Security", Seq(ORGANISATION)))
 
 

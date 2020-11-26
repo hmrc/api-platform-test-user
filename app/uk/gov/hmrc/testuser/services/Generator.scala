@@ -57,6 +57,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
       mtdItId <- if(services.contains(MTD_INCOME_TAX)) generateMtdId.map(Some(_)) else Future.successful(None)
       eoriNumber <- if(services.contains(CUSTOMS_SERVICES) ||
         services.contains(ICS_SAFETY_AND_SECURITY) ||
+        services.contains(CTC) ||
         services.contains(GOODS_VEHICLE_MOVEMENTS)) generateEoriNumber.map(Some(_)) else Future.successful(None)
       vrn <- if(services.contains(MTD_VAT)) generateVrn.map(Some(_)) else Future.successful(None)
       vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1,20).sample.get))
@@ -94,6 +95,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
       setRefNum = if (services.contains(SECURE_ELECTRONIC_TRANSFER)) Some(generateSetRefNum) else None
       psaId = if (services.contains(RELIEF_AT_SOURCE)) Some(generatePsaId) else None
       eoriNumber <- if (services.contains(CUSTOMS_SERVICES) ||
+        services.contains(CTC) ||
         services.contains(ICS_SAFETY_AND_SECURITY) || services.contains(SAFETY_AND_SECURITY) ||
         services.contains(GOODS_VEHICLE_MOVEMENTS)) generateEoriNumber.map(Some(_)) else Future.successful(None)
       groupIdentifier = Some(generateGroupIdentifier)

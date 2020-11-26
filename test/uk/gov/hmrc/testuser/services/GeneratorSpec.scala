@@ -136,6 +136,14 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
       individual shouldHave(eoriDefined = true)
     }
 
+    "generate an EORI when CTC service is included" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+
+      val individual = await(underTest.generateTestIndividual(Seq(CTC)))
+
+      individual shouldHave(eoriDefined = true)
+    }
+
     "generate an EORI when GOODS_VEHICLE_MOVEMENTS service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
@@ -304,6 +312,14 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val org = await(underTest.generateTestOrganisation(Seq(CUSTOMS_SERVICES)))
+
+      org shouldHave(eoriDefined = true)
+    }
+
+    "generate an EORI when CTC service is included" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(CTC)))
 
       org shouldHave(eoriDefined = true)
     }
