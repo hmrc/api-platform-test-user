@@ -119,6 +119,7 @@ object GovernmentGatewayLogin {
         case SECURE_ELECTRONIC_TRANSFER => organisation.secureElectronicTransferReferenceNumber map { setRefNum => Enrolment("HMRC-SET-ORG", Seq(Identifier("SRN", setRefNum))) }
         case RELIEF_AT_SOURCE => organisation.pensionSchemeAdministratorIdentifier map { psaId => Enrolment("HMRC-PSA-ORG", Seq(Identifier("PSAID", psaId))) }
         case CUSTOMS_SERVICES => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
+        case CTC => organisation.eoriNumber map { eoriNumber => Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber))) }
         case GOODS_VEHICLE_MOVEMENTS => organisation.eoriNumber map { eoriNumber =>Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber)))}
         case ICS_SAFETY_AND_SECURITY => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber))) }
         case SAFETY_AND_SECURITY => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-SS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
