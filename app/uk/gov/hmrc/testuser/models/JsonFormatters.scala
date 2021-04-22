@@ -51,6 +51,7 @@ object JsonFormatters {
   implicit val formatAuthenticationResponse = Json.format[AuthenticationResponse]
 
   implicit val formatCreateUserServicesRequest = Json.format[CreateUserRequest]
+  implicit val formatCreateUserServicesWithOptionalEoriRequest = Json.format[CreateUserWithOptionalEoriRequest]
 
   implicit val formatFetchTestIndividualResponse = Json.format[FetchTestIndividualResponse]
   implicit val formatFetchTestOrganisationResponse = Json.format[FetchTestOrganisationResponse]

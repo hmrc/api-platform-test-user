@@ -85,7 +85,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   )
 
   val generator = new Generator(mockTestUserRepository, config)
-  val testIndividualWithNoServices = generator.generateTestIndividual()
+  val testIndividualWithNoServices = generator.generateTestIndividual(Seq.empty, None)
     .copy(
       userId = userId,
       password = password,
@@ -95,7 +95,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
   val testIndividual = testIndividualWithNoServices.copy(services = individualServices)
 
   val organisationServices = Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
-  val testOrganisationWithNoServices = generator.generateTestOrganisation()
+  val testOrganisationWithNoServices = generator.generateTestOrganisation(Seq.empty, None)
     .copy(
       userId = userId,
       password = password,
@@ -127,7 +127,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     "Generate an individual and save it with hashed password in the database" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      given(underTest.generator.generateTestIndividual(individualServices)).willReturn(testIndividual)
+      given(underTest.generator.generateTestIndividual(individualServices, None)).willReturn(testIndividual)
       given(underTest.passwordService.hash(testIndividual.password)).willReturn(hashedPassword)
 
       val result = await(underTest.createTestIndividual(individualServices))
@@ -141,7 +141,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
 
     "Not call the DES simulator when the individual does not have the mtd-income-tax service" in new Setup {
       val hashedPassword = "hashedPassword"
-      given(underTest.generator.generateTestIndividual(Seq.empty)).willReturn(testIndividualWithNoServices)
+      given(underTest.generator.generateTestIndividual(Seq.empty, None)).willReturn(testIndividualWithNoServices)
       given(underTest.passwordService.hash(testIndividualWithNoServices.password)).willReturn(hashedPassword)
 
       val result = await(underTest.createTestIndividual(Seq.empty))
@@ -155,7 +155,7 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
 
     "fail when the repository fails" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
-        given(underTest.generator.generateTestIndividual(individualServices)).willReturn(testIndividual)
+        given(underTest.generator.generateTestIndividual(individualServices, None)).willReturn(testIndividual)
         given(underTest.testUserRepository.createUser(any[TestUser]()))
           .willReturn(failed(new RuntimeException("expected test error")))
 
@@ -171,10 +171,10 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     "Generate an organisation and save it in the database" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      given(underTest.generator.generateTestOrganisation(organisationServices)).willReturn(testOrganisation)
+      given(underTest.generator.generateTestOrganisation(organisationServices, None)).willReturn(testOrganisation)
       given(underTest.passwordService.hash(testOrganisation.password)).willReturn(hashedPassword)
 
-      val result = await(underTest.createTestOrganisation(organisationServices))
+      val result = await(underTest.createTestOrganisation(organisationServices, None))
 
       result shouldBe testOrganisation
 
@@ -186,10 +186,10 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
     "Not call the DES simulator when the organisation does not have the mtd-income-tax service" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      given(underTest.generator.generateTestOrganisation(Seq.empty)).willReturn(testOrganisationWithNoServices)
+      given(underTest.generator.generateTestOrganisation(Seq.empty, None)).willReturn(testOrganisationWithNoServices)
       given(underTest.passwordService.hash(testOrganisationWithNoServices.password)).willReturn(hashedPassword)
 
-      val result = await(underTest.createTestOrganisation(Seq.empty))
+      val result = await(underTest.createTestOrganisation(Seq.empty, None))
 
       result shouldBe testOrganisationWithNoServices
 
@@ -200,12 +200,12 @@ class TestUserServiceSpec extends UnitSpec with MockitoSugar with LogSuppressing
 
     "fail when the repository fails" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
-        given(underTest.generator.generateTestOrganisation(organisationServices)).willReturn(testOrganisation)
+        given(underTest.generator.generateTestOrganisation(organisationServices, None)).willReturn(testOrganisation)
         given(underTest.testUserRepository.createUser(any[TestUser]()))
           .willReturn(failed(new RuntimeException("expected test error")))
 
         intercept[RuntimeException] {
-          await(underTest.createTestOrganisation(organisationServices))
+          await(underTest.createTestOrganisation(organisationServices, None))
         }
       }
     }

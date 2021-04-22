@@ -35,19 +35,19 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
   extends BackendController(cc) {
 
   def createIndividual() = Action.async(parse.json) { implicit request =>
-    withJsonBody[CreateUserRequest] { createUserRequest =>
-      testUserService.createTestIndividual(createUserRequest.serviceNames.getOrElse(Seq.empty)) map { individual =>
+    withJsonBody[CreateUserWithOptionalEoriRequest] { createUserRequest =>
+      testUserService.createTestIndividual(createUserRequest.serviceNames.getOrElse(Seq.empty), createUserRequest.eoriNumber) map { individual =>
         Created(toJson(TestIndividualCreatedResponse.from(individual)))
       }
-    }recover recovery
+    } recover recovery
   }
 
   def createOrganisation() = Action.async(parse.json) { implicit request =>
-    withJsonBody[CreateUserRequest] { createUserRequest =>
-      testUserService.createTestOrganisation(createUserRequest.serviceNames.getOrElse(Seq.empty)) map { organisation =>
+    withJsonBody[CreateUserWithOptionalEoriRequest] { createUserRequest =>
+      testUserService.createTestOrganisation(createUserRequest.serviceNames.getOrElse(Seq.empty), createUserRequest.eoriNumber) map { organisation =>
         Created(toJson(TestOrganisationCreatedResponse.from(organisation)))
       }
-    }recover recovery
+    } recover recovery
   }
 
   def createAgent() = Action.async(parse.json) { implicit request =>

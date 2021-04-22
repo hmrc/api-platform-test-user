@@ -38,8 +38,8 @@ class DesSimulatorConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
     val repository = mock[TestUserRepository]
     when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-    val testIndividual = await(generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE)))
-    val testOrganisation = await(generator.generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX)))
+    val testIndividual = await(generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE), None))
+    val testOrganisation = await(generator.generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX), None))
 
     implicit val hc = HeaderCarrier()
 
