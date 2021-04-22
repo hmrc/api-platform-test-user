@@ -58,37 +58,37 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
     } recover recovery
   }
 
-  def fetchIndividualByNino(nino: Nino) = Action.async { implicit request =>
+  def fetchIndividualByNino(nino: Nino) = Action.async { _ =>
     testUserService.fetchIndividualByNino(nino) map { individual =>
       Ok(toJson(FetchTestIndividualResponse.from(individual)))
     } recover recovery
   }
 
-  def fetchIndividualByShortNino(shortNino: NinoNoSuffix) = Action.async { implicit request =>
+  def fetchIndividualByShortNino(shortNino: NinoNoSuffix) = Action.async { _ =>
     testUserService.fetchIndividualByShortNino(shortNino) map { individual =>
       Ok(toJson(FetchTestIndividualResponse.from(individual)))
     } recover recovery
   }
 
-  def fetchIndividualBySaUtr(saUtr: SaUtr) = Action.async { implicit request =>
+  def fetchIndividualBySaUtr(saUtr: SaUtr) = Action.async { _ =>
     testUserService.fetchIndividualBySaUtr(saUtr) map { individual =>
       Ok(toJson(FetchTestIndividualResponse.from(individual)))
     } recover recovery
   }
 
-  def fetchIndividualByVrn(vrn: Vrn) = Action.async { implicit request =>
+  def fetchIndividualByVrn(vrn: Vrn) = Action.async { _ =>
     testUserService.fetchIndividualByVrn(vrn) map { individual =>
       Ok(toJson(FetchTestIndividualResponse.from(individual)))
     } recover recovery
   }
 
-  def fetchOrganisationByEmpRef(empRef: EmpRef) = Action.async { implicit request =>
+  def fetchOrganisationByEmpRef(empRef: EmpRef) = Action.async { _ =>
     testUserService.fetchOrganisationByEmpRef(empRef) map { organisation =>
       Ok(toJson(FetchTestOrganisationResponse.from(organisation)))
     } recover recovery
   }
 
-  def fetchOrganisationByVrn(vrn: Vrn) = Action.async { implicit request =>
+  def fetchOrganisationByVrn(vrn: Vrn) = Action.async { _ =>
     testUserService.fetchOrganisationByVrn(vrn) map { organisation =>
       Ok(toJson(FetchTestOrganisationResponse.from(organisation)))
     } recover recovery
@@ -102,7 +102,7 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
       InternalServerError(toJson(ErrorResponse.internalServerError))
   }
 
-  def getServices = Action { implicit request =>
+  def getServices = Action { _ =>
     Ok(toJson(Services))
   }
 }

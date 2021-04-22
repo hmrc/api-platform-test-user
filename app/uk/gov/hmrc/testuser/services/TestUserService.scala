@@ -67,27 +67,27 @@ class TestUserService @Inject()(val passwordService: PasswordService,
     }
   }
 
-  def fetchIndividualByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
+  def fetchIndividualByNino(nino: Nino): Future[TestIndividual] = {
     testUserRepository.fetchIndividualByNino(nino) map(t => t.getOrElse(throw UserNotFound(INDIVIDUAL)))
   }
 
-  def fetchIndividualByShortNino(shortNino: NinoNoSuffix)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
+  def fetchIndividualByShortNino(shortNino: NinoNoSuffix): Future[TestIndividual] = {
     testUserRepository.fetchIndividualByShortNino(shortNino) map(t => t.getOrElse(throw UserNotFound(INDIVIDUAL)))
   }
 
-  def fetchIndividualBySaUtr(saUtr: SaUtr)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
+  def fetchIndividualBySaUtr(saUtr: SaUtr): Future[TestIndividual] = {
     testUserRepository.fetchIndividualBySaUtr(saUtr) map(t => t.getOrElse(throw UserNotFound(INDIVIDUAL)))
   }
 
-  def fetchIndividualByVrn(vrn: Vrn)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
+  def fetchIndividualByVrn(vrn: Vrn): Future[TestIndividual] = {
     testUserRepository.fetchIndividualByVrn(vrn) map(t => t.getOrElse(throw UserNotFound(INDIVIDUAL)))
   }
 
-  def fetchOrganisationByEmpRef(empRef: EmpRef)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
+  def fetchOrganisationByEmpRef(empRef: EmpRef): Future[TestOrganisation] = {
     testUserRepository.fetchOrganisationByEmpRef(empRef) map(t => t.getOrElse(throw UserNotFound(ORGANISATION)))
   }
 
-  def fetchOrganisationByVrn(vrn: Vrn)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
+  def fetchOrganisationByVrn(vrn: Vrn): Future[TestOrganisation] = {
     testUserRepository.fetchOrganisationByVrn(vrn) map(t => t.getOrElse(throw UserNotFound(ORGANISATION)))
   }
 }

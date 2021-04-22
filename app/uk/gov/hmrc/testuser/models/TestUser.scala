@@ -20,7 +20,7 @@ import org.joda.time.LocalDate
 import play.api.libs.json.{Format, Reads, Writes}
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.testuser.models.ServiceKeys.{ServiceKey, Value}
+import uk.gov.hmrc.testuser.models.ServiceKeys.ServiceKey
 import uk.gov.hmrc.testuser.models.UserType.{AGENT, INDIVIDUAL, ORGANISATION, UserType}
 
 object ServiceKeys extends Enumeration {
