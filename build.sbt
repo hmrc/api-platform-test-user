@@ -40,15 +40,12 @@ lazy val test = Seq(
   "org.mockito" % "mockito-core" % "2.10.0" % scope,
   "org.scalaj" %% "scalaj-http" % "2.4.2" % scope,
   "com.github.tomakehurst" % "wiremock-jre8" % "2.21.0" % scope,
-  "org.scalacheck" %% "scalacheck" % "1.13.5",
-  "com.eclipsesource" %% "play-json-schema-validator" % "0.9.4" % scope
+  "org.scalacheck" %% "scalacheck" % "1.13.5"
 )
 
 lazy val plugins: Seq[Plugins] = Seq.empty
 
 lazy val playSettings: Seq[Setting[_]] = Seq(routesImport ++= Seq("uk.gov.hmrc.domain._", "uk.gov.hmrc.testuser.models._", "uk.gov.hmrc.testuser.Binders._"))
-
-def emuellerBintrayResolver: MavenRepository = "emueller-bintray" at "https://dl.bintray.com/emueller/maven"
 
 lazy val microservice = (project in file("."))
   .enablePlugins(Seq(_root_.play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory) ++ plugins: _*)
@@ -63,11 +60,6 @@ lazy val microservice = (project in file("."))
     libraryDependencies ++= appDependencies,
     retrieveManaged := true,
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(warnScalaVersionEviction = false),
-    resolvers ++= Seq(
-      Resolver.bintrayRepo("hmrc", "releases"),
-      Resolver.jcenterRepo,
-      emuellerBintrayResolver
-    ),
     Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
     majorVersion := 0
   )
