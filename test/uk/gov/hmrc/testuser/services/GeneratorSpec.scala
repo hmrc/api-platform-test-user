@@ -22,8 +22,8 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalacheck.Gen
 import org.scalatest.enablers.{Definition, Emptiness}
-import org.scalatest.mockito.MockitoSugar
-import org.scalatest.prop.PropertyChecks
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
@@ -75,7 +75,7 @@ trait GeneratorProvider {
 }
 
 
-class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
+class GeneratorSpec extends UnitSpec with MockitoSugar with ScalaCheckPropertyChecks {
   trait Setup extends GeneratorProvider {
 
     val repository = mock[TestUserRepository]

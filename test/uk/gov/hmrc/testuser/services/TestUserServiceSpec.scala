@@ -22,7 +22,7 @@ import org.mockito.BDDMockito.given
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.Logger
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HeaderCarrier

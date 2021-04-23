@@ -17,6 +17,8 @@ lazy val microservice = (project in file("."))
   .settings(scalaSettings: _*)
   .settings(publishingSettings: _*)
   .settings(defaultSettings(): _*)
+  .settings(ScoverageSettings())
+  .settings(SilencerSettings())
   .settings(
     name := appName,
     targetJvm := "jvm-1.8",
@@ -27,7 +29,6 @@ lazy val microservice = (project in file("."))
     Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
     majorVersion := 0
   )
-  .settings(SilencerSettings())
   .configs(Test)
   .settings(
     Test / parallelExecution := false,
@@ -50,18 +51,3 @@ def oneForkedJvmPerTest(tests: Seq[TestDefinition]): Seq[Group] =
   tests map { test =>
     Group(test.name, Seq(test), SubProcess(ForkOptions().withRunJVMOptions(Vector("-Dtest.name=" + test.name))))
   }
-
-// Coverage configuration
-coverageMinimum := 93
-coverageFailOnMinimum := true
-coverageExcludedPackages :=
-  "<empty>;" +
-  "com.kenshoo.play.metrics.*;" +
-  ".*definition.*;" +
-  "prod.*;" +
-  "testOnlyDoNotUseInAppConf.*;" +
-  "app.*;" +
-  "uk.gov.hmrc.BuildInfo;" +
-  "uk.gov.hmrc.testuser.MicroserviceModule;" +
-  "uk.gov.hmrc.testuser.controllers.javascript.*;" +
-  "uk.gov.hmrc.testuser.controllers.Reverse.*;"
