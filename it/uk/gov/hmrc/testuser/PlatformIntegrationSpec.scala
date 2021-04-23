@@ -39,8 +39,6 @@ class PlatformIntegrationSpec extends UnitSpec with ScalaFutures with GuiceOneAp
 
   "microservice" should {
     "provide definition endpoint and documentation endpoint for each api" in new Setup {
-      def normalizeEndpointName(endpointName: String): String = endpointName.replaceAll(" ", "-")
-
       val result = documentationController.definition()(request)
       status(result) shouldBe OK
     }

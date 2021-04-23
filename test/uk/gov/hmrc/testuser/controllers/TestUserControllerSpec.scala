@@ -61,7 +61,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
   val lisaManagerReferenceNumber = "Z123456"
   val secureElectronicTransferReferenceNumber = "123456789012"
   val pensionSchemeAdministratorIdentifier = "A1234567"
-  val rawEoriNumber = "GB1234567890"
+  val rawEoriNumber = "GB123456789012"
   val eoriNumber = EoriNumber(rawEoriNumber)
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))

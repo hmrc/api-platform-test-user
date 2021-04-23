@@ -23,33 +23,37 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 @Singleton
 class AuthLoginApiConnector @Inject()(httpClient: HttpClient, val configuration: Configuration, environment: Environment, config: ServicesConfig)
                            (implicit ec: ExecutionContext) {
-
   import config.baseUrl
 
   lazy val serviceUrl: String = baseUrl("auth-login-api")
 
   def createSession(testUser: TestUser)
                    (implicit hc: HeaderCarrier): Future[AuthSession] = {
-    httpClient.POST(s"$serviceUrl/government-gateway/session/login", GovernmentGatewayLogin(testUser)) map { response =>
-      val gatewayToken = (response.json \ "gatewayToken").as[String]
+                    
+    httpClient.POST[GovernmentGatewayLogin, Either[UpstreamErrorResponse,HttpResponse]](s"$serviceUrl/government-gateway/session/login", GovernmentGatewayLogin(testUser)) map { 
+      case Right(response) =>
 
-      (response.header(AUTHORIZATION), response.header(LOCATION)) match {
-        case (Some(authBearerToken), Some(authorityUri)) => AuthSession(authBearerToken, authorityUri, gatewayToken)
-        case _ => throw new RuntimeException("Authorization and Location header must be present in response.")
-      }
+        (response.header(AUTHORIZATION), response.header(LOCATION)) match {
+          case (Some(authBearerToken), Some(authorityUri)) => val gatewayToken = (response.json \ "gatewayToken").as[String]
+                                                              AuthSession(authBearerToken, authorityUri, gatewayToken)
+          case _ => throw new RuntimeException("Authorization and Location header must be present in response.")
+        }
+      case Left(err) => throw err
     }
   }
-
 }
 
 case class Identifier(key: String, value: String)

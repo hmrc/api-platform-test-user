@@ -20,15 +20,17 @@ import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequest
 import org.joda.time.LocalDate
 import org.scalatest.BeforeAndAfterEach
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
+import play.api.test.Helpers._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with WithFakeApplication {
 
@@ -377,9 +379,9 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     "fail with Upstream5xxResponse when auth-login-api returns an error" in new Setup {
       AuthLoginApiStub.willFailToReturnASession()
 
-      intercept[Upstream5xxResponse] {
+      intercept[UpstreamErrorResponse] {
         await(underTest.createSession(testOrganisation))
-      }
+      }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }
 }

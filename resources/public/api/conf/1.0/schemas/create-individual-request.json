@@ -45,9 +45,9 @@
     "eoriNumber": {
       "type": "string",
       "description": "Economic Operator Registration and Identification (EORI) number.",
-      "minLength": 1,
+      "minLength": 14,
       "maxLength": 17,
-      "pattern": "([A-z]{2}[0-9A-Z]+)"
+      "pattern": "^(GB|XI)[0-9]{12,15}$"
     }
   },
   "required": [
