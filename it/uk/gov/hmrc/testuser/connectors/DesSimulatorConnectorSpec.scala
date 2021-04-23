@@ -21,16 +21,18 @@ import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.helpers.GeneratorProvider
 import uk.gov.hmrc.testuser.helpers.stubs.DesSimulatorStub
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
+import play.api.test.Helpers._
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class DesSimulatorConnectorSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach with WithFakeApplication {
 
@@ -79,9 +81,9 @@ class DesSimulatorConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
     "fail when the DesSimulator returns an error" in new Setup {
       DesSimulatorStub.willFailWhenCreatingTestIndividual()
 
-      intercept[Upstream5xxResponse] {
+      intercept[UpstreamErrorResponse] {
         await(underTest.createIndividual(testIndividual))
-      }
+      }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }
 
@@ -96,9 +98,9 @@ class DesSimulatorConnectorSpec extends UnitSpec with MockitoSugar with BeforeAn
     "fail when the DesSimulator returns an error" in new Setup {
       DesSimulatorStub.willFailWhenCreatingTestOrganisation()
 
-      intercept[Upstream5xxResponse] {
+      intercept[UpstreamErrorResponse] {
         await(underTest.createOrganisation(testOrganisation))
-      }
+      }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }
 }

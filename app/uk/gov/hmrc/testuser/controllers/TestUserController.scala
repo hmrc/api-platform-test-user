@@ -21,7 +21,7 @@ import play.api.Logger
 import play.api.libs.json.Json.toJson
 import play.api.mvc.{ControllerComponents, Result}
 import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr, Vrn}
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ErrorResponse.{individualNotFoundError, organisationNotFoundError}
 import uk.gov.hmrc.testuser.models.JsonFormatters._

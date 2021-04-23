@@ -357,7 +357,7 @@ case class EoriNumber(override val value: String) extends TaxIdentifier with Sim
 }
 
 object EoriNumber extends SimpleName {
-  val validEoriFormat = "^[A-z]{2}[0-9]{10,15}$"
+  val validEoriFormat = "^(GB|XI)[0-9]{12,15}$"
 
   def isValid(eoriNumber: String) = eoriNumber.matches(validEoriFormat)
 
