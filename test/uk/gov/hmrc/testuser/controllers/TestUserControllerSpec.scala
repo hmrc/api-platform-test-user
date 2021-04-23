@@ -61,7 +61,8 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
   val lisaManagerReferenceNumber = "Z123456"
   val secureElectronicTransferReferenceNumber = "123456789012"
   val pensionSchemeAdministratorIdentifier = "A1234567"
-  val eoriNumber = "GB1234567890"
+  val rawEoriNumber = "GB1234567890"
+  val eoriNumber = EoriNumber(rawEoriNumber)
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
@@ -77,7 +78,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
     mtdItId = Some(mtdItId),
     vrn = Some(vrn),
     vatRegistrationDate = Some(vatRegistrationDate),
-    eoriNumber = Some(eoriNumber),
+    eoriNumber = Some(rawEoriNumber),
     groupIdentifier = Some(groupIdentifier))
 
   val testOrganisation = TestOrganisation(
@@ -96,7 +97,7 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
     lisaManRefNum = Some(lisaManagerReferenceNumber),
     secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
     pensionSchemeAdministratorIdentifier = Some(pensionSchemeAdministratorIdentifier),
-    eoriNumber = Some(eoriNumber),
+    eoriNumber = Some(rawEoriNumber),
     groupIdentifier = Some(groupIdentifier))
 
   val testAgent = TestAgent(
@@ -123,8 +124,18 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
+    def createIndividualWithProvidedEoriRequest = {
+      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["national-insurance"], "eoriNumber": "$rawEoriNumber"}""")
+      FakeRequest().withBody[JsValue](jsonPayload)
+    }
+
     def createOrganisationRequest = {
       val jsonPayload: JsValue = Json.parse("""{"serviceNames":["national-insurance"]}""")
+      FakeRequest().withBody[JsValue](jsonPayload)
+    }
+
+    def createOrganisationWithProvidedEoriRequest = {
+      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["national-insurance"], "eoriNumber": "$rawEoriNumber"}""")
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
@@ -158,16 +169,26 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
           Some(mtdItId),
           Some(vrn),
           Some(vatRegistrationDate),
-          Some(eoriNumber),
+          Some(rawEoriNumber),
           Some(groupIdentifier)
         )
       )
     }
 
+    "return 201 (Created) with the created individual with provided eori" in new Setup {
+      given(
+        underTest.testUserService.createTestIndividual(eqTo(createIndividualServices), eqTo(Some(eoriNumber)))(any[HeaderCarrier])
+      ).willReturn(testIndividual)
+
+      val result = await(underTest.createIndividual()(createIndividualWithProvidedEoriRequest))
+
+      status(result) shouldBe CREATED
+    }
+
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
         given(
-          underTest.testUserService.createTestIndividual(any[Seq[ServiceKey]], any[Option[String]])(any[HeaderCarrier])
+          underTest.testUserService.createTestIndividual(any[Seq[ServiceKey]], any[Option[EoriNumber]])(any[HeaderCarrier])
         ).willReturn(failed(new RuntimeException("expected test error")))
 
         val result = await(underTest.createIndividual()(createIndividualRequest))
@@ -192,12 +213,21 @@ class TestUserControllerSpec extends UnitSpec with MockitoSugar with LogSuppress
       jsonBodyOf(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, userFullName, emailAddress,
         organisationDetails, Some(saUtr),
         Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(vatRegistrationDate), Some(lisaManagerReferenceNumber),
-        Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier), Some(eoriNumber), Some(groupIdentifier)))
+        Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier), Some(rawEoriNumber), Some(groupIdentifier)))
+    }
+
+    "return 201 (Created) with the created organisation with provided eori" in new Setup {
+
+      given(underTest.testUserService.createTestOrganisation(eqTo(createOrganisationServices), eqTo(Some(eoriNumber)))(any[HeaderCarrier])).willReturn(testOrganisation)
+
+      val result = await(underTest.createOrganisation()(createOrganisationWithProvidedEoriRequest))
+
+      status(result) shouldBe CREATED
     }
 
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        given(underTest.testUserService.createTestOrganisation(any[Seq[ServiceKey]], any[Option[String]])(any[HeaderCarrier]))
+        given(underTest.testUserService.createTestOrganisation(any[Seq[ServiceKey]], any[Option[EoriNumber]])(any[HeaderCarrier]))
           .willReturn(failed(new RuntimeException("expected test error")))
 
         val result = await(underTest.createOrganisation()(createOrganisationRequest))

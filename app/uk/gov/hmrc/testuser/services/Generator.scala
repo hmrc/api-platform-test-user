@@ -30,6 +30,22 @@ import uk.gov.hmrc.testuser.util.Randomiser
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
+object Generator {
+  def whenF[T](services: Seq[ServiceKey])(keys: Seq[ServiceKey])(thenDo: => Future[T])(implicit ec: ExecutionContext): Future[Option[T]] = {
+    if(services.intersect(keys).isEmpty)
+      Future.successful(None)
+    else
+      thenDo.map(Some.apply)
+  }
+  
+  def when[T](services: Seq[ServiceKey])(keys: Seq[ServiceKey])(thenDo: => T): Option[T] = {
+    if(services.intersect(keys).isEmpty)
+      None
+    else
+      Some(thenDo)
+  }
+}
+
 @Singleton
 class Generator @Inject()(val testUserRepository: TestUserRepository, val config: Config)(implicit ec: ExecutionContext) extends Randomiser {
 
@@ -49,25 +65,11 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   private val psaIdGenerator = new PensionSchemeAdministratorIdentifierGenerator()
   private val eoriGenerator = Gen.listOfN(12, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
   private val arnGenerator = new ArnGenerator()
-
-  def classWhenF(services: Seq[ServiceKey])(keys: Seq[ServiceKey])(thenDo: => Future[String]): Future[Option[String]] = {
-    if(services.intersect(keys).isEmpty)
-      Future.successful(None)
-    else
-      thenDo.map(Some.apply)
-  }
   
-  def classWhen(services: Seq[ServiceKey])(keys: Seq[ServiceKey])(thenDo: => String): Option[String] = {
-    if(services.intersect(keys).isEmpty)
-      None
-    else
-      Some(thenDo)
-  }
+  def useProvidedOrGenerateEoriNumber(eoriNumber: Option[EoriNumber]): Future[String] = eoriNumber.fold(generateEoriNumber)(provided => Future.successful(provided.value))
   
-  def useProvidedOrGenerateEoriNumber(eoriNumber: Option[String]): Future[String] = eoriNumber.fold(generateEoriNumber)(Future.successful(_))
-  
-  def generateTestIndividual(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[String]): Future[TestIndividual] = {
-    def whenF(keys: ServiceKey*)(thenDo: => Future[String]): Future[Option[String]] = classWhenF(services)(keys)(thenDo)
+  def generateTestIndividual(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[EoriNumber]): Future[TestIndividual] = {
+    def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
 
     for {
       saUtr               <- whenF(SELF_ASSESSMENT)(generateSaUtr)
@@ -97,9 +99,9 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
         services)
   }
 
-  def generateTestOrganisation(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[String]): Future[TestOrganisation] = {
-    def whenF(keys: ServiceKey*)(thenDo: => Future[String]): Future[Option[String]] = classWhenF(services)(keys)(thenDo)
-    def when(keys: ServiceKey*)(thenDo: => String): Option[String] = classWhen(services)(keys)(thenDo)
+  def generateTestOrganisation(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[EoriNumber]): Future[TestOrganisation] = {
+    def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
+    def when[T](keys: ServiceKey*)(thenDo: => T): Option[T] = Generator.when(services)(keys)(thenDo)
 
     for {
       saUtr           <- whenF(SELF_ASSESSMENT)(generateSaUtr)
@@ -112,7 +114,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
       lisaManRefNum   <- whenF(LISA)(generateLisaManRefNum)
       setRefNum       =  when(SECURE_ELECTRONIC_TRANSFER)(generateSetRefNum)
       psaId           =  when(RELIEF_AT_SOURCE)(generatePsaId)
-      eoriNumber      <- whenF(CUSTOMS_SERVICES,CTC,SAFETY_AND_SECURITY,GOODS_VEHICLE_MOVEMENTS)(generateEoriNumber)
+      eoriNumber      <- whenF(CUSTOMS_SERVICES,CTC,SAFETY_AND_SECURITY,GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
       groupIdentifier = Some(generateGroupIdentifier)
       firstName       = generateFirstName
       lastName        = generateLastName
@@ -193,7 +195,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
       .flatMap(unique => if (unique) Future(generatedIdentifier) else generateUniqueIdentifier(generatorFunction, count + 1))
   }
 
-  private def generateEmpRef: Future[String] = generateUniqueIdentifier(() => { employerReferenceGenerator.sample.get.toString() })
+  private def generateEmpRef: Future[String] = generateUniqueIdentifier(() => { employerReferenceGenerator.sample.get.toString })
   private def generateSaUtr: Future[String] = generateUniqueIdentifier(() => { utrGenerator.next })
   private def generateNino: Future[String] = generateUniqueIdentifier(() => { ninoGenerator.nextNino.value })
   private def generateCtUtr: Future[String] = generateUniqueIdentifier(() => { utrGenerator.next })
