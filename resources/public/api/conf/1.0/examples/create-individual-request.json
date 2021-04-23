@@ -7,5 +7,6 @@
     "goods-vehicle-movements",
     "mtd-vat",
     "common-transit-convention-traders"
-  ]
+  ],
+  "eoriNumber": "GB1234567890"
 }

@@ -41,6 +41,13 @@
         ]
       },
       "uniqueItems": true
+    },
+    "eoriNumber": {
+      "type": "string",
+      "description": "Economic Operator Registration and Identification (EORI) number.",
+      "minLength": 1,
+      "maxLength": 17,
+      "pattern": "([A-z]{2}[0-9A-Z]+)"
     }
   },
   "required": [

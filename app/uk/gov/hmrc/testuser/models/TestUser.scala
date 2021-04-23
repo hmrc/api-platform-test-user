@@ -362,11 +362,6 @@ object EoriNumber extends SimpleName {
   def isValid(eoriNumber: String) = eoriNumber.matches(validEoriFormat)
 
   override val name = "eoriNumber"
-
-  implicit val jsonFormat = Format[EoriNumber](
-    new SimpleObjectReads[EoriNumber](name, EoriNumber.apply),
-    new SimpleObjectWrites[EoriNumber](_.value)
-  )
 }
 
 case class Address(line1: String, line2: String, postcode: String)
