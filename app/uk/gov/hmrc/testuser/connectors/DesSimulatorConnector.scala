@@ -20,11 +20,14 @@ import javax.inject.{Inject, Singleton}
 import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.JsonFormatters._
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 @Singleton
 class DesSimulatorConnector @Inject()(httpClient: HttpClient, runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)
@@ -36,11 +39,17 @@ class DesSimulatorConnector @Inject()(httpClient: HttpClient, runModeConfigurati
 
   def createIndividual(individual: TestIndividual)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
     Logger.info(s"Calling des-simulator ($serviceUrl) to create individual $individual")
-    httpClient.POST(s"$serviceUrl/test-users/individuals", DesSimulatorTestIndividual.from(individual)) map { _ => individual }
+    httpClient.POST[DesSimulatorTestIndividual, Either[UpstreamErrorResponse,HttpResponse]](s"$serviceUrl/test-users/individuals", DesSimulatorTestIndividual.from(individual)) map { 
+      case Right(_) => individual 
+      case Left(err) => throw err
+    }
   }
 
   def createOrganisation(organisation: TestOrganisation)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
     Logger.info(s"Calling des-simulator ($serviceUrl) to create organisation $organisation")
-    httpClient.POST(s"$serviceUrl/test-users/organisations", DesSimulatorTestOrganisation.from(organisation)) map { _ => organisation }
+    httpClient.POST[DesSimulatorTestOrganisation, Either[UpstreamErrorResponse,HttpResponse]](s"$serviceUrl/test-users/organisations", DesSimulatorTestOrganisation.from(organisation)) map {
+      case Right(_) => organisation 
+      case Left(err) => throw err
+    }
   }
 }

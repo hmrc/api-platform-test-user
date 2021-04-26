@@ -20,7 +20,7 @@ import org.joda.time.LocalDate
 import play.api.libs.json.{Format, Reads, Writes}
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.testuser.models.ServiceKeys.{ServiceKey, Value}
+import uk.gov.hmrc.testuser.models.ServiceKeys.ServiceKey
 import uk.gov.hmrc.testuser.models.UserType.{AGENT, INDIVIDUAL, ORGANISATION, UserType}
 
 object ServiceKeys extends Enumeration {
@@ -357,16 +357,11 @@ case class EoriNumber(override val value: String) extends TaxIdentifier with Sim
 }
 
 object EoriNumber extends SimpleName {
-  val validEoriFormat = "^[A-z]{2}[0-9]{10,15}$"
+  val validEoriFormat = "^(GB|XI)[0-9]{12,15}$"
 
   def isValid(eoriNumber: String) = eoriNumber.matches(validEoriFormat)
 
   override val name = "eoriNumber"
-
-  implicit val jsonFormat = Format[EoriNumber](
-    new SimpleObjectReads[EoriNumber](name, EoriNumber.apply),
-    new SimpleObjectWrites[EoriNumber](_.value)
-  )
 }
 
 case class Address(line1: String, line2: String, postcode: String)

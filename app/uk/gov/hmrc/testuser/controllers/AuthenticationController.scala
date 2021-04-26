@@ -21,7 +21,7 @@ import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.libs.json.Json._
 import play.api.mvc.{ControllerComponents, Result}
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.testuser.models.{AuthenticationRequest, AuthenticationResponse, ErrorResponse, InvalidCredentials}
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.services.AuthenticationService
