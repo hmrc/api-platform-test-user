@@ -17,7 +17,6 @@ object AppDependencies {
   )
 
   lazy val test: Seq[ModuleID] = Seq(
-    // "uk.gov.hmrc"            %% "hmrctest"           % "3.9.0-play-26",
     "uk.gov.hmrc"            %% "reactivemongo-test" % "4.21.0-play-26",
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3",
     "org.pegdown"            % "pegdown"             % "1.6.0",
