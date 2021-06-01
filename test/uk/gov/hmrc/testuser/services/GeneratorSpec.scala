@@ -18,18 +18,16 @@ package uk.gov.hmrc.testuser.services
 
 import com.typesafe.config.ConfigFactory
 import org.joda.time.LocalDate
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
 import org.scalacheck.Gen
 import org.scalatest.enablers.{Definition, Emptiness}
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 import scala.concurrent.{ExecutionContext, Future}
+
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 
 trait GeneratorProvider {
 
@@ -75,7 +73,7 @@ trait GeneratorProvider {
 }
 
 
-class GeneratorSpec extends UnitSpec with MockitoSugar with ScalaCheckPropertyChecks {
+class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
   trait Setup extends GeneratorProvider {
 
     val repository = mock[TestUserRepository]
@@ -466,7 +464,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with ScalaCheckPropertyCh
     "set the userFullName and emailAddress" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val organisation = underTest.generateTestOrganisation(Seq(MTD_INCOME_TAX), None)
+      val organisation = await(underTest.generateTestOrganisation(Seq(MTD_INCOME_TAX), None))
 
       organisation.userFullName.matches("[a-zA-Z]+ [a-zA-Z]+") shouldBe true
 
@@ -498,7 +496,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with ScalaCheckPropertyCh
     "not generate any identifiers when no services are included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val agent = underTest.generateTestAgent(Seq.empty)
+      val agent = await(underTest.generateTestAgent(Seq.empty))
 
       agent.arn shouldBe None
     }
@@ -506,7 +504,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with ScalaCheckPropertyCh
     "generate an agent reference number when AGENT_SERVICES service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val agent = underTest.generateTestAgent(Seq(AGENT_SERVICES))
+      val agent = await(underTest.generateTestAgent(Seq(AGENT_SERVICES)))
 
       agent.arn shouldBe defined
     }
@@ -514,7 +512,7 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with ScalaCheckPropertyCh
     "set the userFullName and emailAddress" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val agent = underTest.generateTestAgent(Seq(AGENT_SERVICES))
+      val agent = await(underTest.generateTestAgent(Seq(AGENT_SERVICES)))
 
       agent.userFullName.matches("[a-zA-Z]+ [a-zA-Z]+") shouldBe true
 

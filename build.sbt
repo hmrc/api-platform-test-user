@@ -6,6 +6,9 @@ import uk.gov.hmrc.SbtAutoBuildPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.versioning.SbtGitVersioning
+import bloop.integrations.sbt.BloopDefaults
+
+// bloopAggregateSourceDependencies in Global := true
 
 lazy val appName = "api-platform-test-user"
 
@@ -31,15 +34,20 @@ lazy val microservice = (project in file("."))
   )
   .configs(Test)
   .settings(
+    inConfig(Test)(BloopDefaults.configSettings),
     Test / parallelExecution := false,
     Test / fork := false,
     Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
+    Test / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
+    Test / unmanagedSourceDirectories += baseDirectory.value / "test",
     Test / unmanagedResourceDirectories += baseDirectory.value / "test" / "resources"
   )
   .configs(IntegrationTest)
   .settings(
     Defaults.itSettings,
+    inConfig(IntegrationTest)(BloopDefaults.configSettings),
     IntegrationTest / Keys.fork := false,
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it",
     IntegrationTest / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
     IntegrationTest / testGrouping := oneForkedJvmPerTest((definedTests in IntegrationTest).value),

@@ -20,17 +20,14 @@ import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import uk.gov.hmrc.testuser.common.LogSuppressing
 import org.joda.time.LocalDate
-import org.mockito.ArgumentMatchers.{any, refEq}
-import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, UNAUTHORIZED}
 import play.api.libs.json.{Json, JsValue}
 import play.api.libs.json.Json.toJson
 import play.api.test._
+import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
@@ -39,7 +36,9 @@ import uk.gov.hmrc.testuser.services.AuthenticationService
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.{failed, successful}
 
-class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with LogSuppressing {
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
+
+class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
   val user = "user"
   val groupIdentifier = "groupIdentifier"
@@ -119,37 +118,37 @@ class AuthenticationControllerSpec extends UnitSpec with MockitoSugar with LogSu
 
     "return 201 (Created), with the auth session and affinity group, when both username and password are correct" in new Setup {
 
-      when(underTest.authenticationService.authenticate(refEq(AuthenticationRequest(user, password)))(any()))
+      when(underTest.authenticationService.authenticate(refEq(AuthenticationRequest(user, password)))(*))
         .thenReturn(successful((testIndividual, authSession)))
 
-      val result = await(underTest.authenticate()(authenticationRequest(user, password)))
+      val result = underTest.authenticate()(authenticationRequest(user, password))
 
       status(result) shouldBe CREATED
-      jsonBodyOf(result) shouldBe toJson(AuthenticationResponse(authSession.gatewayToken, testIndividual.affinityGroup))
-      result.header.headers(HeaderNames.AUTHORIZATION) shouldBe authSession.authBearerToken
-      result.header.headers(HeaderNames.LOCATION) shouldBe authSession.authorityUri
+      contentAsJson(result) shouldBe toJson(AuthenticationResponse(authSession.gatewayToken, testIndividual.affinityGroup))
+      header(HeaderNames.AUTHORIZATION, result) shouldBe Some(authSession.authBearerToken)
+      header(HeaderNames.LOCATION, result) shouldBe Some(authSession.authorityUri)
     }
 
     "return 401 (Unauthorized) when the credentials are not valid" in new Setup {
 
-      when(underTest.authenticationService.authenticate(refEq(AuthenticationRequest(user, password)))(any()))
+      when(underTest.authenticationService.authenticate(refEq(AuthenticationRequest(user, password)))(*))
         .thenReturn(failed(InvalidCredentials("")))
 
-      val result = await(underTest.authenticate()(authenticationRequest(user, password)))
+      val result = underTest.authenticate()(authenticationRequest(user, password))
 
       status(result) shouldBe UNAUTHORIZED
-      jsonBodyOf(result) shouldBe toJson(ErrorResponse.invalidCredentialsError)
+      contentAsJson(result) shouldBe toJson(ErrorResponse.invalidCredentialsError)
     }
 
     "fail with 500 (Internal Server Error) when an error has occurred " in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        when(underTest.authenticationService.authenticate(refEq(AuthenticationRequest(user, password)))(any()))
+        when(underTest.authenticationService.authenticate(refEq(AuthenticationRequest(user, password)))(*))
           .thenReturn(failed(new RuntimeException("expected test error")))
 
-        val result = await(underTest.authenticate()(authenticationRequest(user, password)))
+        val result = underTest.authenticate()(authenticationRequest(user, password))
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
-        jsonBodyOf(result) shouldBe toJson(ErrorResponse.internalServerError)
+        contentAsJson(result) shouldBe toJson(ErrorResponse.internalServerError)
       }
     }
   }

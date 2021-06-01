@@ -16,15 +16,11 @@
 
 package uk.gov.hmrc.testuser.connectors
 
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.testuser.helpers.GeneratorProvider
 import uk.gov.hmrc.testuser.helpers.stubs.DesSimulatorStub
 import uk.gov.hmrc.testuser.models.ServiceKeys._
@@ -33,8 +29,11 @@ import play.api.test.Helpers._
 
 import scala.concurrent.Future
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.scalatest.BeforeAndAfterAll
 
-class DesSimulatorConnectorSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach with WithFakeApplication {
+class DesSimulatorConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with BeforeAndAfterAll {
 
   trait Setup extends GeneratorProvider {
     val repository = mock[TestUserRepository]
