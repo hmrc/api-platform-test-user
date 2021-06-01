@@ -17,11 +17,11 @@
 package uk.gov.hmrc.testuser.connectors
 
 import org.joda.time.LocalDate
-import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 
-class GovernmentGatewayLoginSpec extends UnitSpec {
+class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
   val user = "user"
   val groupIdentifier = "groupIdentifier"
   val password = "password"

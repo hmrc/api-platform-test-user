@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.testuser.services
 
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 
-class PasswordServiceSpec extends UnitSpec {
+class PasswordServiceSpec extends AsyncHmrcSpec {
 
   trait Setup {
     val passwordLogRounds = 12

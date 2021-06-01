@@ -19,12 +19,12 @@ package uk.gov.hmrc.testuser.repository
 import org.scalatest.concurrent.Eventually
 import reactivemongo.api.indexes.Index
 import uk.gov.hmrc.mongo.ReactiveRepository
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 
-trait IndexVerification extends UnitSpec with Eventually {
+trait IndexVerification extends AsyncHmrcSpec with Eventually {
 
   def verifyIndexesVersionAgnostic[A, ID](repository: ReactiveRepository[A, ID], indexes: Set[Index])(implicit ec: ExecutionContext) = {
     eventually(timeout(10.seconds), interval(1000.milliseconds)) {
