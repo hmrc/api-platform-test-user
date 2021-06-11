@@ -16,3 +16,5 @@ GET         /individuals/vrn/:vrn               uk.gov.hmrc.testuser.controllers
 
 GET         /organisations/empref/:empRef       uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationByEmpRef(empRef: uk.gov.hmrc.domain.EmpRef)
 GET         /organisations/vrn/:vrn             uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationByVrn(vrn: uk.gov.hmrc.domain.Vrn)
+GET         /organisations/ctUtr/:ctUtr         uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationByCtUtr(ctUtr: uk.gov.hmrc.domain.CtUtr)
+GET         /organisations/sautr/:saUtr         uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationBySaUtr(saUtr: uk.gov.hmrc.domain.SaUtr)

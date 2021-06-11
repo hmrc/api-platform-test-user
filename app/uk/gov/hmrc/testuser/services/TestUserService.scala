@@ -17,7 +17,7 @@
 package uk.gov.hmrc.testuser.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr, Vrn}
+import uk.gov.hmrc.domain.{CtUtr, EmpRef, Nino, SaUtr, Vrn}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
 import uk.gov.hmrc.testuser.models._
@@ -89,5 +89,13 @@ class TestUserService @Inject()(val passwordService: PasswordService,
 
   def fetchOrganisationByVrn(vrn: Vrn): Future[TestOrganisation] = {
     testUserRepository.fetchOrganisationByVrn(vrn) map(t => t.getOrElse(throw UserNotFound(ORGANISATION)))
+  }
+
+  def fetchOrganisationByCtUtr(utr: CtUtr): Future[TestOrganisation] = {
+    testUserRepository.fetchOrganisationByCtUtr(utr) map(t => t.getOrElse(throw UserNotFound(ORGANISATION)))
+  }
+
+  def fetchOrganisationBySaUtr(saUtr: SaUtr): Future[TestOrganisation] = {
+    testUserRepository.fetchOrganisationBySaUtr(saUtr) map(t => t.getOrElse(throw UserNotFound(ORGANISATION)))
   }
 }

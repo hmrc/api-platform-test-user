@@ -78,8 +78,16 @@ class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: E
     find("empRef" -> empRef.value) map(_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
 
+  def fetchOrganisationByCtUtr(utr: CtUtr): Future[Option[TestOrganisation]] = {
+    find("ctUtr" -> utr.value) map(_.headOption map (_.asInstanceOf[TestOrganisation]))
+  }
+
   def fetchOrganisationByVrn(vrn: Vrn): Future[Option[TestOrganisation]] = {
     find("vrn" -> vrn.value, "userType" -> UserType.ORGANISATION) map(_.headOption map (_.asInstanceOf[TestOrganisation]))
+  }
+
+  def fetchOrganisationBySaUtr(saUtr: SaUtr): Future[Option[TestOrganisation]] = {
+    find("saUtr" -> saUtr, "userType" -> UserType.ORGANISATION) map(_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
 
   def identifierIsUnique(identifier: String): Future[Boolean] = {
