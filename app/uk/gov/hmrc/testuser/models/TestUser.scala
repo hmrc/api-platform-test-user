@@ -114,6 +114,7 @@ case class TestOrganisation(override val userId: String,
                             pensionSchemeAdministratorIdentifier: Option[String] = None,
                             eoriNumber: Option[String] = None,
                             groupIdentifier: Option[String] = None,
+                            crn: Option[String],
                             override val services: Seq[ServiceKey] = Seq.empty,
                             override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Organisation"

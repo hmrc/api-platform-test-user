@@ -324,12 +324,13 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       org shouldHave(empRefDefined = true)
     }
 
-    "generate a CT UTR when CORPORATION_TAX service is included" in new Setup {
+    "generate a CT UTR and CRN when CORPORATION_TAX service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val org = await(underTest.generateTestOrganisation(Seq(CORPORATION_TAX), None))
 
       org shouldHave(ctUtrDefined = true)
+      org.crn.isDefined shouldBe true
     }
 
     "generate a SA UTR when SELF_ASSESSMENT service is included" in new Setup {
@@ -490,6 +491,13 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       organisation shouldHave(empRefDefined = true)
       verify(repository, times(2)).identifierIsUnique(any[String])
     }
+  }
+
+  "CompanyReferenceNumberGenerator generates valid Crn" in {
+    val crnRegex = "^[A-Z0-9]{1,10}$".r
+    val result = new CompanyReferenceNumberGenerator().next
+
+    result.matches(crnRegex.toString()) shouldBe true
   }
 
   "generateTestAgent" should {

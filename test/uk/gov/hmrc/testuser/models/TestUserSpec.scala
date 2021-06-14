@@ -48,7 +48,8 @@ class TestUserSpec extends FlatSpec with Matchers {
       emailAddress = emailAddress,
       organisationDetails = organisationDetails,
       lisaManRefNum = Some("Z123456"),
-      groupIdentifier = Some(groupIdentifier))
+      groupIdentifier = Some(groupIdentifier),
+      crn = None)
 
     TestOrganisationCreatedResponse.from(testOrganisation) shouldBe
       TestOrganisationCreatedResponse(

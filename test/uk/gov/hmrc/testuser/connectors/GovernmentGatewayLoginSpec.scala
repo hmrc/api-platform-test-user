@@ -35,6 +35,7 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
   val nino = "CC333333C"
   val mtdItId = "XGIT00000000054"
   val ctUtr = "1555369053"
+  val crn = "12345678"
   val vrn = "999902541"
   val lisaManRefNum = "Z123456"
   val secureElectronicTransferReferenceNumber = "123456789012"
@@ -185,6 +186,7 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       pensionSchemeAdministratorIdentifier = Some(pensionSchemeAdministratorIdentifier),
       eoriNumber = Some(eoriNumber),
       groupIdentifier = Some(groupIdentifier),
+      crn = Some(crn),
       services = Seq(AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, CORPORATION_TAX, SUBMIT_VAT_RETURNS,
         PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES,
         GOODS_VEHICLE_MOVEMENTS, SAFETY_AND_SECURITY, CTC))

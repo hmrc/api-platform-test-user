@@ -49,6 +49,7 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val nino = "CC333333C"
   val mtdItId = "XGIT00000000054"
   val ctUtr = "1555369053"
+  val crn = "12345678"
   val vrn = "999902541"
   val vatRegistrationDate = LocalDate.parse("2016-12-31")
   val lisaManRefNum = "Z123456"
@@ -94,6 +95,7 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     lisaManRefNum = Some(lisaManRefNum),
     eoriNumber = Some(eoriNumber),
     groupIdentifier = Some(groupIdentifier),
+    crn = Some(crn),
     services =
       Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, MTD_VAT, PAYE_FOR_EMPLOYERS, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, CTC))
 
