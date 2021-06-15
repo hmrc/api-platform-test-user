@@ -42,6 +42,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
   val hashedPassword = "hashedPassword"
   val saUtr = "1555369052"
   val ctUtr = "1555369053"
+  val crn = "12345678"
   val nino = "CC333333C"
   val shortNino = "CC333333"
   val empRef = "555/EIA000"
@@ -365,6 +366,33 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
         when(underTest.testUserRepository.fetchOrganisationBySaUtr(*)).thenReturn(failed(new RuntimeException("expected test error")))
         intercept[RuntimeException] {
           await(underTest.fetchOrganisationBySaUtr(SaUtr(saUtr)))
+        }
+      }
+    }
+  }
+
+  "fetchOrganisationByCrn" should {
+    "return the organisation when it exists in the repository" in new Setup {
+      when(underTest.testUserRepository.fetchOrganisationByCrn(Crn(crn))).thenReturn(successful(Some(testOrganisation)))
+
+      val result = await(underTest.fetchOrganisationByCrn(Crn(crn )))
+
+      result shouldBe testOrganisation
+    }
+
+    "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
+      when(underTest.testUserRepository.fetchOrganisationByCrn(Crn(crn))).thenReturn(successful(None))
+
+      intercept[UserNotFound] {
+        await(underTest.fetchOrganisationByCrn(Crn(crn)))
+      }
+    }
+
+    "propagate the error when the repository fails" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
+        when(underTest.testUserRepository.fetchOrganisationByCrn(*)).thenReturn(failed(new RuntimeException("expected test error")))
+        intercept[RuntimeException] {
+          await(underTest.fetchOrganisationByCrn(Crn(crn)))
         }
       }
     }

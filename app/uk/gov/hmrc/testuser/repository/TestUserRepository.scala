@@ -35,7 +35,7 @@ class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: E
     JsonFormatters.formatTestUser, ReactiveMongoFormats.objectIdFormats) {
 
   // List of fields that contain generated identifiers
-  val IdentifierFields: Seq[String] = Seq("nino", "saUtr", "vrn", "empRef", "mtdItId", "ctUtr", "lisaManRefNum", "eoriNumber", "arn", "groupIdentifier")
+  val IdentifierFields: Seq[String] = Seq("nino", "saUtr", "vrn", "empRef", "mtdItId", "ctUtr", "lisaManRefNum", "eoriNumber", "arn", "groupIdentifier", "crn")
 
   ensureIndex("userId", "userIdIndex")
 
@@ -88,6 +88,10 @@ class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: E
 
   def fetchOrganisationBySaUtr(saUtr: SaUtr): Future[Option[TestOrganisation]] = {
     find("saUtr" -> saUtr, "userType" -> UserType.ORGANISATION) map(_.headOption map (_.asInstanceOf[TestOrganisation]))
+  }
+
+  def fetchOrganisationByCrn(crn: Crn): Future[Option[TestOrganisation]] = {
+    find("crn" -> crn.value, "userType" -> UserType.ORGANISATION) map(_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
 
   def identifierIsUnique(identifier: String): Future[Boolean] = {

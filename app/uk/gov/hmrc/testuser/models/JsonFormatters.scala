@@ -27,6 +27,7 @@ object JsonFormatters {
   implicit val formatLocalDateWriter: Writes[LocalDate] = JodaWrites.jodaLocalDateWrites("yyyy-MM-dd")
   implicit val formatLocalDateReader: Reads[LocalDate] = JodaReads.jodaLocalDateReads("yyyy-MM-dd")
 
+  implicit val crnFormatter = Json.format[Crn]
   implicit val formatObjectId = ReactiveMongoFormats.objectIdFormats
   implicit val formatServiceName = EnumJson.enumFormat(ServiceKeys)
   implicit val formatUserType = EnumJson.enumFormat(UserType)

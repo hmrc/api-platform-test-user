@@ -98,4 +98,8 @@ class TestUserService @Inject()(val passwordService: PasswordService,
   def fetchOrganisationBySaUtr(saUtr: SaUtr): Future[TestOrganisation] = {
     testUserRepository.fetchOrganisationBySaUtr(saUtr) map(t => t.getOrElse(throw UserNotFound(ORGANISATION)))
   }
+
+  def fetchOrganisationByCrn(crn: Crn): Future[TestOrganisation] = {
+    testUserRepository.fetchOrganisationByCrn(crn) map(t => t.getOrElse(throw UserNotFound(ORGANISATION)))
+  }
 }

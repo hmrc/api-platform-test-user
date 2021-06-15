@@ -82,4 +82,8 @@ class TestUserSpec extends FlatSpec with Matchers {
 
     TestAgentCreatedResponse.from(testAgent) shouldBe TestAgentCreatedResponse(userId, password, userFullName, emailAddress, Some(arn), Some(groupIdentifier))
   }
+
+  "Services" should "get size equal to all services when length called" in {
+    Services.length shouldBe 15
+  }
 }

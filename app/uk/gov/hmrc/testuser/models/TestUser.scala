@@ -368,6 +368,23 @@ object EoriNumber extends SimpleName {
   override val name = "eoriNumber"
 }
 
+case class Crn(override val value: String) extends TaxIdentifier with SimpleName {
+  require(Crn.isValid(value), s"$value is not a valid CRN.")
+  override val name: String = Crn.name
+}
+
+object Crn extends SimpleName with (String => Crn) {
+  private val validCrnFormat = "^[A-Z0-9]{1,10}$"
+
+  def isValid(value: String) = value.matches(validCrnFormat)
+
+  override val name: String = "crn"
+
+  implicit val saUtrWrite: Writes[SaUtr] = new SimpleObjectWrites[SaUtr](_.value)
+  implicit val saUtrRead: Reads[SaUtr] = new SimpleObjectReads[SaUtr]("utr", SaUtr.apply)
+
+}
+
 case class Address(line1: String, line2: String, postcode: String)
 
 case class IndividualDetails(firstName: String, lastName: String, dateOfBirth: LocalDate, address: Address)
