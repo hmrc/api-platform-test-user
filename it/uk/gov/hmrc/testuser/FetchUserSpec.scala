@@ -142,7 +142,6 @@ class FetchUserSpec extends BaseSpec {
       val response = Http(s"$serviceUrl/organisations/empref/${encodedEmpRef}").asString
 
       Then("The organisation is returned")
-      println(response.body)
       Json.parse(response.body) shouldBe Json.parse(
         s"""{
             |   "userId": "${organisation.userId}",
@@ -172,7 +171,6 @@ class FetchUserSpec extends BaseSpec {
       val response = Http(s"$serviceUrl/organisations/vrn/${organisation.vrn.get}").asString
 
       Then("The organisation is returned along with VAT Registration Date")
-      println(response.body)
       Json.parse(response.body) shouldBe Json.parse(
         s"""{
            |   "userId": "${organisation.userId}",

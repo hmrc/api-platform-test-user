@@ -141,9 +141,9 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
         setRefNum,
         psaId,
         eoriNumber,
-        crn,
         groupIdentifier,
-        services)
+        services,
+        crn = crn)
   }
 
   def generateTestAgent(services: Seq[ServiceKey] = Seq.empty) = {

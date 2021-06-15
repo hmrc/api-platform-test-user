@@ -214,7 +214,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       contentAsJson(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, userFullName, emailAddress,
         organisationDetails, Some(saUtr),
         Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(vatRegistrationDate), Some(lisaManagerReferenceNumber),
-        Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier), Some(rawEoriNumber), Some(groupIdentifier)))
+        Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier), Some(rawEoriNumber), Some(groupIdentifier), Some(crn)))
     }
 
     "return 201 (Created) with the created organisation with provided eori" in new Setup {

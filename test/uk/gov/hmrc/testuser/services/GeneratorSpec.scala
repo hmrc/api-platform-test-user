@@ -535,7 +535,6 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       forAll(Gen.choose(1000000, 1999999)) { vrnBase =>
         val vrn  = VrnChecksum.apply(vrnBase.toString)
         VrnChecksum.isValid(vrn) shouldBe true
-        println(vrn)
       }
     }
 
