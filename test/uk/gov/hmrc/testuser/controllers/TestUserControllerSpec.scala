@@ -51,6 +51,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val shortNino = "CC333333"
   val mtdItId = "XGIT00000000054"
   val ctUtr = "1555369053"
+  val crn = "12345678"
   val vrn = "999902541"
   val vatRegistrationDate = LocalDate.parse("2011-07-07")
   private val taxOfficeNum = "555"
@@ -97,7 +98,8 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
     pensionSchemeAdministratorIdentifier = Some(pensionSchemeAdministratorIdentifier),
     eoriNumber = Some(rawEoriNumber),
-    groupIdentifier = Some(groupIdentifier))
+    groupIdentifier = Some(groupIdentifier),
+    crn = Some(crn))
 
   val testAgent = TestAgent(
     user,
@@ -212,7 +214,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       contentAsJson(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, userFullName, emailAddress,
         organisationDetails, Some(saUtr),
         Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(vatRegistrationDate), Some(lisaManagerReferenceNumber),
-        Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier), Some(rawEoriNumber), Some(groupIdentifier)))
+        Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier), Some(rawEoriNumber), Some(groupIdentifier), Some(crn)))
     }
 
     "return 201 (Created) with the created organisation with provided eori" in new Setup {

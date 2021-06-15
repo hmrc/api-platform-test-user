@@ -65,6 +65,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   private val psaIdGenerator = new PensionSchemeAdministratorIdentifierGenerator()
   private val eoriGenerator = Gen.listOfN(12, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
   private val arnGenerator = new ArnGenerator()
+  private val crnGenerator = new CompanyReferenceNumberGenerator()
 
   def useProvidedOrGenerateEoriNumber(eoriNumber: Option[EoriNumber]): Future[String] = eoriNumber.fold(generateEoriNumber)(provided => Future.successful(provided.value))
 
@@ -121,6 +122,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
       lastName = generateLastName
       userFullName = generateUserFullName(firstName, lastName)
       emailAddress = generateEmailAddress(firstName, lastName)
+      crn = when(CORPORATION_TAX)(generateCrn)
     } yield
       TestOrganisation(
         generateUserId,
@@ -140,7 +142,8 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
         psaId,
         eoriNumber,
         groupIdentifier,
-        services)
+        services,
+        crn = crn)
   }
 
   def generateTestAgent(services: Seq[ServiceKey] = Seq.empty) = {
@@ -215,8 +218,10 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   })
 
   private def generateVrn: Future[String] = generateUniqueIdentifier(() => {
-    Vrn(vrnGenerator.sample.get.toString).vrn
+    Vrn(vrnGenerator.sample.get).vrn
   })
+
+  private def generateCrn : String = crnGenerator.next
 
   private def generateLisaManRefNum: Future[String] = generateUniqueIdentifier(() => {
     lisaManRefNumGenerator.next.lisaManagerReferenceNumber
@@ -295,14 +300,19 @@ class SecureElectronicTransferReferenceNumberGenerator(random: Random = new Rand
 
 
 class PensionSchemeAdministratorIdentifierGenerator(random: Random = new Random) {
-  
-
   def next: String = {
     // PensionSchemeAdministratorIdentifier must conform to this regex: ^[Aa]{1}[0-9]{7} e.g. A1234567
     val initialCharacter = if (random.nextBoolean()) "A" else "a"
     val remainingDigits = (for (i <- 1 to 7) yield random.nextInt(9)).mkString("")
     s"$initialCharacter$remainingDigits"
   }
+}
+
+class CompanyReferenceNumberGenerator(random: Random = new Random) {
+  private val maxNum = 9
+  private val length = 10
+
+  def next : String = (for (_ <- 1 to length) yield random.nextInt(maxNum)).mkString("")
 }
 
 object VrnChecksum {
