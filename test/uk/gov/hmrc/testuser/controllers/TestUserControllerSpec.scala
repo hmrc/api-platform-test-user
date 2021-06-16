@@ -470,7 +470,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       }
     }
   }
-  ////-------
+
   "fetchOrganisationByCrn" should {
     "return 200 (Ok) with the organisation" in new Setup {
 

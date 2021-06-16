@@ -202,15 +202,10 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   }
 
   private def generateEmpRef: Future[String] = generateUniqueIdentifier(() => { employerReferenceGenerator.sample.get.toString })
-
   private def generateSaUtr: Future[String] = generateUniqueIdentifier(() => { utrGenerator.next })
-
   private def generateNino: Future[String] = generateUniqueIdentifier(() => { ninoGenerator.nextNino.value })
-
   private def generateCtUtr: Future[String] = generateUniqueIdentifier(() => { utrGenerator.next })
-
   private def generateVrn: Future[String] = generateUniqueIdentifier(() => { Vrn(vrnGenerator.sample.get).vrn })
-
   private def generateCrn : String = crnGenerator.next
 
   private def generateLisaManRefNum: Future[String] = generateUniqueIdentifier(() => {
@@ -226,7 +221,6 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   })
 
   private def generateSetRefNum: String = setRefNumGenerator.next
-
   private def generatePsaId: String = psaIdGenerator.next
 
   private def generateArn: Future[String] = generateUniqueIdentifier(() => {
