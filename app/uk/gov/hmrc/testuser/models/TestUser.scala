@@ -380,9 +380,6 @@ object Crn extends SimpleName with (String => Crn) {
 
   override val name: String = "crn"
 
-  implicit val saUtrWrite: Writes[SaUtr] = new SimpleObjectWrites[SaUtr](_.value)
-  implicit val saUtrRead: Reads[SaUtr] = new SimpleObjectReads[SaUtr]("utr", SaUtr.apply)
-
 }
 
 case class Address(line1: String, line2: String, postcode: String)
