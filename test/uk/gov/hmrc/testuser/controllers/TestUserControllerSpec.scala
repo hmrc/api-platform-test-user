@@ -51,6 +51,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val shortNino = "CC333333"
   val mtdItId = "XGIT00000000054"
   val ctUtr = "1555369053"
+  val crn = "12345678"
   val vrn = "999902541"
   val vatRegistrationDate = LocalDate.parse("2011-07-07")
   private val taxOfficeNum = "555"
@@ -97,7 +98,8 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
     pensionSchemeAdministratorIdentifier = Some(pensionSchemeAdministratorIdentifier),
     eoriNumber = Some(rawEoriNumber),
-    groupIdentifier = Some(groupIdentifier))
+    groupIdentifier = Some(groupIdentifier),
+    crn = Some(crn))
 
   val testAgent = TestAgent(
     user,
@@ -212,7 +214,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       contentAsJson(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, userFullName, emailAddress,
         organisationDetails, Some(saUtr),
         Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(vatRegistrationDate), Some(lisaManagerReferenceNumber),
-        Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier), Some(rawEoriNumber), Some(groupIdentifier)))
+        Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier), Some(rawEoriNumber), Some(groupIdentifier), Some(crn)))
     }
 
     "return 201 (Created) with the created organisation with provided eori" in new Setup {
@@ -398,6 +400,112 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       }
     }
   }
+
+  "fetchOrganisationByCtUtr" should {
+    "return 200 (Ok) with the organisation" in new Setup {
+
+      when(underTest.testUserService.fetchOrganisationByCtUtr(eqTo(CtUtr(ctUtr)))).thenReturn(successful(testOrganisation))
+
+      val result = underTest.fetchOrganisationByCtUtr(CtUtr(ctUtr))(request)
+
+      status(result) shouldBe OK
+      contentAsJson(result) shouldBe Json.toJson(FetchTestOrganisationResponse.from(testOrganisation))
+    }
+
+    "return a 404 (Not Found) when there is no organisation matching the empRef" in new Setup {
+
+      when(underTest.testUserService.fetchOrganisationByCtUtr(eqTo(CtUtr(ctUtr)))).
+        thenReturn(failed(UserNotFound(ORGANISATION)))
+
+      val result = underTest.fetchOrganisationByCtUtr(CtUtr(ctUtr))(request)
+
+      status(result) shouldBe NOT_FOUND
+      contentAsJson(result) shouldBe Json.obj("code" -> "USER_NOT_FOUND", "message" -> "The organisation can not be found")
+    }
+
+    "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
+        when(underTest.testUserService.fetchOrganisationByCtUtr(eqTo(CtUtr(ctUtr))))
+          .thenReturn(failed(new RuntimeException("expected test error")))
+
+        val result = underTest.fetchOrganisationByCtUtr(CtUtr(ctUtr))(request)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
+      }
+    }
+  }
+
+  "fetchOrganisationBySaUtr" should {
+    "return 200 (Ok) with the organisation" in new Setup {
+
+      when(underTest.testUserService.fetchOrganisationBySaUtr(eqTo(SaUtr(saUtr)))).thenReturn(successful(testOrganisation))
+
+      val result = underTest.fetchOrganisationBySaUtr(SaUtr(saUtr))(request)
+
+      status(result) shouldBe OK
+      contentAsJson(result) shouldBe Json.toJson(FetchTestOrganisationResponse.from(testOrganisation))
+    }
+
+    "return a 404 (Not Found) when there is no organisation matching the empRef" in new Setup {
+
+      when(underTest.testUserService.fetchOrganisationBySaUtr(eqTo(SaUtr(saUtr)))).
+        thenReturn(failed(UserNotFound(ORGANISATION)))
+
+      val result = underTest.fetchOrganisationBySaUtr(SaUtr(saUtr))(request)
+
+      status(result) shouldBe NOT_FOUND
+      contentAsJson(result) shouldBe Json.obj("code" -> "USER_NOT_FOUND", "message" -> "The organisation can not be found")
+    }
+
+    "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
+        when(underTest.testUserService.fetchOrganisationBySaUtr(eqTo(SaUtr(saUtr))))
+          .thenReturn(failed(new RuntimeException("expected test error")))
+
+        val result = underTest.fetchOrganisationBySaUtr(SaUtr(saUtr))(request)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
+      }
+    }
+  }
+
+  "fetchOrganisationByCrn" should {
+    "return 200 (Ok) with the organisation" in new Setup {
+
+      when(underTest.testUserService.fetchOrganisationByCrn(eqTo(Crn(crn)))).thenReturn(successful(testOrganisation))
+
+      val result = underTest.fetchOrganisationByCrn(Crn(crn))(request)
+
+      status(result) shouldBe OK
+      contentAsJson(result) shouldBe Json.toJson(FetchTestOrganisationResponse.from(testOrganisation))
+    }
+
+    "return a 404 (Not Found) when there is no organisation matching the empRef" in new Setup {
+
+      when(underTest.testUserService.fetchOrganisationByCrn(eqTo(Crn(crn)))).
+        thenReturn(failed(UserNotFound(ORGANISATION)))
+
+      val result = underTest.fetchOrganisationByCrn(Crn(crn))(request)
+
+      status(result) shouldBe NOT_FOUND
+      contentAsJson(result) shouldBe Json.obj("code" -> "USER_NOT_FOUND", "message" -> "The organisation can not be found")
+    }
+
+    "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
+        when(underTest.testUserService.fetchOrganisationByCrn(eqTo(Crn(crn))))
+          .thenReturn(failed(new RuntimeException("expected test error")))
+
+        val result = underTest.fetchOrganisationByCrn(Crn(crn))(request)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
+      }
+    }
+  }
+
 
   "getServices" should {
     "return the services" in new Setup {

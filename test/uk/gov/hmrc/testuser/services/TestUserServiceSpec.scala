@@ -41,6 +41,8 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
   val password = "password"
   val hashedPassword = "hashedPassword"
   val saUtr = "1555369052"
+  val ctUtr = "1555369053"
+  val crn = "12345678"
   val nino = "CC333333C"
   val shortNino = "CC333333"
   val empRef = "555/EIA000"
@@ -310,6 +312,87 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
         when(underTest.testUserRepository.fetchIndividualBySaUtr(*)).thenReturn(failed(new RuntimeException("expected test error")))
         intercept[RuntimeException] {
           await(underTest.fetchIndividualBySaUtr(SaUtr(saUtr)))
+        }
+      }
+    }
+  }
+
+  "fetchOrganisationByCtUtr" should {
+    "return the organisation when it exists in the repository" in new Setup {
+      when(underTest.testUserRepository.fetchOrganisationByCtUtr(CtUtr(ctUtr))).thenReturn(successful(Some(testOrganisation)))
+
+      val result = await(underTest.fetchOrganisationByCtUtr(CtUtr(ctUtr)))
+
+      result shouldBe testOrganisation
+    }
+
+    "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
+      when(underTest.testUserRepository.fetchOrganisationByCtUtr(CtUtr(ctUtr))).thenReturn(successful(None))
+
+      intercept[UserNotFound] {
+        await(underTest.fetchOrganisationByCtUtr(CtUtr(ctUtr)))
+      }
+    }
+
+    "propagate the error when the repository fails" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
+        when(underTest.testUserRepository.fetchOrganisationByCtUtr(*)).thenReturn(failed(new RuntimeException("expected test error")))
+        intercept[RuntimeException] {
+          await(underTest.fetchOrganisationByCtUtr(CtUtr(ctUtr)))
+        }
+      }
+    }
+  }
+
+  "fetchOrganisationBySaUtr" should {
+    "return the organisation when it exists in the repository" in new Setup {
+      when(underTest.testUserRepository.fetchOrganisationBySaUtr(SaUtr(saUtr))).thenReturn(successful(Some(testOrganisation)))
+
+      val result = await(underTest.fetchOrganisationBySaUtr(SaUtr(saUtr)))
+
+      result shouldBe testOrganisation
+    }
+
+    "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
+      when(underTest.testUserRepository.fetchOrganisationBySaUtr(SaUtr(saUtr))).thenReturn(successful(None))
+
+      intercept[UserNotFound] {
+        await(underTest.fetchOrganisationBySaUtr(SaUtr(saUtr)))
+      }
+    }
+
+    "propagate the error when the repository fails" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
+        when(underTest.testUserRepository.fetchOrganisationBySaUtr(*)).thenReturn(failed(new RuntimeException("expected test error")))
+        intercept[RuntimeException] {
+          await(underTest.fetchOrganisationBySaUtr(SaUtr(saUtr)))
+        }
+      }
+    }
+  }
+
+  "fetchOrganisationByCrn" should {
+    "return the organisation when it exists in the repository" in new Setup {
+      when(underTest.testUserRepository.fetchOrganisationByCrn(Crn(crn))).thenReturn(successful(Some(testOrganisation)))
+
+      val result = await(underTest.fetchOrganisationByCrn(Crn(crn )))
+
+      result shouldBe testOrganisation
+    }
+
+    "fail with UserNotFound when the individual does not exist in the repository" in new Setup {
+      when(underTest.testUserRepository.fetchOrganisationByCrn(Crn(crn))).thenReturn(successful(None))
+
+      intercept[UserNotFound] {
+        await(underTest.fetchOrganisationByCrn(Crn(crn)))
+      }
+    }
+
+    "propagate the error when the repository fails" in new Setup {
+      withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
+        when(underTest.testUserRepository.fetchOrganisationByCrn(*)).thenReturn(failed(new RuntimeException("expected test error")))
+        intercept[RuntimeException] {
+          await(underTest.fetchOrganisationByCrn(Crn(crn)))
         }
       }
     }
