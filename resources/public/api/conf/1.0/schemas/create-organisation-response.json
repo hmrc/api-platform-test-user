@@ -98,6 +98,10 @@
     "eoriNumber": {
       "type": "string",
       "description": "Economic Operator Registration and Identification (EORI) number."
+    },
+    "taxPayerType": {
+      "type": "string",
+      "description": "Type of SA taxpayer Individual or Partner",
     }
   },
   "required": [

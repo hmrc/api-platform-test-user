@@ -75,12 +75,10 @@ trait GeneratorProvider {
 
 class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
   trait Setup extends GeneratorProvider {
-
     val repository = mock[TestUserRepository]
-
-   val underTest = generator
+    val underTest  = generator
   }
-  
+
   trait Checker {
     def check[T](attribute: T, isDefined: Boolean)(implicit definition: Definition[T], emptiness: Emptiness[T]) = {
       if(isDefined) attribute shouldBe defined
@@ -111,7 +109,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
         Generator.whenF(allKeys)(allKeys)(Future.successful("Yeah"))
       ) shouldBe Some("Yeah")
     }
-    
+
     "return Some when a key matches" in {
       await(
         Generator.whenF(allKeys)(Seq(allKeys.head))(Future.successful("Yeah"))
@@ -134,7 +132,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "return Some when all keys match" in {
       Generator.when(allKeys)(allKeys)("Yeah") shouldBe Some("Yeah")
     }
-    
+
     "return Some when a key matches" in {
       Generator.when(allKeys)(Seq(allKeys.head))("Yeah") shouldBe Some("Yeah")
     }
@@ -283,9 +281,10 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
 
     implicit def organisationChecker(org: TestOrganisation) = new Checker {
       def shouldHave(vrnDefined: Boolean = false, ninoDefined: Boolean = false, mtdItIdDefined: Boolean = false,
-               empRefDefined: Boolean = false, ctUtrDefined: Boolean = false, saUtrDefined: Boolean = false,
-               lisaManRefNumDefined: Boolean = false, secureElectronicTransferReferenceNumberDefined: Boolean = false,
-               pensionSchemeAdministratorIdentifierDefined: Boolean = false, eoriDefined: Boolean = false) = {
+                     empRefDefined: Boolean = false, ctUtrDefined: Boolean = false, saUtrDefined: Boolean = false,
+                     lisaManRefNumDefined: Boolean = false, secureElectronicTransferReferenceNumberDefined: Boolean = false,
+                     pensionSchemeAdministratorIdentifierDefined: Boolean = false, eoriDefined: Boolean = false,
+                     crnDefined: Boolean = false, taxpayerTypeDefined: Boolean = false) = {
 
         check(org.vrn, vrnDefined)
         check(org.nino, ninoDefined)
@@ -297,6 +296,8 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
         check(org.secureElectronicTransferReferenceNumber, secureElectronicTransferReferenceNumberDefined)
         check(org.pensionSchemeAdministratorIdentifier, pensionSchemeAdministratorIdentifierDefined)
         check(org.eoriNumber, eoriDefined)
+        check(org.crn, crnDefined)
+        check(org.taxpayerType, taxpayerTypeDefined)
       }
     }
 
@@ -329,8 +330,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
 
       val org = await(underTest.generateTestOrganisation(Seq(CORPORATION_TAX), None))
 
-      org shouldHave(ctUtrDefined = true)
-      org.crn.isDefined shouldBe true
+      org shouldHave(ctUtrDefined = true, crnDefined = true)
     }
 
     "generate a SA UTR when SELF_ASSESSMENT service is included" in new Setup {
@@ -339,6 +339,22 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       val org = await(underTest.generateTestOrganisation(Seq(SELF_ASSESSMENT), None))
 
       org shouldHave(saUtrDefined = true)
+    }
+
+    "generate a SA UTR and Individual Taxpayer when SELF_ASSESSMENT and taxpayerType is provided" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(SELF_ASSESSMENT), None, Some("Individual")))
+
+      org shouldHave(saUtrDefined = true, taxpayerTypeDefined = true)
+    }
+
+    "generate a SA UTR and Partner Taxpayer when SELF_ASSESSMENT and taxpayerType is provided" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(SELF_ASSESSMENT), None, Some("Partner")))
+
+      org shouldHave(saUtrDefined = true, taxpayerTypeDefined = true)
     }
 
     "generate a VRN when SUBMIT_VAT_RETURNS service is included" in new Setup {

@@ -69,6 +69,8 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
 
   def useProvidedOrGenerateEoriNumber(eoriNumber: Option[EoriNumber]): Future[String] = eoriNumber.fold(generateEoriNumber)(provided => Future.successful(provided.value))
 
+  def useProvidedTaxpayerType(maybeString: Option[String]): Future[Option[String]] = Future.successful(maybeString)
+
   def generateTestIndividual(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[EoriNumber]): Future[TestIndividual] = {
     def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
 
@@ -100,7 +102,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
         services)
   }
 
-  def generateTestOrganisation(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[EoriNumber]): Future[TestOrganisation] = {
+  def generateTestOrganisation(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[EoriNumber], taxpayerType: Option[String] = None): Future[TestOrganisation] = {
     def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
 
     def when[T](keys: ServiceKey*)(thenDo: => T): Option[T] = Generator.when(services)(keys)(thenDo)
@@ -117,12 +119,13 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
       setRefNum             = when(SECURE_ELECTRONIC_TRANSFER)(generateSetRefNum)
       psaId                 = when(RELIEF_AT_SOURCE)(generatePsaId)
       eoriNumber            <- whenF(CUSTOMS_SERVICES, CTC, SAFETY_AND_SECURITY, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
-      groupIdentifier        = Some(generateGroupIdentifier)
-      firstName              = generateFirstName
+      groupIdentifier       = Some(generateGroupIdentifier)
+      firstName             = generateFirstName
       lastName              = generateLastName
       userFullName          = generateUserFullName(firstName, lastName)
       emailAddress          = generateEmailAddress(firstName, lastName)
-      crn                   = when(CORPORATION_TAX)(generateCrn)
+      companyRegNo          <- whenF(CORPORATION_TAX)(generateCrn)
+      taxpayerType          <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType))
     } yield
       TestOrganisation(
         generateUserId,
@@ -143,7 +146,9 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
         eoriNumber,
         groupIdentifier,
         services,
-        crn = crn)
+        crn = companyRegNo,
+        taxpayerType = taxpayerType.getOrElse(None)
+      )
   }
 
   def generateTestAgent(services: Seq[ServiceKey] = Seq.empty) = {
@@ -206,7 +211,10 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   private def generateNino: Future[String] = generateUniqueIdentifier(() => { ninoGenerator.nextNino.value })
   private def generateCtUtr: Future[String] = generateUniqueIdentifier(() => { utrGenerator.next })
   private def generateVrn: Future[String] = generateUniqueIdentifier(() => { Vrn(vrnGenerator.sample.get).vrn })
-  private def generateCrn : String = crnGenerator.next
+
+  private def generateCrn: Future[String] = generateUniqueIdentifier(() => {
+    crnGenerator.next
+  })
 
   private def generateLisaManRefNum: Future[String] = generateUniqueIdentifier(() => {
     lisaManRefNumGenerator.next.lisaManagerReferenceNumber
@@ -226,6 +234,13 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   private def generateArn: Future[String] = generateUniqueIdentifier(() => {
     arnGenerator.next
   })
+
+  private def generateTaxPayerType(taxPayerType: String): Future[String] = {
+    taxPayerType match {
+      case "Individual" => Future.successful("Individual")
+      case "Partner" => Future.successful("Partner")
+    }
+  }
 }
 
 class UtrGenerator(random: Random = new Random) extends Modulus11Check {

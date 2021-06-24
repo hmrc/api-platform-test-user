@@ -76,6 +76,12 @@
       "minLength": 14,
       "maxLength": 17,
       "pattern": "^(GB|XI)[0-9]{12,15}$"
+    },
+    "taxPayerType": {
+      "type": "string",
+      "description": "Type of SA taxpayer Individual or Partner",
+      "minLength": 7,
+      "maxLength": 10
     }
   },
   "required": [

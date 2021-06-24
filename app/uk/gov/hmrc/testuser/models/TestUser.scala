@@ -116,7 +116,8 @@ case class TestOrganisation(override val userId: String,
                             groupIdentifier: Option[String] = None,
                             override val services: Seq[ServiceKey] = Seq.empty,
                             override val _id: BSONObjectID = BSONObjectID.generate,
-                            crn: Option[String] = None) extends TestUser {
+                            crn: Option[String] = None,
+                            taxpayerType: Option[String] = None) extends TestUser {
   override val affinityGroup = "Organisation"
 }
 
@@ -163,6 +164,7 @@ sealed trait TestOrganisationResponse extends TestUserResponse {
   val eoriNumber: Option[String]
   val groupIdentifier: Option[String]
   val crn: Option[String]
+  val taxpayerType: Option[String]
 }
 
 sealed trait TestAgentResponse extends TestUserResponse {
@@ -226,7 +228,8 @@ case class FetchTestOrganisationResponse(override val userId: String,
                                          override val pensionSchemeAdministratorIdentifier: Option[String] = None,
                                          override val eoriNumber: Option[String] = None,
                                          override val groupIdentifier: Option[String] = None,
-                                         override val crn: Option[String] = None)
+                                         override val crn: Option[String] = None,
+                                         override val taxpayerType: Option[String] = None)
   extends TestOrganisationResponse
 
 object FetchTestOrganisationResponse {
@@ -254,7 +257,8 @@ case class TestOrganisationCreatedResponse(override val userId: String,
                                            override val pensionSchemeAdministratorIdentifier: Option[String],
                                            override val eoriNumber: Option[String] = None,
                                            override val groupIdentifier: Option[String] = None,
-                                           override val crn: Option[String] = None)
+                                           override val crn: Option[String] = None,
+                                           override val taxpayerType: Option[String] = None)
   extends TestOrganisationResponse
 
 object TestOrganisationCreatedResponse {
@@ -262,7 +266,7 @@ object TestOrganisationCreatedResponse {
     organisation.userFullName, organisation.emailAddress, organisation.organisationDetails, organisation.saUtr,
     organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.vatRegistrationDate,
     organisation.lisaManRefNum, organisation.secureElectronicTransferReferenceNumber,
-    organisation.pensionSchemeAdministratorIdentifier, organisation.eoriNumber, organisation.groupIdentifier, organisation.crn)
+    organisation.pensionSchemeAdministratorIdentifier, organisation.eoriNumber, organisation.groupIdentifier, organisation.crn, organisation.taxpayerType)
 }
 
 case class TestAgentCreatedResponse(override val userId: String, password: String,
