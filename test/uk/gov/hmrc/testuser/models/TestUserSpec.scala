@@ -48,7 +48,8 @@ class TestUserSpec extends FlatSpec with Matchers {
       emailAddress = emailAddress,
       organisationDetails = organisationDetails,
       lisaManRefNum = Some("Z123456"),
-      groupIdentifier = Some(groupIdentifier))
+      groupIdentifier = Some(groupIdentifier),
+      crn = None)
 
     TestOrganisationCreatedResponse.from(testOrganisation) shouldBe
       TestOrganisationCreatedResponse(
@@ -80,5 +81,9 @@ class TestUserSpec extends FlatSpec with Matchers {
       groupIdentifier = Some(groupIdentifier))
 
     TestAgentCreatedResponse.from(testAgent) shouldBe TestAgentCreatedResponse(userId, password, userFullName, emailAddress, Some(arn), Some(groupIdentifier))
+  }
+
+  "Services" should "get size equal to all services when length called" in {
+    Services.length shouldBe 15
   }
 }

@@ -261,6 +261,54 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     }
   }
 
+  "fetchOrganisationByCtUtr" should {
+
+    "return the organisation" in new GeneratedTestOrganisation {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchOrganisationByCtUtr(CtUtr(testOrganisation.ctUtr.get)))
+
+      result shouldBe Some(testOrganisation)
+    }
+
+    "return None when there is no organisation matching" in new GeneratedTestOrganisation {
+      val result = await(repository.fetchOrganisationByCtUtr(CtUtr(testOrganisation.ctUtr.get)))
+      result shouldBe None
+    }
+  }
+
+  "fetchOrganisationBySaUtr" should {
+
+    "return the organisation" in new GeneratedTestOrganisation {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchOrganisationBySaUtr(SaUtr(testOrganisation.saUtr.get)))
+
+      result shouldBe Some(testOrganisation)
+    }
+
+    "return None when there is no organisation matching" in new GeneratedTestOrganisation {
+      val result = await(repository.fetchOrganisationBySaUtr(SaUtr(testOrganisation.saUtr.get)))
+      result shouldBe None
+    }
+  }
+
+  "fetchOrganisationByCrn" should {
+
+    "return the organisation" in new GeneratedTestOrganisation {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchOrganisationByCrn(Crn(testOrganisation.crn.get)))
+
+      result shouldBe Some(testOrganisation)
+    }
+
+    "return None when there is no organisation matching" in new GeneratedTestOrganisation {
+      val result = await(repository.fetchOrganisationByCrn(Crn(testOrganisation.crn.get)))
+      result shouldBe None
+    }
+  }
+
   "identifierIsUnique" should {
     "return false when individual identifiers already exist" in new GeneratedTestIndividual {
       val testUser = await(repository.createUser(testIndividual))
