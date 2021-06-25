@@ -98,6 +98,10 @@
     "eoriNumber": {
       "type": "string",
       "description": "Economic Operator Registration and Identification (EORI) number."
+    },
+    "crn": {
+      "type": "string",
+      "description": "Company Reference Number"
     }
   },
   "required": [
