@@ -237,7 +237,7 @@ object FetchTestOrganisationResponse {
     organisation.emailAddress, organisation.organisationDetails, organisation.saUtr, organisation.nino,
     organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.vatRegistrationDate, organisation.lisaManRefNum,
     organisation.secureElectronicTransferReferenceNumber, organisation.pensionSchemeAdministratorIdentifier,
-    organisation.eoriNumber, organisation.groupIdentifier, organisation.crn)
+    organisation.eoriNumber, organisation.groupIdentifier, organisation.crn, organisation.taxpayerType)
 }
 
 case class TestOrganisationCreatedResponse(override val userId: String,
@@ -266,7 +266,8 @@ object TestOrganisationCreatedResponse {
     organisation.userFullName, organisation.emailAddress, organisation.organisationDetails, organisation.saUtr,
     organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.vatRegistrationDate,
     organisation.lisaManRefNum, organisation.secureElectronicTransferReferenceNumber,
-    organisation.pensionSchemeAdministratorIdentifier, organisation.eoriNumber, organisation.groupIdentifier, organisation.crn, organisation.taxpayerType)
+    organisation.pensionSchemeAdministratorIdentifier, organisation.eoriNumber, organisation.groupIdentifier,
+    organisation.crn, organisation.taxpayerType)
 }
 
 case class TestAgentCreatedResponse(override val userId: String, password: String,
