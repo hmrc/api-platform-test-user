@@ -63,6 +63,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val pensionSchemeAdministratorIdentifier = "A1234567"
   val rawEoriNumber = "GB123456789012"
   val eoriNumber = EoriNumber(rawEoriNumber)
+  val taxpayerType = "Individual"
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
@@ -102,6 +103,8 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     crn = Some(crn),
     taxpayerType = None)
 
+  val testOrganisationTaxpayerType = testOrganisation.copy(taxpayerType = Some("Individual"))
+
   val testAgent = TestAgent(
     user,
     password,
@@ -138,6 +141,13 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
     def createOrganisationWithProvidedEoriRequest = {
       val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["national-insurance"], "eoriNumber": "$rawEoriNumber"}""")
+      FakeRequest().withBody[JsValue](jsonPayload)
+    }
+
+    def createOrganisationWithProvidedEoriRequestTaxpayerType = {
+      val jsonPayload: JsValue = Json.parse(
+        s"""{"serviceNames":["national-insurance"], "eoriNumber": "$rawEoriNumber", "taxpayerType": "$taxpayerType"}"""
+      )
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
@@ -226,6 +236,18 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         eqTo(None))(any[HeaderCarrier])).thenReturn(successful(testOrganisation))
 
       val result = underTest.createOrganisation()(createOrganisationWithProvidedEoriRequest)
+
+      status(result) shouldBe CREATED
+    }
+
+    "return 201 (Created) with the created organisation with provided taxpayerType" in new Setup {
+
+      when(underTest.testUserService.createTestOrganisation(
+        eqTo(createOrganisationServices),
+        eqTo(Some(eoriNumber)),
+        eqTo(Some(taxpayerType)))(any[HeaderCarrier])).thenReturn(successful(testOrganisationTaxpayerType))
+
+      val result = underTest.createOrganisation()(createOrganisationWithProvidedEoriRequestTaxpayerType)
 
       status(result) shouldBe CREATED
     }
