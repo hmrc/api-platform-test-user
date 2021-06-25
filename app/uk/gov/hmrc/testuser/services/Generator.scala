@@ -102,7 +102,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
         services)
   }
 
-  def generateTestOrganisation(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[EoriNumber], taxpayerType: Option[String] = None): Future[TestOrganisation] = {
+  def generateTestOrganisation(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[EoriNumber], taxpayerType: Option[String]): Future[TestOrganisation] = {
     def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
 
     def when[T](keys: ServiceKey*)(thenDo: => T): Option[T] = Generator.when(services)(keys)(thenDo)

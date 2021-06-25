@@ -48,7 +48,7 @@ class TestUserService @Inject()(val passwordService: PasswordService,
     }
   }
 
-  def createTestOrganisation(serviceNames: Seq[ServiceKey], eoriNumber: Option[EoriNumber], taxpayerType: Option[String] = None)
+  def createTestOrganisation(serviceNames: Seq[ServiceKey], eoriNumber: Option[EoriNumber], taxpayerType: Option[String])
                             (implicit hc: HeaderCarrier): Future[TestOrganisation] = {
     generator.generateTestOrganisation(serviceNames, eoriNumber, taxpayerType).flatMap { organisation =>
       val hashedPassword = passwordService.hash(organisation.password)
