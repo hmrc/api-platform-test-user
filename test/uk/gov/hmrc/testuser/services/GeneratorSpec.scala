@@ -344,15 +344,15 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate a SA UTR and Individual Taxpayer when SELF_ASSESSMENT and taxpayerType is provided" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val org = await(underTest.generateTestOrganisation(Seq(SELF_ASSESSMENT), None, Some("Individual")))
+      val org = await(underTest.generateTestOrganisation(Seq(SELF_ASSESSMENT), None, Some(TaxpayerType("Individual"))))
 
       org shouldHave(saUtrDefined = true, taxpayerTypeDefined = true)
     }
 
-    "generate a SA UTR and Partner Taxpayer when SELF_ASSESSMENT and taxpayerType is provided" in new Setup {
+    "generate a SA UTR and Partnership Taxpayer when SELF_ASSESSMENT and taxpayerType is provided" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val org = await(underTest.generateTestOrganisation(Seq(SELF_ASSESSMENT), None, Some("Partner")))
+      val org = await(underTest.generateTestOrganisation(Seq(SELF_ASSESSMENT), None, Some(TaxpayerType("Partnership"))))
 
       org shouldHave(saUtrDefined = true, taxpayerTypeDefined = true)
     }

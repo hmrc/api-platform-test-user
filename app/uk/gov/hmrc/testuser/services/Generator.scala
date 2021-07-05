@@ -67,9 +67,11 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   private val arnGenerator = new ArnGenerator()
   private val crnGenerator = new CompanyReferenceNumberGenerator()
 
-  def useProvidedOrGenerateEoriNumber(eoriNumber: Option[EoriNumber]): Future[String] = eoriNumber.fold(generateEoriNumber)(provided => Future.successful(provided.value))
+  def useProvidedOrGenerateEoriNumber(eoriNumber: Option[EoriNumber]): Future[String] =
+    eoriNumber.fold(generateEoriNumber)(provided => Future.successful(provided.value))
 
-  def useProvidedTaxpayerType(maybeString: Option[String]): Future[Option[String]] = Future.successful(maybeString)
+  def useProvidedTaxpayerType(maybeString: Option[TaxpayerType]): Future[String] =
+    Future.successful(maybeString.fold("Individual")(provided => provided.value))
 
   def generateTestIndividual(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[EoriNumber]): Future[TestIndividual] = {
     def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
@@ -102,7 +104,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
         services)
   }
 
-  def generateTestOrganisation(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[EoriNumber], taxpayerType: Option[String]): Future[TestOrganisation] = {
+  def generateTestOrganisation(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[EoriNumber], taxpayerType: Option[TaxpayerType]): Future[TestOrganisation] = {
     def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
 
     def when[T](keys: ServiceKey*)(thenDo: => T): Option[T] = Generator.when(services)(keys)(thenDo)
@@ -147,7 +149,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
         groupIdentifier,
         services,
         crn = companyRegNo,
-        taxpayerType = taxpayerType.getOrElse(None)
+        taxpayerType = taxpayerType
       )
   }
 
@@ -238,7 +240,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   private def generateTaxPayerType(taxPayerType: String): Future[String] = {
     taxPayerType match {
       case "Individual" => Future.successful("Individual")
-      case "Partner" => Future.successful("Partner")
+      case "Partnership" => Future.successful("Partnership")
     }
   }
 }

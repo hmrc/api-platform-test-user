@@ -25,7 +25,7 @@ case class AuthenticationResponse(gatewayToken: String, affinityGroup: String)
 
 case class AuthSession(authBearerToken: String, authorityUri: String, gatewayToken: String)
 
-case class CreateUserWithOptionalRequestParams(serviceNames: Option[Seq[ServiceKey]], eoriNumber: Option[EoriNumber], taxpayerType: Option[String])
+case class CreateUserWithOptionalRequestParams(serviceNames: Option[Seq[ServiceKey]], eoriNumber: Option[EoriNumber], taxpayerType: Option[TaxpayerType])
 
 case class CreateUserRequest(serviceNames: Option[Seq[ServiceKey]])
 

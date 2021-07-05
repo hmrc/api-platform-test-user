@@ -101,7 +101,7 @@
     },
     "taxPayerType": {
       "type": "string",
-      "description": "Type of SA taxpayer Individual or Partner"
+      "description": "Type of SA taxpayer Individual or Partnership"
     }
   },
   "required": [

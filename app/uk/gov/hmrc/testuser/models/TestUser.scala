@@ -373,6 +373,17 @@ object EoriNumber extends SimpleName {
   override val name = "eoriNumber"
 }
 
+case class TaxpayerType(override val value: String) extends SimpleName with TaxIdentifier {
+  require(TaxpayerType.isValid(value), s"$value is not a valid Taxpayer Type.")
+
+  override val name = "taxpayerType"
+}
+
+object TaxpayerType extends SimpleName {
+  def isValid(taxpayerType: String) = taxpayerType.toLowerCase == "individual" || taxpayerType.toLowerCase == "partnership"
+  override val name = "taxpayerType"
+}
+
 case class Crn(override val value: String) extends TaxIdentifier with SimpleName {
   require(Crn.isValid(value), s"$value is not a valid CRN.")
   override val name: String = Crn.name
