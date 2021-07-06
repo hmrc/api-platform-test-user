@@ -101,7 +101,7 @@
     },
     "taxPayerType": {
       "type": "string",
-      "description": "Type of SA taxpayer Individual or Partnership"
+      "description": "Type of Self Assessment taxpayer One of 'Individual' or 'Partnership'"
     }
   },
   "required": [

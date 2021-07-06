@@ -380,7 +380,7 @@ case class TaxpayerType(override val value: String) extends SimpleName with TaxI
 }
 
 object TaxpayerType extends SimpleName {
-  def isValid(taxpayerType: String) = taxpayerType.toLowerCase == "individual" || taxpayerType.toLowerCase == "partnership"
+  def isValid(taxpayerType: String) = taxpayerType.trim.toLowerCase == "individual" || taxpayerType.trim.toLowerCase == "partnership"
   override val name = "taxpayerType"
 }
 
