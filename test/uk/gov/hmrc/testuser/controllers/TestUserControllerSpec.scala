@@ -64,6 +64,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val rawEoriNumber = "GB123456789012"
   val eoriNumber = EoriNumber(rawEoriNumber)
   val taxpayerType = TaxpayerType("Individual")
+  val rawTaxpayerType = "Individual"
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
@@ -146,7 +147,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
     def createOrganisationWithProvidedEoriRequestTaxpayerType = {
       val jsonPayload: JsValue = Json.parse(
-        s"""{"serviceNames":["national-insurance"], "eoriNumber": "$rawEoriNumber", "taxpayerType": "$taxpayerType"}"""
+        s"""{"serviceNames":["national-insurance"], "eoriNumber": "$rawEoriNumber", "taxpayerType": "$rawTaxpayerType"}"""
       )
       FakeRequest().withBody[JsValue](jsonPayload)
     }
@@ -225,7 +226,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       contentAsJson(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, userFullName, emailAddress,
         organisationDetails, Some(saUtr),
         Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(vatRegistrationDate), Some(lisaManagerReferenceNumber),
-        Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier), Some(rawEoriNumber), Some(groupIdentifier), Some(crn), Some("Individual")))
+        Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier), Some(rawEoriNumber), Some(groupIdentifier), Some(crn), None))
     }
 
     "return 201 (Created) with the created organisation with provided eori" in new Setup {
