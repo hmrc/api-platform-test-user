@@ -127,7 +127,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
       userFullName          = generateUserFullName(firstName, lastName)
       emailAddress          = generateEmailAddress(firstName, lastName)
       companyRegNo          <- whenF(CORPORATION_TAX)(generateCrn)
-      taxpayerType          <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType))
+      taxpayerType          <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
     } yield
       TestOrganisation(
         generateUserId,
