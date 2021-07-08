@@ -34,7 +34,8 @@ class TestUserService @Inject()(val passwordService: PasswordService,
                                 val generator: Generator)
                                (implicit ec: ExecutionContext) {
 
-  def createTestIndividual(serviceNames: Seq[ServiceKey], eoriNumber: Option[EoriNumber] = None)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
+  def createTestIndividual(serviceNames: Seq[ServiceKey], eoriNumber: Option[EoriNumber] = None)
+                          (implicit hc: HeaderCarrier): Future[TestIndividual] = {
     generator.generateTestIndividual(serviceNames, eoriNumber).flatMap { individual =>
       val hashedPassword = passwordService.hash(individual.password)
 
@@ -47,8 +48,9 @@ class TestUserService @Inject()(val passwordService: PasswordService,
     }
   }
 
-  def createTestOrganisation(serviceNames: Seq[ServiceKey], eoriNumber: Option[EoriNumber])(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
-    generator.generateTestOrganisation(serviceNames, eoriNumber).flatMap { organisation =>
+  def createTestOrganisation(serviceNames: Seq[ServiceKey], eoriNumber: Option[EoriNumber], taxpayerType: Option[TaxpayerType])
+                            (implicit hc: HeaderCarrier): Future[TestOrganisation] = {
+    generator.generateTestOrganisation(serviceNames, eoriNumber, taxpayerType).flatMap { organisation =>
       val hashedPassword = passwordService.hash(organisation.password)
       testUserRepository.createUser(organisation.copy(password = hashedPassword)) map {
         case createdOrganisation

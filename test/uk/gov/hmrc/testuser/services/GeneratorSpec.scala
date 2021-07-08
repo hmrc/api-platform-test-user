@@ -75,12 +75,10 @@ trait GeneratorProvider {
 
 class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
   trait Setup extends GeneratorProvider {
-
     val repository = mock[TestUserRepository]
-
-   val underTest = generator
+    val underTest  = generator
   }
-  
+
   trait Checker {
     def check[T](attribute: T, isDefined: Boolean)(implicit definition: Definition[T], emptiness: Emptiness[T]) = {
       if(isDefined) attribute shouldBe defined
@@ -111,7 +109,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
         Generator.whenF(allKeys)(allKeys)(Future.successful("Yeah"))
       ) shouldBe Some("Yeah")
     }
-    
+
     "return Some when a key matches" in {
       await(
         Generator.whenF(allKeys)(Seq(allKeys.head))(Future.successful("Yeah"))
@@ -134,7 +132,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "return Some when all keys match" in {
       Generator.when(allKeys)(allKeys)("Yeah") shouldBe Some("Yeah")
     }
-    
+
     "return Some when a key matches" in {
       Generator.when(allKeys)(Seq(allKeys.head))("Yeah") shouldBe Some("Yeah")
     }
@@ -283,9 +281,10 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
 
     implicit def organisationChecker(org: TestOrganisation) = new Checker {
       def shouldHave(vrnDefined: Boolean = false, ninoDefined: Boolean = false, mtdItIdDefined: Boolean = false,
-               empRefDefined: Boolean = false, ctUtrDefined: Boolean = false, saUtrDefined: Boolean = false,
-               lisaManRefNumDefined: Boolean = false, secureElectronicTransferReferenceNumberDefined: Boolean = false,
-               pensionSchemeAdministratorIdentifierDefined: Boolean = false, eoriDefined: Boolean = false) = {
+                     empRefDefined: Boolean = false, ctUtrDefined: Boolean = false, saUtrDefined: Boolean = false,
+                     lisaManRefNumDefined: Boolean = false, secureElectronicTransferReferenceNumberDefined: Boolean = false,
+                     pensionSchemeAdministratorIdentifierDefined: Boolean = false, eoriDefined: Boolean = false,
+                     crnDefined: Boolean = false, taxpayerTypeDefined: Boolean = false) = {
 
         check(org.vrn, vrnDefined)
         check(org.nino, ninoDefined)
@@ -297,13 +296,15 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
         check(org.secureElectronicTransferReferenceNumber, secureElectronicTransferReferenceNumberDefined)
         check(org.pensionSchemeAdministratorIdentifier, pensionSchemeAdministratorIdentifierDefined)
         check(org.eoriNumber, eoriDefined)
+        check(org.crn, crnDefined)
+        check(org.taxpayerType, taxpayerTypeDefined)
       }
     }
 
     "generate a NINO and MTD IT ID when MTD_INCOME_TAX service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val org = await(underTest.generateTestOrganisation(Seq(MTD_INCOME_TAX), None))
+      val org = await(underTest.generateTestOrganisation(Seq(MTD_INCOME_TAX), None, None))
 
       org shouldHave(mtdItIdDefined = true, ninoDefined = true)
     }
@@ -311,7 +312,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate a NINO when NATIONAL_INSURANCE service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val org = await(underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE), None))
+      val org = await(underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE), None, None))
 
       org shouldHave(ninoDefined = true)
     }
@@ -319,7 +320,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate a EMPREF when PAYE_FOR_EMPLOYERS service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val org = await(underTest.generateTestOrganisation(Seq(PAYE_FOR_EMPLOYERS), None))
+      val org = await(underTest.generateTestOrganisation(Seq(PAYE_FOR_EMPLOYERS), None, None))
 
       org shouldHave(empRefDefined = true)
     }
@@ -327,24 +328,39 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate a CT UTR and CRN when CORPORATION_TAX service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val org = await(underTest.generateTestOrganisation(Seq(CORPORATION_TAX), None))
+      val org = await(underTest.generateTestOrganisation(Seq(CORPORATION_TAX), None, None))
 
-      org shouldHave(ctUtrDefined = true)
-      org.crn.isDefined shouldBe true
+      org shouldHave(ctUtrDefined = true, crnDefined = true)
     }
 
-    "generate a SA UTR when SELF_ASSESSMENT service is included" in new Setup {
+    "generate a SA UTR when SELF_ASSESSMENT service is included and taxpayerType defaults" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val org = await(underTest.generateTestOrganisation(Seq(SELF_ASSESSMENT), None))
+      val org = await(underTest.generateTestOrganisation(Seq(SELF_ASSESSMENT), None, None))
 
-      org shouldHave(saUtrDefined = true)
+      org shouldHave(saUtrDefined = true, taxpayerTypeDefined = true)
+    }
+
+    "generate a SA UTR and Individual Taxpayer when SELF_ASSESSMENT and taxpayerType is provided" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(SELF_ASSESSMENT), None, Some(TaxpayerType("Individual"))))
+
+      org shouldHave(saUtrDefined = true, taxpayerTypeDefined = true)
+    }
+
+    "generate a SA UTR and Partnership Taxpayer when SELF_ASSESSMENT and taxpayerType is provided" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(SELF_ASSESSMENT), None, Some(TaxpayerType("Partnership"))))
+
+      org shouldHave(saUtrDefined = true, taxpayerTypeDefined = true)
     }
 
     "generate a VRN when SUBMIT_VAT_RETURNS service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val org = await(underTest.generateTestOrganisation(Seq(SUBMIT_VAT_RETURNS), None))
+      val org = await(underTest.generateTestOrganisation(Seq(SUBMIT_VAT_RETURNS), None, None))
 
       org shouldHave(vrnDefined = true)
     }
@@ -352,7 +368,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate a VRN when MTD_VAT service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val org = await(underTest.generateTestOrganisation(Seq(MTD_VAT), None))
+      val org = await(underTest.generateTestOrganisation(Seq(MTD_VAT), None, None))
 
       org shouldHave(vrnDefined = true)
     }
@@ -360,7 +376,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate a lisaManagerReferenceNumber when LISA service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val org = await(underTest.generateTestOrganisation(Seq(LISA), None))
+      val org = await(underTest.generateTestOrganisation(Seq(LISA), None, None))
 
       org shouldHave(lisaManRefNumDefined = true)
     }
@@ -368,7 +384,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate a secureElectronicTransferReferenceNumber when SECURE_ELECTRONIC_TRANSFER service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val org = await(underTest.generateTestOrganisation(Seq(SECURE_ELECTRONIC_TRANSFER), None))
+      val org = await(underTest.generateTestOrganisation(Seq(SECURE_ELECTRONIC_TRANSFER), None, None))
 
       org shouldHave(secureElectronicTransferReferenceNumberDefined = true)
     }
@@ -376,7 +392,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate a pensionSchemeAdministratorIdentifier when RELIEF_AT_SOURCE service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val org = await(underTest.generateTestOrganisation(Seq(RELIEF_AT_SOURCE), None))
+      val org = await(underTest.generateTestOrganisation(Seq(RELIEF_AT_SOURCE), None, None))
 
       org shouldHave(pensionSchemeAdministratorIdentifierDefined = true)
     }
@@ -384,7 +400,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate an EORI when CUSTOMS_SERVICES service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val org = await(underTest.generateTestOrganisation(Seq(CUSTOMS_SERVICES), None))
+      val org = await(underTest.generateTestOrganisation(Seq(CUSTOMS_SERVICES), None, None))
 
       org shouldHave(eoriDefined = true)
     }
@@ -393,7 +409,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
       val eori = eoriGenerator.sample.get
 
-      val org = await(underTest.generateTestOrganisation(Seq(CUSTOMS_SERVICES), Some(eori)))
+      val org = await(underTest.generateTestOrganisation(Seq(CUSTOMS_SERVICES), Some(eori), None))
 
       org shouldHave(eoriDefined = true)
       org.eoriNumber shouldBe Some(eori.value)
@@ -402,7 +418,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate an EORI when CTC service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val org = await(underTest.generateTestOrganisation(Seq(CTC), None))
+      val org = await(underTest.generateTestOrganisation(Seq(CTC), None, None))
 
       org shouldHave(eoriDefined = true)
     }
@@ -411,7 +427,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
       val eori = eoriGenerator.sample.get
 
-      val org = await(underTest.generateTestOrganisation(Seq(CTC), Some(eori)))
+      val org = await(underTest.generateTestOrganisation(Seq(CTC), Some(eori), None))
 
       org shouldHave(eoriDefined = true)
       org.eoriNumber shouldBe Some(eori.value)
@@ -420,7 +436,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate an EORI when GOODS_VEHICLE_MOVEMENTS service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val org = await(underTest.generateTestOrganisation(Seq(GOODS_VEHICLE_MOVEMENTS), None))
+      val org = await(underTest.generateTestOrganisation(Seq(GOODS_VEHICLE_MOVEMENTS), None, None))
 
       org shouldHave (eoriDefined = true)
     }
@@ -429,7 +445,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
       val eori = eoriGenerator.sample.get
 
-      val org = await(underTest.generateTestOrganisation(Seq(GOODS_VEHICLE_MOVEMENTS), Some(eori)))
+      val org = await(underTest.generateTestOrganisation(Seq(GOODS_VEHICLE_MOVEMENTS), Some(eori), None))
 
       org shouldHave (eoriDefined = true)
       org.eoriNumber shouldBe Some(eori.value)
@@ -438,7 +454,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate an EORI when SAFETY_AND_SECURITY service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val org = await(underTest.generateTestOrganisation(Seq(SAFETY_AND_SECURITY), None))
+      val org = await(underTest.generateTestOrganisation(Seq(SAFETY_AND_SECURITY), None, None))
 
       org shouldHave(eoriDefined = true)
     }
@@ -447,7 +463,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
       val eori = eoriGenerator.sample.get
 
-      val org = await(underTest.generateTestOrganisation(Seq(SAFETY_AND_SECURITY), Some(eori)))
+      val org = await(underTest.generateTestOrganisation(Seq(SAFETY_AND_SECURITY), Some(eori), None))
 
       org shouldHave (eoriDefined = true)
       org.eoriNumber shouldBe Some(eori.value)
@@ -457,7 +473,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
       val eoriToIgnore = eoriGenerator.sample.get
 
-      val org = await(underTest.generateTestOrganisation(Seq.empty, Some(eoriToIgnore)))
+      val org = await(underTest.generateTestOrganisation(Seq.empty, Some(eoriToIgnore), None))
 
       org shouldHave (eoriDefined = false)
     }
@@ -465,7 +481,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "set the userFullName and emailAddress" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val organisation = await(underTest.generateTestOrganisation(Seq(MTD_INCOME_TAX), None))
+      val organisation = await(underTest.generateTestOrganisation(Seq(MTD_INCOME_TAX), None, None))
 
       organisation.userFullName.matches("[a-zA-Z]+ [a-zA-Z]+") shouldBe true
 
@@ -477,7 +493,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "regenerate VRN if it is a duplicate" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(false), Future(true))
 
-      val organisation = await(underTest.generateTestOrganisation(Seq(SUBMIT_VAT_RETURNS), None))
+      val organisation = await(underTest.generateTestOrganisation(Seq(SUBMIT_VAT_RETURNS), None, None))
 
       organisation shouldHave(vrnDefined = true)
       verify(repository, times(2)).identifierIsUnique(any[String])
@@ -486,7 +502,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "regenerate Employer Reference if it is a duplicate" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(false), Future(true))
 
-      val organisation = await(underTest.generateTestOrganisation(Seq(PAYE_FOR_EMPLOYERS), None))
+      val organisation = await(underTest.generateTestOrganisation(Seq(PAYE_FOR_EMPLOYERS), None, None))
 
       organisation shouldHave(empRefDefined = true)
       verify(repository, times(2)).identifierIsUnique(any[String])

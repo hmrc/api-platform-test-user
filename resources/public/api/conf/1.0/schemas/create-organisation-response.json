@@ -102,6 +102,10 @@
     "crn": {
       "type": "string",
       "description": "Company Reference Number"
+    },
+    "taxPayerType": {
+      "type": "string",
+      "description": "Type of Self Assessment taxpayer One of 'Individual' or 'Partnership'"
     }
   },
   "required": [
