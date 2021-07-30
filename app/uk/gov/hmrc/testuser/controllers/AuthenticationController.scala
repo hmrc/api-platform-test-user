@@ -46,6 +46,20 @@ class AuthenticationController @Inject()(val authenticationService: Authenticati
     }
   }
 
+  def authenticateByCredId() = {
+    Action.async(parse.json) { implicit request =>
+      withJsonBody[String] { credId =>
+        authenticationService.authenticateByCredId(credId) map { case (testUser, authSession) =>
+          Created(toJson(AuthenticationResponse(authSession.gatewayToken, testUser.affinityGroup))).withHeaders(
+            HeaderNames.AUTHORIZATION -> authSession.authBearerToken,
+            HeaderNames.LOCATION -> authSession.authorityUri)
+        }
+      } recover {
+        case _: InvalidCredentials => Unauthorized(toJson(ErrorResponse.invalidCredentialsError))
+      } recover recovery
+    }
+  }
+
   private def recovery: PartialFunction[Throwable, Result] = {
     case e =>
       Logger.error(s"An unexpected error occurred: ${e.getMessage}", e)
