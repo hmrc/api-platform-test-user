@@ -15,5 +15,6 @@
     "safety-and-security",
     "common-transit-convention-traders"
   ],
-  "eoriNumber": "GB123456789012"
+  "eoriNumber": "GB123456789012",
+  "taxpayerType": "Individual"
 }
