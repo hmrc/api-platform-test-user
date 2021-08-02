@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.testuser.controllers
 
-import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
 import uk.gov.hmrc.testuser.common.LogSuppressing
 import org.joda.time.LocalDate
 import play.api.Logger
@@ -38,6 +36,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.{failed, successful}
 
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
+import akka.stream.Materializer
 
 class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
@@ -119,8 +118,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val createAgentServices = Seq(ServiceKeys.AGENT_SERVICES)
 
   trait Setup {
-    implicit val actorSystem: ActorSystem = ActorSystem("test")
-    implicit val materializer: Materializer = ActorMaterializer()
+    implicit val materializer: Materializer = NoMaterializer
     implicit val hc = HeaderCarrier()
 
     val request = FakeRequest()
