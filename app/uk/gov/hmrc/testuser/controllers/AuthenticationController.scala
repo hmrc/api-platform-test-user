@@ -32,7 +32,11 @@ import play.api.libs.json.Json
 
 object AuthenticationController {
   case class ApiSessionRequest(credId: String)
-  implicit val format = Json.format[ApiSessionRequest]
+  
+  case class ApiSessionResponse(bearerToken: String)
+
+  implicit val jsonWrites = Json.writes[ApiSessionResponse]
+  implicit val jsonReads = Json.reads[ApiSessionRequest]
 }
 
 @Singleton
@@ -59,9 +63,7 @@ class AuthenticationController @Inject()(val authenticationService: Authenticati
     Action.async(parse.json) { implicit request =>
       withJsonBody[ApiSessionRequest] { sessionRequest =>
         authenticationService.authenticateByCredId(sessionRequest.credId) map { case (testUser, authSession) =>
-          Created(toJson(AuthenticationResponse(authSession.gatewayToken, testUser.affinityGroup))).withHeaders(
-            HeaderNames.AUTHORIZATION -> authSession.authBearerToken,
-            HeaderNames.LOCATION -> authSession.authorityUri)
+          Created(toJson(ApiSessionResponse(authSession.authBearerToken)))
         }
       } recover {
         case _: InvalidCredentials => Unauthorized(toJson(ErrorResponse.invalidCredentialsError))

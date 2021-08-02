@@ -55,7 +55,7 @@ class AuthenticationService @Inject()(val passwordService: PasswordService,
       case None =>
         throw InvalidCredentials(s"User ID not found: ${credId}")
       case _ =>
-        throw InvalidCredentials(s"Invalid password for user ID: ${credId}")
+        throw InvalidCredentials(s"Invalid credId: ${credId}")
     }
     for {
       user <- userFuture
