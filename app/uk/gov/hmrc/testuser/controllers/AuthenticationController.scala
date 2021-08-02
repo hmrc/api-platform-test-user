@@ -27,6 +27,13 @@ import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.services.AuthenticationService
 
 import scala.concurrent.ExecutionContext
+import play.api.libs.json.Json
+
+
+object AuthenticationController {
+  case class ApiSessionRequest(credId: String)
+  implicit val format = Json.format[ApiSessionRequest]
+}
 
 @Singleton
 class AuthenticationController @Inject()(val authenticationService: AuthenticationService, val cc: ControllerComponents)
@@ -46,10 +53,12 @@ class AuthenticationController @Inject()(val authenticationService: Authenticati
     }
   }
 
+  import AuthenticationController._
+
   def authenticateByCredId() = {
     Action.async(parse.json) { implicit request =>
-      withJsonBody[String] { credId =>
-        authenticationService.authenticateByCredId(credId) map { case (testUser, authSession) =>
+      withJsonBody[ApiSessionRequest] { sessionRequest =>
+        authenticationService.authenticateByCredId(sessionRequest.credId) map { case (testUser, authSession) =>
           Created(toJson(AuthenticationResponse(authSession.gatewayToken, testUser.affinityGroup))).withHeaders(
             HeaderNames.AUTHORIZATION -> authSession.authBearerToken,
             HeaderNames.LOCATION -> authSession.authorityUri)
