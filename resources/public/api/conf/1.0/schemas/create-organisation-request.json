@@ -12,7 +12,7 @@
         "oneOf": [
           {
             "enum": ["corporation-tax"],
-            "description": "Generates a Corporation Tax UTR and enrols the user for Corporation Tax."
+            "description": "Generates a Corporation Tax Unique Taxpayer Reference (CTUTR), a Company Registration Number (CRN) and enrols the user for Corporation Tax."
           },
           {
             "enum": ["paye-for-employers"],
@@ -76,6 +76,10 @@
       "minLength": 14,
       "maxLength": 17,
       "pattern": "^(GB|XI)[0-9]{12,15}$"
+    },
+    "taxPayerType": {
+      "type": "string",
+      "description": "Type of Self Assessment taxpayer One of 'Individual' or 'Partnership'"
     }
   },
   "required": [
