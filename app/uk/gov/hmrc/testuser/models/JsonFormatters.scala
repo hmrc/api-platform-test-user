@@ -20,8 +20,7 @@ import org.joda.time.LocalDate
 import play.api.libs.json._
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.play.json.Union
-import uk.gov.hmrc.testuser.connectors.{Enrolment, GovernmentGatewayLogin, Identifier}
-
+import uk.gov.hmrc.testuser.connectors.{Enrolment, GovernmentGatewayLogin, Identifier, ItmpData, AuthLoginAddress}
 object JsonFormatters {
 
   implicit val formatLocalDateWriter: Writes[LocalDate] = JodaWrites.jodaLocalDateWrites("yyyy-MM-dd")
@@ -65,6 +64,9 @@ object JsonFormatters {
 
   implicit val formatTaxIdentifier = Json.format[Identifier]
   implicit val formatEnrolment = Json.format[Enrolment]
+
+  implicit val formatAuthLoginAddress = Json.format[AuthLoginAddress]
+  implicit val formatItmpData = Json.format[ItmpData]
   implicit val formatGovernmentGatewayLogin = Json.format[GovernmentGatewayLogin]
 
   implicit val formatDesSimulatorTestIndividual = Json.format[DesSimulatorTestIndividual]

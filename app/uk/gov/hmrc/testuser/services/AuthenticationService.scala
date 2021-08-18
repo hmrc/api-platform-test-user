@@ -44,9 +44,9 @@ class AuthenticationService @Inject()(val passwordService: PasswordService,
       }
     }
     for {
-      user <- userFuture
-      authSession <- authLoginApiConnector.createSession(user)
-    } yield (user, authSession)
+      testUser <- userFuture
+      authSession <- authLoginApiConnector.createSession(testUser)
+    } yield (testUser, authSession)
   }
 
   def authenticateByCredId(credId: String)(implicit hc: HeaderCarrier): Future[(TestUser, AuthSession)] = {
