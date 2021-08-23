@@ -197,7 +197,22 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
              |     }
              |   ],
              |   "usersName": "John Doe",
-             |   "email": "john.doe@example.com"
+             |   "email": "john.doe@example.com",
+             |   "itmpData" : {
+             |     "givenName" : "John",
+             |     "middleName" : "",
+             |     "familyName" : "Doe",
+             |     "birthdate" : "1980-01-10",
+             |     "address" : {
+             |       "line1" : "221b Baker St",
+             |       "line2" : "Marylebone",
+             |       "line3" : "",
+             |       "line4" : "",
+             |       "postCode" : "NW1 6XE",
+             |       "countryName" : "United Kingdom",
+             |       "countryCode" : "GB"
+             |     }
+             |  }
              |}
         """.stripMargin.replaceAll("\n", ""))))
     }

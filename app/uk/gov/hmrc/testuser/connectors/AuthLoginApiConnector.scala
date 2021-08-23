@@ -17,6 +17,7 @@
 package uk.gov.hmrc.testuser.connectors
 
 import javax.inject.{Inject, Singleton}
+import org.joda.time.LocalDate
 import play.api.{Configuration, Environment}
 import play.api.http.HeaderNames.{AUTHORIZATION, LOCATION}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -69,8 +70,49 @@ case class GovernmentGatewayLogin(credId: String,
                                   confidenceLevel: Int = ConfidenceLevel.L200.level,
                                   credentialStrength: String = "strong",
                                   groupIdentifier: String,
+                                  itmpData: Option[ItmpData],
                                   credentialRole: Option[String] = None)
 
+case class ItmpData(
+    givenName: String,
+    middleName:String,
+    familyName:String,
+    birthdate: LocalDate,
+    address: AuthLoginAddress)
+
+object ItmpData{
+  def apply(testIndividual: TestIndividual) : ItmpData = {
+    ItmpData(
+      testIndividual.individualDetails.firstName,
+      middleName = "",
+      testIndividual.individualDetails.lastName,
+      testIndividual.individualDetails.dateOfBirth,
+      address = AuthLoginAddress(testIndividual.individualDetails.address)
+    )
+  }
+}
+
+case class AuthLoginAddress(
+    line1: String,
+    line2: String,
+    line3: String,
+    line4: String,
+    postCode: String,
+    countryName: String,
+    countryCode: String)
+
+object AuthLoginAddress {
+  def apply(address: Address) : AuthLoginAddress = {
+    AuthLoginAddress(
+      line1 = address.line1, 
+      line2 = address.line2, 
+      line3 = "",
+      line4 = "", 
+      postCode = address.postcode, 
+      countryName = "United Kingdom",
+      countryCode = "GB")
+  }
+}
 object GovernmentGatewayLogin {
 
   def apply(testUser: TestUser): GovernmentGatewayLogin = testUser match {
@@ -79,7 +121,7 @@ object GovernmentGatewayLogin {
     case agent: TestAgent               => fromAgent(agent)
   }
 
-  private def fromIndividual(individual: TestIndividual) = {
+  private def fromIndividual(individual: TestIndividual) : GovernmentGatewayLogin = {
 
     def asEnrolment(serviceName: ServiceKey) = {
       serviceName match {
@@ -100,7 +142,8 @@ object GovernmentGatewayLogin {
       enrolments = individual.services.flatMap(asEnrolment),
       usersName = individual.userFullName,
       email = individual.emailAddress,
-      groupIdentifier = individual.groupIdentifier.getOrElse("")
+      groupIdentifier = individual.groupIdentifier.getOrElse(""),
+      itmpData = Some(ItmpData(individual))
     )
   }
 
@@ -136,7 +179,9 @@ object GovernmentGatewayLogin {
       enrolments = organisation.services.flatMap(asEnrolment),
       usersName = organisation.userFullName,
       email = organisation.emailAddress,
-      groupIdentifier = organisation.groupIdentifier.getOrElse(""))
+      groupIdentifier = organisation.groupIdentifier.getOrElse(""),
+      itmpData = None
+    )
   }
 
   private def fromAgent(agent: TestAgent): GovernmentGatewayLogin = {
@@ -155,6 +200,8 @@ object GovernmentGatewayLogin {
       usersName = agent.userFullName,
       email = agent.emailAddress,
       credentialRole = Some("user"),
-      groupIdentifier = agent.groupIdentifier.getOrElse(""))
+      groupIdentifier = agent.groupIdentifier.getOrElse(""),
+      itmpData = None
+    )
   }
 }
