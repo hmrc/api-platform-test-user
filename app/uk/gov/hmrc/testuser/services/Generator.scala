@@ -110,14 +110,18 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
         services)
   }
 
-  def generateTestOrganisation(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[EoriNumber], taxpayerType: Option[TaxpayerType]): Future[TestOrganisation] = {
+  def generateTestOrganisation( services: Seq[ServiceKey] = Seq.empty, 
+                                eoriNumber: Option[EoriNumber],
+                                nino: Option[String],
+                                taxpayerType: Option[TaxpayerType]): Future[TestOrganisation] = {
+
     def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
 
     def when[T](keys: ServiceKey*)(thenDo: => T): Option[T] = Generator.when(services)(keys)(thenDo)
 
     for {
       saUtr                 <- whenF(SELF_ASSESSMENT)(generateSaUtr)
-      nino                  <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(generateNino) // TODO: use new generate or nino?
+      nino                  <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(useProvidedOrGeneratedNino(nino))
       mtdItId               <- whenF(MTD_INCOME_TAX)(generateMtdId)
       empRef                <- whenF(PAYE_FOR_EMPLOYERS)(generateEmpRef)
       ctUtr                 <- whenF(CORPORATION_TAX)(generateCtUtr)

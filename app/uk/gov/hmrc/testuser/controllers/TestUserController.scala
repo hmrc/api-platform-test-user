@@ -50,6 +50,7 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
       testUserService.createTestOrganisation(
         createUserRequest.serviceNames.getOrElse(Seq.empty),
         createUserRequest.eoriNumber,
+        createUserRequest.nino,
         createUserRequest.taxpayerType
       ) map { organisation =>
         Created(toJson(TestOrganisationCreatedResponse.from(organisation)))

@@ -92,7 +92,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
   val testIndividual = testIndividualWithNoServices.copy(services = individualServices)
 
   val organisationServices = Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
-  val testOrganisationWithNoServices = await(generator.generateTestOrganisation(Seq.empty, None, None).map(
+  val testOrganisationWithNoServices = await(generator.generateTestOrganisation(Seq.empty, None, None, None).map(
     _.copy(
       userId = userId,
       password = password,
@@ -169,10 +169,10 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
     "Generate an organisation and save it in the database" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      when(underTest.generator.generateTestOrganisation(organisationServices, None, None)).thenReturn(successful(testOrganisation))
+      when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None)).thenReturn(successful(testOrganisation))
       when(underTest.passwordService.hash(testOrganisation.password)).thenReturn(hashedPassword)
 
-      val result = await(underTest.createTestOrganisation(organisationServices, None, None))
+      val result = await(underTest.createTestOrganisation(organisationServices, None, None, None))
 
       result shouldBe testOrganisation
 
@@ -184,10 +184,10 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
     "Not call the DES simulator when the organisation does not have the mtd-income-tax service" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      when(underTest.generator.generateTestOrganisation(Seq.empty, None, None)).thenReturn(successful(testOrganisationWithNoServices))
+      when(underTest.generator.generateTestOrganisation(Seq.empty, None, None, None)).thenReturn(successful(testOrganisationWithNoServices))
       when(underTest.passwordService.hash(testOrganisationWithNoServices.password)).thenReturn(hashedPassword)
 
-      val result = await(underTest.createTestOrganisation(Seq.empty, None, None))
+      val result = await(underTest.createTestOrganisation(Seq.empty, None, None, None))
 
       result shouldBe testOrganisationWithNoServices
 
@@ -198,12 +198,12 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "fail when the repository fails" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
-        when(underTest.generator.generateTestOrganisation(organisationServices, None, None)).thenReturn(successful(testOrganisation))
+        when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None)).thenReturn(successful(testOrganisation))
         when(underTest.testUserRepository.createUser(*[TestUser]))
           .thenReturn(failed(new RuntimeException("expected test error")))
 
         intercept[RuntimeException] {
-          await(underTest.createTestOrganisation(organisationServices, None, None))
+          await(underTest.createTestOrganisation(organisationServices, None, None, None))
         }
       }
     }

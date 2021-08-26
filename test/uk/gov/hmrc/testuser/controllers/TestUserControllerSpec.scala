@@ -149,8 +149,10 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
-    // TODO - Organisation with provided nino
-    // createOrganisationWithProvidedNinoRequest
+    def createOrganisationWithProvidedNinoRequest = {
+      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["national-insurance"], "nino": "$providedNino"}""")
+      FakeRequest().withBody[JsValue](jsonPayload)
+    }
 
     def createOrganisationWithProvidedEoriRequestTaxpayerType = {
       val jsonPayload: JsValue = Json.parse(
@@ -244,7 +246,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "return 201 (Created) with the created organisation" in new Setup {
 
-      when(underTest.testUserService.createTestOrganisation(eqTo(createOrganisationServices), eqTo(None), eqTo(None))(any[HeaderCarrier])).thenReturn(successful(testOrganisation))
+      when(underTest.testUserService.createTestOrganisation(eqTo(createOrganisationServices), eqTo(None), eqTo(None), eqTo(None))(any[HeaderCarrier])).thenReturn(successful(testOrganisation))
 
       val result = underTest.createOrganisation()(createOrganisationRequest)
 
@@ -260,9 +262,23 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       when(underTest.testUserService.createTestOrganisation(
         eqTo(createOrganisationServices),
         eqTo(Some(eoriNumber)),
+        eqTo(None),
         eqTo(None))(any[HeaderCarrier])).thenReturn(successful(testOrganisation))
 
       val result = underTest.createOrganisation()(createOrganisationWithProvidedEoriRequest)
+
+      status(result) shouldBe CREATED
+    }
+
+    "return 201 (Created) with the created organisation with provided nino" in new Setup {
+
+      when(underTest.testUserService.createTestOrganisation(
+        eqTo(createOrganisationServices),
+        eqTo(None),
+        eqTo(Some(providedNino)),
+        eqTo(None))(any[HeaderCarrier])).thenReturn(successful(testOrganisation))
+
+      val result = underTest.createOrganisation()(createOrganisationWithProvidedNinoRequest)
 
       status(result) shouldBe CREATED
     }
@@ -272,6 +288,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       when(underTest.testUserService.createTestOrganisation(
         eqTo(createOrganisationServices),
         eqTo(Some(eoriNumber)),
+        eqTo(None),
         eqTo(Some(taxpayerType)))(any[HeaderCarrier])).thenReturn(successful(testOrganisationTaxpayerType))
 
       val result = underTest.createOrganisation()(createOrganisationWithProvidedEoriRequestTaxpayerType)
@@ -281,7 +298,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        when(underTest.testUserService.createTestOrganisation(any[Seq[ServiceKey]], any[Option[EoriNumber]], eqTo(None))(any[HeaderCarrier]))
+        when(underTest.testUserService.createTestOrganisation(any[Seq[ServiceKey]], any[Option[EoriNumber]], eqTo(None), eqTo(None))(any[HeaderCarrier]))
           .thenReturn(failed(new RuntimeException("expected test error")))
 
         val result = underTest.createOrganisation()(createOrganisationRequest)
