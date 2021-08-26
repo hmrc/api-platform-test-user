@@ -70,15 +70,21 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   def useProvidedOrGenerateEoriNumber(eoriNumber: Option[EoriNumber]): Future[String] =
     eoriNumber.fold(generateEoriNumber)(provided => Future.successful(provided.value))
 
+  def useProvidedOrGeneratedNino(nino: Option[String]): Future[String] = {
+    // TODO: Validate that nino is new (and has not been used before)
+
+    nino.fold(generateNino)(providedNino => Future.successful(providedNino))
+  }
+
   def useProvidedTaxpayerType(maybeString: Option[TaxpayerType]): Future[String] =
     Future.successful(maybeString.fold("Individual")(provided => provided.value))
 
-  def generateTestIndividual(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[EoriNumber]): Future[TestIndividual] = {
+  def generateTestIndividual(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[EoriNumber], nino: Option[String]): Future[TestIndividual] = {
     def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
 
     for {
       saUtr                 <- whenF(SELF_ASSESSMENT)(generateSaUtr)
-      nino                  <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(generateNino)
+      nino                  <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(useProvidedOrGeneratedNino(nino))
       mtdItId               <- whenF(MTD_INCOME_TAX)(generateMtdId)
       eoriNumber            <- whenF(CUSTOMS_SERVICES, CTC, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
       vrn                   <- whenF(MTD_VAT)(generateVrn)
@@ -111,7 +117,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
 
     for {
       saUtr                 <- whenF(SELF_ASSESSMENT)(generateSaUtr)
-      nino                  <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(generateNino)
+      nino                  <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(generateNino) // TODO: use new generate or nino?
       mtdItId               <- whenF(MTD_INCOME_TAX)(generateMtdId)
       empRef                <- whenF(PAYE_FOR_EMPLOYERS)(generateEmpRef)
       ctUtr                 <- whenF(CORPORATION_TAX)(generateCtUtr)
@@ -210,7 +216,10 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
 
   private def generateEmpRef: Future[String] = generateUniqueIdentifier(() => { employerReferenceGenerator.sample.get.toString })
   private def generateSaUtr: Future[String] = generateUniqueIdentifier(() => { utrGenerator.next })
+  
+  // TODO: Review all calls to this. Or remove? :thinking_face:
   private def generateNino: Future[String] = generateUniqueIdentifier(() => { ninoGenerator.nextNino.value })
+  
   private def generateCtUtr: Future[String] = generateUniqueIdentifier(() => { utrGenerator.next })
   private def generateVrn: Future[String] = generateUniqueIdentifier(() => { Vrn(vrnGenerator.sample.get).vrn })
 

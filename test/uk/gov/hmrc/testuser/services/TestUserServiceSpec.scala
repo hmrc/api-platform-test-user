@@ -82,7 +82,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
   )
 
   val generator = new Generator(mockTestUserRepository, config)
-  val testIndividualWithNoServices = await(generator.generateTestIndividual(Seq.empty, None).map(
+  val testIndividualWithNoServices = await(generator.generateTestIndividual(Seq.empty, None, None).map(
     _.copy(
       userId = userId,
       password = password,
@@ -125,7 +125,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
     "Generate an individual and save it with hashed password in the database" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      when(underTest.generator.generateTestIndividual(individualServices, None)).thenReturn(successful(testIndividual))
+      when(underTest.generator.generateTestIndividual(individualServices, None, None)).thenReturn(successful(testIndividual))
       when(underTest.passwordService.hash(testIndividual.password)).thenReturn(hashedPassword)
 
       val result = await(underTest.createTestIndividual(individualServices))
@@ -139,7 +139,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "Not call the DES simulator when the individual does not have the mtd-income-tax service" in new Setup {
       val hashedPassword = "hashedPassword"
-      when(underTest.generator.generateTestIndividual(Seq.empty, None)).thenReturn(successful(testIndividualWithNoServices))
+      when(underTest.generator.generateTestIndividual(Seq.empty, None, None)).thenReturn(successful(testIndividualWithNoServices))
       when(underTest.passwordService.hash(testIndividualWithNoServices.password)).thenReturn(hashedPassword)
 
       val result = await(underTest.createTestIndividual(Seq.empty))
@@ -153,7 +153,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "fail when the repository fails" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
-        when(underTest.generator.generateTestIndividual(individualServices, None)).thenReturn(successful(testIndividual))
+        when(underTest.generator.generateTestIndividual(individualServices, None, None)).thenReturn(successful(testIndividual))
         when(underTest.testUserRepository.createUser(*[TestUser]))
           .thenReturn(failed(new RuntimeException("expected test error")))
 

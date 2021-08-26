@@ -70,6 +70,9 @@ trait GeneratorProvider {
   def generator: Generator = new Generator(repository, config)
 
   val eoriGenerator = Gen.listOfN(12, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
+
+  //TODO: Is this a good valud nino generation. They look like 'PE938808A'
+  val ninoGenerator = Gen.listOfN(6, Gen.numChar).map("PE" + _.mkString + "A")
 }
 
 
@@ -155,23 +158,33 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate a NINO and MTD IT ID when MTD_INCOME_TAX service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val individual = await(underTest.generateTestIndividual(Seq(MTD_INCOME_TAX), None))
-
+      val individual = await(underTest.generateTestIndividual(Seq(MTD_INCOME_TAX), None, None))
       individual shouldHave(mtdItIdDefined = true, ninoDefined = true)
     }
 
     "generate a NINO when NATIONAL_INSURANCE service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE), None))
+      val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE), None, None))
 
       individual shouldHave(ninoDefined = true)
+    }
+
+    "use provided Nino when NATIONAL_INSURANCE or MTD_INCOME_TAX service is included" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      
+      val nino = ninoGenerator.sample.get
+
+      val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, MTD_INCOME_TAX), None, Some(nino)))
+
+      individual shouldHave(mtdItIdDefined = true, ninoDefined = true)
+      individual.nino shouldBe Some(nino)
     }
 
     "generate a SA UTR when SELF_ASSESSMENT service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val individual = await(underTest.generateTestIndividual(Seq(SELF_ASSESSMENT), None))
+      val individual = await(underTest.generateTestIndividual(Seq(SELF_ASSESSMENT), None, None))
 
       individual shouldHave(saUtrDefined = true)
     }
@@ -179,7 +192,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate an EORI when CUSTOMS_SERVICES service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val individual = await(underTest.generateTestIndividual(Seq(CUSTOMS_SERVICES), None))
+      val individual = await(underTest.generateTestIndividual(Seq(CUSTOMS_SERVICES), None, None))
 
       individual shouldHave(eoriDefined = true)
     }
@@ -188,7 +201,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
       val eori = eoriGenerator.sample.get
 
-      val individual = await(underTest.generateTestIndividual(Seq(CUSTOMS_SERVICES), Some(eori)))
+      val individual = await(underTest.generateTestIndividual(Seq(CUSTOMS_SERVICES), Some(eori), None))
 
       individual shouldHave(eoriDefined = true)
       individual.eoriNumber shouldBe Some(eori.value)
@@ -197,7 +210,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate an EORI when CTC service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val individual = await(underTest.generateTestIndividual(Seq(CTC), None))
+      val individual = await(underTest.generateTestIndividual(Seq(CTC), None, None))
 
       individual shouldHave(eoriDefined = true)
     }
@@ -206,7 +219,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
       val eori = eoriGenerator.sample.get
 
-      val individual = await(underTest.generateTestIndividual(Seq(CTC), Some(eori)))
+      val individual = await(underTest.generateTestIndividual(Seq(CTC), Some(eori), None))
 
       individual shouldHave(eoriDefined = true)
       individual.eoriNumber shouldBe Some(eori.value)
@@ -216,7 +229,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val individual =
-        await(underTest.generateTestIndividual(Seq(GOODS_VEHICLE_MOVEMENTS), None))
+        await(underTest.generateTestIndividual(Seq(GOODS_VEHICLE_MOVEMENTS), None, None))
 
       individual shouldHave (eoriDefined = true)
     }
@@ -225,7 +238,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
       val eori = eoriGenerator.sample.get
 
-      val individual = await(underTest.generateTestIndividual(Seq(GOODS_VEHICLE_MOVEMENTS), Some(eori)))
+      val individual = await(underTest.generateTestIndividual(Seq(GOODS_VEHICLE_MOVEMENTS), Some(eori), None))
 
       individual shouldHave(eoriDefined = true)
       individual.eoriNumber shouldBe Some(eori.value)
@@ -234,7 +247,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate individualDetails from the configuration file" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX), None))
+      val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX), None, None))
 
       individual.individualDetails shouldBe IndividualDetails("Adrian", "Adams", LocalDate.parse("1940-10-10"),
         Address("1 Abbey Road", "Aberdeen", "TS1 1PA"))
@@ -243,7 +256,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "generate a VRN when MTD_VAT service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val individual = await(underTest.generateTestIndividual(Seq(MTD_VAT), None))
+      val individual = await(underTest.generateTestIndividual(Seq(MTD_VAT), None, None))
 
       individual shouldHave(vrnDefined = true)
     }
@@ -251,7 +264,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "set the userFullName and emailAddress" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
-      val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX), None))
+      val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX), None, None))
 
       individual.userFullName shouldBe s"${individual.individualDetails.firstName} ${individual.individualDetails.lastName}"
 
@@ -261,7 +274,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "regenerate SA UTR if it is a duplicate" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(false), Future(true))
 
-      val individual = await(underTest.generateTestIndividual(Seq(SELF_ASSESSMENT), None))
+      val individual = await(underTest.generateTestIndividual(Seq(SELF_ASSESSMENT), None, None))
 
       individual shouldHave(saUtrDefined = true)
       verify(repository, times(2)).identifierIsUnique(any[String])
@@ -270,7 +283,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     "regenerate NINO if it is a duplicate" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(false), Future(true))
 
-      val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE), None))
+      val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE), None, None))
 
       individual shouldHave(ninoDefined = true)
       verify(repository, times(2)).identifierIsUnique(any[String])

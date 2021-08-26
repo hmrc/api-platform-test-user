@@ -36,7 +36,10 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
 
   def createIndividual() = Action.async(parse.json) { implicit request =>
     withJsonBody[CreateUserWithOptionalRequestParams] { createUserRequest =>
-      testUserService.createTestIndividual(createUserRequest.serviceNames.getOrElse(Seq.empty), createUserRequest.eoriNumber) map { individual =>
+      testUserService.createTestIndividual(
+          createUserRequest.serviceNames.getOrElse(Seq.empty),
+          createUserRequest.eoriNumber,
+          createUserRequest.nino) map { individual =>
         Created(toJson(TestIndividualCreatedResponse.from(individual)))
       }
     } recover recovery
