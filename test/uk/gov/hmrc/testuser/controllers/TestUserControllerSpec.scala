@@ -260,7 +260,8 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "return 201 (Created) with the created organisation" in new Setup {
 
-      when(underTest.testUserService.createTestOrganisation(eqTo(createOrganisationServices), eqTo(None), eqTo(None), eqTo(None))(any[HeaderCarrier])).thenReturn(successful(testOrganisation))
+      when(underTest.testUserService.createTestOrganisation(eqTo(createOrganisationServices), eqTo(None), eqTo(None), eqTo(None))(any[HeaderCarrier]))
+        .thenReturn(successful(Right(testOrganisation)))
 
       val result = underTest.createOrganisation()(createOrganisationRequest)
 
@@ -277,7 +278,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         eqTo(createOrganisationServices),
         eqTo(Some(eoriNumber)),
         eqTo(None),
-        eqTo(None))(any[HeaderCarrier])).thenReturn(successful(testOrganisation))
+        eqTo(None))(any[HeaderCarrier])).thenReturn(successful(Right(testOrganisation)))
 
       val result = underTest.createOrganisation()(createOrganisationWithProvidedEoriRequest)
 
@@ -290,7 +291,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         eqTo(createOrganisationServices),
         eqTo(None),
         eqTo(Some(nino)),
-        eqTo(None))(any[HeaderCarrier])).thenReturn(successful(testOrganisation))
+        eqTo(None))(any[HeaderCarrier])).thenReturn(successful(Right(testOrganisation)))
 
       val result = underTest.createOrganisation()(createOrganisationWithProvidedNinoRequest)
 
@@ -303,7 +304,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         eqTo(createOrganisationServices),
         eqTo(Some(eoriNumber)),
         eqTo(None),
-        eqTo(Some(taxpayerType)))(any[HeaderCarrier])).thenReturn(successful(testOrganisationTaxpayerType))
+        eqTo(Some(taxpayerType)))(any[HeaderCarrier])).thenReturn(successful(Right(testOrganisationTaxpayerType)))
 
       val result = underTest.createOrganisation()(createOrganisationWithProvidedEoriRequestTaxpayerType)
 

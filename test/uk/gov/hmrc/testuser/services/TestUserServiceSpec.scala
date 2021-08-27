@@ -193,7 +193,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
 
       val result = await(underTest.createTestOrganisation(organisationServices, None, None, None))
 
-      result shouldBe testOrganisation
+      result shouldBe Right(testOrganisation)
 
       val testOrgWithHashedPassword = testOrganisation.copy(password = hashedPassword)
       verify(underTest.testUserRepository).createUser(testOrgWithHashedPassword)
@@ -208,7 +208,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
 
       val result = await(underTest.createTestOrganisation(Seq.empty, None, None, None))
 
-      result shouldBe testOrganisationWithNoServices
+      result shouldBe Right(testOrganisationWithNoServices)
 
       val testOrgWithHashedPassword = testOrganisationWithNoServices.copy(password = hashedPassword)
       verify(underTest.testUserRepository).createUser(testOrgWithHashedPassword)
@@ -225,6 +225,18 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
           await(underTest.createTestOrganisation(organisationServices, None, None, None))
         }
       }
+    }
+
+    "fail when the nino validation fails" in new Setup {
+      when(underTest.testUserRepository.fetchByNino(eqTo(Nino(nino))))
+          .thenReturn(Future.successful(Some(testIndividual)))
+
+      val result = await(underTest.createTestOrganisation(organisationServices, None, Some(Nino(nino)), None))
+
+      result shouldBe Left(NinoAlreadyUsed)
+
+      verify(underTest.testUserRepository, times(0)).createUser(any)
+      verify(underTest.desSimulatorConnector, times(0)).createIndividual(any)(any)
     }
   }
 

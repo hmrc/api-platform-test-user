@@ -27,6 +27,7 @@ import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
+// TODO : Rename to TestUser
 trait CreateTestIndividualError
 object NinoAlreadyUsed extends CreateTestIndividualError
 
@@ -37,7 +38,7 @@ class TestUserService @Inject()(val passwordService: PasswordService,
                                 val generator: Generator)
                                (implicit ec: ExecutionContext) {
 
-  private def validateNinoRequest(maybeNino:Option[Nino])(createTestUser: => Future[TestIndividual]) : Future[Either[CreateTestIndividualError,TestIndividual]] = {
+  private def validateNinoRequest[T](maybeNino:Option[Nino])(createTestUser: => Future[T]) : Future[Either[CreateTestIndividualError,T]] = {
     def isNinoUnique(nino: Nino) : Future[Boolean] = {
       testUserRepository
         .fetchByNino(nino)
@@ -69,13 +70,14 @@ class TestUserService @Inject()(val passwordService: PasswordService,
   }
 
   def createTestOrganisation(serviceNames: Seq[ServiceKey], eoriNumber: Option[EoriNumber], nino: Option[Nino], taxpayerType: Option[TaxpayerType])
-                            (implicit hc: HeaderCarrier): Future[TestOrganisation] = {
+                            (implicit hc: HeaderCarrier): Future[Either[CreateTestIndividualError,TestOrganisation]] = validateNinoRequest(nino) {
     generator.generateTestOrganisation(serviceNames, eoriNumber, nino, taxpayerType).flatMap { organisation =>
       val hashedPassword = passwordService.hash(organisation.password)
+      
       testUserRepository.createUser(organisation.copy(password = hashedPassword)) map {
-        case createdOrganisation
-          if createdOrganisation.services.contains(ServiceKeys.MTD_INCOME_TAX) => desSimulatorConnector.createOrganisation(createdOrganisation)
-        case _ => Future.successful(organisation)
+        case createdOrganisation if createdOrganisation.services.contains(ServiceKeys.MTD_INCOME_TAX) => 
+            desSimulatorConnector.createOrganisation(createdOrganisation)
+        case _ => organisation
       } map {
         _ => organisation
       }
