@@ -40,15 +40,15 @@ class TestUserService @Inject()(val passwordService: PasswordService,
   
 
   def validateRequest(maybeNino: Option[Nino]) : Future[Either[CreateTestIndividualError, Unit]] = {
-    def isNinoValid(nino: Nino) : Future[Boolean] = {
+    def isNinoUnique(nino: Nino) : Future[Boolean] = {
       testUserRepository
         .fetchByNino(nino)
-        .map(maybeUser => maybeUser.fold(false)(_ => true))
+        .map(maybeUser => maybeUser.fold(true)(_ => false))
     }
 
     val valid : Either[CreateTestIndividualError, Unit] = Right(Unit)
   
-    maybeNino.fold(Future.successful(valid))(nino => isNinoValid(nino).map(ninoValid => {
+    maybeNino.fold(Future.successful(valid))(nino => isNinoUnique(nino).map(ninoValid => {
       if (ninoValid) valid
       else Left(NinoAlreadyUsed)
     }))

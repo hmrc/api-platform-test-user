@@ -172,7 +172,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "fail when the nino validation fails" in new Setup {
       when(underTest.testUserRepository.fetchByNino(eqTo(Nino(nino))))
-          .thenReturn(Future.successful(None))
+          .thenReturn(Future.successful(Some(testIndividual)))
 
       val result = await(underTest.createTestIndividual(individualServices, nino = Some(Nino(nino))))
 

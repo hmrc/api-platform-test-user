@@ -75,7 +75,6 @@ trait GeneratorProvider {
   val ninoGenerator = Gen.listOfN(6, Gen.numChar).map("PE" + _.mkString + "A")
 }
 
-
 class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
   trait Setup extends GeneratorProvider {
     val repository = mock[TestUserRepository]
