@@ -172,6 +172,26 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     }
   }
 
+  "fetchByNino" should {
+    val nino = Nino("CC333333C")
+    val invalidNino = Nino("CC333334C")
+
+    "return the user" in new GeneratedTestIndividual {
+      val individual = testIndividual.copy(nino = Some(nino.toString()))
+      await(repository.createUser(individual))
+
+      val result = await(repository.fetchByNino(nino))
+
+      result shouldBe Some(individual)
+    }
+
+    "return None when there is no individual matching" in {
+      val result = await(userRepository.fetchByNino(invalidNino))
+
+      result shouldBe None
+    }
+  }
+
   "fetchIndividualBySaUtr" should {
 
     "return the individual" in new GeneratedTestIndividual {

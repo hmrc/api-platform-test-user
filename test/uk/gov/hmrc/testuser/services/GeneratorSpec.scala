@@ -72,7 +72,6 @@ trait GeneratorProvider {
 
   val eoriGenerator = Gen.listOfN(12, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
 
-  //TODO: Is this a good valud nino generation. They look like 'PE938808A'
   val ninoGenerator = Gen.listOfN(6, Gen.numChar).map("PE" + _.mkString + "A")
 }
 

@@ -62,9 +62,7 @@ class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: E
   }
 
   def fetchByNino(nino: Nino): Future[Option[TestUser]] = {
-    ???
-    //TODO: Test + implement
-    // find("nino" -> nino) map(_.headOption map (_.asInstanceOf[TestIndividual]))
+    find("nino" -> nino) map(_.headOption map (_.asInstanceOf[TestIndividual]))
   }
 
   def fetchIndividualByShortNino(shortNino: NinoNoSuffix): Future[Option[TestIndividual]] = {
