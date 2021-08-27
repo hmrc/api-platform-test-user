@@ -37,43 +37,35 @@ class TestUserService @Inject()(val passwordService: PasswordService,
                                 val generator: Generator)
                                (implicit ec: ExecutionContext) {
 
-  
-
-  def validateRequest(maybeNino: Option[Nino]) : Future[Either[CreateTestIndividualError, Unit]] = {
+  private def validateNinoRequest(maybeNino:Option[Nino])(createTestUser: => Future[TestIndividual]) : Future[Either[CreateTestIndividualError,TestIndividual]] = {
     def isNinoUnique(nino: Nino) : Future[Boolean] = {
       testUserRepository
         .fetchByNino(nino)
         .map(maybeUser => maybeUser.fold(true)(_ => false))
     }
 
-    val valid : Either[CreateTestIndividualError, Unit] = Right(Unit)
-  
-    maybeNino.fold(Future.successful(valid))(nino => isNinoUnique(nino).map(ninoValid => {
-      if (ninoValid) valid
-      else Left(NinoAlreadyUsed)
-    }))
-  }  
+    maybeNino
+      .fold(Future.successful(true))(nino => isNinoUnique(nino))
+      .flatMap(isValid => {
+        if (isValid) createTestUser.map(Right(_))
+        else Future.successful(Left(NinoAlreadyUsed))
+      })
+  }
 
   def createTestIndividual(serviceNames: Seq[ServiceKey], eoriNumber: Option[EoriNumber] = None, nino: Option[Nino] = None)
-                          (implicit hc: HeaderCarrier): Future[Either[CreateTestIndividualError,TestIndividual]] = {
+                        (implicit hc: HeaderCarrier): Future[Either[CreateTestIndividualError,TestIndividual]] = validateNinoRequest(nino) {
+    generator.generateTestIndividual(serviceNames, eoriNumber, nino).flatMap { individual =>
+      val hashedPassword = passwordService.hash(individual.password)
 
-    def generateTestIndividual(): Future[TestIndividual] = {
-      generator.generateTestIndividual(serviceNames, eoriNumber, nino).flatMap { individual =>
-        val hashedPassword = passwordService.hash(individual.password)
-
-        testUserRepository.createUser(individual.copy(password = hashedPassword)) map {
-          case createdIndividual if createdIndividual.services.contains(ServiceKeys.MTD_INCOME_TAX) => 
-            desSimulatorConnector.createIndividual(createdIndividual)
-          case _ => individual
-        } map {
-          _ => individual
-        }
+      testUserRepository.createUser(individual.copy(password = hashedPassword)) map {
+        case createdIndividual if createdIndividual.services.contains(ServiceKeys.MTD_INCOME_TAX) => 
+          desSimulatorConnector.createIndividual(createdIndividual)
+        case _ => individual
+      } map {
+        _ => individual
       }
     }
-
-    validateRequest(nino).flatMap(ninoValid => {
-      ninoValid.fold(invalid => Future.successful(Left(invalid)), _ => generateTestIndividual().map(Right(_)))
-    })
+  
   }
 
   def createTestOrganisation(serviceNames: Seq[ServiceKey], eoriNumber: Option[EoriNumber], nino: Option[Nino], taxpayerType: Option[TaxpayerType])
