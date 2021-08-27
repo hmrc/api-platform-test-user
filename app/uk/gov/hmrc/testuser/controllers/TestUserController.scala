@@ -42,7 +42,7 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
         createUserRequest.eoriNumber,
         createUserRequest.nino) map {
           case Left(NinoAlreadyUsed) => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
-          case Left(error : CreateTestIndividualError) => {
+          case Left(error : CreateTestUserError) => {
             Logger.error(s"Unepected error response from testUserService.createTestIndividual: ${error.toString}")
             BadRequest
           }
@@ -59,7 +59,7 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
         createUserRequest.nino,
         createUserRequest.taxpayerType) map { 
           case Left(NinoAlreadyUsed) => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
-          case Left(error : CreateTestIndividualError) => {
+          case Left(error : CreateTestUserError) => {
             Logger.error(s"Unepected error response from testUserService.createTestOrganisation: ${error.toString}")
             BadRequest
           }

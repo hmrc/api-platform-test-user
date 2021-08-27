@@ -27,9 +27,8 @@ import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
-// TODO : Rename to TestUser
-trait CreateTestIndividualError
-object NinoAlreadyUsed extends CreateTestIndividualError
+trait CreateTestUserError
+object NinoAlreadyUsed extends CreateTestUserError
 
 @Singleton
 class TestUserService @Inject()(val passwordService: PasswordService,
@@ -38,7 +37,7 @@ class TestUserService @Inject()(val passwordService: PasswordService,
                                 val generator: Generator)
                                (implicit ec: ExecutionContext) {
 
-  private def validateNinoRequest[T](maybeNino:Option[Nino])(createTestUser: => Future[T]) : Future[Either[CreateTestIndividualError,T]] = {
+  private def validateNinoRequest[T](maybeNino:Option[Nino])(createTestUser: => Future[T]) : Future[Either[CreateTestUserError,T]] = {
     def isNinoUnique(nino: Nino) : Future[Boolean] = {
       testUserRepository
         .fetchByNino(nino)
@@ -54,7 +53,7 @@ class TestUserService @Inject()(val passwordService: PasswordService,
   }
 
   def createTestIndividual(serviceNames: Seq[ServiceKey], eoriNumber: Option[EoriNumber] = None, nino: Option[Nino] = None)
-                        (implicit hc: HeaderCarrier): Future[Either[CreateTestIndividualError,TestIndividual]] = validateNinoRequest(nino) {
+                        (implicit hc: HeaderCarrier): Future[Either[CreateTestUserError,TestIndividual]] = validateNinoRequest(nino) {
     generator.generateTestIndividual(serviceNames, eoriNumber, nino).flatMap { individual =>
       val hashedPassword = passwordService.hash(individual.password)
 
@@ -70,7 +69,7 @@ class TestUserService @Inject()(val passwordService: PasswordService,
   }
 
   def createTestOrganisation(serviceNames: Seq[ServiceKey], eoriNumber: Option[EoriNumber], nino: Option[Nino], taxpayerType: Option[TaxpayerType])
-                            (implicit hc: HeaderCarrier): Future[Either[CreateTestIndividualError,TestOrganisation]] = validateNinoRequest(nino) {
+                            (implicit hc: HeaderCarrier): Future[Either[CreateTestUserError,TestOrganisation]] = validateNinoRequest(nino) {
     generator.generateTestOrganisation(serviceNames, eoriNumber, nino, taxpayerType).flatMap { organisation =>
       val hashedPassword = passwordService.hash(organisation.password)
       
