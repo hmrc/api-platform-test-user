@@ -27,6 +27,9 @@ import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
+trait CreateTestIndividualError
+object NinoAlreadyUsed extends CreateTestIndividualError
+
 @Singleton
 class TestUserService @Inject()(val passwordService: PasswordService,
                                 val desSimulatorConnector: DesSimulatorConnector,
@@ -34,21 +37,46 @@ class TestUserService @Inject()(val passwordService: PasswordService,
                                 val generator: Generator)
                                (implicit ec: ExecutionContext) {
 
-  def createTestIndividual(serviceNames: Seq[ServiceKey], eoriNumber: Option[EoriNumber] = None, nino: Option[String] = None)
-                          (implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    generator.generateTestIndividual(serviceNames, eoriNumber, nino).flatMap { individual =>
-      val hashedPassword = passwordService.hash(individual.password)
+  
 
-      testUserRepository.createUser(individual.copy(password = hashedPassword)) map {
-        case createdIndividual if createdIndividual.services.contains(ServiceKeys.MTD_INCOME_TAX) => desSimulatorConnector.createIndividual(createdIndividual)
-        case _ => Future.successful(individual)
-      } map {
-        _ => individual
+  def validateRequest(maybeNino: Option[Nino]) : Future[Either[CreateTestIndividualError, Unit]] = {
+    def isNinoValid(nino: Nino) : Future[Boolean] = {
+      testUserRepository
+        .fetchByNino(nino)
+        .map(maybeUser => maybeUser.fold(false)(_ => true))
+    }
+
+    val valid : Either[CreateTestIndividualError, Unit] = Right(Unit)
+  
+    maybeNino.fold(Future.successful(valid))(nino => isNinoValid(nino).map(ninoValid => {
+      if (ninoValid) valid
+      else Left(NinoAlreadyUsed)
+    }))
+  }  
+
+  def createTestIndividual(serviceNames: Seq[ServiceKey], eoriNumber: Option[EoriNumber] = None, nino: Option[Nino] = None)
+                          (implicit hc: HeaderCarrier): Future[Either[CreateTestIndividualError,TestIndividual]] = {
+
+    def generateTestIndividual(): Future[TestIndividual] = {
+      generator.generateTestIndividual(serviceNames, eoriNumber, nino).flatMap { individual =>
+        val hashedPassword = passwordService.hash(individual.password)
+
+        testUserRepository.createUser(individual.copy(password = hashedPassword)) map {
+          case createdIndividual if createdIndividual.services.contains(ServiceKeys.MTD_INCOME_TAX) => 
+            desSimulatorConnector.createIndividual(createdIndividual)
+          case _ => individual
+        } map {
+          _ => individual
+        }
       }
     }
+
+    validateRequest(nino).flatMap(ninoValid => {
+      ninoValid.fold(invalid => Future.successful(Left(invalid)), _ => generateTestIndividual().map(Right(_)))
+    })
   }
 
-  def createTestOrganisation(serviceNames: Seq[ServiceKey], eoriNumber: Option[EoriNumber], nino: Option[String], taxpayerType: Option[TaxpayerType])
+  def createTestOrganisation(serviceNames: Seq[ServiceKey], eoriNumber: Option[EoriNumber], nino: Option[Nino], taxpayerType: Option[TaxpayerType])
                             (implicit hc: HeaderCarrier): Future[TestOrganisation] = {
     generator.generateTestOrganisation(serviceNames, eoriNumber, nino, taxpayerType).flatMap { organisation =>
       val hashedPassword = passwordService.hash(organisation.password)

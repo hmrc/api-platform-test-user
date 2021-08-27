@@ -27,6 +27,7 @@ import uk.gov.hmrc.testuser.models.ErrorResponse.{individualNotFoundError, organ
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.services._
+import uk.gov.hmrc.testuser.services.TestUserService
 
 import scala.concurrent.ExecutionContext
 
@@ -39,8 +40,15 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
       testUserService.createTestIndividual(
           createUserRequest.serviceNames.getOrElse(Seq.empty),
           createUserRequest.eoriNumber,
-          createUserRequest.nino) map { individual =>
-        Created(toJson(TestIndividualCreatedResponse.from(individual)))
+          createUserRequest.nino) map { either =>
+             either match {
+              case Left(NinoAlreadyUsed) => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
+              case Left(error : CreateTestIndividualError) => {
+                Logger.error(s"Unepected error response from testUserService.createTestIndividual: ${error.toString}")
+                BadRequest
+              }
+              case Right(createdIndividual) => Created(toJson(TestIndividualCreatedResponse.from(createdIndividual)))
+            }
       }
     } recover recovery
   }

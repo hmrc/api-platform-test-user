@@ -70,16 +70,14 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   def useProvidedOrGenerateEoriNumber(eoriNumber: Option[EoriNumber]): Future[String] =
     eoriNumber.fold(generateEoriNumber)(provided => Future.successful(provided.value))
 
-  def useProvidedOrGeneratedNino(nino: Option[String]): Future[String] = {
-    // TODO: Validate that nino is new (and has not been used before)
-
-    nino.fold(generateNino)(providedNino => Future.successful(providedNino))
+  def useProvidedOrGeneratedNino(nino: Option[Nino]): Future[String] = {
+    nino.fold(generateNino)(providedNino => Future.successful(providedNino.value))
   }
 
   def useProvidedTaxpayerType(maybeString: Option[TaxpayerType]): Future[String] =
     Future.successful(maybeString.fold("Individual")(provided => provided.value))
 
-  def generateTestIndividual(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[EoriNumber], nino: Option[String]): Future[TestIndividual] = {
+  def generateTestIndividual(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[EoriNumber], nino: Option[Nino]): Future[TestIndividual] = {
     def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
 
     for {
@@ -112,7 +110,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
 
   def generateTestOrganisation( services: Seq[ServiceKey] = Seq.empty, 
                                 eoriNumber: Option[EoriNumber],
-                                nino: Option[String],
+                                nino: Option[Nino],
                                 taxpayerType: Option[TaxpayerType]): Future[TestOrganisation] = {
 
     def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
@@ -220,10 +218,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
 
   private def generateEmpRef: Future[String] = generateUniqueIdentifier(() => { employerReferenceGenerator.sample.get.toString })
   private def generateSaUtr: Future[String] = generateUniqueIdentifier(() => { utrGenerator.next })
-  
-  // TODO: Review all calls to this. Or remove? :thinking_face:
   private def generateNino: Future[String] = generateUniqueIdentifier(() => { ninoGenerator.nextNino.value })
-  
   private def generateCtUtr: Future[String] = generateUniqueIdentifier(() => { utrGenerator.next })
   private def generateVrn: Future[String] = generateUniqueIdentifier(() => { Vrn(vrnGenerator.sample.get).vrn })
 

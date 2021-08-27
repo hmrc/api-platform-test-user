@@ -18,6 +18,7 @@ package uk.gov.hmrc.testuser.models
 
 import org.joda.time.LocalDate
 import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.domain.Nino
 
 case class AuthenticationRequest(username: String, password: String)
 
@@ -28,7 +29,7 @@ case class AuthSession(authBearerToken: String, authorityUri: String, gatewayTok
 case class CreateUserWithOptionalRequestParams(
   serviceNames: Option[Seq[ServiceKey]], 
   eoriNumber: Option[EoriNumber],
-  nino: Option[String], // TODO: Use type + validation
+  nino: Option[Nino],
   taxpayerType: Option[TaxpayerType]
 )
 
@@ -65,6 +66,7 @@ object ErrorCode extends Enumeration {
   val INTERNAL_SERVER_ERROR = Value("INTERNAL_SERVER_ERROR")
   val INVALID_CREDENTIALS = Value("INVALID_CREDENTIALS")
   val USER_NOT_FOUND = Value("USER_NOT_FOUND")
+  val NINO_ALREADY_USED = Value("NINO_ALREADY_USED")
 }
 
 case class ErrorResponse(code: ErrorCode.Value, message: String)
@@ -74,4 +76,5 @@ object ErrorResponse {
   val invalidCredentialsError = ErrorResponse(ErrorCode.INVALID_CREDENTIALS, "Invalid Authentication information provided")
   val individualNotFoundError = ErrorResponse(ErrorCode.USER_NOT_FOUND, "The individual can not be found")
   val organisationNotFoundError = ErrorResponse(ErrorCode.USER_NOT_FOUND, "The organisation can not be found")
+  val ninoAlreadyUsed = ErrorResponse(ErrorCode.NINO_ALREADY_USED, "The nino specified has already been used")
 }

@@ -37,6 +37,7 @@ import scala.concurrent.Future.{failed, successful}
 
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import akka.stream.Materializer
+import uk.gov.hmrc.testuser.services.NinoAlreadyUsed
 
 class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
@@ -46,7 +47,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val userFullName = "John Doe"
   val emailAddress = "john.doe@example.com"
   val saUtr = "1555369052"
-  val nino = "CC333333C"
+  val nino = Nino("CC333333C")
   val shortNino = "CC333333"
   val mtdItId = "XGIT00000000054"
   val ctUtr = "1555369053"
@@ -61,7 +62,6 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val secureElectronicTransferReferenceNumber = "123456789012"
   val pensionSchemeAdministratorIdentifier = "A1234567"
   val rawEoriNumber = "GB123456789012"
-  val providedNino = "provided-nino" // TODO : This should be valid. And validated by the service?
   val eoriNumber = EoriNumber(rawEoriNumber)
   val taxpayerType = TaxpayerType("Individual")
   val rawTaxpayerType = "Individual"
@@ -76,7 +76,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     emailAddress = emailAddress,
     individualDetails = individualDetails,
     saUtr = Some(saUtr),
-    nino = Some(nino),
+    nino = Some(nino.value),
     mtdItId = Some(mtdItId),
     vrn = Some(vrn),
     vatRegistrationDate = Some(vatRegistrationDate),
@@ -90,7 +90,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     emailAddress = emailAddress,
     organisationDetails = organisationDetails,
     saUtr = Some(saUtr),
-    nino = Some(nino),
+    nino = Some(nino.value),
     mtdItId = Some(mtdItId),
     empRef = Some(empRef),
     ctUtr = Some(ctUtr),
@@ -135,7 +135,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     }
 
     def createIndividualWithProvidedNinoRequest = {
-      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["national-insurance"], "nino": "$providedNino"}""")
+      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["national-insurance"], "nino": "${nino.value}"}""")
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
@@ -150,7 +150,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     }
 
     def createOrganisationWithProvidedNinoRequest = {
-      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["national-insurance"], "nino": "$providedNino"}""")
+      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["national-insurance"], "nino": "${nino.value}"}""")
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
@@ -173,7 +173,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     "return 201 (Created) with the created individual" in new Setup {
       when(
         underTest.testUserService.createTestIndividual(eqTo(createIndividualServices), eqTo(None), eqTo(None))(any[HeaderCarrier])
-      ).thenReturn(successful(testIndividual))
+      ).thenReturn(successful(Right(testIndividual)))
 
       val result = underTest.createIndividual()(createIndividualRequest)
 
@@ -187,7 +187,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
           emailAddress,
           individualDetails,
           Some(saUtr),
-          Some(nino),
+          Some(nino.value),
           Some(mtdItId),
           Some(vrn),
           Some(vatRegistrationDate),
@@ -203,7 +203,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
           eqTo(createIndividualServices), 
           eqTo(Some(eoriNumber)),
           eqTo(None))(any[HeaderCarrier])
-      ).thenReturn(successful(testIndividual))
+      ).thenReturn(successful(Right(testIndividual)))
 
       val result = underTest.createIndividual()(createIndividualWithProvidedEoriRequest)
 
@@ -215,12 +215,26 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         underTest.testUserService.createTestIndividual(
           eqTo(createIndividualServices),
           eqTo(None),
-          eqTo(Some(providedNino)))(any[HeaderCarrier])
-      ).thenReturn(successful(testIndividual))
+          eqTo(Some(nino)))(any[HeaderCarrier])
+      ).thenReturn(successful(Right(testIndividual)))
 
       val result = underTest.createIndividual()(createIndividualWithProvidedNinoRequest)
 
       status(result) shouldBe CREATED
+    }
+
+    "fail with 400 (Bad Request) with the creation of individual failed" in new Setup {
+      when(
+        underTest.testUserService.createTestIndividual(
+          eqTo(createIndividualServices),
+          eqTo(None),
+          eqTo(Some(nino)))(any[HeaderCarrier])
+      ).thenReturn(successful(Left(NinoAlreadyUsed)))
+
+      val result = underTest.createIndividual()(createIndividualWithProvidedNinoRequest)
+
+      status(result) shouldBe BAD_REQUEST
+      contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.NINO_ALREADY_USED, "The nino specified has already been used"))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
@@ -229,7 +243,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
           underTest.testUserService.createTestIndividual(
             any[Seq[ServiceKey]], 
             any[Option[EoriNumber]],
-            any[Option[String]])(any[HeaderCarrier])
+            any[Option[Nino]])(any[HeaderCarrier])
         ).thenReturn(failed(new RuntimeException("expected test error")))
 
         val result = underTest.createIndividual()(createIndividualRequest)
@@ -253,7 +267,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       status(result) shouldBe CREATED
       contentAsJson(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, userFullName, emailAddress,
         organisationDetails, Some(saUtr),
-        Some(nino), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(vatRegistrationDate), Some(lisaManagerReferenceNumber),
+        Some(nino.value), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(vatRegistrationDate), Some(lisaManagerReferenceNumber),
         Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier), Some(rawEoriNumber), Some(groupIdentifier), Some(crn), None))
     }
 
@@ -275,7 +289,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       when(underTest.testUserService.createTestOrganisation(
         eqTo(createOrganisationServices),
         eqTo(None),
-        eqTo(Some(providedNino)),
+        eqTo(Some(nino)),
         eqTo(None))(any[HeaderCarrier])).thenReturn(successful(testOrganisation))
 
       val result = underTest.createOrganisation()(createOrganisationWithProvidedNinoRequest)
@@ -337,9 +351,9 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   "fetchIndividualByNino" should {
     "return 200 (Ok) with the individual" in new Setup {
 
-      when(underTest.testUserService.fetchIndividualByNino(eqTo(Nino(nino)))).thenReturn(successful(testIndividual))
+      when(underTest.testUserService.fetchIndividualByNino(eqTo(nino))).thenReturn(successful(testIndividual))
 
-      val result = underTest.fetchIndividualByNino(Nino(nino))(request)
+      val result = underTest.fetchIndividualByNino(nino)(request)
 
       status(result) shouldBe OK
       contentAsJson(result) shouldBe Json.toJson(FetchTestIndividualResponse.from(testIndividual))
@@ -347,9 +361,9 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "return a 404 (Not Found) when there is no individual matching the NINO" in new Setup {
 
-      when(underTest.testUserService.fetchIndividualByNino(eqTo(Nino(nino)))).thenReturn(failed(UserNotFound(INDIVIDUAL)))
+      when(underTest.testUserService.fetchIndividualByNino(eqTo(nino))).thenReturn(failed(UserNotFound(INDIVIDUAL)))
 
-      val result = underTest.fetchIndividualByNino(Nino(nino))(request)
+      val result = underTest.fetchIndividualByNino(nino)(request)
 
       status(result) shouldBe NOT_FOUND
       contentAsJson(result) shouldBe Json.obj("code" -> "USER_NOT_FOUND", "message" -> "The individual can not be found")
@@ -357,10 +371,10 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        when(underTest.testUserService.fetchIndividualByNino(eqTo(Nino(nino))))
+        when(underTest.testUserService.fetchIndividualByNino(eqTo(nino)))
           .thenReturn(failed(new RuntimeException("expected test error")))
 
-        val result = underTest.fetchIndividualByNino(Nino(nino))(request)
+        val result = underTest.fetchIndividualByNino(nino)(request)
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
         contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))

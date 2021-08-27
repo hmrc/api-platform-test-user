@@ -28,6 +28,7 @@ import uk.gov.hmrc.testuser.repository.TestUserRepository
 import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.domain.Nino
 
 trait GeneratorProvider {
 
@@ -175,7 +176,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       
       val nino = ninoGenerator.sample.get
 
-      val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, MTD_INCOME_TAX), None, Some(nino)))
+      val individual = await(underTest.generateTestIndividual(Seq(NATIONAL_INSURANCE, MTD_INCOME_TAX), None, Some(Nino(nino))))
 
       individual shouldHave(mtdItIdDefined = true, ninoDefined = true)
       individual.nino shouldBe Some(nino)
@@ -335,7 +336,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       
       val nino = ninoGenerator.sample.get
 
-      val individual = await(underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, MTD_INCOME_TAX), None, Some(nino), None))
+      val individual = await(underTest.generateTestOrganisation(Seq(NATIONAL_INSURANCE, MTD_INCOME_TAX), None, Some(Nino(nino)), None))
 
       individual shouldHave(mtdItIdDefined = true, ninoDefined = true)
       individual.nino shouldBe Some(nino)
