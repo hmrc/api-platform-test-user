@@ -40,7 +40,7 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
   trait GeneratedTestIndividual extends GeneratorProvider {
     val repository = userRepository
 
-    val testIndividual = await(generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_VAT, CUSTOMS_SERVICES, CTC), None))
+    val testIndividual = await(generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_VAT, CUSTOMS_SERVICES, CTC), None, None))
   }
 
   trait GeneratedTestOrganisation extends GeneratorProvider {
@@ -49,7 +49,10 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     val testOrganisation =
       await(
         generator.generateTestOrganisation(
-          Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT, LISA, CUSTOMS_SERVICES, CTC), None, None))
+          Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT, LISA, CUSTOMS_SERVICES, CTC), 
+          eoriNumber = None,
+          nino = None,
+          taxpayerType = None))
   }
 
   override def afterEach: Unit = {
@@ -164,6 +167,26 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       await(repository.createUser(testOrganisation))
 
       val result = await(repository.fetchIndividualByShortNino(NinoNoSuffix(testOrganisation.nino.get.substring(0,8))))
+
+      result shouldBe None
+    }
+  }
+
+  "fetchByNino" should {
+    val nino = Nino("CC333333C")
+    val invalidNino = Nino("CC333334C")
+
+    "return the user" in new GeneratedTestIndividual {
+      val individual = testIndividual.copy(nino = Some(nino.toString()))
+      await(repository.createUser(individual))
+
+      val result = await(repository.fetchByNino(nino))
+
+      result shouldBe Some(individual)
+    }
+
+    "return None when there is no individual matching" in {
+      val result = await(userRepository.fetchByNino(invalidNino))
 
       result shouldBe None
     }
@@ -334,3 +357,4 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     }
   }
 }
+

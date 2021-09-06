@@ -27,6 +27,7 @@ import uk.gov.hmrc.testuser.models.ErrorResponse.{individualNotFoundError, organ
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.services._
+import uk.gov.hmrc.testuser.services.TestUserService
 
 import scala.concurrent.ExecutionContext
 
@@ -36,23 +37,36 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
 
   def createIndividual() = Action.async(parse.json) { implicit request =>
     withJsonBody[CreateUserWithOptionalRequestParams] { createUserRequest =>
-      testUserService.createTestIndividual(createUserRequest.serviceNames.getOrElse(Seq.empty), createUserRequest.eoriNumber) map { individual =>
-        Created(toJson(TestIndividualCreatedResponse.from(individual)))
-      }
-    } recover recovery
-  }
+      testUserService.createTestIndividual(
+        createUserRequest.serviceNames.getOrElse(Seq.empty),
+        createUserRequest.eoriNumber,
+        createUserRequest.nino) map {
+          case Left(NinoAlreadyUsed) => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
+          case Left(error : CreateTestUserError) => {
+            Logger.error(s"Unepected error response from testUserService.createTestIndividual: ${error.toString}")
+            BadRequest
+          }
+          case Right(createdIndividual) => Created(toJson(TestIndividualCreatedResponse.from(createdIndividual)))
+        }
+      } recover recovery
+    }
 
   def createOrganisation() = Action.async(parse.json) { implicit request =>
     withJsonBody[CreateUserWithOptionalRequestParams] { createUserRequest =>
       testUserService.createTestOrganisation(
         createUserRequest.serviceNames.getOrElse(Seq.empty),
         createUserRequest.eoriNumber,
-        createUserRequest.taxpayerType
-      ) map { organisation =>
-        Created(toJson(TestOrganisationCreatedResponse.from(organisation)))
-      }
-    } recover recovery
-  }
+        createUserRequest.nino,
+        createUserRequest.taxpayerType) map { 
+          case Left(NinoAlreadyUsed) => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
+          case Left(error : CreateTestUserError) => {
+            Logger.error(s"Unepected error response from testUserService.createTestOrganisation: ${error.toString}")
+            BadRequest
+          }
+          case Right(organisation) => Created(toJson(TestOrganisationCreatedResponse.from(organisation)))
+        }
+      } recover recovery
+    }
 
   def createAgent() = Action.async(parse.json) { implicit request =>
     withJsonBody[CreateUserRequest] { createUserRequest =>

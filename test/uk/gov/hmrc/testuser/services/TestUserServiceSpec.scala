@@ -30,11 +30,12 @@ import scala.concurrent.Future.{failed, successful}
 import scala.concurrent.ExecutionContext
 
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
+import scala.concurrent.Future
 
 class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
   implicit def ec = ExecutionContext.global
 
-  val mockTestUserRepository = mock[TestUserRepository]
+  
 
   val userId = "user"
   val groupIdentifier = "groupIdentifier"
@@ -81,24 +82,8 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
       |""".stripMargin
   )
 
-  val generator = new Generator(mockTestUserRepository, config)
-  val testIndividualWithNoServices = await(generator.generateTestIndividual(Seq.empty, None).map(
-    _.copy(
-      userId = userId,
-      password = password,
-      nino = Some(nino),
-      saUtr = Some(saUtr)
-    )))
-  val testIndividual = testIndividualWithNoServices.copy(services = individualServices)
 
   val organisationServices = Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
-  val testOrganisationWithNoServices = await(generator.generateTestOrganisation(Seq.empty, None, None).map(
-    _.copy(
-      userId = userId,
-      password = password,
-      empRef = Some(empRef)
-    )))
-  val testOrganisation = testOrganisationWithNoServices.copy(services = organisationServices)
 
   val agentServices = Seq(ServiceKeys.AGENT_SERVICES)
   val testAgent = TestAgent(
@@ -113,11 +98,33 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
     implicit val hc = HeaderCarrier()
     implicit def executionContext = mock[ExecutionContext]
 
+    val mockTestUserRepository = mock[TestUserRepository]
+    val generator = new Generator(mockTestUserRepository, config)
+
     val underTest = new TestUserService(mock[PasswordService], mock[DesSimulatorConnector], mockTestUserRepository, mock[Generator])
     when(underTest.testUserRepository.createUser(*[TestUser])).thenAnswer( (testUser: TestUser) => successful(testUser))
     when(underTest.testUserRepository.fetchByUserId(*)).thenReturn(successful(None))
     when(underTest.passwordService.validate(*, *)).thenReturn(false)
     when(underTest.passwordService.validate(password, hashedPassword)).thenReturn(true)
+
+    val testIndividualWithNoServices = await(generator.generateTestIndividual(Seq.empty, None, None).map(
+      _.copy(
+        userId = userId,
+        password = password,
+        nino = Some(nino),
+        saUtr = Some(saUtr)
+      )))
+
+    val testIndividual = testIndividualWithNoServices.copy(services = individualServices)
+
+    val testOrganisationWithNoServices = await(generator.generateTestOrganisation(Seq.empty, None, None, None).map(
+      _.copy(
+        userId = userId,
+        password = password,
+        empRef = Some(empRef)
+      )))
+
+    val testOrganisation = testOrganisationWithNoServices.copy(services = organisationServices)
   }
 
   "createTestIndividual" should {
@@ -125,12 +132,12 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
     "Generate an individual and save it with hashed password in the database" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      when(underTest.generator.generateTestIndividual(individualServices, None)).thenReturn(successful(testIndividual))
+      when(underTest.generator.generateTestIndividual(individualServices, None, None)).thenReturn(successful(testIndividual))
       when(underTest.passwordService.hash(testIndividual.password)).thenReturn(hashedPassword)
 
       val result = await(underTest.createTestIndividual(individualServices))
 
-      result shouldBe testIndividual
+      result shouldBe Right(testIndividual)
 
       val testIndividualWithHashedPassword = testIndividual.copy(password = hashedPassword)
       verify(underTest.testUserRepository).createUser(testIndividualWithHashedPassword)
@@ -139,12 +146,12 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "Not call the DES simulator when the individual does not have the mtd-income-tax service" in new Setup {
       val hashedPassword = "hashedPassword"
-      when(underTest.generator.generateTestIndividual(Seq.empty, None)).thenReturn(successful(testIndividualWithNoServices))
+      when(underTest.generator.generateTestIndividual(Seq.empty, None, None)).thenReturn(successful(testIndividualWithNoServices))
       when(underTest.passwordService.hash(testIndividualWithNoServices.password)).thenReturn(hashedPassword)
 
       val result = await(underTest.createTestIndividual(Seq.empty))
 
-      result shouldBe testIndividualWithNoServices
+      result shouldBe Right(testIndividualWithNoServices)
 
       val testIndividualWithHashedPassword = testIndividualWithNoServices.copy(password = hashedPassword)
       verify(underTest.testUserRepository).createUser(testIndividualWithHashedPassword)
@@ -153,7 +160,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "fail when the repository fails" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
-        when(underTest.generator.generateTestIndividual(individualServices, None)).thenReturn(successful(testIndividual))
+        when(underTest.generator.generateTestIndividual(individualServices, None, None)).thenReturn(successful(testIndividual))
         when(underTest.testUserRepository.createUser(*[TestUser]))
           .thenReturn(failed(new RuntimeException("expected test error")))
 
@@ -162,6 +169,18 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
         }
       }
     }
+
+    "fail when the nino validation fails" in new Setup {
+      when(underTest.testUserRepository.fetchByNino(eqTo(Nino(nino))))
+          .thenReturn(Future.successful(Some(testIndividual)))
+
+      val result = await(underTest.createTestIndividual(individualServices, nino = Some(Nino(nino))))
+
+      result shouldBe Left(NinoAlreadyUsed)
+
+      verify(underTest.testUserRepository, times(0)).createUser(any)
+      verify(underTest.desSimulatorConnector, times(0)).createIndividual(any)(any)
+    }
   }
 
   "createTestOrganisation" should {
@@ -169,12 +188,12 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
     "Generate an organisation and save it in the database" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      when(underTest.generator.generateTestOrganisation(organisationServices, None, None)).thenReturn(successful(testOrganisation))
+      when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None)).thenReturn(successful(testOrganisation))
       when(underTest.passwordService.hash(testOrganisation.password)).thenReturn(hashedPassword)
 
-      val result = await(underTest.createTestOrganisation(organisationServices, None, None))
+      val result = await(underTest.createTestOrganisation(organisationServices, None, None, None))
 
-      result shouldBe testOrganisation
+      result shouldBe Right(testOrganisation)
 
       val testOrgWithHashedPassword = testOrganisation.copy(password = hashedPassword)
       verify(underTest.testUserRepository).createUser(testOrgWithHashedPassword)
@@ -184,12 +203,12 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
     "Not call the DES simulator when the organisation does not have the mtd-income-tax service" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      when(underTest.generator.generateTestOrganisation(Seq.empty, None, None)).thenReturn(successful(testOrganisationWithNoServices))
+      when(underTest.generator.generateTestOrganisation(Seq.empty, None, None, None)).thenReturn(successful(testOrganisationWithNoServices))
       when(underTest.passwordService.hash(testOrganisationWithNoServices.password)).thenReturn(hashedPassword)
 
-      val result = await(underTest.createTestOrganisation(Seq.empty, None, None))
+      val result = await(underTest.createTestOrganisation(Seq.empty, None, None, None))
 
-      result shouldBe testOrganisationWithNoServices
+      result shouldBe Right(testOrganisationWithNoServices)
 
       val testOrgWithHashedPassword = testOrganisationWithNoServices.copy(password = hashedPassword)
       verify(underTest.testUserRepository).createUser(testOrgWithHashedPassword)
@@ -198,14 +217,26 @@ class TestUserServiceSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "fail when the repository fails" in new Setup {
       withSuppressedLoggingFrom(Logger, "expected test error") { suppressedLogs =>
-        when(underTest.generator.generateTestOrganisation(organisationServices, None, None)).thenReturn(successful(testOrganisation))
+        when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None)).thenReturn(successful(testOrganisation))
         when(underTest.testUserRepository.createUser(*[TestUser]))
           .thenReturn(failed(new RuntimeException("expected test error")))
 
         intercept[RuntimeException] {
-          await(underTest.createTestOrganisation(organisationServices, None, None))
+          await(underTest.createTestOrganisation(organisationServices, None, None, None))
         }
       }
+    }
+
+    "fail when the nino validation fails" in new Setup {
+      when(underTest.testUserRepository.fetchByNino(eqTo(Nino(nino))))
+          .thenReturn(Future.successful(Some(testIndividual)))
+
+      val result = await(underTest.createTestOrganisation(organisationServices, None, Some(Nino(nino)), None))
+
+      result shouldBe Left(NinoAlreadyUsed)
+
+      verify(underTest.testUserRepository, times(0)).createUser(any)
+      verify(underTest.desSimulatorConnector, times(0)).createIndividual(any)(any)
     }
   }
 

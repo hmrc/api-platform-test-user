@@ -61,6 +61,10 @@ class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: E
     find("nino" -> nino, "userType" -> UserType.INDIVIDUAL) map(_.headOption map (_.asInstanceOf[TestIndividual]))
   }
 
+  def fetchByNino(nino: Nino): Future[Option[TestUser]] = {
+    find("nino" -> nino) map(_.headOption map (_.asInstanceOf[TestIndividual]))
+  }
+
   def fetchIndividualByShortNino(shortNino: NinoNoSuffix): Future[Option[TestIndividual]] = {
     val matchShortNino = Json.obj("$regex" ->  s"${shortNino.value}\\w")
     find("nino" -> matchShortNino, "userType" -> UserType.INDIVIDUAL) map(_.headOption map (_.asInstanceOf[TestIndividual]))
