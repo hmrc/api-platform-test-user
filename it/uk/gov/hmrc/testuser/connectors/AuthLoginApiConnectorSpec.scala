@@ -206,8 +206,6 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
              |     "address" : {
              |       "line1" : "221b Baker St",
              |       "line2" : "Marylebone",
-             |       "line3" : "",
-             |       "line4" : "",
              |       "postCode" : "NW1 6XE",
              |       "countryName" : "United Kingdom",
              |       "countryCode" : "GB"
