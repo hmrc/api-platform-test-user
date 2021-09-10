@@ -95,8 +95,6 @@ object ItmpData{
 case class AuthLoginAddress(
     line1: String,
     line2: String,
-    line3: String,
-    line4: String,
     postCode: String,
     countryName: String,
     countryCode: String)
@@ -106,8 +104,6 @@ object AuthLoginAddress {
     AuthLoginAddress(
       line1 = address.line1, 
       line2 = address.line2, 
-      line3 = "",
-      line4 = "", 
       postCode = address.postcode, 
       countryName = "United Kingdom",
       countryCode = "GB")
