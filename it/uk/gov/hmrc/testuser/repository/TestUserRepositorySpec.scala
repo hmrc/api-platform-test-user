@@ -185,6 +185,15 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       result shouldBe Some(individual)
     }
 
+    "return the organisation" in new GeneratedTestOrganisation {
+      val organisation = testOrganisation.copy(nino = Some(nino.toString()))
+      await(repository.createUser(organisation))
+
+      val result = await(repository.fetchByNino(nino))
+
+      result shouldBe Some(organisation)
+    }
+
     "return None when there is no individual matching" in {
       val result = await(userRepository.fetchByNino(invalidNino))
 
