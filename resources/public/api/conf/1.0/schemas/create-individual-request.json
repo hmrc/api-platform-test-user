@@ -51,7 +51,7 @@
     },
     "nino": {
       "type": "string",
-      "description": "National Insurance number. Must be enrolled with ```national-insurance``` or ```mtd-income-tax``` services for this to be used."
+      "description": "National Insurance number. Must be enrolled with 'national-insurance' or 'mtd-income-tax' services for this to be used."
     }
   },
   "required": [
