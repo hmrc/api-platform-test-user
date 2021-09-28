@@ -21,5 +21,7 @@
   "lisaManagerReferenceNumber":"Z123456",
   "secureElectronicTransferReferenceNumber":"123456789012",
   "pensionSchemeAdministratorIdentifier":"A1234567",
-  "eoriNumber":"GB1234567890"
+  "eoriNumber":"GB123456789012",
+  "crn": "12345678",
+  "taxPayerType":"Individual"
 }

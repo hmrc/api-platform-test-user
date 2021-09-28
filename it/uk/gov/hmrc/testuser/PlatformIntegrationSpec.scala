@@ -16,19 +16,20 @@
 
 package uk.gov.hmrc.testuser
 
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
-import play.api.http.Status._
+import play.api.http.Status.OK
+import play.api.test.Helpers._
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.controllers.DocumentationController
+
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 /**
   * Testcase to verify the capability of integration with the API platform.
   * 1a, To expose API's to Third Party Developers, the service needs to make the API definition available under api/definition GET endpoint
   * 1b, The endpoints need to be defined in an application.raml file for all versions
   */
-class PlatformIntegrationSpec extends UnitSpec with ScalaFutures with GuiceOneAppPerTest {
+class PlatformIntegrationSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
 
   trait Setup {
     implicit def mat: akka.stream.Materializer = app.injector.instanceOf[akka.stream.Materializer]
@@ -39,8 +40,6 @@ class PlatformIntegrationSpec extends UnitSpec with ScalaFutures with GuiceOneAp
 
   "microservice" should {
     "provide definition endpoint and documentation endpoint for each api" in new Setup {
-      def normalizeEndpointName(endpointName: String): String = endpointName.replaceAll(" ", "-")
-
       val result = documentationController.definition()(request)
       status(result) shouldBe OK
     }
@@ -48,7 +47,7 @@ class PlatformIntegrationSpec extends UnitSpec with ScalaFutures with GuiceOneAp
     "provide raml documentation" in new Setup {
       val result = documentationController.raml("1.0", "application.raml")(request)
       status(result) shouldBe OK
-      bodyOf(result).futureValue should startWith("#%RAML 1.0")
+      contentAsString(result) should startWith("#%RAML 1.0")
     }
   }
 }

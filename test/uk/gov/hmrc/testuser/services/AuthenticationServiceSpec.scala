@@ -17,12 +17,7 @@
 package uk.gov.hmrc.testuser.services
 
 import org.joda.time.LocalDate
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.BDDMockito.given
-import org.mockito.Mockito.when
-import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.LegacySandboxUser._
@@ -32,7 +27,9 @@ import uk.gov.hmrc.testuser.repository.TestUserRepository
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
-class AuthenticationServiceSpec extends UnitSpec with MockitoSugar {
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
+
+class AuthenticationServiceSpec extends AsyncHmrcSpec {
 
   val userId = "user"
   val groupIdentifier = "groupIdentifier"
@@ -59,8 +56,8 @@ class AuthenticationServiceSpec extends UnitSpec with MockitoSugar {
 
     val underTest = new AuthenticationService(mock[PasswordService], mock[AuthLoginApiConnector], mock[TestUserRepository])
 
-    when(underTest.testUserRepository.fetchByUserId(anyString())).thenReturn(successful(None))
-    when(underTest.passwordService.validate(anyString(), anyString())).thenReturn(false)
+    when(underTest.testUserRepository.fetchByUserId(*)).thenReturn(successful(None))
+    when(underTest.passwordService.validate(*, *)).thenReturn(false)
     when(underTest.passwordService.validate(password, hashedPassword)).thenReturn(true)
   }
 
@@ -68,8 +65,8 @@ class AuthenticationServiceSpec extends UnitSpec with MockitoSugar {
 
     "return the user and auth session when the credentials are valid" in new Setup {
 
-      given(underTest.testUserRepository.fetchByUserId(userId)).willReturn(Some(storedTestIndividual))
-      given(underTest.authLoginApiConnector.createSession(storedTestIndividual)).willReturn(authSession)
+      when(underTest.testUserRepository.fetchByUserId(userId)).thenReturn(successful(Some(storedTestIndividual)))
+      when(underTest.authLoginApiConnector.createSession(storedTestIndividual)).thenReturn(successful(authSession))
 
       val result = await(underTest.authenticate(AuthenticationRequest(userId, password)))
 
@@ -78,7 +75,7 @@ class AuthenticationServiceSpec extends UnitSpec with MockitoSugar {
 
     "return the user and auth session for the sandbox user when I authenticate with user1/password1" in new Setup {
 
-      given(underTest.authLoginApiConnector.createSession(sandboxUser)).willReturn(authSession)
+      when(underTest.authLoginApiConnector.createSession(sandboxUser)).thenReturn(successful(authSession))
 
       val result = await(underTest.authenticate(AuthenticationRequest("user1", "password1")))
 
@@ -87,7 +84,7 @@ class AuthenticationServiceSpec extends UnitSpec with MockitoSugar {
 
     "fail with InvalidCredentials when the user does not exist" in new Setup {
 
-      given(underTest.testUserRepository.fetchByUserId(userId)).willReturn(None)
+      when(underTest.testUserRepository.fetchByUserId(userId)).thenReturn(successful((None)))
 
       intercept[InvalidCredentials] {
         await(underTest.authenticate(AuthenticationRequest(userId, password)))
@@ -95,8 +92,8 @@ class AuthenticationServiceSpec extends UnitSpec with MockitoSugar {
     }
 
     "fail with InvalidCredentials when the password is invalid" in new Setup {
-      given(underTest.testUserRepository.fetchByUserId(userId)).willReturn(Some(storedTestIndividual))
-      given(underTest.authLoginApiConnector.createSession(storedTestIndividual)).willReturn(authSession)
+      when(underTest.testUserRepository.fetchByUserId(userId)).thenReturn(successful(Some(storedTestIndividual)))
+      when(underTest.authLoginApiConnector.createSession(storedTestIndividual)).thenReturn(successful(authSession))
 
       intercept[InvalidCredentials] {
         await(underTest.authenticate(AuthenticationRequest(userId, "wrong password")))

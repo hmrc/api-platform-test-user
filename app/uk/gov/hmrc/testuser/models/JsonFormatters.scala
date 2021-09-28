@@ -20,13 +20,13 @@ import org.joda.time.LocalDate
 import play.api.libs.json._
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.play.json.Union
-import uk.gov.hmrc.testuser.connectors.{Enrolment, GovernmentGatewayLogin, Identifier}
-
+import uk.gov.hmrc.testuser.connectors.{Enrolment, GovernmentGatewayLogin, Identifier, ItmpData, AuthLoginAddress}
 object JsonFormatters {
 
   implicit val formatLocalDateWriter: Writes[LocalDate] = JodaWrites.jodaLocalDateWrites("yyyy-MM-dd")
   implicit val formatLocalDateReader: Reads[LocalDate] = JodaReads.jodaLocalDateReads("yyyy-MM-dd")
 
+  implicit val crnFormatter = Json.format[Crn]
   implicit val formatObjectId = ReactiveMongoFormats.objectIdFormats
   implicit val formatServiceName = EnumJson.enumFormat(ServiceKeys)
   implicit val formatUserType = EnumJson.enumFormat(UserType)
@@ -52,6 +52,10 @@ object JsonFormatters {
 
   implicit val formatCreateUserServicesRequest = Json.format[CreateUserRequest]
 
+  implicit val formatTaxpayerType = Json.valueFormat[TaxpayerType]
+  implicit val formatEoriNumber = Json.valueFormat[EoriNumber]
+  implicit val formatCreateUserWithOptionalEoriRequest = Json.format[CreateUserWithOptionalRequestParams]
+
   implicit val formatFetchTestIndividualResponse = Json.format[FetchTestIndividualResponse]
   implicit val formatFetchTestOrganisationResponse = Json.format[FetchTestOrganisationResponse]
 
@@ -60,6 +64,9 @@ object JsonFormatters {
 
   implicit val formatTaxIdentifier = Json.format[Identifier]
   implicit val formatEnrolment = Json.format[Enrolment]
+
+  implicit val formatAuthLoginAddress = Json.format[AuthLoginAddress]
+  implicit val formatItmpData = Json.format[ItmpData]
   implicit val formatGovernmentGatewayLogin = Json.format[GovernmentGatewayLogin]
 
   implicit val formatDesSimulatorTestIndividual = Json.format[DesSimulatorTestIndividual]

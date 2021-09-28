@@ -17,39 +17,44 @@
 package uk.gov.hmrc.testuser.connectors
 
 import javax.inject.{Inject, Singleton}
+import org.joda.time.LocalDate
 import play.api.{Configuration, Environment}
 import play.api.http.HeaderNames.{AUTHORIZATION, LOCATION}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 @Singleton
 class AuthLoginApiConnector @Inject()(httpClient: HttpClient, val configuration: Configuration, environment: Environment, config: ServicesConfig)
                            (implicit ec: ExecutionContext) {
-
   import config.baseUrl
 
   lazy val serviceUrl: String = baseUrl("auth-login-api")
 
   def createSession(testUser: TestUser)
                    (implicit hc: HeaderCarrier): Future[AuthSession] = {
-    httpClient.POST(s"$serviceUrl/government-gateway/session/login", GovernmentGatewayLogin(testUser)) map { response =>
-      val gatewayToken = (response.json \ "gatewayToken").as[String]
+                    
+    httpClient.POST[GovernmentGatewayLogin, Either[UpstreamErrorResponse,HttpResponse]](s"$serviceUrl/government-gateway/session/login", GovernmentGatewayLogin(testUser)) map { 
+      case Right(response) =>
 
-      (response.header(AUTHORIZATION), response.header(LOCATION)) match {
-        case (Some(authBearerToken), Some(authorityUri)) => AuthSession(authBearerToken, authorityUri, gatewayToken)
-        case _ => throw new RuntimeException("Authorization and Location header must be present in response.")
-      }
+        (response.header(AUTHORIZATION), response.header(LOCATION)) match {
+          case (Some(authBearerToken), Some(authorityUri)) => val gatewayToken = (response.json \ "gatewayToken").as[String]
+                                                              AuthSession(authBearerToken, authorityUri, gatewayToken)
+          case _ => throw new RuntimeException("Authorization and Location header must be present in response.")
+        }
+      case Left(err) => throw err
     }
   }
-
 }
 
 case class Identifier(key: String, value: String)
@@ -65,8 +70,45 @@ case class GovernmentGatewayLogin(credId: String,
                                   confidenceLevel: Int = ConfidenceLevel.L200.level,
                                   credentialStrength: String = "strong",
                                   groupIdentifier: String,
+                                  itmpData: Option[ItmpData],
                                   credentialRole: Option[String] = None)
 
+case class ItmpData(
+    givenName: String,
+    middleName:String,
+    familyName:String,
+    birthdate: LocalDate,
+    address: AuthLoginAddress)
+
+object ItmpData{
+  def apply(testIndividual: TestIndividual) : ItmpData = {
+    ItmpData(
+      testIndividual.individualDetails.firstName,
+      middleName = "",
+      testIndividual.individualDetails.lastName,
+      testIndividual.individualDetails.dateOfBirth,
+      address = AuthLoginAddress(testIndividual.individualDetails.address)
+    )
+  }
+}
+
+case class AuthLoginAddress(
+    line1: String,
+    line2: String,
+    postCode: String,
+    countryName: String,
+    countryCode: String)
+
+object AuthLoginAddress {
+  def apply(address: Address) : AuthLoginAddress = {
+    AuthLoginAddress(
+      line1 = address.line1, 
+      line2 = address.line2, 
+      postCode = address.postcode, 
+      countryName = "United Kingdom",
+      countryCode = "GB")
+  }
+}
 object GovernmentGatewayLogin {
 
   def apply(testUser: TestUser): GovernmentGatewayLogin = testUser match {
@@ -75,7 +117,7 @@ object GovernmentGatewayLogin {
     case agent: TestAgent               => fromAgent(agent)
   }
 
-  private def fromIndividual(individual: TestIndividual) = {
+  private def fromIndividual(individual: TestIndividual) : GovernmentGatewayLogin = {
 
     def asEnrolment(serviceName: ServiceKey) = {
       serviceName match {
@@ -83,7 +125,6 @@ object GovernmentGatewayLogin {
         case MTD_INCOME_TAX => individual.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId))) }
         case CUSTOMS_SERVICES => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case GOODS_VEHICLE_MOVEMENTS => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber)))}
-        case ICS_SAFETY_AND_SECURITY => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber))) }
         case MTD_VAT => individual.vrn map { vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn))) }
         case CTC_LEGACY => individual.eoriNumber map { eoriNumber => Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber))) }
         case CTC => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
@@ -98,7 +139,8 @@ object GovernmentGatewayLogin {
       enrolments = individual.services.flatMap(asEnrolment),
       usersName = individual.userFullName,
       email = individual.emailAddress,
-      groupIdentifier = individual.groupIdentifier.getOrElse("")
+      groupIdentifier = individual.groupIdentifier.getOrElse(""),
+      itmpData = Some(ItmpData(individual))
     )
   }
 
@@ -123,7 +165,6 @@ object GovernmentGatewayLogin {
         case CTC_LEGACY => organisation.eoriNumber map { eoriNumber => Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber))) }
         case CTC => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case GOODS_VEHICLE_MOVEMENTS => organisation.eoriNumber map { eoriNumber =>Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber)))}
-        case ICS_SAFETY_AND_SECURITY => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber))) }
         case SAFETY_AND_SECURITY => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-SS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case _ => None
       }
@@ -136,7 +177,9 @@ object GovernmentGatewayLogin {
       enrolments = organisation.services.flatMap(asEnrolment),
       usersName = organisation.userFullName,
       email = organisation.emailAddress,
-      groupIdentifier = organisation.groupIdentifier.getOrElse(""))
+      groupIdentifier = organisation.groupIdentifier.getOrElse(""),
+      itmpData = None
+    )
   }
 
   private def fromAgent(agent: TestAgent): GovernmentGatewayLogin = {
@@ -155,6 +198,8 @@ object GovernmentGatewayLogin {
       usersName = agent.userFullName,
       email = agent.emailAddress,
       credentialRole = Some("user"),
-      groupIdentifier = agent.groupIdentifier.getOrElse(""))
+      groupIdentifier = agent.groupIdentifier.getOrElse(""),
+      itmpData = None
+    )
   }
 }

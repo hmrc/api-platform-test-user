@@ -22,14 +22,14 @@ import reactivemongo.api.indexes.Index
 import reactivemongo.api.indexes.IndexType.Ascending
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.mongo.MongoSpecSupport
-import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.helpers.GeneratorProvider
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 
-class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with BeforeAndAfterAll with MongoSpecSupport with IndexVerification {
+class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with BeforeAndAfterAll with MongoSpecSupport with IndexVerification {
   private val mongoComponent = new ReactiveMongoComponent {
     override def mongoConnector = mongoConnectorForTest
   }
@@ -40,7 +40,7 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
   trait GeneratedTestIndividual extends GeneratorProvider {
     val repository = userRepository
 
-    val testIndividual = await(generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_VAT, CUSTOMS_SERVICES, CTC_LEGACY, CTC)))
+    val testIndividual = await(generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_VAT, CUSTOMS_SERVICES, CTC_LEGACY, CTC), None, None))
   }
 
   trait GeneratedTestOrganisation extends GeneratorProvider {
@@ -49,7 +49,10 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
     val testOrganisation =
       await(
         generator.generateTestOrganisation(
-          Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT, LISA, CUSTOMS_SERVICES, CTC_LEGACY, CTC)))
+          Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT, LISA, CUSTOMS_SERVICES, CTC_LEGACY, CTC), 
+          eoriNumber = None,
+          nino = None,
+          taxpayerType = None))
   }
 
   override def afterEach: Unit = {
@@ -169,6 +172,35 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
     }
   }
 
+  "fetchByNino" should {
+    val nino = Nino("CC333333C")
+    val invalidNino = Nino("CC333334C")
+
+    "return the user" in new GeneratedTestIndividual {
+      val individual = testIndividual.copy(nino = Some(nino.toString()))
+      await(repository.createUser(individual))
+
+      val result = await(repository.fetchByNino(nino))
+
+      result shouldBe Some(individual)
+    }
+
+    "return the organisation" in new GeneratedTestOrganisation {
+      val organisation = testOrganisation.copy(nino = Some(nino.toString()))
+      await(repository.createUser(organisation))
+
+      val result = await(repository.fetchByNino(nino))
+
+      result shouldBe Some(organisation)
+    }
+
+    "return None when there is no individual matching" in {
+      val result = await(userRepository.fetchByNino(invalidNino))
+
+      result shouldBe None
+    }
+  }
+
   "fetchIndividualBySaUtr" should {
 
     "return the individual" in new GeneratedTestIndividual {
@@ -261,6 +293,54 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
     }
   }
 
+  "fetchOrganisationByCtUtr" should {
+
+    "return the organisation" in new GeneratedTestOrganisation {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchOrganisationByCtUtr(CtUtr(testOrganisation.ctUtr.get)))
+
+      result shouldBe Some(testOrganisation)
+    }
+
+    "return None when there is no organisation matching" in new GeneratedTestOrganisation {
+      val result = await(repository.fetchOrganisationByCtUtr(CtUtr(testOrganisation.ctUtr.get)))
+      result shouldBe None
+    }
+  }
+
+  "fetchOrganisationBySaUtr" should {
+
+    "return the organisation" in new GeneratedTestOrganisation {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchOrganisationBySaUtr(SaUtr(testOrganisation.saUtr.get)))
+
+      result shouldBe Some(testOrganisation)
+    }
+
+    "return None when there is no organisation matching" in new GeneratedTestOrganisation {
+      val result = await(repository.fetchOrganisationBySaUtr(SaUtr(testOrganisation.saUtr.get)))
+      result shouldBe None
+    }
+  }
+
+  "fetchOrganisationByCrn" should {
+
+    "return the organisation" in new GeneratedTestOrganisation {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchOrganisationByCrn(Crn(testOrganisation.crn.get)))
+
+      result shouldBe Some(testOrganisation)
+    }
+
+    "return None when there is no organisation matching" in new GeneratedTestOrganisation {
+      val result = await(repository.fetchOrganisationByCrn(Crn(testOrganisation.crn.get)))
+      result shouldBe None
+    }
+  }
+
   "identifierIsUnique" should {
     "return false when individual identifiers already exist" in new GeneratedTestIndividual {
       val testUser = await(repository.createUser(testIndividual))
@@ -286,3 +366,4 @@ class TestUserRepositorySpec extends UnitSpec with BeforeAndAfterEach with Befor
     }
   }
 }
+

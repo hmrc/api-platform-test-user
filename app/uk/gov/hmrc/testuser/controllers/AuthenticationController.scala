@@ -21,12 +21,23 @@ import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.libs.json.Json._
 import play.api.mvc.{ControllerComponents, Result}
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.testuser.models.{AuthenticationRequest, AuthenticationResponse, ErrorResponse, InvalidCredentials}
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.services.AuthenticationService
 
 import scala.concurrent.ExecutionContext
+import play.api.libs.json.Json
+
+
+object AuthenticationController {
+  case class ApiSessionRequest(credId: String)
+  
+  case class ApiSessionResponse(bearerToken: String)
+
+  implicit val jsonWrites = Json.writes[ApiSessionResponse]
+  implicit val jsonReads = Json.reads[ApiSessionRequest]
+}
 
 @Singleton
 class AuthenticationController @Inject()(val authenticationService: AuthenticationService, val cc: ControllerComponents)
@@ -39,6 +50,20 @@ class AuthenticationController @Inject()(val authenticationService: Authenticati
           Created(toJson(AuthenticationResponse(authSession.gatewayToken, testUser.affinityGroup))).withHeaders(
             HeaderNames.AUTHORIZATION -> authSession.authBearerToken,
             HeaderNames.LOCATION -> authSession.authorityUri)
+        }
+      } recover {
+        case _: InvalidCredentials => Unauthorized(toJson(ErrorResponse.invalidCredentialsError))
+      } recover recovery
+    }
+  }
+
+  import AuthenticationController._
+
+  def authenticateByCredId() = {
+    Action.async(parse.json) { implicit request =>
+      withJsonBody[ApiSessionRequest] { sessionRequest =>
+        authenticationService.authenticateByCredId(sessionRequest.credId) map { case (testUser, authSession) =>
+          Created(toJson(ApiSessionResponse(authSession.authBearerToken)))
         }
       } recover {
         case _: InvalidCredentials => Unauthorized(toJson(ErrorResponse.invalidCredentialsError))

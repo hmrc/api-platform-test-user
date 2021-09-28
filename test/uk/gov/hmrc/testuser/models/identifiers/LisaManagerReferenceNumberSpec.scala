@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.testuser.controllers
+package uk.gov.hmrc.testuser.models.identifiers
 
-import controllers.Assets
-import javax.inject.{Inject, Singleton}
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import org.scalatest.{Matchers, WordSpec}
+import uk.gov.hmrc.testuser.models.LisaManagerReferenceNumber
 
-@Singleton
-class DocumentationController @Inject()(assets: Assets, cc: ControllerComponents)
-  extends BackendController(cc) {
+class LisaManagerReferenceNumberSpec  extends WordSpec with Matchers {
+  val lisaNumber: LisaManagerReferenceNumber = LisaManagerReferenceNumber("abc123")
 
-  def definition: Action[AnyContent] = assets.at(s"/public/api", "definition.json")
+  "toString returns inner value" in {
+    lisaNumber.toString shouldBe "abc123"
+  }
 
-  def raml(version: String, file: String): Action[AnyContent] = assets.at(s"/public/api/conf/$version", file)
+  "name returns name of class" in {
+    lisaNumber.name shouldBe "lisaManagerReferenceNumber"
+  }
+
+  "value property returns inner value" in {
+    lisaNumber.value shouldBe "abc123"
+  }
 }

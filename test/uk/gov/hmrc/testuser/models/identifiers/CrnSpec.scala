@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.testuser.controllers
+package uk.gov.hmrc.testuser.models.identifiers
 
-import controllers.Assets
-import javax.inject.{Inject, Singleton}
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import org.scalatest.{Matchers, WordSpec}
+import uk.gov.hmrc.testuser.models.Crn
 
-@Singleton
-class DocumentationController @Inject()(assets: Assets, cc: ControllerComponents)
-  extends BackendController(cc) {
+class CrnSpec extends WordSpec with Matchers {
+  val crn = Crn("12345678")
 
-  def definition: Action[AnyContent] = assets.at(s"/public/api", "definition.json")
+  "valid Crn returns inner value with value" in {
+    crn.value shouldBe "12345678"
+  }
 
-  def raml(version: String, file: String): Action[AnyContent] = assets.at(s"/public/api/conf/$version", file)
+  "valid crn returns correct value for name" in {
+    crn.name shouldBe "crn"
+  }
+
+  "throws Illegal argument exception when invalid creation tried" in {
+    assertThrows[IllegalArgumentException] {
+      val _ = Crn("{abc123}")
+    }
+  }
 }

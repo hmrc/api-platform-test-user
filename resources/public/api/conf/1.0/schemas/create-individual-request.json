@@ -35,10 +35,6 @@
             "description": "Generates a VAT Registration Number and a date of registration for VAT and enrols the user for Making Tax Digital VAT."
           },
           {
-            "enum": ["ics-safety-and-security"],
-            "description": "Generates an EORI number and enrols the user for Import Control System."
-          },
-          {
             "enum": ["common-transit-convention-traders"],
             "description": "Generates an EORI number and enrols the user for Common Transit Convention Traders."
           },
@@ -49,6 +45,17 @@
         ]
       },
       "uniqueItems": true
+    },
+    "eoriNumber": {
+      "type": "string",
+      "description": "Economic Operator Registration and Identification (EORI) number.",
+      "minLength": 14,
+      "maxLength": 17,
+      "pattern": "^(GB|XI)[0-9]{12,15}$"
+    },
+    "nino": {
+      "type": "string",
+      "description": "National Insurance number. Must be enrolled with 'national-insurance' or 'mtd-income-tax' services for this to be used."
     }
   },
   "required": [

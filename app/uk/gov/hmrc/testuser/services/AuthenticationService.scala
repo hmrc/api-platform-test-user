@@ -25,6 +25,7 @@ import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future._
+import play.api.Logger
 
 class AuthenticationService @Inject()(val passwordService: PasswordService,
                                       val authLoginApiConnector: AuthLoginApiConnector,
@@ -43,7 +44,22 @@ class AuthenticationService @Inject()(val passwordService: PasswordService,
       }
     }
     for {
+      testUser <- userFuture
+      authSession <- authLoginApiConnector.createSession(testUser)
+    } yield (testUser, authSession)
+  }
+
+  def authenticateByCredId(credId: String)(implicit hc: HeaderCarrier): Future[(TestUser, AuthSession)] = {
+    val userFuture = testUserRepository.fetchByUserId(credId).map {
+      case Some(u: TestUser) => u
+      case None =>
+        throw InvalidCredentials(s"User ID not found: ${credId}")
+      case _ =>
+        throw InvalidCredentials(s"Invalid credId: ${credId}")
+    }
+    for {
       user <- userFuture
+      _ = Logger.info("Create session by CredId")
       authSession <- authLoginApiConnector.createSession(user)
     } yield (user, authSession)
   }

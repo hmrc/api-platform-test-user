@@ -20,17 +20,21 @@ import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequest
 import org.joda.time.LocalDate
 import org.scalatest.BeforeAndAfterEach
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
+import play.api.test.Helpers._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
+import org.scalatest.BeforeAndAfterAll
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with WithFakeApplication {
+class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with BeforeAndAfterAll with BeforeAndAfterEach {
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
@@ -51,7 +55,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     mtdItId = Some("XGIT00000000054"),
     groupIdentifier = Some("individualGroup"),
     services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT,
-      ICS_SAFETY_AND_SECURITY, CTC_LEGACY, CTC))
+      CTC_LEGACY, CTC))
 
   val taxOfficeNumber = "555"
 
@@ -75,9 +79,10 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     pensionSchemeAdministratorIdentifier = Some("A1234567"),
     eoriNumber = Some("GB1234567890"),
     groupIdentifier = Some("organsiationGroup"),
+    crn = Some("12345678"),
     services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX,
       MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS,
-      ICS_SAFETY_AND_SECURITY, SAFETY_AND_SECURITY, CTC_LEGACY, CTC))
+      SAFETY_AND_SECURITY, CTC_LEGACY, CTC))
 
   val testAgent = TestAgent(
     userId = "agentUser",
@@ -94,10 +99,10 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     implicit val hc = HeaderCarrier()
 
     val underTest = new AuthLoginApiConnector(
-      fakeApplication.injector.instanceOf[HttpClient],
-      fakeApplication.injector.instanceOf[Configuration],
-      fakeApplication.injector.instanceOf[Environment],
-      fakeApplication.injector.instanceOf[ServicesConfig]
+      app.injector.instanceOf[HttpClient],
+      app.injector.instanceOf[Configuration],
+      app.injector.instanceOf[Environment],
+      app.injector.instanceOf[ServicesConfig]
     ) {
       override lazy val serviceUrl: String = AuthLoginApiStub.url
     }
@@ -182,15 +187,6 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
              |       }]
              |     },
              |     {
-             |       "key": "HMRC-ICS-ORG",
-             |       "state": "Activated",
-             |       "identifiers": [
-             |       {
-             |         "key":"EoriTin",
-             |         "value":"${testIndividual.eoriNumber.get}"
-             |       }]
-             |     },
-             |     {
              |       "key": "HMCE-NCTS-ORG",
              |       "state": "Activated",
              |       "identifiers": [
@@ -210,7 +206,20 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
              |     }
              |   ],
              |   "usersName": "John Doe",
-             |   "email": "john.doe@example.com"
+             |   "email": "john.doe@example.com",
+             |   "itmpData" : {
+             |     "givenName" : "John",
+             |     "middleName" : "",
+             |     "familyName" : "Doe",
+             |     "birthdate" : "1980-01-10",
+             |     "address" : {
+             |       "line1" : "221b Baker St",
+             |       "line2" : "Marylebone",
+             |       "postCode" : "NW1 6XE",
+             |       "countryName" : "United Kingdom",
+             |       "countryCode" : "GB"
+             |     }
+             |  }
              |}
         """.stripMargin.replaceAll("\n", ""))))
     }
@@ -335,15 +344,6 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       }]
            |     },
            |     {
-           |       "key": "HMRC-ICS-ORG",
-           |       "state": "Activated",
-           |       "identifiers": [
-           |       {
-           |         "key":"EoriTin",
-           |         "value":"${testOrganisation.eoriNumber.get}"
-           |       }]
-           |     },
-           |     {
            |       "key": "HMRC-SS-ORG",
            |       "state": "Activated",
            |       "identifiers": [
@@ -413,9 +413,9 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     "fail with Upstream5xxResponse when auth-login-api returns an error" in new Setup {
       AuthLoginApiStub.willFailToReturnASession()
 
-      intercept[Upstream5xxResponse] {
+      intercept[UpstreamErrorResponse] {
         await(underTest.createSession(testOrganisation))
-      }
+      }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }
 }

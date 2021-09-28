@@ -19,14 +19,15 @@ package uk.gov.hmrc.testuser.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.libs.json.Json.toJson
-import play.api.mvc.{ControllerComponents, Result}
-import uk.gov.hmrc.domain.{EmpRef, Nino, SaUtr, Vrn}
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
+import uk.gov.hmrc.domain.{CtUtr, EmpRef, Nino, SaUtr, Vrn}
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ErrorResponse.{individualNotFoundError, organisationNotFoundError}
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.services._
+import uk.gov.hmrc.testuser.services.TestUserService
 
 import scala.concurrent.ExecutionContext
 
@@ -35,20 +36,37 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
   extends BackendController(cc) {
 
   def createIndividual() = Action.async(parse.json) { implicit request =>
-    withJsonBody[CreateUserRequest] { createUserRequest =>
-      testUserService.createTestIndividual(createUserRequest.serviceNames.getOrElse(Seq.empty)) map { individual =>
-        Created(toJson(TestIndividualCreatedResponse.from(individual)))
-      }
-    }recover recovery
-  }
+    withJsonBody[CreateUserWithOptionalRequestParams] { createUserRequest =>
+      testUserService.createTestIndividual(
+        createUserRequest.serviceNames.getOrElse(Seq.empty),
+        createUserRequest.eoriNumber,
+        createUserRequest.nino) map {
+          case Left(NinoAlreadyUsed) => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
+          case Left(error : CreateTestUserError) => {
+            Logger.error(s"Unepected error response from testUserService.createTestIndividual: ${error.toString}")
+            BadRequest
+          }
+          case Right(createdIndividual) => Created(toJson(TestIndividualCreatedResponse.from(createdIndividual)))
+        }
+      } recover recovery
+    }
 
   def createOrganisation() = Action.async(parse.json) { implicit request =>
-    withJsonBody[CreateUserRequest] { createUserRequest =>
-      testUserService.createTestOrganisation(createUserRequest.serviceNames.getOrElse(Seq.empty)) map { organisation =>
-        Created(toJson(TestOrganisationCreatedResponse.from(organisation)))
-      }
-    }recover recovery
-  }
+    withJsonBody[CreateUserWithOptionalRequestParams] { createUserRequest =>
+      testUserService.createTestOrganisation(
+        createUserRequest.serviceNames.getOrElse(Seq.empty),
+        createUserRequest.eoriNumber,
+        createUserRequest.nino,
+        createUserRequest.taxpayerType) map { 
+          case Left(NinoAlreadyUsed) => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
+          case Left(error : CreateTestUserError) => {
+            Logger.error(s"Unepected error response from testUserService.createTestOrganisation: ${error.toString}")
+            BadRequest
+          }
+          case Right(organisation) => Created(toJson(TestOrganisationCreatedResponse.from(organisation)))
+        }
+      } recover recovery
+    }
 
   def createAgent() = Action.async(parse.json) { implicit request =>
     withJsonBody[CreateUserRequest] { createUserRequest =>
@@ -58,38 +76,56 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
     } recover recovery
   }
 
-  def fetchIndividualByNino(nino: Nino) = Action.async { implicit request =>
+  def fetchIndividualByNino(nino: Nino) = Action.async { _ =>
     testUserService.fetchIndividualByNino(nino) map { individual =>
       Ok(toJson(FetchTestIndividualResponse.from(individual)))
     } recover recovery
   }
 
-  def fetchIndividualByShortNino(shortNino: NinoNoSuffix) = Action.async { implicit request =>
+  def fetchIndividualByShortNino(shortNino: NinoNoSuffix) = Action.async { _ =>
     testUserService.fetchIndividualByShortNino(shortNino) map { individual =>
       Ok(toJson(FetchTestIndividualResponse.from(individual)))
     } recover recovery
   }
 
-  def fetchIndividualBySaUtr(saUtr: SaUtr) = Action.async { implicit request =>
+  def fetchIndividualBySaUtr(saUtr: SaUtr) = Action.async { _ =>
     testUserService.fetchIndividualBySaUtr(saUtr) map { individual =>
       Ok(toJson(FetchTestIndividualResponse.from(individual)))
     } recover recovery
   }
 
-  def fetchIndividualByVrn(vrn: Vrn) = Action.async { implicit request =>
+  def fetchIndividualByVrn(vrn: Vrn) = Action.async { _ =>
     testUserService.fetchIndividualByVrn(vrn) map { individual =>
       Ok(toJson(FetchTestIndividualResponse.from(individual)))
     } recover recovery
   }
 
-  def fetchOrganisationByEmpRef(empRef: EmpRef) = Action.async { implicit request =>
+  def fetchOrganisationByEmpRef(empRef: EmpRef) = Action.async { _ =>
     testUserService.fetchOrganisationByEmpRef(empRef) map { organisation =>
       Ok(toJson(FetchTestOrganisationResponse.from(organisation)))
     } recover recovery
   }
 
-  def fetchOrganisationByVrn(vrn: Vrn) = Action.async { implicit request =>
+  def fetchOrganisationByVrn(vrn: Vrn) = Action.async { _ =>
     testUserService.fetchOrganisationByVrn(vrn) map { organisation =>
+      Ok(toJson(FetchTestOrganisationResponse.from(organisation)))
+    } recover recovery
+  }
+
+  def fetchOrganisationByCtUtr(ctUtr: CtUtr): Action[AnyContent] = Action.async { _ =>
+    testUserService.fetchOrganisationByCtUtr(ctUtr) map { organisation =>
+      Ok(toJson(FetchTestOrganisationResponse.from(organisation)))
+    } recover recovery
+  }
+
+  def fetchOrganisationBySaUtr(saUtr: SaUtr): Action[AnyContent] = Action.async { _ =>
+    testUserService.fetchOrganisationBySaUtr(saUtr) map { organisation =>
+      Ok(toJson(FetchTestOrganisationResponse.from(organisation)))
+    } recover recovery
+  }
+
+  def fetchOrganisationByCrn(crn: Crn): Action[AnyContent] = Action.async { _ =>
+    testUserService.fetchOrganisationByCrn(crn) map { organisation =>
       Ok(toJson(FetchTestOrganisationResponse.from(organisation)))
     } recover recovery
   }
@@ -102,7 +138,7 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
       InternalServerError(toJson(ErrorResponse.internalServerError))
   }
 
-  def getServices = Action { implicit request =>
+  def getServices = Action { _ =>
     Ok(toJson(Services))
   }
 }

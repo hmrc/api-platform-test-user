@@ -20,7 +20,7 @@ import org.joda.time.LocalDate
 import play.api.libs.json.{Format, Reads, Writes}
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.testuser.models.ServiceKeys.{ServiceKey, Value}
+import uk.gov.hmrc.testuser.models.ServiceKeys.ServiceKey
 import uk.gov.hmrc.testuser.models.UserType.{AGENT, INDIVIDUAL, ORGANISATION, UserType}
 
 object ServiceKeys extends Enumeration {
@@ -38,7 +38,6 @@ object ServiceKeys extends Enumeration {
   val RELIEF_AT_SOURCE: ServiceKeys.Value = Value("relief-at-source")
   val CUSTOMS_SERVICES: ServiceKeys.Value = Value("customs-services")
   val GOODS_VEHICLE_MOVEMENTS: ServiceKeys.Value = Value("goods-vehicle-movements")
-  val ICS_SAFETY_AND_SECURITY: ServiceKeys.Value = Value("ics-safety-and-security")
   val SAFETY_AND_SECURITY: ServiceKeys.Value = Value("safety-and-security")
   val CTC: ServiceKeys.Value = Value("common-transit-convention-traders")
   val CTC_LEGACY: ServiceKeys.Value = Value("common-transit-convention-traders-legacy")
@@ -61,7 +60,6 @@ object Services extends Seq[Service] {
     Service(ServiceKeys.RELIEF_AT_SOURCE, "Relief at Source", Seq(ORGANISATION)),
     Service(ServiceKeys.CUSTOMS_SERVICES, "Customs Services", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.GOODS_VEHICLE_MOVEMENTS, "Goods Vehicle Services", Seq(INDIVIDUAL, ORGANISATION)),
-    Service(ServiceKeys.ICS_SAFETY_AND_SECURITY, "ICS Safety and Security", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.CTC_LEGACY, "Common Transit Convention Traders Legacy", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.CTC, "Common Transit Convention Traders", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.SAFETY_AND_SECURITY, "Safety and Security", Seq(ORGANISATION)))
@@ -119,7 +117,9 @@ case class TestOrganisation(override val userId: String,
                             eoriNumber: Option[String] = None,
                             groupIdentifier: Option[String] = None,
                             override val services: Seq[ServiceKey] = Seq.empty,
-                            override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
+                            override val _id: BSONObjectID = BSONObjectID.generate,
+                            crn: Option[String] = None,
+                            taxpayerType: Option[String] = None) extends TestUser {
   override val affinityGroup = "Organisation"
 }
 
@@ -165,6 +165,8 @@ sealed trait TestOrganisationResponse extends TestUserResponse {
   val pensionSchemeAdministratorIdentifier: Option[String]
   val eoriNumber: Option[String]
   val groupIdentifier: Option[String]
+  val crn: Option[String]
+  val taxpayerType: Option[String]
 }
 
 sealed trait TestAgentResponse extends TestUserResponse {
@@ -227,7 +229,9 @@ case class FetchTestOrganisationResponse(override val userId: String,
                                          override val secureElectronicTransferReferenceNumber: Option[String] = None,
                                          override val pensionSchemeAdministratorIdentifier: Option[String] = None,
                                          override val eoriNumber: Option[String] = None,
-                                         override val groupIdentifier: Option[String] = None)
+                                         override val groupIdentifier: Option[String] = None,
+                                         override val crn: Option[String] = None,
+                                         override val taxpayerType: Option[String] = None)
   extends TestOrganisationResponse
 
 object FetchTestOrganisationResponse {
@@ -235,7 +239,7 @@ object FetchTestOrganisationResponse {
     organisation.emailAddress, organisation.organisationDetails, organisation.saUtr, organisation.nino,
     organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.vatRegistrationDate, organisation.lisaManRefNum,
     organisation.secureElectronicTransferReferenceNumber, organisation.pensionSchemeAdministratorIdentifier,
-    organisation.eoriNumber, organisation.groupIdentifier)
+    organisation.eoriNumber, organisation.groupIdentifier, organisation.crn, organisation.taxpayerType)
 }
 
 case class TestOrganisationCreatedResponse(override val userId: String,
@@ -254,7 +258,9 @@ case class TestOrganisationCreatedResponse(override val userId: String,
                                            override val secureElectronicTransferReferenceNumber: Option[String],
                                            override val pensionSchemeAdministratorIdentifier: Option[String],
                                            override val eoriNumber: Option[String] = None,
-                                           override val groupIdentifier: Option[String] = None)
+                                           override val groupIdentifier: Option[String] = None,
+                                           override val crn: Option[String] = None,
+                                           override val taxpayerType: Option[String] = None)
   extends TestOrganisationResponse
 
 object TestOrganisationCreatedResponse {
@@ -262,7 +268,8 @@ object TestOrganisationCreatedResponse {
     organisation.userFullName, organisation.emailAddress, organisation.organisationDetails, organisation.saUtr,
     organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.vatRegistrationDate,
     organisation.lisaManRefNum, organisation.secureElectronicTransferReferenceNumber,
-    organisation.pensionSchemeAdministratorIdentifier, organisation.eoriNumber, organisation.groupIdentifier)
+    organisation.pensionSchemeAdministratorIdentifier, organisation.eoriNumber, organisation.groupIdentifier,
+    organisation.crn, organisation.taxpayerType)
 }
 
 case class TestAgentCreatedResponse(override val userId: String, password: String,
@@ -361,16 +368,36 @@ case class EoriNumber(override val value: String) extends TaxIdentifier with Sim
 }
 
 object EoriNumber extends SimpleName {
-  val validEoriFormat = "^[A-z]{2}[0-9]{10,15}$"
+  val validEoriFormat = "^(GB|XI)[0-9]{12,15}$"
 
   def isValid(eoriNumber: String) = eoriNumber.matches(validEoriFormat)
 
   override val name = "eoriNumber"
+}
 
-  implicit val jsonFormat = Format[EoriNumber](
-    new SimpleObjectReads[EoriNumber](name, EoriNumber.apply),
-    new SimpleObjectWrites[EoriNumber](_.value)
-  )
+case class TaxpayerType(override val value: String) extends SimpleName with TaxIdentifier {
+  require(TaxpayerType.isValid(value), s"$value is not a valid Taxpayer Type.")
+
+  override val name = "taxpayerType"
+}
+
+object TaxpayerType extends SimpleName {
+  def isValid(taxpayerType: String) = taxpayerType.trim.toLowerCase == "individual" || taxpayerType.trim.toLowerCase == "partnership"
+  override val name = "taxpayerType"
+}
+
+case class Crn(override val value: String) extends TaxIdentifier with SimpleName {
+  require(Crn.isValid(value), s"$value is not a valid CRN.")
+  override val name: String = Crn.name
+}
+
+object Crn extends SimpleName with (String => Crn) {
+  private val validCrnFormat = "^[A-Z0-9]{1,10}$"
+
+  def isValid(value: String) = value.matches(validCrnFormat)
+
+  override val name: String = "crn"
+
 }
 
 case class Address(line1: String, line2: String, postcode: String)

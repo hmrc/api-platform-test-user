@@ -6,8 +6,8 @@
     "customs-services",
     "goods-vehicle-movements",
     "mtd-vat",
-    "ics-safety-and-security",
     "common-transit-convention-traders",
     "common-transit-convention-traders-legacy"
-  ]
+  ],
+  "eoriNumber": "GB123456789012"
 }

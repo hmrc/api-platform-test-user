@@ -17,11 +17,11 @@
 package uk.gov.hmrc.testuser.connectors
 
 import org.joda.time.LocalDate
-import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 
-class GovernmentGatewayLoginSpec extends UnitSpec {
+class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
   val user = "user"
   val groupIdentifier = "groupIdentifier"
   val password = "password"
@@ -35,6 +35,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
   val nino = "CC333333C"
   val mtdItId = "XGIT00000000054"
   val ctUtr = "1555369053"
+  val crn = "12345678"
   val vrn = "999902541"
   val lisaManRefNum = "Z123456"
   val secureElectronicTransferReferenceNumber = "123456789012"
@@ -59,7 +60,6 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
   val ctcLegacyEnrolment = Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber)))
   val ctcEnrolment = Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber)))
   val goodsVehicleMovementsEnrolment = Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
-  val icsEnrolment = Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber)))
   val ssEnrolment = Enrolment("HMRC-SS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
 
   "A GovernmentGatewayLogin created from a TestAgent" should {
@@ -114,7 +114,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
       vrn = Some(vrn),
       groupIdentifier = Some(groupIdentifier),
       services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT,
-        ICS_SAFETY_AND_SECURITY, CTC, CTC_LEGACY))
+         CTC_LEGACY, CTC))
 
     "contain no enrolments when the individual has no services" in {
       val login = GovernmentGatewayLogin(individual.copy(services = Seq.empty))
@@ -126,7 +126,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
       val login = GovernmentGatewayLogin(individual)
 
       login.enrolments should contain theSameElementsAs Seq(saEnrolment, mtdItEnrolment, customsEnrolment,
-        goodsVehicleMovementsEnrolment, mtdVatEnrolment, icsEnrolment, ctcEnrolment, ctcLegacyEnrolment)
+        goodsVehicleMovementsEnrolment, mtdVatEnrolment, ctcLegacyEnrolment, ctcEnrolment)
     }
 
     "contain the correct enrolments for customs services" in {
@@ -157,12 +157,6 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
       val login = GovernmentGatewayLogin(individual.copy(services = Seq(GOODS_VEHICLE_MOVEMENTS)))
 
       login.enrolments should contain theSameElementsAs Seq(goodsVehicleMovementsEnrolment)
-    }
-
-    "contain the correct enrolments for ics safety and security" in {
-      val login = GovernmentGatewayLogin(individual.copy(services = Seq(ICS_SAFETY_AND_SECURITY)))
-
-      login.enrolments should contain theSameElementsAs Seq(icsEnrolment)
     }
 
     "contain the correct enrolments for mtd vat" in {
@@ -205,9 +199,10 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
       pensionSchemeAdministratorIdentifier = Some(pensionSchemeAdministratorIdentifier),
       eoriNumber = Some(eoriNumber),
       groupIdentifier = Some(groupIdentifier),
+      crn = Some(crn),
       services = Seq(AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, CORPORATION_TAX, SUBMIT_VAT_RETURNS,
         PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES,
-        GOODS_VEHICLE_MOVEMENTS, ICS_SAFETY_AND_SECURITY, SAFETY_AND_SECURITY, CTC, CTC_LEGACY))
+        GOODS_VEHICLE_MOVEMENTS, SAFETY_AND_SECURITY, CTC_LEGACY, CTC))
 
     "contain no enrolments when the organisation has no services" in {
       val login = GovernmentGatewayLogin(organisation.copy(services = Seq.empty))
@@ -220,7 +215,7 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
 
       login.enrolments should contain theSameElementsAs
         Seq(saEnrolment, ctEnrolment, vatEnrolment, payeEnrolment, mtdItEnrolment, mtdVatEnrolment, lisaEnrolment, setEnrolment,
-          psaEnrolment, customsEnrolment, goodsVehicleMovementsEnrolment, icsEnrolment, ssEnrolment, ctcEnrolment, ctcLegacyEnrolment)
+          psaEnrolment, customsEnrolment, goodsVehicleMovementsEnrolment, ssEnrolment, ctcEnrolment, ctcLegacyEnrolment)
     }
 
     "ignore services that are not applicable" in {
@@ -264,12 +259,6 @@ class GovernmentGatewayLoginSpec extends UnitSpec {
       val login = GovernmentGatewayLogin(organisation.copy(services = Seq(GOODS_VEHICLE_MOVEMENTS)))
 
       login.enrolments should contain theSameElementsAs Seq(goodsVehicleMovementsEnrolment)
-    }
-
-    "contain the correct enrolments for ics safety and security" in {
-      val login = GovernmentGatewayLogin(organisation.copy(services = Seq(ICS_SAFETY_AND_SECURITY)))
-
-      login.enrolments should contain theSameElementsAs Seq(icsEnrolment)
     }
 
     "contain the correct enrolments for safety and security" in {

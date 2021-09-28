@@ -46,6 +46,26 @@ You should be able to see your changes at
 
 Though it may take a minute to boot.
 
+
+### Creating a local test user
+
+```
+curl --location --request POST 'http://localhost:9617/individuals' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "serviceNames": [
+    "national-insurance",
+    "self-assessment",
+    "mtd-income-tax",
+    "customs-services",
+    "goods-vehicle-movements",
+    "mtd-vat",
+    "common-transit-convention-traders"
+  ],
+  "eoriNumber": "GB123456789012"
+}'
+```
+
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html")
