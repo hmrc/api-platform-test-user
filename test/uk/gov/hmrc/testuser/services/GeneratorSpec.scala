@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,6 +132,14 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val individual = await(underTest.generateTestIndividual(Seq(CUSTOMS_SERVICES)))
+
+      individual shouldHave(eoriDefined = true)
+    }
+
+    "generate an EORI when CTC legacy service is included" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+
+      val individual = await(underTest.generateTestIndividual(Seq(CTC_LEGACY)))
 
       individual shouldHave(eoriDefined = true)
     }
@@ -320,6 +328,14 @@ class GeneratorSpec extends UnitSpec with MockitoSugar with PropertyChecks {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
 
       val org = await(underTest.generateTestOrganisation(Seq(CTC)))
+
+      org shouldHave(eoriDefined = true)
+    }
+
+    "generate an EORI when legacy CTC service is included" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(CTC_LEGACY)))
 
       org shouldHave(eoriDefined = true)
     }

@@ -7,6 +7,7 @@
     "goods-vehicle-movements",
     "mtd-vat",
     "ics-safety-and-security",
-    "common-transit-convention-traders"
+    "common-transit-convention-traders",
+    "common-transit-convention-traders-legacy"
   ]
 }

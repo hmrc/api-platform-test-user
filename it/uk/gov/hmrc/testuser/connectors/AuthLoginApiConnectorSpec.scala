@@ -51,7 +51,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     mtdItId = Some("XGIT00000000054"),
     groupIdentifier = Some("individualGroup"),
     services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT,
-      ICS_SAFETY_AND_SECURITY, CTC))
+      ICS_SAFETY_AND_SECURITY, CTC_LEGACY, CTC))
 
   val taxOfficeNumber = "555"
 
@@ -77,7 +77,7 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
     groupIdentifier = Some("organsiationGroup"),
     services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX,
       MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS,
-      ICS_SAFETY_AND_SECURITY, SAFETY_AND_SECURITY, CTC))
+      ICS_SAFETY_AND_SECURITY, SAFETY_AND_SECURITY, CTC_LEGACY, CTC))
 
   val testAgent = TestAgent(
     userId = "agentUser",
@@ -196,6 +196,15 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
              |       "identifiers": [
              |       {
              |         "key":"VATRegNoTURN",
+             |         "value":"${testIndividual.eoriNumber.get}"
+             |       }]
+             |     },
+             |     {
+             |       "key": "HMRC-CTC-ORG",
+             |       "state": "Activated",
+             |       "identifiers": [
+             |       {
+             |         "key":"EORINumber",
              |         "value":"${testIndividual.eoriNumber.get}"
              |       }]
              |     }
@@ -349,6 +358,15 @@ class AuthLoginApiConnectorSpec extends UnitSpec with BeforeAndAfterEach with Wi
            |       "identifiers": [
            |       {
            |         "key":"VATRegNoTURN",
+           |         "value":"${testIndividual.eoriNumber.get}"
+           |       }]
+           |     },
+           |     {
+           |       "key": "HMRC-CTC-ORG",
+           |       "state": "Activated",
+           |       "identifiers": [
+           |       {
+           |         "key":"EORINumber",
            |         "value":"${testOrganisation.eoriNumber.get}"
            |       }]
            |     }
