@@ -84,6 +84,6 @@ class TestUserSpec extends FlatSpec with Matchers {
   }
 
   "Services" should "get size equal to all services when length called" in {
-    Services.length shouldBe 15
+    Services.length shouldBe 16
   }
 }

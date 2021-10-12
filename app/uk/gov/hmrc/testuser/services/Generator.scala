@@ -84,7 +84,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
       saUtr                 <- whenF(SELF_ASSESSMENT)(generateSaUtr)
       nino                  <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(useProvidedOrGeneratedNino(nino))
       mtdItId               <- whenF(MTD_INCOME_TAX)(generateMtdId)
-      eoriNumber            <- whenF(CUSTOMS_SERVICES, CTC, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
+      eoriNumber            <- whenF(CUSTOMS_SERVICES, CTC_LEGACY, CTC, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
       vrn                   <- whenF(MTD_VAT)(generateVrn)
       vatRegistrationDate   = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1, 20).sample.get))
       groupIdentifier        = Some(generateGroupIdentifier)
@@ -128,7 +128,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
       lisaManRefNum         <- whenF(LISA)(generateLisaManRefNum)
       setRefNum             = when(SECURE_ELECTRONIC_TRANSFER)(generateSetRefNum)
       psaId                 = when(RELIEF_AT_SOURCE)(generatePsaId)
-      eoriNumber            <- whenF(CUSTOMS_SERVICES, CTC, SAFETY_AND_SECURITY, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
+      eoriNumber            <- whenF(CUSTOMS_SERVICES, CTC_LEGACY, CTC, SAFETY_AND_SECURITY, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
       groupIdentifier       = Some(generateGroupIdentifier)
       firstName             = generateFirstName
       lastName              = generateLastName

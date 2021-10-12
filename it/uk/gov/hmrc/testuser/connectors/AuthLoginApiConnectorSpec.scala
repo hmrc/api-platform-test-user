@@ -55,7 +55,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     mtdItId = Some("XGIT00000000054"),
     groupIdentifier = Some("individualGroup"),
     services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT,
-      CTC))
+      CTC_LEGACY, CTC))
 
   val taxOfficeNumber = "555"
 
@@ -82,7 +82,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     crn = Some("12345678"),
     services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX,
       MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS,
-      SAFETY_AND_SECURITY, CTC))
+      SAFETY_AND_SECURITY, CTC_LEGACY, CTC))
 
   val testAgent = TestAgent(
     userId = "agentUser",
@@ -192,6 +192,15 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
              |       "identifiers": [
              |       {
              |         "key":"VATRegNoTURN",
+             |         "value":"${testIndividual.eoriNumber.get}"
+             |       }]
+             |     },
+             |     {
+             |       "key": "HMRC-CTC-ORG",
+             |       "state": "Activated",
+             |       "identifiers": [
+             |       {
+             |         "key":"EORINumber",
              |         "value":"${testIndividual.eoriNumber.get}"
              |       }]
              |     }
@@ -349,6 +358,15 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
            |       "identifiers": [
            |       {
            |         "key":"VATRegNoTURN",
+           |         "value":"${testIndividual.eoriNumber.get}"
+           |       }]
+           |     },
+           |     {
+           |       "key": "HMRC-CTC-ORG",
+           |       "state": "Activated",
+           |       "identifiers": [
+           |       {
+           |         "key":"EORINumber",
            |         "value":"${testOrganisation.eoriNumber.get}"
            |       }]
            |     }

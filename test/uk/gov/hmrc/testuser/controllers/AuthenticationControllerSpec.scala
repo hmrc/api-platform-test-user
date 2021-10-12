@@ -71,7 +71,7 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     vatRegistrationDate = Some(vatRegistrationDate),
     eoriNumber = Some(eoriNumber),
     groupIdentifier = Some(groupIdentifier),
-    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC))
+    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC, CTC_LEGACY))
 
   val organisationDetails = OrganisationDetails(
     name = "Company ABCDEF",
@@ -96,7 +96,7 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     groupIdentifier = Some(groupIdentifier),
     crn = Some(crn),
     services =
-      Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, MTD_VAT, PAYE_FOR_EMPLOYERS, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, CTC))
+      Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, MTD_VAT, PAYE_FOR_EMPLOYERS, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, CTC, CTC_LEGACY))
 
   val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
 

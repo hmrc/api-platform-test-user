@@ -13,8 +13,9 @@
     "customs-services",
     "goods-vehicle-movements",
     "safety-and-security",
-    "common-transit-convention-traders"
-  ],
+    "common-transit-convention-traders",
+    "common-transit-convention-traders-legacy"
+],
   "eoriNumber": "GB123456789012",
   "taxpayerType": "Individual"
 }

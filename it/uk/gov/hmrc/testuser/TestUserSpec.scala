@@ -90,7 +90,6 @@ class TestUserSpec extends BaseSpec {
     }
   }
 
-
   private def createIndividual(serviceNames: Seq[String]) = callEndpoint("individuals", serviceNames)
 
   private def createOrganisation(serviceNames: Seq[String]) = callEndpoint("organisations", serviceNames)

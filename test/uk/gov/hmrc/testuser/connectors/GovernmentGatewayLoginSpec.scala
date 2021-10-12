@@ -57,7 +57,8 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
   val payeEnrolment = Enrolment("IR-PAYE", Seq(Identifier("TaxOfficeNumber", taxOfficeNumber),
     Identifier("TaxOfficeReference", taxOfficeReference)))
   val customsEnrolment = Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
-  val ctcEnrolment = Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber)))
+  val ctcLegacyEnrolment = Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber)))
+  val ctcEnrolment = Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber)))
   val goodsVehicleMovementsEnrolment = Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
   val ssEnrolment = Enrolment("HMRC-SS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
 
@@ -113,7 +114,7 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       vrn = Some(vrn),
       groupIdentifier = Some(groupIdentifier),
       services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT,
-        CTC))
+         CTC_LEGACY, CTC))
 
     "contain no enrolments when the individual has no services" in {
       val login = GovernmentGatewayLogin(individual.copy(services = Seq.empty))
@@ -125,7 +126,7 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       val login = GovernmentGatewayLogin(individual)
 
       login.enrolments should contain theSameElementsAs Seq(saEnrolment, mtdItEnrolment, customsEnrolment,
-        goodsVehicleMovementsEnrolment, mtdVatEnrolment, ctcEnrolment)
+        goodsVehicleMovementsEnrolment, mtdVatEnrolment, ctcLegacyEnrolment, ctcEnrolment)
     }
 
     "contain the correct enrolments for customs services" in {
@@ -134,10 +135,22 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       login.enrolments should contain theSameElementsAs Seq(customsEnrolment)
     }
 
-    "contain the correct enrolments for common transit convention traders" in {
+    "contain the correct legacy enrolments for common transit convention traders" in {
+      val login = GovernmentGatewayLogin(individual.copy(services = Seq(CTC_LEGACY)))
+
+      login.enrolments should contain theSameElementsAs Seq(ctcLegacyEnrolment)
+    }
+
+    "contain the correct  enrolments for common transit convention traders" in {
       val login = GovernmentGatewayLogin(individual.copy(services = Seq(CTC)))
 
       login.enrolments should contain theSameElementsAs Seq(ctcEnrolment)
+    }
+
+    "contain the correct legacy and current enrolments for common transit convention traders" in {
+      val login = GovernmentGatewayLogin(individual.copy(services = Seq(CTC_LEGACY, CTC)))
+
+      login.enrolments should contain theSameElementsAs Seq(ctcLegacyEnrolment, ctcEnrolment)
     }
 
     "contain the correct enrolments for goods vehicle movements" in {
@@ -189,7 +202,7 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       crn = Some(crn),
       services = Seq(AGENT_SERVICES, NATIONAL_INSURANCE, SELF_ASSESSMENT, CORPORATION_TAX, SUBMIT_VAT_RETURNS,
         PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX, MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES,
-        GOODS_VEHICLE_MOVEMENTS, SAFETY_AND_SECURITY, CTC))
+        GOODS_VEHICLE_MOVEMENTS, SAFETY_AND_SECURITY, CTC_LEGACY, CTC))
 
     "contain no enrolments when the organisation has no services" in {
       val login = GovernmentGatewayLogin(organisation.copy(services = Seq.empty))
@@ -202,7 +215,7 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
 
       login.enrolments should contain theSameElementsAs
         Seq(saEnrolment, ctEnrolment, vatEnrolment, payeEnrolment, mtdItEnrolment, mtdVatEnrolment, lisaEnrolment, setEnrolment,
-          psaEnrolment, customsEnrolment, goodsVehicleMovementsEnrolment, ssEnrolment, ctcEnrolment)
+          psaEnrolment, customsEnrolment, goodsVehicleMovementsEnrolment, ssEnrolment, ctcEnrolment, ctcLegacyEnrolment)
     }
 
     "ignore services that are not applicable" in {
@@ -224,10 +237,22 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       login.enrolments should contain theSameElementsAs Seq(customsEnrolment)
     }
 
-    "contain the correct enrolments for common transit convention traders" in {
+    "contain the correct enrolment for common transit convention traders" in {
       val login = GovernmentGatewayLogin(organisation.copy(services = Seq(CTC)))
 
       login.enrolments should contain theSameElementsAs Seq(ctcEnrolment)
+    }
+
+    "contain the correct legacy enrolment for common transit convention traders" in {
+      val login = GovernmentGatewayLogin(organisation.copy(services = Seq(CTC_LEGACY)))
+
+      login.enrolments should contain theSameElementsAs Seq(ctcLegacyEnrolment)
+    }
+
+    "contain the correct legacy and current enrolments for common transit convention traders" in {
+      val login = GovernmentGatewayLogin(organisation.copy(services = Seq(CTC, CTC_LEGACY)))
+
+      login.enrolments should contain theSameElementsAs Seq(ctcEnrolment, ctcLegacyEnrolment)
     }
 
     "contain the correct enrolments for goods vehicle movements" in {

@@ -40,6 +40,7 @@ object ServiceKeys extends Enumeration {
   val GOODS_VEHICLE_MOVEMENTS: ServiceKeys.Value = Value("goods-vehicle-movements")
   val SAFETY_AND_SECURITY: ServiceKeys.Value = Value("safety-and-security")
   val CTC: ServiceKeys.Value = Value("common-transit-convention-traders")
+  val CTC_LEGACY: ServiceKeys.Value = Value("common-transit-convention-traders-legacy")
 }
 
 case class Service(key: ServiceKey, name: String, allowedUserTypes: Seq[UserType])
@@ -59,6 +60,7 @@ object Services extends Seq[Service] {
     Service(ServiceKeys.RELIEF_AT_SOURCE, "Relief at Source", Seq(ORGANISATION)),
     Service(ServiceKeys.CUSTOMS_SERVICES, "Customs Services", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.GOODS_VEHICLE_MOVEMENTS, "Goods Vehicle Services", Seq(INDIVIDUAL, ORGANISATION)),
+    Service(ServiceKeys.CTC_LEGACY, "Common Transit Convention Traders Legacy", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.CTC, "Common Transit Convention Traders", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.SAFETY_AND_SECURITY, "Safety and Security", Seq(ORGANISATION)))
 

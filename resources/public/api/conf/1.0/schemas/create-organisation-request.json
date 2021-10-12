@@ -65,6 +65,10 @@
           {
             "enum": ["common-transit-convention-traders"],
             "description": "Generates an EORI number and enrols the user for Common Transit Convention Traders."
+          },
+          {
+            "enum": ["common-transit-convention-traders-legacy"],
+            "description": "Generates an EORI number and enrols the user for legacy Common Transit Convention Traders."
           }
         ]
       },

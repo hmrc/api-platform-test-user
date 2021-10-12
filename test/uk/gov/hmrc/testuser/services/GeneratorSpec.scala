@@ -446,11 +446,11 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       org shouldHave(eoriDefined = true)
     }
 
-    "use provided EORI when CTC service is included" in new Setup {
+    "use provided EORI when legacy CTC service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
       val eori = eoriGenerator.sample.get
 
-      val org = await(underTest.generateTestOrganisation(Seq(CTC), Some(eori), None, None))
+      val org = await(underTest.generateTestOrganisation(Seq(CTC_LEGACY), Some(eori), None, None))
 
       org shouldHave(eoriDefined = true)
       org.eoriNumber shouldBe Some(eori.value)
