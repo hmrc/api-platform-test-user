@@ -17,7 +17,6 @@
 package uk.gov.hmrc.testuser.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import play.api.libs.json.Json.toJson
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.domain.{CtUtr, EmpRef, Nino, SaUtr, Vrn}
@@ -27,13 +26,12 @@ import uk.gov.hmrc.testuser.models.ErrorResponse.{individualNotFoundError, organ
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
 import uk.gov.hmrc.testuser.services._
-import uk.gov.hmrc.testuser.services.TestUserService
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class TestUserController @Inject()(val testUserService: TestUserService, cc: ControllerComponents)(implicit ec: ExecutionContext)
-  extends BackendController(cc) {
+  extends BackendController(cc) with ApplicationLogger {
 
   def createIndividual() = Action.async(parse.json) { implicit request =>
     withJsonBody[CreateUserWithOptionalRequestParams] { createUserRequest =>
@@ -43,7 +41,7 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
         createUserRequest.nino) map {
           case Left(NinoAlreadyUsed) => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
           case Left(error : CreateTestUserError) => {
-            Logger.error(s"Unepected error response from testUserService.createTestIndividual: ${error.toString}")
+            logger.error(s"Unepected error response from testUserService.createTestIndividual: ${error.toString}")
             BadRequest
           }
           case Right(createdIndividual) => Created(toJson(TestIndividualCreatedResponse.from(createdIndividual)))
@@ -60,7 +58,7 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
         createUserRequest.taxpayerType) map { 
           case Left(NinoAlreadyUsed) => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
           case Left(error : CreateTestUserError) => {
-            Logger.error(s"Unepected error response from testUserService.createTestOrganisation: ${error.toString}")
+            logger.error(s"Unepected error response from testUserService.createTestOrganisation: ${error.toString}")
             BadRequest
           }
           case Right(organisation) => Created(toJson(TestOrganisationCreatedResponse.from(organisation)))
@@ -134,7 +132,7 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
     case UserNotFound(INDIVIDUAL) => NotFound(toJson(individualNotFoundError))
     case UserNotFound(ORGANISATION) => NotFound(toJson(organisationNotFoundError))
     case e =>
-      Logger.error(s"An unexpected error occurred: ${e.getMessage}", e)
+      logger.error(s"An unexpected error occurred: ${e.getMessage}", e)
       InternalServerError(toJson(ErrorResponse.internalServerError))
   }
 

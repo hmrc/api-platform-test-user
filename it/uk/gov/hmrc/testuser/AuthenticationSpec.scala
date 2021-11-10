@@ -29,9 +29,9 @@ import uk.gov.hmrc.testuser.models.JsonFormatters._
 
 class AuthenticationSpec extends BaseSpec {
 
-  feature("Authenticate a user") {
+  Feature("Authenticate a user") {
 
-    scenario("Valid credentials for an individual") {
+    Scenario("Valid credentials for an individual") {
 
       Given("An individual")
       val individual = createIndividual()
@@ -50,7 +50,7 @@ class AuthenticationSpec extends BaseSpec {
       response.headers(HeaderNames.AUTHORIZATION).mkString shouldBe authSession.authBearerToken
     }
 
-    scenario("Valid credentials for an organisation") {
+    Scenario("Valid credentials for an organisation") {
 
       Given("An organisation")
       val organisation = createOrganisation()
@@ -69,7 +69,7 @@ class AuthenticationSpec extends BaseSpec {
       response.headers(HeaderNames.AUTHORIZATION).mkString shouldBe authSession.authBearerToken
     }
 
-    scenario("Valid credentials for an agent") {
+    Scenario("Valid credentials for an agent") {
 
       Given("An agent")
       val agent = createAgent()
@@ -88,7 +88,7 @@ class AuthenticationSpec extends BaseSpec {
       response.headers(HeaderNames.AUTHORIZATION).mkString shouldBe authSession.authBearerToken
     }
 
-    scenario("UserId not found") {
+    Scenario("UserId not found") {
 
       When("I authenticate with a userId that does not exist")
       val response = authenticate("unknown_user", "password")
@@ -98,7 +98,7 @@ class AuthenticationSpec extends BaseSpec {
       Json.parse(response.body).as[ErrorResponse] shouldBe invalidCredentialsError
     }
 
-    scenario("Invalid password") {
+    Scenario("Invalid password") {
 
       Given("An individual")
       val individualCreated = createIndividual()

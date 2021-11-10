@@ -18,7 +18,6 @@ package uk.gov.hmrc.testuser.controllers
 
 import uk.gov.hmrc.testuser.common.LogSuppressing
 import org.joda.time.LocalDate
-import play.api.Logger
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.{Json, JsValue}
 import play.api.libs.json.Json.toJson
@@ -38,6 +37,7 @@ import scala.concurrent.Future.{failed, successful}
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import akka.stream.Materializer
 import uk.gov.hmrc.testuser.services.NinoAlreadyUsed
+import akka.stream.testkit.NoMaterializer
 
 class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
@@ -238,20 +238,18 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     }
 
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        when(
-          underTest.testUserService.createTestIndividual(
-            any[Seq[ServiceKey]], 
-            any[Option[EoriNumber]],
-            any[Option[Nino]])(any[HeaderCarrier])
-        ).thenReturn(failed(new RuntimeException("expected test error")))
+      when(
+        underTest.testUserService.createTestIndividual(
+          any[Seq[ServiceKey]], 
+          any[Option[EoriNumber]],
+          any[Option[Nino]])(any[HeaderCarrier])
+      ).thenReturn(failed(new RuntimeException("expected test error")))
 
-        val result = underTest.createIndividual()(createIndividualRequest)
+      val result = underTest.createIndividual()(createIndividualRequest)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
+      status(result) shouldBe INTERNAL_SERVER_ERROR
 
-        contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
-      }
+      contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
     }
 
   }
@@ -312,15 +310,13 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     }
 
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        when(underTest.testUserService.createTestOrganisation(any[Seq[ServiceKey]], any[Option[EoriNumber]], eqTo(None), eqTo(None))(any[HeaderCarrier]))
-          .thenReturn(failed(new RuntimeException("expected test error")))
+      when(underTest.testUserService.createTestOrganisation(any[Seq[ServiceKey]], any[Option[EoriNumber]], eqTo(None), eqTo(None))(any[HeaderCarrier]))
+        .thenReturn(failed(new RuntimeException("expected test error")))
 
-        val result = underTest.createOrganisation()(createOrganisationRequest)
+      val result = underTest.createOrganisation()(createOrganisationRequest)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
-      }
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+      contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
     }
   }
 
@@ -337,15 +333,13 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     }
 
     "fail with 500 (Internal Server Error) when the creation of the agent failed" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        when(underTest.testUserService.createTestAgent(*))
-          .thenReturn(failed(new RuntimeException("expected test error")))
+      when(underTest.testUserService.createTestAgent(*))
+        .thenReturn(failed(new RuntimeException("expected test error")))
 
-        val result = underTest.createAgent()(createAgentRequest)
+      val result = underTest.createAgent()(createAgentRequest)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
-      }
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+      contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
     }
   }
 
@@ -371,15 +365,13 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     }
 
     "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        when(underTest.testUserService.fetchIndividualByNino(eqTo(nino)))
-          .thenReturn(failed(new RuntimeException("expected test error")))
+      when(underTest.testUserService.fetchIndividualByNino(eqTo(nino)))
+        .thenReturn(failed(new RuntimeException("expected test error")))
 
-        val result = underTest.fetchIndividualByNino(nino)(request)
+      val result = underTest.fetchIndividualByNino(nino)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
-      }
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+      contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
     }
   }
 
@@ -405,15 +397,13 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     }
 
     "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        when(underTest.testUserService.fetchIndividualByShortNino(eqTo(NinoNoSuffix(shortNino))))
-          .thenReturn(failed(new RuntimeException("expected test error")))
+      when(underTest.testUserService.fetchIndividualByShortNino(eqTo(NinoNoSuffix(shortNino))))
+        .thenReturn(failed(new RuntimeException("expected test error")))
 
-        val result = underTest.fetchIndividualByShortNino(NinoNoSuffix(shortNino))(request)
+      val result = underTest.fetchIndividualByShortNino(NinoNoSuffix(shortNino))(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
-      }
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+      contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
     }
   }
 
@@ -439,15 +429,13 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     }
 
     "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        when(underTest.testUserService.fetchIndividualBySaUtr(eqTo(SaUtr(saUtr))))
-          .thenReturn(failed(new RuntimeException("expected test error")))
+      when(underTest.testUserService.fetchIndividualBySaUtr(eqTo(SaUtr(saUtr))))
+        .thenReturn(failed(new RuntimeException("expected test error")))
 
-        val result = underTest.fetchIndividualBySaUtr(SaUtr(saUtr))(request)
+      val result = underTest.fetchIndividualBySaUtr(SaUtr(saUtr))(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
-      }
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+      contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
     }
   }
 
@@ -474,15 +462,13 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     }
 
     "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        when(underTest.testUserService.fetchOrganisationByEmpRef(eqTo(EmpRef.fromIdentifiers(empRef))))
-          .thenReturn(failed(new RuntimeException("expected test error")))
+      when(underTest.testUserService.fetchOrganisationByEmpRef(eqTo(EmpRef.fromIdentifiers(empRef))))
+        .thenReturn(failed(new RuntimeException("expected test error")))
 
-        val result = underTest.fetchOrganisationByEmpRef(EmpRef.fromIdentifiers(empRef))(request)
+      val result = underTest.fetchOrganisationByEmpRef(EmpRef.fromIdentifiers(empRef))(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
-      }
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+      contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
     }
   }
 
@@ -509,15 +495,13 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     }
 
     "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        when(underTest.testUserService.fetchOrganisationByCtUtr(eqTo(CtUtr(ctUtr))))
-          .thenReturn(failed(new RuntimeException("expected test error")))
+      when(underTest.testUserService.fetchOrganisationByCtUtr(eqTo(CtUtr(ctUtr))))
+        .thenReturn(failed(new RuntimeException("expected test error")))
 
-        val result = underTest.fetchOrganisationByCtUtr(CtUtr(ctUtr))(request)
+      val result = underTest.fetchOrganisationByCtUtr(CtUtr(ctUtr))(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
-      }
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+      contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
     }
   }
 
@@ -544,15 +528,13 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     }
 
     "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        when(underTest.testUserService.fetchOrganisationBySaUtr(eqTo(SaUtr(saUtr))))
-          .thenReturn(failed(new RuntimeException("expected test error")))
+      when(underTest.testUserService.fetchOrganisationBySaUtr(eqTo(SaUtr(saUtr))))
+        .thenReturn(failed(new RuntimeException("expected test error")))
 
-        val result = underTest.fetchOrganisationBySaUtr(SaUtr(saUtr))(request)
+      val result = underTest.fetchOrganisationBySaUtr(SaUtr(saUtr))(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
-      }
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+      contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
     }
   }
 
@@ -579,15 +561,13 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     }
 
     "fail with 500 (Internal Server Error) when fetching the user failed" in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        when(underTest.testUserService.fetchOrganisationByCrn(eqTo(Crn(crn))))
-          .thenReturn(failed(new RuntimeException("expected test error")))
+      when(underTest.testUserService.fetchOrganisationByCrn(eqTo(Crn(crn))))
+        .thenReturn(failed(new RuntimeException("expected test error")))
 
-        val result = underTest.fetchOrganisationByCrn(Crn(crn))(request)
+      val result = underTest.fetchOrganisationByCrn(Crn(crn))(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
-      }
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+      contentAsJson(result) shouldBe toJson(ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred"))
     }
   }
 

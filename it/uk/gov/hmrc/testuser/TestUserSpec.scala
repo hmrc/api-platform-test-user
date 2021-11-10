@@ -30,9 +30,9 @@ import scala.concurrent.Await._
 
 class TestUserSpec extends BaseSpec {
 
-  feature("Create a test user") {
+  Feature("Create a test user") {
 
-    scenario("Create an individual") {
+    Scenario("Create an individual") {
 
       When("I request the creation of an individual")
       val createdResponse = createIndividual(Seq("national-insurance"))
@@ -51,7 +51,7 @@ class TestUserSpec extends BaseSpec {
       individualFromMongo.services shouldBe Seq(NATIONAL_INSURANCE)
     }
 
-    scenario("Create an organisation") {
+    Scenario("Create an organisation") {
 
       When("I request the creation of an organisation")
       val createdResponse = createOrganisation(Seq("national-insurance", "mtd-income-tax", "lisa"))
@@ -70,7 +70,7 @@ class TestUserSpec extends BaseSpec {
       organisationFromMongo.services shouldBe Seq(NATIONAL_INSURANCE, MTD_INCOME_TAX, LISA)
     }
 
-    scenario("Create an agent") {
+    Scenario("Create an agent") {
 
       When("I request the creation of an agent")
       val createdResponse = createAgent(Seq("agent-services"))

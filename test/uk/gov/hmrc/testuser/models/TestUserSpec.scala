@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.testuser.models
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.flatspec.AnyFlatSpec
 
-class TestUserSpec extends FlatSpec with Matchers {
+
+class TestUserSpec extends AnyFlatSpec with Matchers {
   val userId = "1234567890"
   val groupIdentifier = "groupIdentifier"
   val password = "l3tm31n"

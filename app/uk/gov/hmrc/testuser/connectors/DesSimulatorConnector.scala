@@ -17,7 +17,7 @@
 package uk.gov.hmrc.testuser.connectors
 
 import javax.inject.{Inject, Singleton}
-import play.api.{Configuration, Environment, Logger}
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.http.HttpClient
@@ -28,17 +28,19 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.testuser.services.ApplicationLogger
 
 @Singleton
 class DesSimulatorConnector @Inject()(httpClient: HttpClient, runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)
-                           (implicit ec: ExecutionContext) {
+                           (implicit ec: ExecutionContext) 
+                           extends ApplicationLogger {
 
   import config.baseUrl
 
   lazy val serviceUrl: String = baseUrl("des-simulator")
 
   def createIndividual(individual: TestIndividual)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    Logger.info(s"Calling des-simulator ($serviceUrl) to create individual $individual")
+    logger.info(s"Calling des-simulator ($serviceUrl) to create individual $individual")
     httpClient.POST[DesSimulatorTestIndividual, Either[UpstreamErrorResponse,HttpResponse]](s"$serviceUrl/test-users/individuals", DesSimulatorTestIndividual.from(individual)) map { 
       case Right(_) => individual 
       case Left(err) => throw err
@@ -46,7 +48,7 @@ class DesSimulatorConnector @Inject()(httpClient: HttpClient, runModeConfigurati
   }
 
   def createOrganisation(organisation: TestOrganisation)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
-    Logger.info(s"Calling des-simulator ($serviceUrl) to create organisation $organisation")
+    logger.info(s"Calling des-simulator ($serviceUrl) to create organisation $organisation")
     httpClient.POST[DesSimulatorTestOrganisation, Either[UpstreamErrorResponse,HttpResponse]](s"$serviceUrl/test-users/organisations", DesSimulatorTestOrganisation.from(organisation)) map {
       case Right(_) => organisation 
       case Left(err) => throw err

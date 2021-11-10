@@ -18,9 +18,10 @@ package uk.gov.hmrc.testuser.util
 
 import com.typesafe.config.ConfigFactory
 import org.joda.time.LocalDate
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class RandomiserSpec extends FlatSpec with Matchers {
+class RandomiserSpec extends AnyFlatSpec with Matchers {
 
   private val randomiser = new Randomiser {
     val config = ConfigFactory.parseString(

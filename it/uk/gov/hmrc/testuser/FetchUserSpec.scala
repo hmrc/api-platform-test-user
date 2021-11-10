@@ -28,9 +28,9 @@ import uk.gov.hmrc.testuser.models.JsonFormatters._
 
 class FetchUserSpec extends BaseSpec {
 
-  feature("Fetch a test user") {
+  Feature("Fetch a test user") {
 
-    scenario("Fetch an individual by NINO") {
+    Scenario("Fetch an individual by NINO") {
 
       Given("An individual")
       val individual = createIndividual("national-insurance", "self-assessment")
@@ -62,7 +62,7 @@ class FetchUserSpec extends BaseSpec {
       )
     }
 
-    scenario("Fetch an individual by SHORTNINO") {
+    Scenario("Fetch an individual by SHORTNINO") {
 
       Given("An individual")
       val individual = createIndividual("national-insurance", "self-assessment")
@@ -86,7 +86,7 @@ class FetchUserSpec extends BaseSpec {
       )
     }
 
-    scenario("Fetch an individual by SAUTR") {
+    Scenario("Fetch an individual by SAUTR") {
 
       Given("An individual")
       val individual = createIndividual("national-insurance", "self-assessment")
@@ -109,7 +109,7 @@ class FetchUserSpec extends BaseSpec {
       )
     }
 
-    scenario("Fetch an individual by VRN") {
+    Scenario("Fetch an individual by VRN") {
 
       Given("An individual")
       val individual = createIndividual("mtd-vat")
@@ -132,7 +132,7 @@ class FetchUserSpec extends BaseSpec {
       )
     }
 
-    scenario("Fetch an organisation by EMPREF") {
+    Scenario("Fetch an organisation by EMPREF") {
 
       Given("An organisation")
       val organisation = createOrganisation("paye-for-employers")
@@ -162,7 +162,7 @@ class FetchUserSpec extends BaseSpec {
       )
     }
 
-    scenario("Fetch an organisation by VRN") {
+    Scenario("Fetch an organisation by VRN") {
 
       Given("An organisation")
       val organisation = createOrganisation("mtd-vat")

@@ -20,7 +20,6 @@ import com.typesafe.config.Config
 import javax.inject.{Inject, Singleton}
 import org.joda.time.LocalDate
 import org.scalacheck.Gen
-import play.api.Logger
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
@@ -47,7 +46,9 @@ object Generator {
 }
 
 @Singleton
-class Generator @Inject()(val testUserRepository: TestUserRepository, val config: Config)(implicit ec: ExecutionContext) extends Randomiser {
+class Generator @Inject()(val testUserRepository: TestUserRepository, val config: Config)(implicit ec: ExecutionContext)
+    extends Randomiser 
+    with ApplicationLogger {
 
   private val userIdGenerator = Gen.listOfN(12, Gen.numChar).map(_.mkString)
   private val passwordGenerator = Gen.listOfN(12, Gen.alphaNumChar).map(_.mkString)
@@ -210,7 +211,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   private def generatePassword = passwordGenerator.sample.get
 
   private def generateUniqueIdentifier[T <: String](generatorFunction: () => T, count: Int = 1)(implicit ec: ExecutionContext): Future[T] = {
-    Logger.info(s"Generating tax identifier attempt $count")
+    logger.info(s"Generating tax identifier attempt $count")
     val generatedIdentifier = generatorFunction()
     testUserRepository.identifierIsUnique(generatedIdentifier)
       .flatMap(unique => if (unique) Future(generatedIdentifier) else generateUniqueIdentifier(generatorFunction, count + 1))
