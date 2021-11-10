@@ -32,20 +32,18 @@ package uk.gov.hmrc.testuser
  * limitations under the License.
  */
 
-import com.google.inject.AbstractModule
 import javax.inject.{Inject, Provider}
-import play.api.{Configuration, Environment, Logger}
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.testuser.services.PasswordConfig
+import uk.gov.hmrc.testuser.services.{PasswordConfig, ApplicationLogger}
+import play.api.inject.Module
 
-class MicroserviceModule(val environment: Environment, val configuration: Configuration) extends AbstractModule {
+class MicroserviceModule(val environment: Environment, val configuration: Configuration) extends Module with ApplicationLogger {
 
-  def configure(): Unit = {
-    val appName = "api-platform-test-user"
-    Logger(getClass).info(s"Starting microservice : $appName : in mode : ${environment.mode}")
 
-    bind(classOf[PasswordConfig]).toProvider(classOf[PasswordConfigProvider])
-  }
+  override def bindings(environment: Environment, configuration: Configuration) = Seq(
+    bind[PasswordConfig].toProvider(classOf[PasswordConfigProvider])
+  )
 }
 
 class PasswordConfigProvider @Inject()(val runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)

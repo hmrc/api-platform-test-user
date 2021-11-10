@@ -25,12 +25,11 @@ import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future._
-import play.api.Logger
 
 class AuthenticationService @Inject()(val passwordService: PasswordService,
                                       val authLoginApiConnector: AuthLoginApiConnector,
                                       val testUserRepository: TestUserRepository)
-                                     (implicit ec: ExecutionContext) {
+                                     (implicit ec: ExecutionContext) extends ApplicationLogger{
 
   def authenticate(authReq: AuthenticationRequest)(implicit hc: HeaderCarrier): Future[(TestUser, AuthSession)] = {
     val userFuture = authReq match {
@@ -59,7 +58,7 @@ class AuthenticationService @Inject()(val passwordService: PasswordService,
     }
     for {
       user <- userFuture
-      _ = Logger.info("Create session by CredId")
+      _ = logger.info("Create session by CredId")
       authSession <- authLoginApiConnector.createSession(user)
     } yield (user, authSession)
   }

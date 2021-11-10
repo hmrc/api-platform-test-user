@@ -17,14 +17,13 @@
 package uk.gov.hmrc.testuser.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.libs.json.Json._
 import play.api.mvc.{ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.testuser.models.{AuthenticationRequest, AuthenticationResponse, ErrorResponse, InvalidCredentials}
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.services.AuthenticationService
+import uk.gov.hmrc.testuser.services.{AuthenticationService, ApplicationLogger}
 
 import scala.concurrent.ExecutionContext
 import play.api.libs.json.Json
@@ -41,7 +40,7 @@ object AuthenticationController {
 
 @Singleton
 class AuthenticationController @Inject()(val authenticationService: AuthenticationService, val cc: ControllerComponents)
-                                        (implicit ec: ExecutionContext) extends BackendController(cc) {
+                                        (implicit ec: ExecutionContext) extends BackendController(cc) with ApplicationLogger {
 
   def authenticate() = {
     Action.async(parse.json) { implicit request =>
@@ -73,7 +72,7 @@ class AuthenticationController @Inject()(val authenticationService: Authenticati
 
   private def recovery: PartialFunction[Throwable, Result] = {
     case e =>
-      Logger.error(s"An unexpected error occurred: ${e.getMessage}", e)
+      logger.error(s"An unexpected error occurred: ${e.getMessage}", e)
       InternalServerError(toJson(ErrorResponse.internalServerError))
   }
 }

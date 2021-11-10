@@ -17,7 +17,6 @@
 package uk.gov.hmrc.testuser.repository
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
@@ -99,11 +98,11 @@ class TestUserRepository @Inject()(mongo: ReactiveMongoComponent)(implicit ec: E
   }
 
   def identifierIsUnique(identifier: String): Future[Boolean] = {
-    Logger.info(s"Checking tax identifier uniqueness - $identifier")
+    logger.info(s"Checking tax identifier uniqueness - $identifier")
     val query = Json.obj("$or" -> IdentifierFields.map(identifierField => Json.obj(identifierField -> identifier)))
     count(query).map{ matchedIdentifiers =>
       val isUnique = matchedIdentifiers == 0
-      Logger.info(s"Completed checking tax identifier uniqueness - $identifier")
+      logger.info(s"Completed checking tax identifier uniqueness - $identifier")
       isUnique
     }
   }

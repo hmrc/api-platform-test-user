@@ -14,25 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.testuser.models.identifiers
+package uk.gov.hmrc.testuser.services
 
-import uk.gov.hmrc.testuser.models.Crn
-import uk.gov.hmrc.testuser.common.utils.HmrcSpec
+import play.api.Logger
 
-class CrnSpec extends HmrcSpec {
-  val crn = Crn("12345678")
-
-  "valid Crn returns inner value with value" in {
-    crn.value shouldBe "12345678"
-  }
-
-  "valid crn returns correct value for name" in {
-    crn.name shouldBe "crn"
-  }
-
-  "throws Illegal argument exception when invalid creation tried" in {
-    assertThrows[IllegalArgumentException] {
-      val _ = Crn("{abc123}")
-    }
-  }
+trait ApplicationLogger {
+  protected val logger: Logger = Logger("application")
 }

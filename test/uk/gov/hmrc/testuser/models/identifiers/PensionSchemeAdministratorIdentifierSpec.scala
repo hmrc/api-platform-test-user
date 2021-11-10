@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.testuser.models.identifiers
 
-import org.scalatest.{Matchers, WordSpec}
 import uk.gov.hmrc.testuser.models.PensionSchemeAdministratorIdentifier
+import uk.gov.hmrc.testuser.common.utils.HmrcSpec
 
-class PensionSchemeAdministratorIdentifierSpec extends WordSpec with Matchers {
+class PensionSchemeAdministratorIdentifierSpec extends HmrcSpec {
   val psaIdentifier: PensionSchemeAdministratorIdentifier = PensionSchemeAdministratorIdentifier("abc123")
 
   "toString returns inner value" in {

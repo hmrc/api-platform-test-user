@@ -18,8 +18,6 @@ package uk.gov.hmrc.testuser.controllers
 
 import uk.gov.hmrc.testuser.common.LogSuppressing
 import org.joda.time.LocalDate
-import play.api.Logger
-import play.api.http.HeaderNames
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, UNAUTHORIZED}
 import play.api.libs.json.{Json, JsValue}
 import play.api.libs.json.Json.toJson
@@ -35,7 +33,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.{failed, successful}
 
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
-import akka.stream.Materializer
+import play.api.http.HeaderNames
+
 
 class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
@@ -102,7 +101,6 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
   trait Setup {
     implicit val hc = HeaderCarrier()
-    implicit val materializer: Materializer = NoMaterializer
 
     val createRequest = FakeRequest()
 
@@ -141,15 +139,13 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     }
 
     "fail with 500 (Internal Server Error) when an error has occurred " in new Setup {
-      withSuppressedLoggingFrom(Logger, "expected test error") { _ =>
-        when(underTest.authenticationService.authenticate(refEq(AuthenticationRequest(user, password)))(*))
-          .thenReturn(failed(new RuntimeException("expected test error")))
+      when(underTest.authenticationService.authenticate(refEq(AuthenticationRequest(user, password)))(*))
+        .thenReturn(failed(new RuntimeException("expected test error")))
 
-        val result = underTest.authenticate()(authenticationRequest(user, password))
+      val result = underTest.authenticate()(authenticationRequest(user, password))
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentAsJson(result) shouldBe toJson(ErrorResponse.internalServerError)
-      }
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+      contentAsJson(result) shouldBe toJson(ErrorResponse.internalServerError)
     }
   }
 }

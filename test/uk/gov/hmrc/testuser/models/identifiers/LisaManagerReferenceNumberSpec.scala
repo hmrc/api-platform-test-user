@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.testuser.models.identifiers
 
-import org.scalatest.{Matchers, WordSpec}
 import uk.gov.hmrc.testuser.models.LisaManagerReferenceNumber
+import uk.gov.hmrc.testuser.common.utils.HmrcSpec
 
-class LisaManagerReferenceNumberSpec  extends WordSpec with Matchers {
+class LisaManagerReferenceNumberSpec  extends HmrcSpec {
   val lisaNumber: LisaManagerReferenceNumber = LisaManagerReferenceNumber("abc123")
 
   "toString returns inner value" in {
