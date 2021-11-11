@@ -49,6 +49,7 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
       userFullName = userFullName,
       emailAddress = emailAddress,
       organisationDetails = organisationDetails,
+      individualDetails = None,
       lisaManRefNum = Some("Z123456"),
       groupIdentifier = Some(groupIdentifier),
       crn = None)

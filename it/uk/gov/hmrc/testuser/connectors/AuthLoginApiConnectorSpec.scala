@@ -67,6 +67,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     userFullName = userFullName,
     emailAddress = emailAddress,
     organisationDetails = organisationDetails,
+    individualDetails = Some(individualDetails),
     saUtr = Some("1555369052"),
     nino = Some("CC333333C"),
     mtdItId = Some("XGIT00000000054"),
@@ -239,6 +240,19 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
            |   "confidenceLevel": 200,
            |   "credentialStrength": "strong",
            |   "groupIdentifier": "${testOrganisation.groupIdentifier.get}",
+           |   "itmpData" : {
+           |     "givenName" : "John",
+           |     "middleName" : "",
+           |     "familyName" : "Doe",
+           |     "birthdate" : "1980-01-10",
+           |     "address" : {
+           |       "line1" : "221b Baker St",
+           |       "line2" : "Marylebone",
+           |       "postCode" : "NW1 6XE",
+           |       "countryName" : "United Kingdom",
+           |       "countryCode" : "GB"
+           |     }
+           |   },
            |   "enrolments": [
            |     {
            |       "key": "IR-SA",
