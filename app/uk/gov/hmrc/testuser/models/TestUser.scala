@@ -154,6 +154,7 @@ sealed trait TestIndividualResponse extends TestUserResponse {
 
 sealed trait TestOrganisationResponse extends TestUserResponse {
   val organisationDetails: OrganisationDetails
+  val individualDetails: Option[IndividualDetails]
   val saUtr: Option[String]
   val nino: Option[String]
   val mtdItId: Option[String]
@@ -219,6 +220,7 @@ case class FetchTestOrganisationResponse(override val userId: String,
                                          override val userFullName: String,
                                          override val emailAddress: String,
                                          override val organisationDetails: OrganisationDetails,
+                                         override val individualDetails: Option[IndividualDetails],
                                          override val saUtr: Option[String] = None,
                                          override val nino: Option[String] = None,
                                          override val mtdItId: Option[String] = None,
@@ -237,7 +239,7 @@ case class FetchTestOrganisationResponse(override val userId: String,
 
 object FetchTestOrganisationResponse {
   def from(organisation: TestOrganisation) = FetchTestOrganisationResponse(organisation.userId, organisation.userFullName,
-    organisation.emailAddress, organisation.organisationDetails, organisation.saUtr, organisation.nino,
+    organisation.emailAddress, organisation.organisationDetails, organisation.individualDetails, organisation.saUtr, organisation.nino,
     organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.vatRegistrationDate, organisation.lisaManRefNum,
     organisation.secureElectronicTransferReferenceNumber, organisation.pensionSchemeAdministratorIdentifier,
     organisation.eoriNumber, organisation.groupIdentifier, organisation.crn, organisation.taxpayerType)
@@ -248,6 +250,7 @@ case class TestOrganisationCreatedResponse(override val userId: String,
                                            override val userFullName: String,
                                            override val emailAddress: String,
                                            override val organisationDetails: OrganisationDetails,
+                                           override val individualDetails: Option[IndividualDetails],
                                            override val saUtr: Option[String],
                                            override val nino: Option[String],
                                            override val mtdItId: Option[String],
@@ -266,7 +269,7 @@ case class TestOrganisationCreatedResponse(override val userId: String,
 
 object TestOrganisationCreatedResponse {
   def from(organisation: TestOrganisation) = TestOrganisationCreatedResponse(organisation.userId, organisation.password,
-    organisation.userFullName, organisation.emailAddress, organisation.organisationDetails, organisation.saUtr,
+    organisation.userFullName, organisation.emailAddress, organisation.organisationDetails, organisation.individualDetails, organisation.saUtr,
     organisation.nino, organisation.mtdItId, organisation.empRef, organisation.ctUtr, organisation.vrn, organisation.vatRegistrationDate,
     organisation.lisaManRefNum, organisation.secureElectronicTransferReferenceNumber,
     organisation.pensionSchemeAdministratorIdentifier, organisation.eoriNumber, organisation.groupIdentifier,

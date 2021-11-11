@@ -61,6 +61,7 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
         userFullName = userFullName,
         emailAddress = emailAddress,
         organisationDetails = organisationDetails,
+        individualDetails = None,
         saUtr = None,
         nino = None,
         mtdItId = None,

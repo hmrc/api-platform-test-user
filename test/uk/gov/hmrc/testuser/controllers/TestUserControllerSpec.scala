@@ -266,7 +266,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
       status(result) shouldBe CREATED
       contentAsJson(result) shouldBe toJson(TestOrganisationCreatedResponse(user, password, userFullName, emailAddress,
-        organisationDetails, Some(saUtr),
+        organisationDetails, Some(individualDetails), Some(saUtr),
         Some(nino.value), Some(mtdItId), Some(empRef), Some(ctUtr), Some(vrn), Some(vatRegistrationDate), Some(lisaManagerReferenceNumber),
         Some(secureElectronicTransferReferenceNumber), Some(pensionSchemeAdministratorIdentifier), Some(rawEoriNumber), Some(groupIdentifier), Some(crn), None))
     }

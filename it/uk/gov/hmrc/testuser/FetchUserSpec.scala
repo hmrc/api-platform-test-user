@@ -156,6 +156,16 @@ class FetchUserSpec extends BaseSpec {
             |       "line2": "${organisation.organisationDetails.address.line2}",
             |       "postcode": "${organisation.organisationDetails.address.postcode}"
             |     }
+            |   },
+            |   "individualDetails": {
+            |     "firstName": "${organisation.individualDetails.get.firstName}",
+            |     "lastName": "${organisation.individualDetails.get.lastName}",
+            |     "dateOfBirth": "${organisation.individualDetails.get.dateOfBirth}",
+            |     "address": {
+            |       "line1": "${organisation.individualDetails.get.address.line1}",
+            |       "line2": "${organisation.individualDetails.get.address.line2}",
+            |       "postcode": "${organisation.individualDetails.get.address.postcode}"
+            |     }
             |   }
             |}
       """.stripMargin
@@ -173,21 +183,31 @@ class FetchUserSpec extends BaseSpec {
       Then("The organisation is returned along with VAT Registration Date")
       Json.parse(response.body) shouldBe Json.parse(
         s"""{
-           |   "userId": "${organisation.userId}",
-           |   "userFullName": "${organisation.userFullName}",
-           |   "emailAddress": "${organisation.emailAddress}",
-           |   "vrn": "${organisation.vrn.get}",
-           |   "vatRegistrationDate": "${organisation.vatRegistrationDate.get.toString("yyyy-MM-dd")}",
-           |   "groupIdentifier": "${organisation.groupIdentifier.get}",
-           |   "organisationDetails": {
-           |     "name": "${organisation.organisationDetails.name}",
-           |     "address": {
-           |       "line1": "${organisation.organisationDetails.address.line1}",
-           |       "line2": "${organisation.organisationDetails.address.line2}",
-           |       "postcode": "${organisation.organisationDetails.address.postcode}"
-           |     }
-           |   }
-           |}
+            |   "userId": "${organisation.userId}",
+            |   "userFullName": "${organisation.userFullName}",
+            |   "emailAddress": "${organisation.emailAddress}",
+            |   "vrn": "${organisation.vrn.get}",
+            |   "vatRegistrationDate": "${organisation.vatRegistrationDate.get.toString("yyyy-MM-dd")}",
+            |   "groupIdentifier": "${organisation.groupIdentifier.get}",
+            |   "organisationDetails": {
+            |     "name": "${organisation.organisationDetails.name}",
+            |     "address": {
+            |       "line1": "${organisation.organisationDetails.address.line1}",
+            |       "line2": "${organisation.organisationDetails.address.line2}",
+            |       "postcode": "${organisation.organisationDetails.address.postcode}"
+            |     }
+            |   },
+            |   "individualDetails": {
+            |     "firstName": "${organisation.individualDetails.get.firstName}",
+            |     "lastName": "${organisation.individualDetails.get.lastName}",
+            |     "dateOfBirth": "${organisation.individualDetails.get.dateOfBirth}",
+            |     "address": {
+            |       "line1": "${organisation.individualDetails.get.address.line1}",
+            |       "line2": "${organisation.individualDetails.get.address.line2}",
+            |       "postcode": "${organisation.individualDetails.get.address.postcode}"
+            |     }
+            |   }
+            |}
       """.stripMargin
       )
     }
