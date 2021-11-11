@@ -135,6 +135,8 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
       lastName              = generateLastName
       userFullName          = generateUserFullName(firstName, lastName)
       emailAddress          = generateEmailAddress(firstName, lastName)
+      organisationDetails   = generateOrganisationDetails
+      individualDetails     = Some(generateIndividualDetails)
       companyRegNo          <- whenF(CORPORATION_TAX)(generateCrn)
       taxpayerType          <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
     } yield
@@ -143,7 +145,8 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
         generatePassword,
         userFullName,
         emailAddress,
-        generateOrganisationDetails,
+        organisationDetails,
+        individualDetails,
         saUtr,
         nino,
         mtdItId,
@@ -190,12 +193,19 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
     )
   }
 
-  private def generateIndividualDetails = {
+  private def generateIndividualDetails(firstName: String, lastName: String): IndividualDetails = {
     IndividualDetails(
-      generateFirstName,
-      generateLastName,
+      firstName,
+      lastName,
       LocalDate.parse(randomConfigString("randomiser.individualDetails.dateOfBirth")),
       generateAddress()
+    )
+  }
+
+  private def generateIndividualDetails: IndividualDetails = {
+    generateIndividualDetails(
+      generateFirstName,
+      generateLastName
     )
   }
 
@@ -245,13 +255,6 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   private def generateArn: Future[String] = generateUniqueIdentifier(() => {
     arnGenerator.next
   })
-
-  private def generateTaxPayerType(taxPayerType: String): Future[String] = {
-    taxPayerType match {
-      case "Individual" => Future.successful("Individual")
-      case "Partnership" => Future.successful("Partnership")
-    }
-  }
 }
 
 class UtrGenerator(random: Random = new Random) extends Modulus11Check {

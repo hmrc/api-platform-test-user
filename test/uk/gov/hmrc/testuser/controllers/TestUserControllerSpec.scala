@@ -89,6 +89,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     userFullName = userFullName,
     emailAddress = emailAddress,
     organisationDetails = organisationDetails,
+    individualDetails = Some(individualDetails),
     saUtr = Some(saUtr),
     nino = Some(nino.value),
     mtdItId = Some(mtdItId),

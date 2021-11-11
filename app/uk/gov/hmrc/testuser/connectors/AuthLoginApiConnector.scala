@@ -81,13 +81,13 @@ case class ItmpData(
     address: AuthLoginAddress)
 
 object ItmpData{
-  def apply(testIndividual: TestIndividual) : ItmpData = {
+  def apply(testIndividualDetails: IndividualDetails) : ItmpData = {
     ItmpData(
-      testIndividual.individualDetails.firstName,
+      testIndividualDetails.firstName,
       middleName = "",
-      testIndividual.individualDetails.lastName,
-      testIndividual.individualDetails.dateOfBirth,
-      address = AuthLoginAddress(testIndividual.individualDetails.address)
+      testIndividualDetails.lastName,
+      testIndividualDetails.dateOfBirth,
+      address = AuthLoginAddress(testIndividualDetails.address)
     )
   }
 }
@@ -140,7 +140,7 @@ object GovernmentGatewayLogin {
       usersName = individual.userFullName,
       email = individual.emailAddress,
       groupIdentifier = individual.groupIdentifier.getOrElse(""),
-      itmpData = Some(ItmpData(individual))
+      itmpData = Some(ItmpData(individual.individualDetails))
     )
   }
 
@@ -178,7 +178,7 @@ object GovernmentGatewayLogin {
       usersName = organisation.userFullName,
       email = organisation.emailAddress,
       groupIdentifier = organisation.groupIdentifier.getOrElse(""),
-      itmpData = None
+      itmpData = organisation.individualDetails.map(ItmpData(_))
     )
   }
 
