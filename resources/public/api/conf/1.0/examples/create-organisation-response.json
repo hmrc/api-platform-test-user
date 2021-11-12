@@ -11,6 +11,16 @@
       "postcode": "TS1 1PA"
     }
   },
+  "individualDetails": {
+    "firstName": "Ida",
+    "lastName": "Newton",
+    "dateOfBirth": "1960-06-01",
+    "address": {
+      "line1": "45 Springfield Rise",
+      "line2": "Glasgow",
+      "postcode": "TS1 1PA"
+    }
+  },
   "saUtr":"8000083480",
   "nino":"XM110477D",
   "empRef":"538/EMKXYNSVTH",
