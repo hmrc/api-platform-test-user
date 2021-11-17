@@ -68,6 +68,8 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   private val arnGenerator = new ArnGenerator()
   private val crnGenerator = new CompanyReferenceNumberGenerator()
 
+  private val agentCodeGenerator = Gen.listOfN(10, Gen.numChar).map(_.mkString)
+
   def useProvidedOrGenerateEoriNumber(eoriNumber: Option[EoriNumber]): Future[String] =
     eoriNumber.fold(generateEoriNumber)(provided => Future.successful(provided.value))
 
@@ -165,17 +167,27 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
       )
   }
 
-  def generateTestAgent(services: Seq[ServiceKey] = Seq.empty) = {
-    val firstName = generateFirstName
-    val lastName = generateLastName
-    val userFullName = generateUserFullName(firstName, lastName)
-    val emailAddress = generateEmailAddress(firstName, lastName)
-    val groupIdentifier = Some(generateGroupIdentifier)
+  def generateTestAgent(services: Seq[ServiceKey] = Seq.empty): Future[TestAgent] = {
+    def whenAppropriate: (=> Future[String]) => Future[Option[String]] = gen =>
+      if (services.contains(AGENT_SERVICES)) {
+        gen.map(Some(_))
+      } else {
+        Future.successful(None)
+      }
 
-    (if (services.contains(AGENT_SERVICES)) generateArn.map(Some(_)) else Future.successful(None))
-      .map(arn => TestAgent(generateUserId, generatePassword, userFullName, emailAddress, arn, groupIdentifier, services))
-
+    for {
+      arn <-  whenAppropriate(generateArn)
+      agentCode <- whenAppropriate(generateAgentCode)
+      
+      firstName = generateFirstName
+      lastName = generateLastName
+      userFullName = generateUserFullName(firstName, lastName)
+      emailAddress = generateEmailAddress(firstName, lastName)
+      groupIdentifier = Some(generateGroupIdentifier)
+    }
+    yield TestAgent(generateUserId, generatePassword, userFullName, emailAddress, arn, agentCode, groupIdentifier, services)
   }
+
 
   def generateUserFullName(firstName: String, lastName: String) = s"$firstName $lastName"
 
@@ -247,6 +259,10 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
 
   private def generateEoriNumber: Future[String] = generateUniqueIdentifier(() => {
     eoriGenerator.sample.get.value
+  })
+
+  private def generateAgentCode: Future[String] = generateUniqueIdentifier(() => {
+    agentCodeGenerator.sample.get
   })
 
   private def generateSetRefNum: String = setRefNumGenerator.next

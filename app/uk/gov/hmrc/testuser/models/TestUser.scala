@@ -130,6 +130,7 @@ case class TestAgent(override val userId: String,
                      override val emailAddress: String,
                      arn: Option[String] = None,
                      groupIdentifier: Option[String] = None,
+                     agentCode: Option[String] = None,
                      override val services: Seq[ServiceKey] = Seq.empty,
                      override val _id: BSONObjectID = BSONObjectID.generate) extends TestUser {
   override val affinityGroup = "Agent"
@@ -280,12 +281,13 @@ case class TestAgentCreatedResponse(override val userId: String, password: Strin
                                     override val userFullName: String,
                                     override val emailAddress: String,
                                     override val agentServicesAccountNumber: Option[String],
+                                    val agentCode: Option[String],
                                     override val groupIdentifier: Option[String])
   extends TestAgentResponse
 
 object TestAgentCreatedResponse {
   def from(agent: TestAgent) = TestAgentCreatedResponse(agent.userId, agent.password,
-    agent.userFullName, agent.emailAddress, agent.arn, agent.groupIdentifier)
+    agent.userFullName, agent.emailAddress, agent.arn, agent.agentCode, agent.groupIdentifier)
 }
 
 case class DesSimulatorTestIndividual(mtdItId: Option[String], vrn: Option[String], nino: Option[String], saUtr: Option[String])

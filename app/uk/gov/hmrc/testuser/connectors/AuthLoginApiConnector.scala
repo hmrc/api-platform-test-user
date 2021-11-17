@@ -71,7 +71,8 @@ case class GovernmentGatewayLogin(credId: String,
                                   credentialStrength: String = "strong",
                                   groupIdentifier: String,
                                   itmpData: Option[ItmpData],
-                                  credentialRole: Option[String] = None)
+                                  credentialRole: Option[String] = None,
+                                  agentCode: Option[String] = None)
 
 case class ItmpData(
     givenName: String,
@@ -199,7 +200,8 @@ object GovernmentGatewayLogin {
       email = agent.emailAddress,
       credentialRole = Some("user"),
       groupIdentifier = agent.groupIdentifier.getOrElse(""),
-      itmpData = None
+      itmpData = None,
+      agentCode = agent.agentCode
     )
   }
 }
