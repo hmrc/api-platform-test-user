@@ -70,6 +70,7 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       userFullName = userFullName,
       emailAddress = emailAddress,
       arn = Some(arn),
+      agentCode = Some("1234509876"),
       groupIdentifier = Some(groupIdentifier),
       services = Seq(AGENT_SERVICES))
 

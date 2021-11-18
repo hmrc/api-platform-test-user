@@ -83,7 +83,9 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
       userFullName = userFullName,
       emailAddress = emailAddress,
       arn = Some(arn),
-      groupIdentifier = Some(groupIdentifier))
+      groupIdentifier = Some(groupIdentifier),
+      agentCode = Some("1234509876")
+    )
 
     TestAgentCreatedResponse.from(testAgent) shouldBe TestAgentCreatedResponse(userId, password, userFullName, emailAddress, Some(arn), Some(agentCode), Some(groupIdentifier))
   }
