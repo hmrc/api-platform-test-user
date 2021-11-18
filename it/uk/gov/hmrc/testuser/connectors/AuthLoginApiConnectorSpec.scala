@@ -91,6 +91,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     userFullName = userFullName,
     emailAddress = emailAddress,
     arn = Some("NARN0396245"),
+    agentCode = Some("1234509876"),
     groupIdentifier = Some("agentGroup"),
     services = Seq(AGENT_SERVICES))
 
@@ -407,6 +408,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
              |   "credentialStrength": "strong",
              |   "credentialRole": "user",
              |   "groupIdentifier": "${testAgent.groupIdentifier.get}",
+             |   "agentCode" : "1234509876",
              |   "enrolments": [
              |     {
              |       "key": "HMRC-AS-AGENT",

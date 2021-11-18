@@ -178,7 +178,6 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
     for {
       arn <-  whenAppropriate(generateArn)
       agentCode <- whenAppropriate(generateAgentCode)
-      
       firstName = generateFirstName
       lastName = generateLastName
       userFullName = generateUserFullName(firstName, lastName)

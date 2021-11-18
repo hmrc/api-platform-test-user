@@ -10,7 +10,7 @@ object AppDependencies {
     "uk.gov.hmrc" %% "bootstrap-backend-play-28" % "5.16.0",
     "uk.gov.hmrc" %% "play-ui"                   % "9.7.0-play-28",
     "uk.gov.hmrc" %% "play-json-union-formatter" % "1.15.0-play-28",
-    "uk.gov.hmrc" %% "domain"                    % "6.1.0-play-28",
+    "uk.gov.hmrc" %% "domain"                    % "6.2.0-play-28",
     "uk.gov.hmrc" %% "mongo-lock"                % "7.0.0-play-28",
     "org.mindrot" % "jbcrypt"                    % "0.4",
 

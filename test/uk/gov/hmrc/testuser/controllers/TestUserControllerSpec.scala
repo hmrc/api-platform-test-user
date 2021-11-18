@@ -114,7 +114,9 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     userFullName,
     emailAddress,
     Some(arn),
-    groupIdentifier = Some(groupIdentifier))
+    groupIdentifier = Some(groupIdentifier),
+    Some("1234509876")
+  )
 
   val createIndividualServices = Seq(ServiceKeys.NATIONAL_INSURANCE)
   val createOrganisationServices = Seq(ServiceKeys.NATIONAL_INSURANCE)
