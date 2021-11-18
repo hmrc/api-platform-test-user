@@ -27,6 +27,7 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
   val userFullName = "John Doe"
   val emailAddress = "john.doe@example.com"
   val arn = "NARN0396245"
+  val agentCode = "1234509876"
 
 
   "MTD ID" should "accept a valid ID" in {
@@ -84,7 +85,7 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
       arn = Some(arn),
       groupIdentifier = Some(groupIdentifier))
 
-    TestAgentCreatedResponse.from(testAgent) shouldBe TestAgentCreatedResponse(userId, password, userFullName, emailAddress, Some(arn), Some(groupIdentifier))
+    TestAgentCreatedResponse.from(testAgent) shouldBe TestAgentCreatedResponse(userId, password, userFullName, emailAddress, Some(arn), Some(agentCode), Some(groupIdentifier))
   }
 
   "Services" should "get size equal to all services when length called" in {

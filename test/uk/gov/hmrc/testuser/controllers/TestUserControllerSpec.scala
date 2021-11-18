@@ -58,6 +58,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   private val taxOfficeRef = "EIA000"
   val empRef = s"$taxOfficeNum/$taxOfficeRef"
   val arn = "NARN0396245"
+  val agentCode = "1234509876"
   val lisaManagerReferenceNumber = "Z123456"
   val secureElectronicTransferReferenceNumber = "123456789012"
   val pensionSchemeAdministratorIdentifier = "A1234567"
@@ -330,7 +331,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       val result = underTest.createAgent()(createAgentRequest)
 
       status(result) shouldBe CREATED
-      contentAsJson(result) shouldBe toJson(TestAgentCreatedResponse(user, password, userFullName, emailAddress, Some(arn), Some(groupIdentifier)))
+      contentAsJson(result) shouldBe toJson(TestAgentCreatedResponse(user, password, userFullName, emailAddress, Some(arn), Some(agentCode), Some(groupIdentifier)))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the agent failed" in new Setup {
