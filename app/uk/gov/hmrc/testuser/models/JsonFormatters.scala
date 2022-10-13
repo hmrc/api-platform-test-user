@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.testuser.models
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.libs.json._
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.play.json.Union
 import uk.gov.hmrc.testuser.connectors.{AuthLoginAddress, Enrolment, GovernmentGatewayLogin, Identifier, ItmpData}
 
-object JsonFormatters {
+object WrapAssortedReadsAndWrites extends EnvReads with EnvWrites
 
-  implicit val formatLocalDateWriter: Writes[LocalDate] = JodaWrites.jodaLocalDateWrites("yyyy-MM-dd")
-  implicit val formatLocalDateReader: Reads[LocalDate]  = JodaReads.jodaLocalDateReads("yyyy-MM-dd")
+object JsonFormatters {
+  
+  implicit val formatLocalDateReads: Reads[LocalDate] = WrapAssortedReadsAndWrites.DefaultLocalDateReads
+  implicit val formatLocalDateWrites: Writes[LocalDate] = WrapAssortedReadsAndWrites.DefaultLocalDateWrites
 
   implicit val crnFormatter              = Json.format[Crn]
   implicit val formatObjectId            = ReactiveMongoFormats.objectIdFormats

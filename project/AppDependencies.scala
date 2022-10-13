@@ -12,9 +12,7 @@ object AppDependencies {
     "uk.gov.hmrc"             %% "domain"                     % "6.2.0-play-28",
     "uk.gov.hmrc"             %% "mongo-lock"                 % "7.0.0-play-28",
     "org.mindrot"             % "jbcrypt"                     % "0.4",
-
     "com.typesafe.play"       %% "play-json"                  % "2.9.2",
-    "com.typesafe.play"       %% "play-json-joda"             % "2.9.2",
     "org.scalacheck"          %% "scalacheck"                 % "1.13.5"
   )
 

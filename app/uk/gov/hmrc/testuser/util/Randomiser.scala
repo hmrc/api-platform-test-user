@@ -17,7 +17,7 @@
 package uk.gov.hmrc.testuser.util
 
 import com.typesafe.config.Config
-import org.joda.time.LocalDate
+import java.time.LocalDate
 
 import scala.collection.JavaConverters._
 import scala.util.Random
@@ -29,9 +29,9 @@ trait Randomiser {
   private lazy val maximumAgeOfIndividual  = 100
   private lazy val ageRange                = minimumSchoolLeavingAge to maximumAgeOfIndividual
 
-  def randomNinoEligibleDateOfBirth(): LocalDate = LocalDate.now
+  def randomNinoEligibleDateOfBirth(): LocalDate = LocalDate.now()
     .withDayOfMonth(nextInt(28))
-    .withMonthOfYear(nextInt(12))
+    .withMonth(nextInt(12))
     .minusYears(minimumSchoolLeavingAge + nextInt(ageRange.length))
 
   def randomConfigString(configKey: String): String = {

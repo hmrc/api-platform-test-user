@@ -17,7 +17,7 @@
 package uk.gov.hmrc.testuser.connectors
 
 import javax.inject.{Inject, Singleton}
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.{Configuration, Environment}
 import play.api.http.HeaderNames.{AUTHORIZATION, LOCATION}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
