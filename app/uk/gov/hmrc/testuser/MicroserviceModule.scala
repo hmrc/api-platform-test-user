@@ -45,8 +45,8 @@ class MicroserviceModule(val environment: Environment, val configuration: Config
   )
 }
 
-class PasswordConfigProvider @Inject()(val runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)
-  extends Provider[PasswordConfig] {
+class PasswordConfigProvider @Inject() (val runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)
+    extends Provider[PasswordConfig] {
 
   import config.getInt
 

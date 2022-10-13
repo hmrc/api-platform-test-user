@@ -17,7 +17,6 @@ lazy val microservice = (project in file("."))
   .settings(publishingSettings: _*)
   .settings(defaultSettings(): _*)
   .settings(ScoverageSettings())
-  .settings(SilencerSettings())
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(
     name := appName,
@@ -49,6 +48,13 @@ lazy val microservice = (project in file("."))
     IntegrationTest / testGrouping := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
     IntegrationTest / parallelExecution := false,
     addTestReportOption(IntegrationTest, "int-test-reports")
+  )
+  .settings(
+    scalacOptions ++= Seq(
+    "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
+    "-Wconf:cat=unused&src=.*Routes\\.scala:s",
+    "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s"
+    )
   )
 
 def oneForkedJvmPerTest(tests: Seq[TestDefinition]): Seq[Group] =

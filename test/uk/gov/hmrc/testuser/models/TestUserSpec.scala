@@ -19,16 +19,14 @@ package uk.gov.hmrc.testuser.models
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.flatspec.AnyFlatSpec
 
-
 class TestUserSpec extends AnyFlatSpec with Matchers {
-  val userId = "1234567890"
+  val userId          = "1234567890"
   val groupIdentifier = "groupIdentifier"
-  val password = "l3tm31n"
-  val userFullName = "John Doe"
-  val emailAddress = "john.doe@example.com"
-  val arn = "NARN0396245"
-  val agentCode = "1234509876"
-
+  val password        = "l3tm31n"
+  val userFullName    = "John Doe"
+  val emailAddress    = "john.doe@example.com"
+  val arn             = "NARN0396245"
+  val agentCode       = "1234509876"
 
   "MTD ID" should "accept a valid ID" in {
     val mtdItId = MtdItId("XGIT00000000054")
@@ -43,8 +41,8 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
   }
 
   "TestOrganisationCreatedResponse" should "be properly constructed from a TestOrganisation" in {
-    val organisationDetails = OrganisationDetails("Company ABCDEF",  Address("225 Baker St", "Marylebone", "NW1 6XE"))
-    val testOrganisation = TestOrganisation(
+    val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
+    val testOrganisation    = TestOrganisation(
       userId = userId,
       password = password,
       userFullName = userFullName,
@@ -53,7 +51,8 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
       individualDetails = None,
       lisaManRefNum = Some("Z123456"),
       groupIdentifier = Some(groupIdentifier),
-      crn = None)
+      crn = None
+    )
 
     TestOrganisationCreatedResponse.from(testOrganisation) shouldBe
       TestOrganisationCreatedResponse(
@@ -73,7 +72,8 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
         lisaManagerReferenceNumber = Some("Z123456"),
         secureElectronicTransferReferenceNumber = None,
         pensionSchemeAdministratorIdentifier = None,
-        groupIdentifier = Some(groupIdentifier))
+        groupIdentifier = Some(groupIdentifier)
+      )
   }
 
   "TestAgentCreatedResponse" should "be properly constructed from the TestAgent" in {

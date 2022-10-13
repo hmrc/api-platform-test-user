@@ -19,7 +19,7 @@ package uk.gov.hmrc.testuser.controllers
 import uk.gov.hmrc.testuser.common.LogSuppressing
 import org.joda.time.LocalDate
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, UNAUTHORIZED}
-import play.api.libs.json.{Json, JsValue}
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.json.Json.toJson
 import play.api.test._
 import play.api.test.Helpers._
@@ -35,29 +35,29 @@ import scala.concurrent.Future.{failed, successful}
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import play.api.http.HeaderNames
 
-
 class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
-  val user = "user"
-  val groupIdentifier = "groupIdentifier"
-  val password = "password"
-  val userFullName = "John Doe"
-  val emailAddress = "john.doe@example.com"
-  val saUtr = "1555369052"
-  val nino = "CC333333C"
-  val mtdItId = "XGIT00000000054"
-  val ctUtr = "1555369053"
-  val crn = "12345678"
-  val vrn = "999902541"
-  val vatRegistrationDate = LocalDate.parse("2016-12-31")
-  val lisaManRefNum = "Z123456"
+  val user                 = "user"
+  val groupIdentifier      = "groupIdentifier"
+  val password             = "password"
+  val userFullName         = "John Doe"
+  val emailAddress         = "john.doe@example.com"
+  val saUtr                = "1555369052"
+  val nino                 = "CC333333C"
+  val mtdItId              = "XGIT00000000054"
+  val ctUtr                = "1555369053"
+  val crn                  = "12345678"
+  val vrn                  = "999902541"
+  val vatRegistrationDate  = LocalDate.parse("2016-12-31")
+  val lisaManRefNum        = "Z123456"
   private val taxOfficeNum = "555"
   private val taxOfficeRef = "EIA000"
-  val empRef = s"$taxOfficeNum/$taxOfficeRef"
-  val eoriNumber = "GB1234567890"
+  val empRef               = s"$taxOfficeNum/$taxOfficeRef"
+  val eoriNumber           = "GB1234567890"
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
-  val testIndividual = TestIndividual(
+
+  val testIndividual    = TestIndividual(
     userId = user,
     password = password,
     userFullName = userFullName,
@@ -70,7 +70,8 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     vatRegistrationDate = Some(vatRegistrationDate),
     eoriNumber = Some(eoriNumber),
     groupIdentifier = Some(groupIdentifier),
-    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC, CTC_LEGACY))
+    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC, CTC_LEGACY)
+  )
 
   val organisationDetails = OrganisationDetails(
     name = "Company ABCDEF",
@@ -96,7 +97,21 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     groupIdentifier = Some(groupIdentifier),
     crn = Some(crn),
     services =
-      Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, MTD_VAT, PAYE_FOR_EMPLOYERS, CORPORATION_TAX, SUBMIT_VAT_RETURNS, LISA, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, CTC, CTC_LEGACY))
+      Seq(
+        SELF_ASSESSMENT,
+        NATIONAL_INSURANCE,
+        MTD_INCOME_TAX,
+        MTD_VAT,
+        PAYE_FOR_EMPLOYERS,
+        CORPORATION_TAX,
+        SUBMIT_VAT_RETURNS,
+        LISA,
+        CUSTOMS_SERVICES,
+        GOODS_VEHICLE_MOVEMENTS,
+        CTC,
+        CTC_LEGACY
+      )
+  )
 
   val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
 
