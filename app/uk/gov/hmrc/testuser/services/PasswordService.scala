@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
 
 @Singleton
-class PasswordService @Inject()(config: PasswordConfig) {
+class PasswordService @Inject() (config: PasswordConfig) {
 
   def hash(password: String): String = BCryptUtils.hashpw(password, BCryptUtils.gensalt(config.passwordLogRounds))
 

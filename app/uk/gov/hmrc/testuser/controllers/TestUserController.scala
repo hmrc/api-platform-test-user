@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,24 +30,25 @@ import uk.gov.hmrc.testuser.services._
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class TestUserController @Inject()(val testUserService: TestUserService, cc: ControllerComponents)(implicit ec: ExecutionContext)
-  extends BackendController(cc) with ApplicationLogger {
+class TestUserController @Inject() (val testUserService: TestUserService, cc: ControllerComponents)(implicit ec: ExecutionContext)
+    extends BackendController(cc) with ApplicationLogger {
 
   def createIndividual() = Action.async(parse.json) { implicit request =>
     withJsonBody[CreateUserWithOptionalRequestParams] { createUserRequest =>
       testUserService.createTestIndividual(
         createUserRequest.serviceNames.getOrElse(Seq.empty),
         createUserRequest.eoriNumber,
-        createUserRequest.nino) map {
-          case Left(NinoAlreadyUsed) => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
-          case Left(error : CreateTestUserError) => {
-            logger.error(s"Unepected error response from testUserService.createTestIndividual: ${error.toString}")
-            BadRequest
-          }
-          case Right(createdIndividual) => Created(toJson(TestIndividualCreatedResponse.from(createdIndividual)))
+        createUserRequest.nino
+      ) map {
+        case Left(NinoAlreadyUsed)            => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
+        case Left(error: CreateTestUserError) => {
+          logger.error(s"Unepected error response from testUserService.createTestIndividual: ${error.toString}")
+          BadRequest
         }
-      } recover recovery
-    }
+        case Right(createdIndividual)         => Created(toJson(TestIndividualCreatedResponse.from(createdIndividual)))
+      }
+    } recover recovery
+  }
 
   def createOrganisation() = Action.async(parse.json) { implicit request =>
     withJsonBody[CreateUserWithOptionalRequestParams] { createUserRequest =>
@@ -55,16 +56,17 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
         createUserRequest.serviceNames.getOrElse(Seq.empty),
         createUserRequest.eoriNumber,
         createUserRequest.nino,
-        createUserRequest.taxpayerType) map { 
-          case Left(NinoAlreadyUsed) => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
-          case Left(error : CreateTestUserError) => {
-            logger.error(s"Unepected error response from testUserService.createTestOrganisation: ${error.toString}")
-            BadRequest
-          }
-          case Right(organisation) => Created(toJson(TestOrganisationCreatedResponse.from(organisation)))
+        createUserRequest.taxpayerType
+      ) map {
+        case Left(NinoAlreadyUsed)            => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
+        case Left(error: CreateTestUserError) => {
+          logger.error(s"Unepected error response from testUserService.createTestOrganisation: ${error.toString}")
+          BadRequest
         }
-      } recover recovery
-    }
+        case Right(organisation)              => Created(toJson(TestOrganisationCreatedResponse.from(organisation)))
+      }
+    } recover recovery
+  }
 
   def createAgent() = Action.async(parse.json) { implicit request =>
     withJsonBody[CreateUserRequest] { createUserRequest =>
@@ -129,9 +131,9 @@ class TestUserController @Inject()(val testUserService: TestUserService, cc: Con
   }
 
   private def recovery: PartialFunction[Throwable, Result] = {
-    case UserNotFound(INDIVIDUAL) => NotFound(toJson(individualNotFoundError))
+    case UserNotFound(INDIVIDUAL)   => NotFound(toJson(individualNotFoundError))
     case UserNotFound(ORGANISATION) => NotFound(toJson(organisationNotFoundError))
-    case e =>
+    case e                          =>
       logger.error(s"An unexpected error occurred: ${e.getMessage}", e)
       InternalServerError(toJson(ErrorResponse.internalServerError))
   }

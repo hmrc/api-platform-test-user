@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,8 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.testuser.services.ApplicationLogger
 
 @Singleton
-class DesSimulatorConnector @Inject()(httpClient: HttpClient, runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)
-                           (implicit ec: ExecutionContext) 
-                           extends ApplicationLogger {
+class DesSimulatorConnector @Inject() (httpClient: HttpClient, runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)(implicit ec: ExecutionContext)
+    extends ApplicationLogger {
 
   import config.baseUrl
 
@@ -41,16 +40,19 @@ class DesSimulatorConnector @Inject()(httpClient: HttpClient, runModeConfigurati
 
   def createIndividual(individual: TestIndividual)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
     logger.info(s"Calling des-simulator ($serviceUrl) to create individual $individual")
-    httpClient.POST[DesSimulatorTestIndividual, Either[UpstreamErrorResponse,HttpResponse]](s"$serviceUrl/test-users/individuals", DesSimulatorTestIndividual.from(individual)) map { 
-      case Right(_) => individual 
+    httpClient.POST[DesSimulatorTestIndividual, Either[UpstreamErrorResponse, HttpResponse]](s"$serviceUrl/test-users/individuals", DesSimulatorTestIndividual.from(individual)) map {
+      case Right(_)  => individual
       case Left(err) => throw err
     }
   }
 
   def createOrganisation(organisation: TestOrganisation)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
     logger.info(s"Calling des-simulator ($serviceUrl) to create organisation $organisation")
-    httpClient.POST[DesSimulatorTestOrganisation, Either[UpstreamErrorResponse,HttpResponse]](s"$serviceUrl/test-users/organisations", DesSimulatorTestOrganisation.from(organisation)) map {
-      case Right(_) => organisation 
+    httpClient.POST[DesSimulatorTestOrganisation, Either[UpstreamErrorResponse, HttpResponse]](
+      s"$serviceUrl/test-users/organisations",
+      DesSimulatorTestOrganisation.from(organisation)
+    ) map {
+      case Right(_)  => organisation
       case Left(err) => throw err
     }
   }

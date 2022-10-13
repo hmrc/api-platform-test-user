@@ -17,7 +17,7 @@
 package uk.gov.hmrc.testuser.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequestedFor, urlPathEqualTo}
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.scalatest.BeforeAndAfterEach
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.http.HeaderCarrier

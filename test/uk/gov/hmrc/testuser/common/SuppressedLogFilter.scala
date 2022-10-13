@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,9 +51,10 @@ class SuppressedLogFilter(val messagesContaining: String) extends Filter[ILoggin
 }
 
 trait LogSuppressing {
+
   def withSuppressedLoggingFrom(logger: Logger, messagesContaining: String)(body: (=> SuppressedLogFilter) => Unit) {
 
-    val appenders = logger.iteratorForAppenders().asScala.toList
+    val appenders            = logger.iteratorForAppenders().asScala.toList
     val appendersWithFilters = appenders.map(appender => appender -> appender.getCopyOfAttachedFiltersList)
 
     val filter = new SuppressedLogFilter(messagesContaining)
@@ -61,7 +62,7 @@ trait LogSuppressing {
 
     try body(filter)
     finally {
-      appendersWithFilters.foreach { case(appender, filters) =>
+      appendersWithFilters.foreach { case (appender, filters) =>
         appender.clearAllFilters()
         filters.asScala.foreach(appender.addFilter)
       }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,14 @@
 package uk.gov.hmrc.testuser.util
 
 import com.typesafe.config.ConfigFactory
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class RandomiserSpec extends AnyFlatSpec with Matchers {
 
   private val randomiser = new Randomiser {
+
     val config = ConfigFactory.parseString(
       """
         |randomiser {
@@ -50,7 +51,7 @@ class RandomiserSpec extends AnyFlatSpec with Matchers {
     for (date <- Set(date1, date2)) {
       val now = LocalDate.now()
 
-       date.isBefore(now.minusYears(16)) && date.isAfter(now.minusYears(101)) shouldBe true
+      date.isBefore(now.minusYears(16)) && date.isAfter(now.minusYears(101)) shouldBe true
     }
   }
 

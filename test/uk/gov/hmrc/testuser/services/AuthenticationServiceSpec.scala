@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.testuser.services
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
 import uk.gov.hmrc.testuser.models._
@@ -31,14 +31,15 @@ import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 
 class AuthenticationServiceSpec extends AsyncHmrcSpec {
 
-  val userId = "user"
-  val groupIdentifier = "groupIdentifier"
-  val password = "password"
-  val userFullName = "John Doe"
-  val emailAddress = "john.doe@example.com"
-  val hashedPassword = "hashedPassword"
-  val authSession = AuthSession("Bearer AUTH_TOKEN", "/auth/oid/12345", "gatewayToken")
-  val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
+  val userId               = "user"
+  val groupIdentifier      = "groupIdentifier"
+  val password             = "password"
+  val userFullName         = "John Doe"
+  val emailAddress         = "john.doe@example.com"
+  val hashedPassword       = "hashedPassword"
+  val authSession          = AuthSession("Bearer AUTH_TOKEN", "/auth/oid/12345", "gatewayToken")
+  val individualDetails    = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
+
   val storedTestIndividual = TestIndividual(
     userId = userId,
     password = hashedPassword,
@@ -49,7 +50,8 @@ class AuthenticationServiceSpec extends AsyncHmrcSpec {
     nino = Some("CC333333C"),
     mtdItId = Some("XGIT00000000054"),
     groupIdentifier = Some(groupIdentifier),
-    services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX))
+    services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX)
+  )
 
   trait Setup {
     implicit val hc = HeaderCarrier()

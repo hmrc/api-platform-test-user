@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.hmrc.testuser.util
 
 import com.typesafe.config.Config
-import org.joda.time.LocalDate
+import java.time.LocalDate
 
 import scala.collection.JavaConverters._
 import scala.util.Random
@@ -26,12 +26,12 @@ trait Randomiser {
   def config: Config
 
   private lazy val minimumSchoolLeavingAge = 16
-  private lazy val maximumAgeOfIndividual = 100
-  private lazy val ageRange = minimumSchoolLeavingAge to maximumAgeOfIndividual
+  private lazy val maximumAgeOfIndividual  = 100
+  private lazy val ageRange                = minimumSchoolLeavingAge to maximumAgeOfIndividual
 
-  def randomNinoEligibleDateOfBirth(): LocalDate = LocalDate.now
+  def randomNinoEligibleDateOfBirth(): LocalDate = LocalDate.now()
     .withDayOfMonth(nextInt(28))
-    .withMonthOfYear(nextInt(12))
+    .withMonth(nextInt(12))
     .minusYears(minimumSchoolLeavingAge + nextInt(ageRange.length))
 
   def randomConfigString(configKey: String): String = {

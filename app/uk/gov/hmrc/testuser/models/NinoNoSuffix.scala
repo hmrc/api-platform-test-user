@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,6 @@ case class NinoNoSuffix(value: String) {
 }
 
 object NinoNoSuffix {
-  def isValid(nino: String) = nino != null && Nino.isValid(nino + "A")
+  def isValid(nino: String)           = nino != null && Nino.isValid(nino + "A")
   def apply(nino: Nino): NinoNoSuffix = NinoNoSuffix(nino.nino.substring(0, nino.nino.length - 1))
 }

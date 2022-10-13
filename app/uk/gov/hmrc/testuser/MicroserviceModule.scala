@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ class MicroserviceModule(val environment: Environment, val configuration: Config
   )
 }
 
-class PasswordConfigProvider @Inject()(val runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)
-  extends Provider[PasswordConfig] {
+class PasswordConfigProvider @Inject() (val runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)
+    extends Provider[PasswordConfig] {
 
   import config.getInt
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package uk.gov.hmrc.testuser.services
 
 import com.typesafe.config.Config
 import javax.inject.{Inject, Singleton}
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.scalacheck.Gen
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
@@ -30,6 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 object Generator {
+
   def whenF[T](services: Seq[ServiceKey])(keys: Seq[ServiceKey])(thenDo: => Future[T])(implicit ec: ExecutionContext): Future[Option[T]] = {
     if (services.intersect(keys).isEmpty)
       Future.successful(None)
@@ -46,27 +47,28 @@ object Generator {
 }
 
 @Singleton
-class Generator @Inject()(val testUserRepository: TestUserRepository, val config: Config)(implicit ec: ExecutionContext)
-    extends Randomiser 
+class Generator @Inject() (val testUserRepository: TestUserRepository, val config: Config)(implicit ec: ExecutionContext)
+    extends Randomiser
     with ApplicationLogger {
 
-  private val userIdGenerator = Gen.listOfN(12, Gen.numChar).map(_.mkString)
-  private val passwordGenerator = Gen.listOfN(12, Gen.alphaNumChar).map(_.mkString)
-  private val utrGenerator = new UtrGenerator()
-  private val ninoGenerator = new uk.gov.hmrc.domain.Generator()
+  private val userIdGenerator                         = Gen.listOfN(12, Gen.numChar).map(_.mkString)
+  private val passwordGenerator                       = Gen.listOfN(12, Gen.alphaNumChar).map(_.mkString)
+  private val utrGenerator                            = new UtrGenerator()
+  private val ninoGenerator                           = new uk.gov.hmrc.domain.Generator()
+
   private val employerReferenceGenerator: Gen[EmpRef] = for {
-    taxOfficeNumber <- Gen.choose(100, 999).map(x => x.toString)
+    taxOfficeNumber    <- Gen.choose(100, 999).map(x => x.toString)
     taxOfficeReference <- Gen.listOfN(10, Gen.alphaNumChar).map(_.mkString.toUpperCase)
   } yield EmpRef.fromIdentifiers(s"$taxOfficeNumber/$taxOfficeReference")
 
   private val vrnGenerator: Gen[String] = Gen.choose(1000000, 9999999).map(i => VrnChecksum.apply(i.toString)).retryUntil(VrnChecksum.isValid)
-  private val mtdItIdGenerator = new MtdItIdGenerator()
-  private val lisaManRefNumGenerator = new LisaGenerator()
-  private val setRefNumGenerator = new SecureElectronicTransferReferenceNumberGenerator()
-  private val psaIdGenerator = new PensionSchemeAdministratorIdentifierGenerator()
-  private val eoriGenerator = Gen.listOfN(12, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
-  private val arnGenerator = new ArnGenerator()
-  private val crnGenerator = new CompanyReferenceNumberGenerator()
+  private val mtdItIdGenerator          = new MtdItIdGenerator()
+  private val lisaManRefNumGenerator    = new LisaGenerator()
+  private val setRefNumGenerator        = new SecureElectronicTransferReferenceNumberGenerator()
+  private val psaIdGenerator            = new PensionSchemeAdministratorIdentifierGenerator()
+  private val eoriGenerator             = Gen.listOfN(12, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
+  private val arnGenerator              = new ArnGenerator()
+  private val crnGenerator              = new CompanyReferenceNumberGenerator()
 
   private val agentCodeGenerator = Gen.listOfN(10, Gen.numChar).map(_.mkString)
 
@@ -84,87 +86,88 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
     def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
 
     for {
-      saUtr                 <- whenF(SELF_ASSESSMENT)(generateSaUtr)
-      nino                  <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(useProvidedOrGeneratedNino(nino))
-      mtdItId               <- whenF(MTD_INCOME_TAX)(generateMtdId)
-      eoriNumber            <- whenF(CUSTOMS_SERVICES, CTC_LEGACY, CTC, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
-      vrn                   <- whenF(MTD_VAT)(generateVrn)
-      vatRegistrationDate   = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1, 20).sample.get))
-      groupIdentifier        = Some(generateGroupIdentifier)
-      individualDetails     = generateIndividualDetails
-      userFullName          = generateUserFullName(individualDetails.firstName, individualDetails.lastName)
-      emailAddress          = generateEmailAddress(individualDetails.firstName, individualDetails.lastName)
-    } yield
-      TestIndividual(
-        generateUserId,
-        generatePassword,
-        userFullName,
-        emailAddress,
-        individualDetails,
-        saUtr,
-        nino,
-        mtdItId,
-        vrn,
-        vatRegistrationDate,
-        eoriNumber,
-        groupIdentifier,
-        services)
+      saUtr              <- whenF(SELF_ASSESSMENT)(generateSaUtr)
+      nino               <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(useProvidedOrGeneratedNino(nino))
+      mtdItId            <- whenF(MTD_INCOME_TAX)(generateMtdId)
+      eoriNumber         <- whenF(CUSTOMS_SERVICES, CTC_LEGACY, CTC, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
+      vrn                <- whenF(MTD_VAT)(generateVrn)
+      vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1, 20).sample.get))
+      groupIdentifier     = Some(generateGroupIdentifier)
+      individualDetails   = generateIndividualDetails
+      userFullName        = generateUserFullName(individualDetails.firstName, individualDetails.lastName)
+      emailAddress        = generateEmailAddress(individualDetails.firstName, individualDetails.lastName)
+    } yield TestIndividual(
+      generateUserId,
+      generatePassword,
+      userFullName,
+      emailAddress,
+      individualDetails,
+      saUtr,
+      nino,
+      mtdItId,
+      vrn,
+      vatRegistrationDate,
+      eoriNumber,
+      groupIdentifier,
+      services
+    )
   }
 
-  def generateTestOrganisation( services: Seq[ServiceKey] = Seq.empty, 
-                                eoriNumber: Option[EoriNumber],
-                                nino: Option[Nino],
-                                taxpayerType: Option[TaxpayerType]): Future[TestOrganisation] = {
+  def generateTestOrganisation(
+      services: Seq[ServiceKey] = Seq.empty,
+      eoriNumber: Option[EoriNumber],
+      nino: Option[Nino],
+      taxpayerType: Option[TaxpayerType]
+    ): Future[TestOrganisation] = {
 
     def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
 
     def when[T](keys: ServiceKey*)(thenDo: => T): Option[T] = Generator.when(services)(keys)(thenDo)
 
     for {
-      saUtr                 <- whenF(SELF_ASSESSMENT)(generateSaUtr)
-      nino                  <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(useProvidedOrGeneratedNino(nino))
-      mtdItId               <- whenF(MTD_INCOME_TAX)(generateMtdId)
-      empRef                <- whenF(PAYE_FOR_EMPLOYERS)(generateEmpRef)
-      ctUtr                 <- whenF(CORPORATION_TAX)(generateCtUtr)
-      vrn                   <- whenF(SUBMIT_VAT_RETURNS, MTD_VAT)(generateVrn)
-      vatRegistrationDate   = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1, 20).sample.get))
-      lisaManRefNum         <- whenF(LISA)(generateLisaManRefNum)
-      setRefNum             = when(SECURE_ELECTRONIC_TRANSFER)(generateSetRefNum)
-      psaId                 = when(RELIEF_AT_SOURCE)(generatePsaId)
-      eoriNumber            <- whenF(CUSTOMS_SERVICES, CTC_LEGACY, CTC, SAFETY_AND_SECURITY, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
-      groupIdentifier       = Some(generateGroupIdentifier)
-      firstName             = generateFirstName
-      lastName              = generateLastName
-      userFullName          = generateUserFullName(firstName, lastName)
-      emailAddress          = generateEmailAddress(firstName, lastName)
-      organisationDetails   = generateOrganisationDetails
-      individualDetails     = Some(generateIndividualDetails(firstName, lastName))
-      companyRegNo          <- whenF(CORPORATION_TAX)(generateCrn)
-      taxpayerType          <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
-    } yield
-      TestOrganisation(
-        generateUserId,
-        generatePassword,
-        userFullName,
-        emailAddress,
-        organisationDetails,
-        individualDetails,
-        saUtr,
-        nino,
-        mtdItId,
-        empRef,
-        ctUtr,
-        vrn,
-        vatRegistrationDate,
-        lisaManRefNum,
-        setRefNum,
-        psaId,
-        eoriNumber,
-        groupIdentifier,
-        services,
-        crn = companyRegNo,
-        taxpayerType = taxpayerType
-      )
+      saUtr              <- whenF(SELF_ASSESSMENT)(generateSaUtr)
+      nino               <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(useProvidedOrGeneratedNino(nino))
+      mtdItId            <- whenF(MTD_INCOME_TAX)(generateMtdId)
+      empRef             <- whenF(PAYE_FOR_EMPLOYERS)(generateEmpRef)
+      ctUtr              <- whenF(CORPORATION_TAX)(generateCtUtr)
+      vrn                <- whenF(SUBMIT_VAT_RETURNS, MTD_VAT)(generateVrn)
+      vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1, 20).sample.get))
+      lisaManRefNum      <- whenF(LISA)(generateLisaManRefNum)
+      setRefNum           = when(SECURE_ELECTRONIC_TRANSFER)(generateSetRefNum)
+      psaId               = when(RELIEF_AT_SOURCE)(generatePsaId)
+      eoriNumber         <- whenF(CUSTOMS_SERVICES, CTC_LEGACY, CTC, SAFETY_AND_SECURITY, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
+      groupIdentifier     = Some(generateGroupIdentifier)
+      firstName           = generateFirstName
+      lastName            = generateLastName
+      userFullName        = generateUserFullName(firstName, lastName)
+      emailAddress        = generateEmailAddress(firstName, lastName)
+      organisationDetails = generateOrganisationDetails
+      individualDetails   = Some(generateIndividualDetails(firstName, lastName))
+      companyRegNo       <- whenF(CORPORATION_TAX)(generateCrn)
+      taxpayerType       <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
+    } yield TestOrganisation(
+      generateUserId,
+      generatePassword,
+      userFullName,
+      emailAddress,
+      organisationDetails,
+      individualDetails,
+      saUtr,
+      nino,
+      mtdItId,
+      empRef,
+      ctUtr,
+      vrn,
+      vatRegistrationDate,
+      lisaManRefNum,
+      setRefNum,
+      psaId,
+      eoriNumber,
+      groupIdentifier,
+      services,
+      crn = companyRegNo,
+      taxpayerType = taxpayerType
+    )
   }
 
   def generateTestAgent(services: Seq[ServiceKey] = Seq.empty): Future[TestAgent] = {
@@ -176,17 +179,15 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
       }
 
     for {
-      arn <-  whenAppropriate(generateArn)
-      agentCode <- whenAppropriate(generateAgentCode)
-      firstName = generateFirstName
-      lastName = generateLastName
-      userFullName = generateUserFullName(firstName, lastName)
-      emailAddress = generateEmailAddress(firstName, lastName)
+      arn            <- whenAppropriate(generateArn)
+      agentCode      <- whenAppropriate(generateAgentCode)
+      firstName       = generateFirstName
+      lastName        = generateLastName
+      userFullName    = generateUserFullName(firstName, lastName)
+      emailAddress    = generateEmailAddress(firstName, lastName)
       groupIdentifier = Some(generateGroupIdentifier)
-    }
-    yield TestAgent(generateUserId, generatePassword, userFullName, emailAddress, arn, agentCode, groupIdentifier, services)
+    } yield TestAgent(generateUserId, generatePassword, userFullName, emailAddress, arn, agentCode, groupIdentifier, services)
   }
-
 
   def generateUserFullName(firstName: String, lastName: String) = s"$firstName $lastName"
 
@@ -239,10 +240,10 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   }
 
   private def generateEmpRef: Future[String] = generateUniqueIdentifier(() => { employerReferenceGenerator.sample.get.toString })
-  private def generateSaUtr: Future[String] = generateUniqueIdentifier(() => { utrGenerator.next })
-  private def generateNino: Future[String] = generateUniqueIdentifier(() => { ninoGenerator.nextNino.value })
-  private def generateCtUtr: Future[String] = generateUniqueIdentifier(() => { utrGenerator.next })
-  private def generateVrn: Future[String] = generateUniqueIdentifier(() => { Vrn(vrnGenerator.sample.get).vrn })
+  private def generateSaUtr: Future[String]  = generateUniqueIdentifier(() => { utrGenerator.next })
+  private def generateNino: Future[String]   = generateUniqueIdentifier(() => { ninoGenerator.nextNino.value })
+  private def generateCtUtr: Future[String]  = generateUniqueIdentifier(() => { utrGenerator.next })
+  private def generateVrn: Future[String]    = generateUniqueIdentifier(() => { Vrn(vrnGenerator.sample.get).vrn })
 
   private def generateCrn: Future[String] = generateUniqueIdentifier(() => {
     crnGenerator.next
@@ -265,7 +266,7 @@ class Generator @Inject()(val testUserRepository: TestUserRepository, val config
   })
 
   private def generateSetRefNum: String = setRefNumGenerator.next
-  private def generatePsaId: String = psaIdGenerator.next
+  private def generatePsaId: String     = psaIdGenerator.next
 
   private def generateArn: Future[String] = generateUniqueIdentifier(() => {
     arnGenerator.next
@@ -276,7 +277,7 @@ class UtrGenerator(random: Random = new Random) extends Modulus11Check {
   def this(seed: Int) = this(new scala.util.Random(seed))
 
   def next: String = {
-    val randomCode = f"${random.nextInt(1000000000)}%09d"
+    val randomCode     = f"${random.nextInt(1000000000)}%09d"
     val checkCharacter = calculateCheckCharacter(randomCode)
     s"$checkCharacter$randomCode"
   }
@@ -286,7 +287,7 @@ class ArnGenerator(random: Random = new Random) extends Modulus23Check {
   def this(seed: Int) = this(new scala.util.Random(seed))
 
   def next: String = {
-    val randomCode = "ARN" + f"${random.nextInt(1000000)}%07d"
+    val randomCode     = "ARN" + f"${random.nextInt(1000000)}%07d"
     val checkCharacter = calculateCheckCharacter(randomCode)
     s"$checkCharacter$randomCode"
   }
@@ -296,7 +297,7 @@ class MtdItIdGenerator(random: Random = new Random) extends Modulus23Check {
   def this(seed: Int) = this(new scala.util.Random(seed))
 
   def next: MtdItId = {
-    val randomCode = "IT" + f"${random.nextInt(1000000000)}%011d"
+    val randomCode     = "IT" + f"${random.nextInt(1000000000)}%011d"
     val checkCharacter = calculateCheckCharacter(randomCode)
     MtdItId(s"X$checkCharacter$randomCode")
   }
@@ -330,12 +331,11 @@ class SecureElectronicTransferReferenceNumberGenerator(random: Random = new Rand
 
   def randomlyGeneratedNext: String = {
     // SecureElectronicTransferReferenceNumber must be 12 digit number not beginning with 0
-    val initialDigit = random.nextInt(9) + 1 //bug random.nextInt(8) -> random.nextInt(9)
+    val initialDigit    = random.nextInt(9) + 1 // bug random.nextInt(8) -> random.nextInt(9)
     val remainingDigits = f"${random.nextInt(Int.MaxValue)}%011d"
     s"$initialDigit$remainingDigits"
   }
 }
-
 
 class PensionSchemeAdministratorIdentifierGenerator(random: Random = new Random) {
   def this(seed: Int) = this(new scala.util.Random(seed))
@@ -343,7 +343,7 @@ class PensionSchemeAdministratorIdentifierGenerator(random: Random = new Random)
   def next: String = {
     // PensionSchemeAdministratorIdentifier must conform to this regex: ^[Aa]{1}[0-9]{7} e.g. A1234567
     val initialCharacter = if (random.nextBoolean()) "A" else "a"
-    val remainingDigits = (for (i <- 1 to 7) yield random.nextInt(9)).mkString("")
+    val remainingDigits  = (for (i <- 1 to 7) yield random.nextInt(9)).mkString("")
     s"$initialCharacter$remainingDigits"
   }
 }
@@ -352,7 +352,7 @@ class CompanyReferenceNumberGenerator(random: Random = new Random) {
   private val maxNum = 9
   private val length = 10
 
-  def next : String = (for (_ <- 1 to length) yield random.nextInt(maxNum)).mkString("")
+  def next: String = (for (_ <- 1 to length) yield random.nextInt(maxNum)).mkString("")
 }
 
 object VrnChecksum {
@@ -361,7 +361,7 @@ object VrnChecksum {
 
   def isValid(vrn: String): Boolean = {
     if (regexCheck(vrn)) {
-      val total = weightedTotal(vrn)
+      val total        = weightedTotal(vrn)
       val checkSumPart = takeCheckSumPart(vrn)
       if (checkSumPart == calcCheckSum97(total).toInt) true
       else checkSumPart == calcCheckSum9755(total)
@@ -375,7 +375,7 @@ object VrnChecksum {
 
   private def weightedTotal(reference: String): Int = {
     val weighting = List(8, 7, 6, 5, 4, 3, 2)
-    val ref = reference.map(_.asDigit).take(7)
+    val ref       = reference.map(_.asDigit).take(7)
     (ref, weighting).zipped.map(_ * _).sum
   }
 

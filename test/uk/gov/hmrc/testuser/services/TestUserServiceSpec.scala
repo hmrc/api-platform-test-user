@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,19 +33,20 @@ import scala.concurrent.Future
 class TestUserServiceSpec extends AsyncHmrcSpec {
   implicit def ec = ExecutionContext.global
 
-  val userId = "user"
+  val userId          = "user"
   val groupIdentifier = "groupIdentifier"
-  val password = "password"
-  val hashedPassword = "hashedPassword"
-  val saUtr = "1555369052"
-  val ctUtr = "1555369053"
-  val crn = "12345678"
-  val nino = "CC333333C"
-  val shortNino = "CC333333"
-  val empRef = "555/EIA000"
+  val password        = "password"
+  val hashedPassword  = "hashedPassword"
+  val saUtr           = "1555369052"
+  val ctUtr           = "1555369053"
+  val crn             = "12345678"
+  val nino            = "CC333333C"
+  val shortNino       = "CC333333"
+  val empRef          = "555/EIA000"
 
   val individualServices = Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
-  val config = ConfigFactory.parseString(
+
+  val config             = ConfigFactory.parseString(
     """randomiser {
       |  individualDetails {
       |    firstName = [
@@ -78,11 +79,11 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
       |""".stripMargin
   )
 
-
   val organisationServices = Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
 
   val agentServices = Seq(ServiceKeys.AGENT_SERVICES)
-  val testAgent = TestAgent(
+
+  val testAgent     = TestAgent(
     userId = userId,
     password = password,
     userFullName = "name",
@@ -91,14 +92,14 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
   )
 
   trait Setup {
-    implicit val hc = HeaderCarrier()
+    implicit val hc               = HeaderCarrier()
     implicit def executionContext = mock[ExecutionContext]
 
     val mockTestUserRepository = mock[TestUserRepository]
-    val generator = new Generator(mockTestUserRepository, config)
+    val generator              = new Generator(mockTestUserRepository, config)
 
     val underTest = new TestUserService(mock[PasswordService], mock[DesSimulatorConnector], mockTestUserRepository, mock[Generator])
-    when(underTest.testUserRepository.createUser(*[TestUser])).thenAnswer( (testUser: TestUser) => successful(testUser))
+    when(underTest.testUserRepository.createUser(*[TestUser])).thenAnswer((testUser: TestUser) => successful(testUser))
     when(underTest.testUserRepository.fetchByUserId(*)).thenReturn(successful(None))
     when(underTest.passwordService.validate(*, *)).thenReturn(false)
     when(underTest.passwordService.validate(password, hashedPassword)).thenReturn(true)
@@ -109,7 +110,8 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
         password = password,
         nino = Some(nino),
         saUtr = Some(saUtr)
-      )))
+      )
+    ))
 
     val testIndividual = testIndividualWithNoServices.copy(services = individualServices)
 
@@ -118,7 +120,8 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
         userId = userId,
         password = password,
         empRef = Some(empRef)
-      )))
+      )
+    ))
 
     val testOrganisation = testOrganisationWithNoServices.copy(services = organisationServices)
   }
@@ -166,7 +169,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
 
     "fail when the nino validation fails" in new Setup {
       when(underTest.testUserRepository.fetchByNino(eqTo(Nino(nino))))
-          .thenReturn(Future.successful(Some(testIndividual)))
+        .thenReturn(Future.successful(Some(testIndividual)))
 
       val result = await(underTest.createTestIndividual(individualServices, nino = Some(Nino(nino))))
 
@@ -221,7 +224,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
 
     "fail when the nino validation fails" in new Setup {
       when(underTest.testUserRepository.fetchByNino(eqTo(Nino(nino))))
-          .thenReturn(Future.successful(Some(testIndividual)))
+        .thenReturn(Future.successful(Some(testIndividual)))
 
       val result = await(underTest.createTestOrganisation(organisationServices, None, Some(Nino(nino)), None))
 
@@ -386,7 +389,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
     "return the organisation when it exists in the repository" in new Setup {
       when(underTest.testUserRepository.fetchOrganisationByCrn(Crn(crn))).thenReturn(successful(Some(testOrganisation)))
 
-      val result = await(underTest.fetchOrganisationByCrn(Crn(crn )))
+      val result = await(underTest.fetchOrganisationByCrn(Crn(crn)))
 
       result shouldBe testOrganisation
     }

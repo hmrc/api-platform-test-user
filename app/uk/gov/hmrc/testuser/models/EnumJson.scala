@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import play.api.libs.json._
 object EnumJson {
 
   def enumReads[E <: Enumeration](enum: E): Reads[E#Value] = new Reads[E#Value] {
+
     def reads(json: JsValue): JsResult[E#Value] = json match {
       case JsString(s) => {
         try {
@@ -30,7 +31,7 @@ object EnumJson {
             JsError(s"Enumeration expected of type: '${enum.getClass}', but it does not contain '$s'")
         }
       }
-      case _ => JsError("String value expected")
+      case _           => JsError("String value expected")
     }
   }
 
