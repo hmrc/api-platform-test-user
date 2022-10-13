@@ -25,6 +25,7 @@ import scalaj.http.Http
 import uk.gov.hmrc.testuser.helpers.BaseSpec
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.JsonFormatters._
+import java.time.format.DateTimeFormatter
 
 class FetchUserSpec extends BaseSpec {
 
@@ -123,7 +124,7 @@ class FetchUserSpec extends BaseSpec {
            |   "userId": "${individual.userId}",
            |   "userFullName": "${individual.userFullName}",
            |   "emailAddress": "${individual.emailAddress}",
-           |   "vatRegistrationDate": "${individual.vatRegistrationDate.get.toString("yyyy-MM-dd")}",
+           |   "vatRegistrationDate": "${individual.vatRegistrationDate.get.format(DateTimeFormatter.ISO_DATE)}",
            |   "vrn": "${individual.vrn.get}",
            |   "groupIdentifier": "${individual.groupIdentifier.get}",
            |   "individualDetails": ${toJson(individual.individualDetails)}
@@ -187,7 +188,7 @@ class FetchUserSpec extends BaseSpec {
             |   "userFullName": "${organisation.userFullName}",
             |   "emailAddress": "${organisation.emailAddress}",
             |   "vrn": "${organisation.vrn.get}",
-            |   "vatRegistrationDate": "${organisation.vatRegistrationDate.get.toString("yyyy-MM-dd")}",
+            |   "vatRegistrationDate": "${organisation.vatRegistrationDate.get.format(DateTimeFormatter.ISO_DATE)}",
             |   "groupIdentifier": "${organisation.groupIdentifier.get}",
             |   "organisationDetails": {
             |     "name": "${organisation.organisationDetails.name}",

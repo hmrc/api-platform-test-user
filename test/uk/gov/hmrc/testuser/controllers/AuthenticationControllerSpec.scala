@@ -17,7 +17,7 @@
 package uk.gov.hmrc.testuser.controllers
 
 import uk.gov.hmrc.testuser.common.LogSuppressing
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, UNAUTHORIZED}
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.json.Json.toJson

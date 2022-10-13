@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.testuser.models
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.libs.json.{Format, Reads, Writes}
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.domain._

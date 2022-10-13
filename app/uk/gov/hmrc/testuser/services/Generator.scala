@@ -18,7 +18,7 @@ package uk.gov.hmrc.testuser.services
 
 import com.typesafe.config.Config
 import javax.inject.{Inject, Singleton}
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.scalacheck.Gen
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.testuser.models.ServiceKeys._

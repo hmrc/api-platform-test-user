@@ -17,7 +17,7 @@
 package uk.gov.hmrc.testuser.services
 
 import com.typesafe.config.ConfigFactory
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.scalacheck.Gen
 import org.scalatest.enablers.{Definition, Emptiness}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks

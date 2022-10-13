@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.testuser.services
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
 import uk.gov.hmrc.testuser.models._
