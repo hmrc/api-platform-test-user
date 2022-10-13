@@ -17,7 +17,6 @@ lazy val microservice = (project in file("."))
   .settings(publishingSettings: _*)
   .settings(defaultSettings(): _*)
   .settings(ScoverageSettings())
-  // .settings(SilencerSettings())
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(
     name := appName,
