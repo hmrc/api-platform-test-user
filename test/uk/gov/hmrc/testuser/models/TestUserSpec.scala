@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,6 +91,6 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
   }
 
   "Services" should "get size equal to all services when length called" in {
-    Services.length shouldBe 16
+    Services.length shouldBe 17
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ object ServiceKeys extends Enumeration {
   val RELIEF_AT_SOURCE: ServiceKeys.Value = Value("relief-at-source")
   val CUSTOMS_SERVICES: ServiceKeys.Value = Value("customs-services")
   val GOODS_VEHICLE_MOVEMENTS: ServiceKeys.Value = Value("goods-vehicle-movements")
+  val IMPORT_CONTROL_PRESENTATION_OF_GOODS: ServiceKeys.Value = Value("import-control-presentation-of-goods")
   val SAFETY_AND_SECURITY: ServiceKeys.Value = Value("safety-and-security")
   val CTC: ServiceKeys.Value = Value("common-transit-convention-traders")
   val CTC_LEGACY: ServiceKeys.Value = Value("common-transit-convention-traders-legacy")
@@ -60,6 +61,7 @@ object Services extends Seq[Service] {
     Service(ServiceKeys.RELIEF_AT_SOURCE, "Relief at Source", Seq(ORGANISATION)),
     Service(ServiceKeys.CUSTOMS_SERVICES, "Customs Services", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.GOODS_VEHICLE_MOVEMENTS, "Goods Vehicle Services", Seq(INDIVIDUAL, ORGANISATION)),
+    Service(ServiceKeys.IMPORT_CONTROL_PRESENTATION_OF_GOODS, "Import Control Presentation of Goods", Seq(ORGANISATION)),
     Service(ServiceKeys.CTC_LEGACY, "Common Transit Convention Traders Legacy", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.CTC, "Common Transit Convention Traders", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.SAFETY_AND_SECURITY, "Safety and Security", Seq(ORGANISATION)))
