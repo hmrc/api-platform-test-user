@@ -26,8 +26,8 @@ trait Randomiser {
   def config: Config
 
   private lazy val minimumSchoolLeavingAge = 16
-  private lazy val maximumAgeOfIndividual = 100
-  private lazy val ageRange = minimumSchoolLeavingAge to maximumAgeOfIndividual
+  private lazy val maximumAgeOfIndividual  = 100
+  private lazy val ageRange                = minimumSchoolLeavingAge to maximumAgeOfIndividual
 
   def randomNinoEligibleDateOfBirth(): LocalDate = LocalDate.now
     .withDayOfMonth(nextInt(28))

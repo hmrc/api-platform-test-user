@@ -24,6 +24,7 @@ import org.scalatest.matchers.should.Matchers
 class RandomiserSpec extends AnyFlatSpec with Matchers {
 
   private val randomiser = new Randomiser {
+
     val config = ConfigFactory.parseString(
       """
         |randomiser {
@@ -50,7 +51,7 @@ class RandomiserSpec extends AnyFlatSpec with Matchers {
     for (date <- Set(date1, date2)) {
       val now = LocalDate.now()
 
-       date.isBefore(now.minusYears(16)) && date.isAfter(now.minusYears(101)) shouldBe true
+      date.isBefore(now.minusYears(16)) && date.isAfter(now.minusYears(101)) shouldBe true
     }
   }
 

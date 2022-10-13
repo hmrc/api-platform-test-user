@@ -22,7 +22,7 @@ class PasswordServiceSpec extends AsyncHmrcSpec {
 
   trait Setup {
     val passwordLogRounds = 12
-    val config = PasswordConfig(passwordLogRounds)
+    val config            = PasswordConfig(passwordLogRounds)
 
     val underTest = new PasswordService(config)
   }
