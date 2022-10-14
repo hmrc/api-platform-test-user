@@ -92,6 +92,8 @@ paths:
                 vrn: '666119668'
                 vatRegistrationDate: 2001-11-02
                 eoriNumber: GB123456789012
+      security:
+      - applicationRestricted: []
       deprecated: false
   /create-test-user/organisations:
     post:
@@ -220,6 +222,8 @@ paths:
                 eoriNumber: GB123456789012
                 crn: '12345678'
                 taxPayerType: Individual
+      security:
+      - applicationRestricted: []
       deprecated: false
   /create-test-user/agents:
     post:
@@ -264,6 +268,8 @@ paths:
                 userFullName: Ida Newton
                 emailAddress: ida.newton@example.com
                 agentServicesAccountNumber: NARN0396245
+      security:
+      - applicationRestricted: []
       deprecated: false
   /create-test-user/services:
     get:
@@ -304,8 +310,20 @@ paths:
                 name: Service 2
                 allowedUserTypes:
                 - AGENT
+      security:
+      - applicationRestricted: []
       deprecated: false
 components:
+  securitySchemes:
+    applicationRestricted:
+      type: oauth2
+      description: |
+        HMRC supports OAuth 2.0 for authenticating application restricted API requests using an OAuth 2.0 Bearer Token in the AUTHORIZATION header.
+        See https://developer.service.hmrc.gov.uk/api-documentation/docs/authorisation/application-restricted-endpoints for details.
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.service.hmrc.gov.uk/oauth/token
+          scopes: {}
   schemas:
     errorResponse:
       title: errorResponse
@@ -315,7 +333,7 @@ components:
       properties:
         code:
           type: string
-    Address:
+    IndividualAddress:
       title: Address
       required:
       - line1
@@ -332,8 +350,8 @@ components:
         postcode:
           type: string
           description: Individual's postcode.
-    Address1:
-      title: Address1
+    OrganisationAddress:
+      title: Address
       required:
       - line1
       - line2
@@ -607,7 +625,7 @@ components:
           description: Individual's date of birth.
           format: date
         address:
-          $ref: '#/components/schemas/Address'
+          $ref: '#/components/schemas/IndividualAddress'
     OrganisationDetails:
       title: OrganisationDetails
       required:
@@ -619,7 +637,7 @@ components:
           type: string
           description: Organisation name.
         address:
-          $ref: '#/components/schemas/Address1'
+          $ref: '#/components/schemas/OrganisationAddress'
     NationalInsurance:
       title: national-insurance
       enum:
