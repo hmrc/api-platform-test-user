@@ -27,5 +27,5 @@ class DocumentationController @Inject() (assets: Assets, cc: ControllerComponent
 
   def definition: Action[AnyContent] = assets.at(s"/public/api", "definition.json")
 
-  def raml(version: String, file: String): Action[AnyContent] = assets.at(s"/public/api/conf/$version", file)
+  def specification(version: String, file: String): Action[AnyContent] = assets.at(s"/public/api/conf/$version", file)
 }
