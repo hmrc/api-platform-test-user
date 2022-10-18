@@ -44,7 +44,7 @@ class PlatformIntegrationSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
       status(result) shouldBe OK
     }
 
-    "provide raml documentation" in new Setup {
+    "provide api specification" in new Setup {
       val result = documentationController.specification("1.0", "application.yaml")(request)
       status(result) shouldBe OK
       contentAsString(result) should startWith("openapi:")
