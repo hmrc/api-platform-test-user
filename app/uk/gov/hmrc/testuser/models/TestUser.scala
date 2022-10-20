@@ -25,22 +25,23 @@ import uk.gov.hmrc.testuser.models.UserType.{AGENT, INDIVIDUAL, ORGANISATION, Us
 
 object ServiceKeys extends Enumeration {
   type ServiceKey = Value
-  val NATIONAL_INSURANCE: ServiceKeys.Value         = Value("national-insurance")
-  val SELF_ASSESSMENT: ServiceKeys.Value            = Value("self-assessment")
-  val CORPORATION_TAX: ServiceKeys.Value            = Value("corporation-tax")
-  val PAYE_FOR_EMPLOYERS: ServiceKeys.Value         = Value("paye-for-employers")
-  val SUBMIT_VAT_RETURNS: ServiceKeys.Value         = Value("submit-vat-returns")
-  val MTD_VAT: ServiceKeys.Value                    = Value("mtd-vat")
-  val MTD_INCOME_TAX: ServiceKeys.Value             = Value("mtd-income-tax")
-  val AGENT_SERVICES: ServiceKeys.Value             = Value("agent-services")
-  val LISA: ServiceKeys.Value                       = Value("lisa")
-  val SECURE_ELECTRONIC_TRANSFER: ServiceKeys.Value = Value("secure-electronic-transfer")
-  val RELIEF_AT_SOURCE: ServiceKeys.Value           = Value("relief-at-source")
-  val CUSTOMS_SERVICES: ServiceKeys.Value           = Value("customs-services")
-  val GOODS_VEHICLE_MOVEMENTS: ServiceKeys.Value    = Value("goods-vehicle-movements")
-  val SAFETY_AND_SECURITY: ServiceKeys.Value        = Value("safety-and-security")
-  val CTC: ServiceKeys.Value                        = Value("common-transit-convention-traders")
-  val CTC_LEGACY: ServiceKeys.Value                 = Value("common-transit-convention-traders-legacy")
+  val NATIONAL_INSURANCE: ServiceKeys.Value                   = Value("national-insurance")
+  val SELF_ASSESSMENT: ServiceKeys.Value                      = Value("self-assessment")
+  val CORPORATION_TAX: ServiceKeys.Value                      = Value("corporation-tax")
+  val PAYE_FOR_EMPLOYERS: ServiceKeys.Value                   = Value("paye-for-employers")
+  val SUBMIT_VAT_RETURNS: ServiceKeys.Value                   = Value("submit-vat-returns")
+  val MTD_VAT: ServiceKeys.Value                              = Value("mtd-vat")
+  val MTD_INCOME_TAX: ServiceKeys.Value                       = Value("mtd-income-tax")
+  val AGENT_SERVICES: ServiceKeys.Value                       = Value("agent-services")
+  val LISA: ServiceKeys.Value                                 = Value("lisa")
+  val SECURE_ELECTRONIC_TRANSFER: ServiceKeys.Value           = Value("secure-electronic-transfer")
+  val RELIEF_AT_SOURCE: ServiceKeys.Value                     = Value("relief-at-source")
+  val CUSTOMS_SERVICES: ServiceKeys.Value                     = Value("customs-services")
+  val GOODS_VEHICLE_MOVEMENTS: ServiceKeys.Value              = Value("goods-vehicle-movements")
+  val IMPORT_CONTROL_PRESENTATION_OF_GOODS: ServiceKeys.Value = Value("import-control-presentation-of-goods")
+  val SAFETY_AND_SECURITY: ServiceKeys.Value                  = Value("safety-and-security")
+  val CTC: ServiceKeys.Value                                  = Value("common-transit-convention-traders")
+  val CTC_LEGACY: ServiceKeys.Value                           = Value("common-transit-convention-traders-legacy")
 }
 
 case class Service(key: ServiceKey, name: String, allowedUserTypes: Seq[UserType])
@@ -61,6 +62,7 @@ object Services extends Seq[Service] {
     Service(ServiceKeys.RELIEF_AT_SOURCE, "Relief at Source", Seq(ORGANISATION)),
     Service(ServiceKeys.CUSTOMS_SERVICES, "Customs Services", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.GOODS_VEHICLE_MOVEMENTS, "Goods Vehicle Services", Seq(INDIVIDUAL, ORGANISATION)),
+    Service(ServiceKeys.IMPORT_CONTROL_PRESENTATION_OF_GOODS, "Import Control Presentation of Goods", Seq(ORGANISATION)),
     Service(ServiceKeys.CTC_LEGACY, "Common Transit Convention Traders Legacy", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.CTC, "Common Transit Convention Traders", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.SAFETY_AND_SECURITY, "Safety and Security", Seq(ORGANISATION))
