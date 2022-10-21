@@ -33,7 +33,7 @@ class TestUserRepository @Inject() (mongo: ReactiveMongoComponent)(implicit ec: 
     extends ReactiveRepository[TestUser, BSONObjectID]("testUser", mongo.mongoConnector.db, JsonFormatters.formatTestUser, ReactiveMongoFormats.objectIdFormats) {
 
   // List of fields that contain generated identifiers
-  val IdentifierFields: Seq[String] = Seq("nino", "saUtr", "vrn", "empRef", "mtdItId", "ctUtr", "lisaManRefNum", "eoriNumber", "arn", "groupIdentifier", "crn")
+  val IdentifierFields: Seq[String] = Seq("nino", "saUtr", "vrn", "empRef", "mtdItId", "ctUtr", "lisaManRefNum", "eoriNumber", "personPresentingTheGoods", "arn", "groupIdentifier", "crn")
 
   ensureIndex("userId", "userIdIndex")
 

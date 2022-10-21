@@ -57,6 +57,7 @@ object JsonFormatters {
 
   implicit val formatTaxpayerType                      = Json.valueFormat[TaxpayerType]
   implicit val formatEoriNumber                        = Json.valueFormat[EoriNumber]
+  implicit val formatPersonPresentingTheGoods          = Json.valueFormat[PersonPresentingTheGoods]
   implicit val formatCreateUserWithOptionalEoriRequest = Json.format[CreateUserWithOptionalRequestParams]
 
   implicit val formatFetchTestIndividualResponse   = Json.format[FetchTestIndividualResponse]

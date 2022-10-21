@@ -94,6 +94,7 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     vatRegistrationDate = Some(vatRegistrationDate),
     lisaManRefNum = Some(lisaManRefNum),
     eoriNumber = Some(eoriNumber),
+    personPresentingTheGoods= Some(personPresentingTheGoods)
     groupIdentifier = Some(groupIdentifier),
     crn = Some(crn),
     services =
@@ -108,6 +109,7 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         LISA,
         CUSTOMS_SERVICES,
         GOODS_VEHICLE_MOVEMENTS,
+        IMPORT_CONTROL_PRESENTATION_OF_GOODS,
         CTC,
         CTC_LEGACY
       )

@@ -61,19 +61,23 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
     taxOfficeReference <- Gen.listOfN(10, Gen.alphaNumChar).map(_.mkString.toUpperCase)
   } yield EmpRef.fromIdentifiers(s"$taxOfficeNumber/$taxOfficeReference")
 
-  private val vrnGenerator: Gen[String] = Gen.choose(1000000, 9999999).map(i => VrnChecksum.apply(i.toString)).retryUntil(VrnChecksum.isValid)
-  private val mtdItIdGenerator          = new MtdItIdGenerator()
-  private val lisaManRefNumGenerator    = new LisaGenerator()
-  private val setRefNumGenerator        = new SecureElectronicTransferReferenceNumberGenerator()
-  private val psaIdGenerator            = new PensionSchemeAdministratorIdentifierGenerator()
-  private val eoriGenerator             = Gen.listOfN(12, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
-  private val arnGenerator              = new ArnGenerator()
-  private val crnGenerator              = new CompanyReferenceNumberGenerator()
+  private val vrnGenerator: Gen[String]         = Gen.choose(1000000, 9999999).map(i => VrnChecksum.apply(i.toString)).retryUntil(VrnChecksum.isValid)
+  private val mtdItIdGenerator                  = new MtdItIdGenerator()
+  private val lisaManRefNumGenerator            = new LisaGenerator()
+  private val setRefNumGenerator                = new SecureElectronicTransferReferenceNumberGenerator()
+  private val psaIdGenerator                    = new PensionSchemeAdministratorIdentifierGenerator()
+  private val eoriGenerator                     = Gen.listOfN(12, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
+  private val arnGenerator                      = new ArnGenerator()
+  private val crnGenerator                      = new CompanyReferenceNumberGenerator()
+  private val personPresentingTheGoodsGenerator = Gen.listOfN(15, Gen.numChar).map("GB" + _.mkString).map(PersonPresentingTheGoods.apply)
 
   private val agentCodeGenerator = Gen.listOfN(10, Gen.numChar).map(_.mkString)
 
   def useProvidedOrGenerateEoriNumber(eoriNumber: Option[EoriNumber]): Future[String] =
     eoriNumber.fold(generateEoriNumber)(provided => Future.successful(provided.value))
+
+  def useProvidedOrGeneratePersonPresentingTheGoods(personPresentingTheGoods: Option[PersonPresentingTheGoods]): Future[String] =
+    personPresentingTheGoods.fold(generatePersonPresentingTheGoods)(provided => Future.successful(provided.value))
 
   def useProvidedOrGeneratedNino(nino: Option[Nino]): Future[String] = {
     nino.fold(generateNino)(providedNino => Future.successful(providedNino.value))
@@ -116,6 +120,7 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
   def generateTestOrganisation(
       services: Seq[ServiceKey] = Seq.empty,
       eoriNumber: Option[EoriNumber],
+      personPresentingTheGoods: Option[PersonPresentingTheGoods],
       nino: Option[Nino],
       taxpayerType: Option[TaxpayerType]
     ): Future[TestOrganisation] = {
@@ -143,8 +148,9 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       emailAddress        = generateEmailAddress(firstName, lastName)
       organisationDetails = generateOrganisationDetails
       individualDetails   = Some(generateIndividualDetails(firstName, lastName))
-      companyRegNo       <- whenF(CORPORATION_TAX)(generateCrn)
-      taxpayerType       <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
+      companyRegNo              <- whenF(CORPORATION_TAX)(generateCrn)
+      personPresentingTheGoods  <- whenF(IMPORT_CONTROL_PRESENTATION_OF_GOODS)(useProvidedOrGeneratePersonPresentingTheGoods(personPresentingTheGoods))
+      taxpayerType              <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
     } yield TestOrganisation(
       generateUserId,
       generatePassword,
@@ -164,6 +170,7 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       psaId,
       eoriNumber,
       groupIdentifier,
+      personPresentingTheGoods,
       services,
       crn = companyRegNo,
       taxpayerType = taxpayerType
@@ -261,6 +268,10 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
     eoriGenerator.sample.get.value
   })
 
+  private def generatePersonPresentingTheGoods: Future[String] = generateUniqueIdentifier(() => {
+    personPresentingTheGoodsGenerator.sample.get.value
+  })
+
   private def generateAgentCode: Future[String] = generateUniqueIdentifier(() => {
     agentCodeGenerator.sample.get
   })
@@ -354,6 +365,8 @@ class CompanyReferenceNumberGenerator(random: Random = new Random) {
 
   def next: String = (for (_ <- 1 to length) yield random.nextInt(maxNum)).mkString("")
 }
+
+
 
 object VrnChecksum {
 

@@ -81,6 +81,8 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     eoriNumber = Some("GB1234567890"),
     groupIdentifier = Some("organsiationGroup"),
     crn = Some("12345678"),
+    personPresentingTheGoods = Some("GB1234567890"),
+
     services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX,
       MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS,
       SAFETY_AND_SECURITY, CTC_LEGACY, CTC))

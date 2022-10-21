@@ -123,6 +123,7 @@ case class TestOrganisation(
     pensionSchemeAdministratorIdentifier: Option[String] = None,
     eoriNumber: Option[String] = None,
     groupIdentifier: Option[String] = None,
+    personPresentingTheGoods: Option[String] = None,
     override val services: Seq[ServiceKey] = Seq.empty,
     override val _id: BSONObjectID = BSONObjectID.generate,
     crn: Option[String] = None,
@@ -178,6 +179,7 @@ sealed trait TestOrganisationResponse extends TestUserResponse {
   val eoriNumber: Option[String]
   val groupIdentifier: Option[String]
   val crn: Option[String]
+  val personPresentingTheGoods: Option[String]
   val taxpayerType: Option[String]
 }
 
@@ -269,6 +271,7 @@ case class FetchTestOrganisationResponse(
     override val eoriNumber: Option[String] = None,
     override val groupIdentifier: Option[String] = None,
     override val crn: Option[String] = None,
+    override val personPresentingTheGoods: Option[String] = None,
     override val taxpayerType: Option[String] = None
   ) extends TestOrganisationResponse
 
@@ -293,6 +296,7 @@ object FetchTestOrganisationResponse {
     organisation.eoriNumber,
     organisation.groupIdentifier,
     organisation.crn,
+    organisation.personPresentingTheGoods,
     organisation.taxpayerType
   )
 }
@@ -317,6 +321,7 @@ case class TestOrganisationCreatedResponse(
     override val eoriNumber: Option[String] = None,
     override val groupIdentifier: Option[String] = None,
     override val crn: Option[String] = None,
+    override val personPresentingTheGoods: Option[String] = None,
     override val taxpayerType: Option[String] = None
   ) extends TestOrganisationResponse
 
@@ -342,6 +347,7 @@ object TestOrganisationCreatedResponse {
     organisation.eoriNumber,
     organisation.groupIdentifier,
     organisation.crn,
+    organisation.personPresentingTheGoods,
     organisation.taxpayerType
   )
 }
@@ -453,6 +459,19 @@ object EoriNumber extends SimpleName {
   override val name = "eoriNumber"
 }
 
+case class PersonPresentingTheGoods(override val value: String) extends TaxIdentifier with SimpleName {
+  require(PersonPresentingTheGoods.isValid(value), s"$value is not a valid Person Presenting The Goods Number.")
+
+  override val name = PersonPresentingTheGoods.name
+}
+object PersonPresentingTheGoods extends SimpleName {
+  val validPersonPresentingTheGoodsFormat = "^(GB|XI)[0-9]{12,15}$"
+
+  def isValid(personPresentingTheGoods: String) = personPresentingTheGoods.matches(validPersonPresentingTheGoodsFormat)
+
+  override val name = "personPresentingTheGoods"
+}
+
 case class TaxpayerType(override val value: String) extends SimpleName with TaxIdentifier {
   require(TaxpayerType.isValid(value), s"$value is not a valid Taxpayer Type.")
 
@@ -477,6 +496,8 @@ object Crn extends SimpleName with (String => Crn) {
   override val name: String = "crn"
 
 }
+
+
 
 case class Address(line1: String, line2: String, postcode: String)
 

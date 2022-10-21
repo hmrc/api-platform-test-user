@@ -55,6 +55,7 @@ class TestUserController @Inject() (val testUserService: TestUserService, cc: Co
       testUserService.createTestOrganisation(
         createUserRequest.serviceNames.getOrElse(Seq.empty),
         createUserRequest.eoriNumber,
+        createUserRequest.personPresentingTheGoods,
         createUserRequest.nino,
         createUserRequest.taxpayerType
       ) map {

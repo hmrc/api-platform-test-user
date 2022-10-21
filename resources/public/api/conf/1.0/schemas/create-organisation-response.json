@@ -149,6 +149,10 @@
       "type": "string",
       "description": "Company Reference Number"
     },
+    "personPresentingTheGoods": {
+      "type": "string",
+      "description": "Person Presenting TheGoods"
+    },
     "taxPayerType": {
       "type": "string",
       "description": "Type of Self Assessment taxpayer One of 'Individual' or 'Partnership'"
