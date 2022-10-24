@@ -130,27 +130,27 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
     def when[T](keys: ServiceKey*)(thenDo: => T): Option[T] = Generator.when(services)(keys)(thenDo)
 
     for {
-      saUtr              <- whenF(SELF_ASSESSMENT)(generateSaUtr)
-      nino               <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(useProvidedOrGeneratedNino(nino))
-      mtdItId            <- whenF(MTD_INCOME_TAX)(generateMtdId)
-      empRef             <- whenF(PAYE_FOR_EMPLOYERS)(generateEmpRef)
-      ctUtr              <- whenF(CORPORATION_TAX)(generateCtUtr)
-      vrn                <- whenF(SUBMIT_VAT_RETURNS, MTD_VAT)(generateVrn)
+      saUtr <- whenF(SELF_ASSESSMENT)(generateSaUtr)
+      nino <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(useProvidedOrGeneratedNino(nino))
+      mtdItId <- whenF(MTD_INCOME_TAX)(generateMtdId)
+      empRef <- whenF(PAYE_FOR_EMPLOYERS)(generateEmpRef)
+      ctUtr <- whenF(CORPORATION_TAX)(generateCtUtr)
+      vrn <- whenF(SUBMIT_VAT_RETURNS, MTD_VAT)(generateVrn)
       vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1, 20).sample.get))
-      lisaManRefNum      <- whenF(LISA)(generateLisaManRefNum)
-      setRefNum           = when(SECURE_ELECTRONIC_TRANSFER)(generateSetRefNum)
-      psaId               = when(RELIEF_AT_SOURCE)(generatePsaId)
-      eoriNumber         <- whenF(CUSTOMS_SERVICES, CTC_LEGACY, CTC, SAFETY_AND_SECURITY, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
-      groupIdentifier     = Some(generateGroupIdentifier)
-      firstName           = generateFirstName
-      lastName            = generateLastName
-      userFullName        = generateUserFullName(firstName, lastName)
-      emailAddress        = generateEmailAddress(firstName, lastName)
+      lisaManRefNum <- whenF(LISA)(generateLisaManRefNum)
+      setRefNum = when(SECURE_ELECTRONIC_TRANSFER)(generateSetRefNum)
+      psaId = when(RELIEF_AT_SOURCE)(generatePsaId)
+      eoriNumber <- whenF(CUSTOMS_SERVICES, CTC_LEGACY, CTC, SAFETY_AND_SECURITY, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
+      groupIdentifier = Some(generateGroupIdentifier)
+      firstName = generateFirstName
+      lastName = generateLastName
+      userFullName = generateUserFullName(firstName, lastName)
+      emailAddress = generateEmailAddress(firstName, lastName)
       organisationDetails = generateOrganisationDetails
-      individualDetails   = Some(generateIndividualDetails(firstName, lastName))
-      companyRegNo              <- whenF(CORPORATION_TAX)(generateCrn)
-      personPresentingTheGoods  <- whenF(IMPORT_CONTROL_PRESENTATION_OF_GOODS)(useProvidedOrGeneratePersonPresentingTheGoods(personPresentingTheGoods))
-      taxpayerType              <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
+      individualDetails = Some(generateIndividualDetails(firstName, lastName))
+      companyRegNo <- whenF(CORPORATION_TAX)(generateCrn)
+      personPresentingTheGoodsNumber <- whenF(IMPORT_CONTROL_PRESENTATION_OF_GOODS)(useProvidedOrGeneratePersonPresentingTheGoods(personPresentingTheGoods))
+      taxpayerType <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
     } yield TestOrganisation(
       generateUserId,
       generatePassword,
@@ -170,12 +170,14 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       psaId,
       eoriNumber,
       groupIdentifier,
-      personPresentingTheGoods,
       services,
+      personPresentingTheGoodsNumber,
       crn = companyRegNo,
       taxpayerType = taxpayerType
+
     )
   }
+
 
   def generateTestAgent(services: Seq[ServiceKey] = Seq.empty): Future[TestAgent] = {
     def whenAppropriate: (=> Future[String]) => Future[Option[String]] = gen =>

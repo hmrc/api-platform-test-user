@@ -85,6 +85,9 @@ sealed trait TestUser {
   val _id: BSONObjectID
 }
 
+sealed class TestPersonPresentingTheGoods{
+  val personPresentingTheGoods: Option[String] = None
+}
 case class TestIndividual(
     override val userId: String,
     override val password: String,
@@ -123,13 +126,15 @@ case class TestOrganisation(
     pensionSchemeAdministratorIdentifier: Option[String] = None,
     eoriNumber: Option[String] = None,
     groupIdentifier: Option[String] = None,
-    personPresentingTheGoods: Option[String] = None,
     override val services: Seq[ServiceKey] = Seq.empty,
     override val _id: BSONObjectID = BSONObjectID.generate,
+    override val personPresentingTheGoods:  Option[String],
+
     crn: Option[String] = None,
-    taxpayerType: Option[String] = None
-  ) extends TestUser {
-  override val affinityGroup = "Organisation"
+    taxpayerType: Option[String] = None,
+  ) extends TestPersonPresentingTheGoods with TestUser {
+  override val affinityGroup = "Organisation";
+
 }
 
 case class TestAgent(
