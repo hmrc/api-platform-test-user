@@ -86,10 +86,6 @@ sealed trait TestUser {
   val _id: BSONObjectID
 }
 
-//sealed trait TestPersonPresentingTheGoods{
-//  val personPresentingTheGoods: Option[String] = None
-//}
-
 case class TestIndividual(
     override val userId: String,
     override val password: String,

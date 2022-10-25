@@ -189,8 +189,8 @@ paths:
                     pensionSchemeAdministratorIdentifier: A1234567
                     eoriNumber: GB123456789012
                     crn: '12345678'
-                    personPresentingTheGoods: 'GB123456789012'
                     taxPayerType: Individual
+                    personPresentingTheGoods: GB123456789012
               example:
                 userId: '085603622877'
                 password: nyezgdfrlsmc
@@ -222,8 +222,8 @@ paths:
                 pensionSchemeAdministratorIdentifier: A1234567
                 eoriNumber: GB123456789012
                 crn: '12345678'
-                personPresentingTheGoods: 'GB123456789012'
                 taxPayerType: Individual
+                personPresentingTheGoods: GB123456789012
       security:
       - applicationRestricted: []
       deprecated: false
@@ -511,6 +511,7 @@ components:
             - $ref: '#/components/schemas/SafetyAndSecurity'
             - $ref: '#/components/schemas/CommonTransitConventionTraders'
             - $ref: '#/components/schemas/CommonTransitConventionTradersLegacy'
+            - $ref: '#/components/schemas/ImportControlPresentationOfGoods'
           description: A list of services that the user should be enrolled for. To create a test user with no services, leave the list empty.
         eoriNumber:
           maxLength: 17
@@ -588,12 +589,12 @@ components:
         crn:
           type: string
           description: Company Reference Number
-        personPresentingTheGoods:
-          type: string
-          description: Local Reference Number
         taxPayerType:
           type: string
           description: Type of Self Assessment taxpayer One of 'Individual' or 'Partnership'
+        personPresentingTheGoods:
+          type: string
+          description: Person Presenting The Goods identification number
       description: Create Organisation Response
     CreateTestUserServicesresponse:
       title: CreateTestUserServicesresponse
@@ -739,6 +740,12 @@ components:
       - safety-and-security
       type: string
       description: Generates an EORI number and enrols the user for Safety and Security.
+    ImportControlPresentationOfGoods:
+      title: import-control-presentation-of-goods
+      enum:
+        - import-control-presentation-of-goods
+      type: string
+      description: Generates a Person Presenting The Goods identifier when forwarding Presentation Notifications to Borders and Trade.
 tags:
 - name: create-test-user
   description: ''

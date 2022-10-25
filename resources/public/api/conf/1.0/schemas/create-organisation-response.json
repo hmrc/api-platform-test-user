@@ -151,7 +151,7 @@
     },
     "personPresentingTheGoods": {
       "type": "string",
-      "description": "Person Presenting TheGoods"
+      "description": "Person Presenting The Goods Identification number."
     },
     "taxPayerType": {
       "type": "string",
