@@ -17,6 +17,7 @@
 package uk.gov.hmrc.testuser.models
 
 import java.time.LocalDate
+import ai.x.play.json.Jsonx
 import play.api.libs.json._
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.play.json.Union
@@ -37,7 +38,7 @@ object JsonFormatters {
   implicit val formatIndividualDetails   = Json.format[IndividualDetails]
   implicit val formatOrganisationDetails = Json.format[OrganisationDetails]
   implicit val formatTestIndividual      = Json.format[TestIndividual]
-  implicit val formatTestOrganisation    = Json.format[TestOrganisation]
+  implicit val formatTestOrganisation    = Jsonx.formatCaseClass[TestOrganisation]
   implicit val formatTestAgent           = Json.format[TestAgent]
 
   implicit val formatTestUser: Format[TestUser] = Union.from[TestUser]("userType")

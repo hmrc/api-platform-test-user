@@ -149,7 +149,7 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       organisationDetails = generateOrganisationDetails
       individualDetails = Some(generateIndividualDetails(firstName, lastName))
       companyRegNo <- whenF(CORPORATION_TAX)(generateCrn)
-      personPresentingTheGoodsNumber <- whenF(IMPORT_CONTROL_PRESENTATION_OF_GOODS)(useProvidedOrGeneratePersonPresentingTheGoods(personPresentingTheGoods))
+      personPresentingTheGoodsIdentifier <- whenF(IMPORT_CONTROL_PRESENTATION_OF_GOODS)(useProvidedOrGeneratePersonPresentingTheGoods(personPresentingTheGoods))
       taxpayerType <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
     } yield TestOrganisation(
       generateUserId,
@@ -170,14 +170,12 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       psaId,
       eoriNumber,
       groupIdentifier,
+      personPresentingTheGoodsIdentifier,
       services,
-      personPresentingTheGoodsNumber,
       crn = companyRegNo,
       taxpayerType = taxpayerType
-
     )
   }
-
 
   def generateTestAgent(services: Seq[ServiceKey] = Seq.empty): Future[TestAgent] = {
     def whenAppropriate: (=> Future[String]) => Future[Option[String]] = gen =>

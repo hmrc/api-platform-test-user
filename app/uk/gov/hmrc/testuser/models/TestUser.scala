@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.testuser.models
 
-import java.time.LocalDate
 import play.api.libs.json.{Format, Reads, Writes}
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.testuser.models.ServiceKeys.ServiceKey
 import uk.gov.hmrc.testuser.models.UserType.{AGENT, INDIVIDUAL, ORGANISATION, UserType}
+
+import java.time.LocalDate
 
 object ServiceKeys extends Enumeration {
   type ServiceKey = Value
@@ -62,10 +63,10 @@ object Services extends Seq[Service] {
     Service(ServiceKeys.RELIEF_AT_SOURCE, "Relief at Source", Seq(ORGANISATION)),
     Service(ServiceKeys.CUSTOMS_SERVICES, "Customs Services", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.GOODS_VEHICLE_MOVEMENTS, "Goods Vehicle Services", Seq(INDIVIDUAL, ORGANISATION)),
-    Service(ServiceKeys.IMPORT_CONTROL_PRESENTATION_OF_GOODS, "Import Control Presentation of Goods", Seq(ORGANISATION)),
     Service(ServiceKeys.CTC_LEGACY, "Common Transit Convention Traders Legacy", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.CTC, "Common Transit Convention Traders", Seq(INDIVIDUAL, ORGANISATION)),
-    Service(ServiceKeys.SAFETY_AND_SECURITY, "Safety and Security", Seq(ORGANISATION))
+    Service(ServiceKeys.SAFETY_AND_SECURITY, "Safety and Security", Seq(ORGANISATION)),
+    Service(ServiceKeys.IMPORT_CONTROL_PRESENTATION_OF_GOODS, "Import Control Presentation of Goods", Seq(ORGANISATION))
   )
 
   override def length: Int = services.length
@@ -85,9 +86,10 @@ sealed trait TestUser {
   val _id: BSONObjectID
 }
 
-sealed class TestPersonPresentingTheGoods{
-  val personPresentingTheGoods: Option[String] = None
-}
+//sealed trait TestPersonPresentingTheGoods{
+//  val personPresentingTheGoods: Option[String] = None
+//}
+
 case class TestIndividual(
     override val userId: String,
     override val password: String,
@@ -126,15 +128,13 @@ case class TestOrganisation(
     pensionSchemeAdministratorIdentifier: Option[String] = None,
     eoriNumber: Option[String] = None,
     groupIdentifier: Option[String] = None,
+    personPresentingTheGoods: Option[String] = None,
     override val services: Seq[ServiceKey] = Seq.empty,
     override val _id: BSONObjectID = BSONObjectID.generate,
-    override val personPresentingTheGoods:  Option[String],
-
     crn: Option[String] = None,
     taxpayerType: Option[String] = None,
-  ) extends TestPersonPresentingTheGoods with TestUser {
+  ) extends TestUser {
   override val affinityGroup = "Organisation";
-
 }
 
 case class TestAgent(
@@ -184,8 +184,8 @@ sealed trait TestOrganisationResponse extends TestUserResponse {
   val eoriNumber: Option[String]
   val groupIdentifier: Option[String]
   val crn: Option[String]
-  val personPresentingTheGoods: Option[String]
   val taxpayerType: Option[String]
+  val personPresentingTheGoods: Option[String]
 }
 
 sealed trait TestAgentResponse extends TestUserResponse {
@@ -276,8 +276,8 @@ case class FetchTestOrganisationResponse(
     override val eoriNumber: Option[String] = None,
     override val groupIdentifier: Option[String] = None,
     override val crn: Option[String] = None,
-    override val personPresentingTheGoods: Option[String] = None,
-    override val taxpayerType: Option[String] = None
+    override val taxpayerType: Option[String] = None,
+    override val personPresentingTheGoods: Option[String] = None
   ) extends TestOrganisationResponse
 
 object FetchTestOrganisationResponse {
@@ -301,8 +301,8 @@ object FetchTestOrganisationResponse {
     organisation.eoriNumber,
     organisation.groupIdentifier,
     organisation.crn,
-    organisation.personPresentingTheGoods,
-    organisation.taxpayerType
+    organisation.taxpayerType,
+    organisation.personPresentingTheGoods
   )
 }
 
@@ -326,8 +326,8 @@ case class TestOrganisationCreatedResponse(
     override val eoriNumber: Option[String] = None,
     override val groupIdentifier: Option[String] = None,
     override val crn: Option[String] = None,
+    override val taxpayerType: Option[String] = None,
     override val personPresentingTheGoods: Option[String] = None,
-    override val taxpayerType: Option[String] = None
   ) extends TestOrganisationResponse
 
 object TestOrganisationCreatedResponse {
@@ -352,8 +352,8 @@ object TestOrganisationCreatedResponse {
     organisation.eoriNumber,
     organisation.groupIdentifier,
     organisation.crn,
-    organisation.personPresentingTheGoods,
-    organisation.taxpayerType
+    organisation.taxpayerType,
+    organisation.personPresentingTheGoods
   )
 }
 

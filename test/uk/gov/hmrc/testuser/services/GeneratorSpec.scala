@@ -17,18 +17,18 @@
 package uk.gov.hmrc.testuser.services
 
 import com.typesafe.config.ConfigFactory
-import java.time.LocalDate
 import org.scalacheck.Gen
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.enablers.{Definition, Emptiness}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
-
-import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.domain.Nino
 
 trait GeneratorProvider {
 
@@ -73,10 +73,13 @@ trait GeneratorProvider {
 
   val eoriGenerator = Gen.listOfN(12, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
 
+  val personPresentingTheGoodsGenerator =
+    Gen.listOfN(15, Gen.numChar).map("GB" + _.mkString).map(PersonPresentingTheGoods.apply)
+
   val ninoGenerator = Gen.listOfN(6, Gen.numChar).map("PE" + _.mkString + "A")
 }
 
-class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
+class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks with ScalaFutures {
 
   trait Setup extends GeneratorProvider {
     val repository = mock[TestUserRepository]
@@ -304,6 +307,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
           secureElectronicTransferReferenceNumberDefined: Boolean = false,
           pensionSchemeAdministratorIdentifierDefined: Boolean = false,
           eoriDefined: Boolean = false,
+          personPresentingTheGoodsDefined: Boolean = false,
           crnDefined: Boolean = false,
           taxpayerTypeDefined: Boolean = false
         ) = {
@@ -318,6 +322,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
         check(org.secureElectronicTransferReferenceNumber, secureElectronicTransferReferenceNumberDefined)
         check(org.pensionSchemeAdministratorIdentifier, pensionSchemeAdministratorIdentifierDefined)
         check(org.eoriNumber, eoriDefined)
+        check(org.personPresentingTheGoods, personPresentingTheGoodsDefined)
         check(org.crn, crnDefined)
         check(org.taxpayerType, taxpayerTypeDefined)
       }
@@ -539,6 +544,35 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
 
       organisation shouldHave (empRefDefined = true)
       verify(repository, times(2)).identifierIsUnique(any[String])
+    }
+
+    "generate an personPresentingTheGoods identifier when IMPORT_CONTROL_PRESENTATION_OF_GOODS service is included" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+
+      val organisation = await(underTest.generateTestOrganisation(Seq(IMPORT_CONTROL_PRESENTATION_OF_GOODS), None, None, None, None))
+
+      organisation shouldHave (personPresentingTheGoodsDefined = true)
+    }
+
+    "use provided personPresentingTheGoods identifier when IMPORT_CONTROL_PRESENTATION_OF_GOODS service is included" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+
+      val personPresentingTheGoodsIdentifier = personPresentingTheGoodsGenerator.sample.get
+
+      val organisation = await(underTest.generateTestOrganisation(Seq(IMPORT_CONTROL_PRESENTATION_OF_GOODS), None, Some(personPresentingTheGoodsIdentifier), None, None))
+
+      organisation shouldHave (personPresentingTheGoodsDefined = true)
+      organisation.personPresentingTheGoods shouldBe Some(personPresentingTheGoodsIdentifier.value)
+    }
+
+    "do not generate personPresentingTheGoods identifier when no IMPORT_CONTROL_PRESENTATION_OF_GOODS service is included" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+
+      val personPresentingTheGoodsIdentifier = personPresentingTheGoodsGenerator.sample.get
+
+      val organisation = await(underTest.generateTestOrganisation(Seq.empty, None, Some(personPresentingTheGoodsIdentifier), None, None))
+
+      organisation shouldHave (personPresentingTheGoodsDefined = false)
     }
   }
 

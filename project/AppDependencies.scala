@@ -13,7 +13,8 @@ object AppDependencies {
     "uk.gov.hmrc"             %% "mongo-lock"                 % "7.0.0-play-28",
     "org.mindrot"             % "jbcrypt"                     % "0.4",
     "com.typesafe.play"       %% "play-json"                  % "2.9.2",
-    "org.scalacheck"          %% "scalacheck"                 % "1.13.5"
+    "org.scalacheck"          %% "scalacheck"                 % "1.13.5",
+    "ai.x"                    %% "play-json-extensions"       % "0.40.2"
   )
 
   lazy val test: Seq[ModuleID] = Seq(
