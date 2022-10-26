@@ -59,6 +59,10 @@
             "description": "Generates an EORI number and enrols the user for Goods Vehicle Movements."
           },
           {
+            "enum": ["import-control-presentation-of-goods"],
+            "description": "Generates a Person Presenting The Goods identifier when forwarding Presentation Notifications to Borders and Trade."
+          },
+          {
             "enum": ["safety-and-security"],
             "description": "Generates an EORI number and enrols the user for Safety and Security."
           },
