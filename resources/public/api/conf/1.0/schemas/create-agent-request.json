@@ -11,6 +11,7 @@
         "type": "string",
         "oneOf": [
           {
+            "title": "agent-services",
             "enum": ["agent-services"],
             "description" : "Generates an agent services account reference number and enrols the user for agent services."
           }
