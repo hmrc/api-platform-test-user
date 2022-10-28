@@ -33,5 +33,6 @@
   "pensionSchemeAdministratorIdentifier":"A1234567",
   "eoriNumber":"GB123456789012",
   "crn": "12345678",
+  "personPresentingTheGoods": "GB123456789012",
   "taxPayerType":"Individual"
 }
