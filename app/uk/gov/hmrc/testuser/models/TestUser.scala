@@ -128,9 +128,9 @@ case class TestOrganisation(
     override val services: Seq[ServiceKey] = Seq.empty,
     override val _id: BSONObjectID = BSONObjectID.generate,
     crn: Option[String] = None,
-    taxpayerType: Option[String] = None,
+    taxpayerType: Option[String] = None
   ) extends TestUser {
-  override val affinityGroup = "Organisation";
+  override val affinityGroup = "Organisation"
 }
 
 case class TestAgent(
@@ -323,7 +323,7 @@ case class TestOrganisationCreatedResponse(
     override val groupIdentifier: Option[String] = None,
     override val crn: Option[String] = None,
     override val taxpayerType: Option[String] = None,
-    override val personPresentingTheGoods: Option[String] = None,
+    override val personPresentingTheGoods: Option[String] = None
   ) extends TestOrganisationResponse
 
 object TestOrganisationCreatedResponse {
