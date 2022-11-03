@@ -73,7 +73,7 @@
           {
             "title": "import-control-presentation-of-goods",
             "enum": ["import-control-presentation-of-goods"],
-            "description": "Generates a Person Presenting The Goods identifier when forwarding Presentation Notifications to Borders and Trade."
+            "description": "Uses generated EORI number as an identifier for Import Control Presentation of Goods."
           },
           {
             "title": "safety-and-security",
