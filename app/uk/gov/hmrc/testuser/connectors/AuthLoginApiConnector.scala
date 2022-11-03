@@ -135,6 +135,7 @@ object GovernmentGatewayLogin {
         case MTD_VAT                 => individual.vrn map { vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn))) }
         case CTC_LEGACY              => individual.eoriNumber map { eoriNumber => Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber))) }
         case CTC                     => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
+        case IMPORT_CONTROL_SYSTEM   => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber)))}
         case _                       => None
       }
     }
@@ -174,6 +175,7 @@ object GovernmentGatewayLogin {
         case CTC                        => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case GOODS_VEHICLE_MOVEMENTS    => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case SAFETY_AND_SECURITY        => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-SS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
+        case IMPORT_CONTROL_SYSTEM      => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber))) }
         case _                          => None
       }
     }
