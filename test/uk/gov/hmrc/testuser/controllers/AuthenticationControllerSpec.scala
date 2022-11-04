@@ -70,7 +70,7 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     vatRegistrationDate = Some(vatRegistrationDate),
     eoriNumber = Some(eoriNumber),
     groupIdentifier = Some(groupIdentifier),
-    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC, CTC_LEGACY)
+    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC, CTC_LEGACY, IMPORT_CONTROL_SYSTEM)
   )
 
   val organisationDetails = OrganisationDetails(
@@ -109,7 +109,8 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         CUSTOMS_SERVICES,
         GOODS_VEHICLE_MOVEMENTS,
         CTC,
-        CTC_LEGACY
+        CTC_LEGACY,
+        IMPORT_CONTROL_SYSTEM
       )
   )
 
