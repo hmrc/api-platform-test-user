@@ -60,6 +60,7 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
   val ctcEnrolment                   = Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber)))
   val goodsVehicleMovementsEnrolment = Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
   val ssEnrolment                    = Enrolment("HMRC-SS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
+  val icsEnrolment                   = Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber)))
 
   "A GovernmentGatewayLogin created from a TestAgent" should {
 
@@ -173,6 +174,12 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       login.enrolments should contain theSameElementsAs Seq(mtdVatEnrolment)
     }
 
+    "contain the correct enrolments for import control system" in {
+      val login = GovernmentGatewayLogin(individual.copy(services = Seq(IMPORT_CONTROL_SYSTEM)))
+
+      login.enrolments should contain theSameElementsAs Seq(icsEnrolment)
+    }
+
     "ignore services that are not applicable" in {
       val login = GovernmentGatewayLogin(individual.copy(services =
         Seq(
@@ -232,7 +239,8 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
         GOODS_VEHICLE_MOVEMENTS,
         SAFETY_AND_SECURITY,
         CTC_LEGACY,
-        CTC
+        CTC,
+        IMPORT_CONTROL_SYSTEM
       )
     )
 
@@ -260,7 +268,8 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
           goodsVehicleMovementsEnrolment,
           ssEnrolment,
           ctcEnrolment,
-          ctcLegacyEnrolment
+          ctcLegacyEnrolment,
+          icsEnrolment
         )
     }
 

@@ -36,6 +36,11 @@
             "description": "Generates an EORI number and enrols the user for Goods Vehicle Movements."
           },
           {
+            "title": "import-control-system",
+            "enum": ["import-control-system"],
+            "description": "Generates an EORI number and enrols the user for Import Control System."
+          },
+          {
             "title": "mtd-vat",
             "enum": ["mtd-vat"],
             "description": "Generates a VAT Registration Number and a date of registration for VAT and enrols the user for Making Tax Digital VAT."
