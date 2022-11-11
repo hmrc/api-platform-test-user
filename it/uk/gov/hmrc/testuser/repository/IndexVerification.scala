@@ -17,8 +17,8 @@
 package uk.gov.hmrc.testuser.repository
 
 import org.scalatest.concurrent.Eventually
-import reactivemongo.api.indexes.Index
-import uk.gov.hmrc.mongo.ReactiveRepository
+import org.mongodb.scala.model.IndexModel
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -26,15 +26,15 @@ import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 
 trait IndexVerification extends AsyncHmrcSpec with Eventually {
 
-  def verifyIndexesVersionAgnostic[A, ID](repository: ReactiveRepository[A, ID], indexes: Set[Index])(implicit ec: ExecutionContext) = {
+  def verifyIndexesVersionAgnostic[A](repository: PlayMongoRepository[A], indexes: Set[IndexModel])(implicit ec: ExecutionContext) = {
     eventually(timeout(10.seconds), interval(1000.milliseconds)) {
-      val actualIndexes = versionAgnostic(await(repository.collection.indexesManager.list()).toSet)
-      val expectedIndexes = versionAgnostic(indexes)
+      val actualIndexes = await(repository.collection.listIndexes[IndexModel]().toFuture()).toSet
+      val expectedIndexes = indexes
 
       assert(expectedIndexes.subsetOf(actualIndexes))
     }
   }
 
-  def versionAgnostic(indexes: Set[Index]): Set[Index] = indexes.map(i => i.copy(version = None))
+//  def versionAgnostic(indexes: Set[Index]): Set[Index] = indexes.map(i => i.copy(version = None))
 }
 

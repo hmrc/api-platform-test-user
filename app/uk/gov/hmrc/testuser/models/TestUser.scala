@@ -18,7 +18,7 @@ package uk.gov.hmrc.testuser.models
 
 import java.time.LocalDate
 import play.api.libs.json.{Format, Reads, Writes}
-import reactivemongo.bson.BSONObjectID
+import org.bson.types.ObjectId
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.testuser.models.ServiceKeys.ServiceKey
 import uk.gov.hmrc.testuser.models.UserType.{AGENT, INDIVIDUAL, ORGANISATION, UserType}
@@ -82,7 +82,7 @@ sealed trait TestUser {
   val emailAddress: String
   val affinityGroup: String
   val services: Seq[ServiceKey]
-  val _id: BSONObjectID
+  val _id: ObjectId
 }
 
 case class TestIndividual(
@@ -99,7 +99,7 @@ case class TestIndividual(
     eoriNumber: Option[String] = None,
     groupIdentifier: Option[String] = None,
     override val services: Seq[ServiceKey] = Seq.empty,
-    override val _id: BSONObjectID = BSONObjectID.generate
+    override val _id: ObjectId = ObjectId.get
   ) extends TestUser {
   override val affinityGroup = "Individual"
 }
@@ -124,7 +124,7 @@ case class TestOrganisation(
     eoriNumber: Option[String] = None,
     groupIdentifier: Option[String] = None,
     override val services: Seq[ServiceKey] = Seq.empty,
-    override val _id: BSONObjectID = BSONObjectID.generate,
+    override val _id: ObjectId = ObjectId.get,
     crn: Option[String] = None,
     taxpayerType: Option[String] = None
   ) extends TestUser {
@@ -140,7 +140,7 @@ case class TestAgent(
     groupIdentifier: Option[String] = None,
     agentCode: Option[String] = None,
     override val services: Seq[ServiceKey] = Seq.empty,
-    override val _id: BSONObjectID = BSONObjectID.generate
+    override val _id: ObjectId = ObjectId.get
   ) extends TestUser {
   override val affinityGroup = "Agent"
 }

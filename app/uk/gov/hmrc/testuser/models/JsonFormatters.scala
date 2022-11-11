@@ -18,7 +18,7 @@ package uk.gov.hmrc.testuser.models
 
 import java.time.LocalDate
 import play.api.libs.json._
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
+import uk.gov.hmrc.mongo.play.json.formats.MongoFormats
 import uk.gov.hmrc.play.json.Union
 import uk.gov.hmrc.testuser.connectors.{AuthLoginAddress, Enrolment, GovernmentGatewayLogin, Identifier, ItmpData}
 
@@ -30,7 +30,7 @@ object JsonFormatters {
   implicit val formatLocalDateWrites: Writes[LocalDate] = WrapAssortedReadsAndWrites.DefaultLocalDateWrites
 
   implicit val crnFormatter              = Json.format[Crn]
-  implicit val formatObjectId            = ReactiveMongoFormats.objectIdFormats
+  implicit val formatObjectId            = MongoFormats.objectIdFormat
   implicit val formatServiceName         = EnumJson.enumFormat(ServiceKeys)
   implicit val formatUserType            = EnumJson.enumFormat(UserType)
   implicit val formatAddress             = Json.format[Address]
