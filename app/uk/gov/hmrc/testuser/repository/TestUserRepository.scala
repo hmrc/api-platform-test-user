@@ -34,6 +34,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
       collectionName = "testUser", 
       mongoComponent = mongo, 
       domainFormat = JsonFormatters.formatTestUser,
+      extraCodecs = Codecs.playFormatSumCodecs(JsonFormatters.formatTestUser),
       indexes = Seq(
         IndexModel(
           ascending("userId"),
@@ -70,6 +71,12 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
           ascending("mtdItId"),
           IndexOptions()
             .name("mtdItId-Index")
+            .background(true)
+        ),
+        IndexModel(
+          ascending("ctUtr"),
+          IndexOptions()
+            .name("ctUtr-Index")
             .background(true)
         ),
         IndexModel(

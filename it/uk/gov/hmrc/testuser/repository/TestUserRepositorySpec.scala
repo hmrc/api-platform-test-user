@@ -18,8 +18,6 @@ package uk.gov.hmrc.testuser.repository
 
 import org.mongodb.scala.model.Filters
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
-import org.mongodb.scala.model.{IndexModel, IndexOptions}
-import org.mongodb.scala.model.Indexes.ascending
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.mongo.test.MongoSupport
 import uk.gov.hmrc.testuser.helpers.GeneratorProvider
@@ -30,9 +28,6 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 
 class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with BeforeAndAfterAll with MongoSupport with IndexVerification {
-  // private val mongoComponent = new ReactiveMongoComponent {
-  //   override def mongoConnector = mongoConnectorForTest
-  // }
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   val userRepository = new TestUserRepository(mongoComponent)
@@ -55,30 +50,25 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
           taxpayerType = None))
   }
 
-  override def afterEach: Unit = {
+  override def beforeEach: Unit = {
     await(userRepository.collection.drop.toFuture())
+    await(userRepository.ensureIndexes)
   }
 
   "indexes" should {
     "be created for userId" in {
-      val expectedIndex = Set(
-        IndexModel(
-          ascending("userId"),
-          IndexOptions()
-            .name("userIdIndex")
-            .unique(true)
-            .background(true)
-        ))
-      verifyIndexesVersionAgnostic(userRepository, expectedIndex)
+      val expectedIndex = 
+        Map("name" ->  "userIdIndex", "background" -> true, "key" -> Map("userId" -> 1), "v" -> 2, "unique" -> true)
+      verifyIndex(userRepository, expectedIndex)
     }
 
     "be created for all identifier fields" in {
-      def expectedIndexes: Set[IndexModel] =
+      def expectedIndexes: Set[Map[String, Any]] =
         userRepository.IdentifierFields
-          .map(identifierField => IndexModel(ascending(identifierField), IndexOptions().name(s"$identifierField-Index").unique(false).background(true)))
+          .map(identifierField => Map("name" ->  s"$identifierField-Index", "background" -> true, "key" -> Map(identifierField -> 1), "v" -> 2))
           .toSet
 
-      verifyIndexesVersionAgnostic(userRepository, expectedIndexes)
+      expectedIndexes.map(index => verifyIndex(userRepository, index))
     }
   }
 
@@ -88,14 +78,14 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       val result = await(repository.createUser(testIndividual))
 
       result shouldBe testIndividual
-      await(repository.collection.find(Filters.equal("_id", testIndividual._id.toString())).headOption) shouldBe Some(testIndividual)
+      await(repository.collection.find(Filters.equal("_id", testIndividual._id)).headOption) shouldBe Some(testIndividual)
     }
 
     "create a test organisation in the repository" in new GeneratedTestOrganisation {
       val result = await(repository.createUser(testOrganisation))
 
       result shouldBe testOrganisation
-      await(repository.collection.find(Filters.equal("_id", testOrganisation._id.toString())).headOption) shouldBe Some(testOrganisation)
+      await(repository.collection.find(Filters.equal("_id", testOrganisation._id)).headOption) shouldBe Some(testOrganisation)
     }
   }
 
