@@ -25,7 +25,6 @@ import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.Filters.{and, equal, or}
 import uk.gov.hmrc.testuser.models._
-
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -113,20 +112,8 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
       replaceIndexes = true
     ) {
 
-  // // List of fields that contain generated identifiers
+  // List of fields that contain generated identifiers
   val IdentifierFields: Seq[String] = Seq("nino", "saUtr", "vrn", "empRef", "mtdItId", "ctUtr", "lisaManRefNum", "eoriNumber", "arn", "groupIdentifier", "crn")
-
-  // ensureIndex("userId", "userIdIndex")
-
-  // // Create indexes for ech identifier field - need to be non-unique as we may have existing duplicate values
-  // IdentifierFields.foreach(identifierField =>
-  //   ensureIndex(identifierField, s"$identifierField-Index", isUnique = false)
-  // )
-
-  // private def ensureIndex(field: String, indexName: String, isUnique: Boolean = true): Future[Boolean] = {
-  //   collection.indexesManager
-  //     .ensure(Index(Seq(field -> IndexType.Ascending), name = Some(indexName), unique = isUnique, background = true))
-  // }
 
   def createUser[T <: TestUser](testUser: T): Future[T] = {
     collection.insertOne(testUser)
@@ -146,14 +133,12 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
         equal("userType", Codecs.toBson(UserType.INDIVIDUAL))
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestIndividual]))
-    //find("nino" -> nino, "userType" -> UserType.INDIVIDUAL) map (_.headOption map (_.asInstanceOf[TestIndividual]))
   }
 
   def fetchByNino(nino: Nino): Future[Option[TestUser]] = {
     collection.find(
       equal("nino", Codecs.toBson(nino))
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestUser]))
-    //find("nino" -> nino) map (_.headOption map (_.asInstanceOf[TestUser]))
   }
 
   def fetchIndividualByShortNino(shortNino: NinoNoSuffix): Future[Option[TestIndividual]] = {
@@ -164,7 +149,6 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
         equal("userType", Codecs.toBson(UserType.INDIVIDUAL))
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestIndividual]))
-    //find("nino" -> matchShortNino, "userType" -> UserType.INDIVIDUAL) map (_.headOption map (_.asInstanceOf[TestIndividual]))
   }
 
   def fetchIndividualBySaUtr(saUtr: SaUtr): Future[Option[TestIndividual]] = {
@@ -174,7 +158,6 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
         equal("userType", Codecs.toBson(UserType.INDIVIDUAL))
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestIndividual]))
-    //find("saUtr" -> saUtr, "userType" -> UserType.INDIVIDUAL) map (_.headOption map (_.asInstanceOf[TestIndividual]))
   }
 
   def fetchIndividualByVrn(vrn: Vrn): Future[Option[TestIndividual]] = {
@@ -184,21 +167,18 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
         equal("userType", Codecs.toBson(UserType.INDIVIDUAL))
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestIndividual]))
-    //find("vrn" -> vrn, "userType" -> UserType.INDIVIDUAL) map (_.headOption map (_.asInstanceOf[TestIndividual]))
   }
 
   def fetchOrganisationByEmpRef(empRef: EmpRef): Future[Option[TestOrganisation]] = {
     collection.find(
       equal("empRef", Codecs.toBson(empRef))
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
-    //find("empRef" -> empRef.value) map (_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
 
   def fetchOrganisationByCtUtr(utr: CtUtr): Future[Option[TestOrganisation]] = {
     collection.find(
       equal("ctUtr", Codecs.toBson(utr))
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
-    //find("ctUtr" -> utr.value) map (_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
 
   def fetchOrganisationByVrn(vrn: Vrn): Future[Option[TestOrganisation]] = {
@@ -208,7 +188,6 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
         equal("userType", Codecs.toBson(UserType.ORGANISATION))
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
-    //find("vrn" -> vrn.value, "userType" -> UserType.ORGANISATION) map (_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
 
   def fetchOrganisationBySaUtr(saUtr: SaUtr): Future[Option[TestOrganisation]] = {
@@ -218,7 +197,6 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
         equal("userType", Codecs.toBson(UserType.ORGANISATION))
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
-    //find("saUtr" -> saUtr, "userType" -> UserType.ORGANISATION) map (_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
 
   def fetchOrganisationByCrn(crn: Crn): Future[Option[TestOrganisation]] = {
@@ -228,35 +206,14 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
         equal("userType", Codecs.toBson(UserType.ORGANISATION))
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
-    //find("crn" -> crn.value, "userType" -> UserType.ORGANISATION) map (_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
 
   def identifierIsUnique(identifier: String): Future[Boolean] = {
-    val query = or(
-      equal("nino", identifier),
-      equal("saUtr", identifier),
-      equal("vrn", identifier),
-      equal("empRef", identifier),
-      equal("mtdItId", identifier),
-      equal("ctUtr", identifier),
-      equal("lisaManRefNum", identifier),
-      equal("eoriNumber", identifier),
-      equal("arn", identifier),
-      equal("saUtr", identifier),
-      equal("groupIdentifier", identifier)
-    )
-    //val query2 = or(IdentifierFields.map(identifierField => equal(identifierField, identifier)))
+
+    val query = or(IdentifierFields.map(identifierField => equal(identifierField, identifier)):_*)
     collection.countDocuments(query).toFuture().map { matchedIdentifiers =>
        val isUnique = matchedIdentifiers == 0
        isUnique
     }
-
-    // logger.info(s"Checking tax identifier uniqueness - $identifier")
-    // val query3 = Json.obj("$or" -> IdentifierFields.map(identifierField => Json.obj(identifierField -> identifier)))
-    // count(query).map { matchedIdentifiers =>
-    //   val isUnique = matchedIdentifiers == 0
-    //   logger.info(s"Completed checking tax identifier uniqueness - $identifier")
-    //   isUnique
-    // }
   }
 }
