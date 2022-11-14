@@ -17,6 +17,7 @@
 package uk.gov.hmrc.testuser.repository
 
 import org.mongodb.scala.model.Filters
+import org.mongodb.scala.bson.BsonDocument
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.mongo.test.MongoSupport
@@ -58,17 +59,17 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
   "indexes" should {
     "be created for userId" in {
       val expectedIndex = 
-        Map("name" ->  "userIdIndex", "background" -> true, "key" -> Map("userId" -> 1), "v" -> 2, "unique" -> true)
-      verifyIndex(userRepository, expectedIndex)
+        Seq(BsonDocument("name" -> "userIdIndex", "unique" -> true, "background" -> true, "key" -> BsonDocument("userId" -> 1)))
+      verifyIndexes(userRepository, expectedIndex)
     }
 
     "be created for all identifier fields" in {
-      def expectedIndexes: Set[Map[String, Any]] =
+      def expectedIndexes: Seq[BsonDocument] =
         userRepository.IdentifierFields
-          .map(identifierField => Map("name" ->  s"$identifierField-Index", "background" -> true, "key" -> Map(identifierField -> 1), "v" -> 2))
-          .toSet
+          .map(identifierField => BsonDocument("name" ->  s"$identifierField-Index", "background" -> true, "key" -> BsonDocument(identifierField -> 1)))
+          .toSeq
 
-      expectedIndexes.map(index => verifyIndex(userRepository, index))
+      verifyIndexes(userRepository, expectedIndexes)
     }
   }
 

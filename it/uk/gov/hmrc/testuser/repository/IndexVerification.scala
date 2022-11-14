@@ -17,15 +17,24 @@
 package uk.gov.hmrc.testuser.repository
 
 import org.scalatest.concurrent.Eventually
-import org.mongodb.scala.model.IndexModel
+import org.mongodb.scala.Document
+import org.mongodb.scala.bson.BsonDocument
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 
 trait IndexVerification extends AsyncHmrcSpec with Eventually {
 
-  def verifyIndex[A](repository: PlayMongoRepository[A], expectedIndex: Map[String, Any]) = {
-      val actualIndexes = await(repository.collection.listIndexes[Seq[IndexModel]]().toFuture())
-      assert(actualIndexes.contains(expectedIndex))
+  def verifyIndexes[A](repository: PlayMongoRepository[A], expectedIndex: Seq[BsonDocument]) = {
+      val actualIndexes = await(repository.collection.listIndexes().toFuture())
+      actualIndexes.map(toBsonDocument) should contain allElementsOf expectedIndex
+  }
+
+  private def toBsonDocument(index: Document): BsonDocument = {
+    val d = index.toBsonDocument
+    // calling index.remove("v") leaves index untouched - convert to BsonDocument first..
+    d.remove("v") // version
+    d.remove("ns")
+    d
   }
 }
 
