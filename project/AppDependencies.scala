@@ -10,7 +10,7 @@ object AppDependencies {
     "uk.gov.hmrc"             %% "bootstrap-backend-play-28"  % "5.25.0",
     "uk.gov.hmrc"             %% "play-json-union-formatter"  % "1.15.0-play-28",
     "uk.gov.hmrc"             %% "domain"                     % "6.2.0-play-28",
-    "uk.gov.hmrc"             %% "mongo-lock"                 % "7.0.0-play-28",
+    "uk.gov.hmrc.mongo"       %% "hmrc-mongo-play-28"         % "0.73.0",
     "org.mindrot"             % "jbcrypt"                     % "0.4",
     "com.typesafe.play"       %% "play-json"                  % "2.9.2",
     "org.scalacheck"          %% "scalacheck"                 % "1.13.5"
@@ -18,9 +18,9 @@ object AppDependencies {
 
   lazy val test: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"             %% "bootstrap-test-play-28"     % "5.25.0",
+    "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-28"    % "0.73.0",
     "com.typesafe.play"       %% "play-test"                  % PlayVersion.current,
     "com.typesafe.akka"       %% "akka-stream-testkit"        % AkkaVersion,
-    "uk.gov.hmrc"             %% "reactivemongo-test"         % "5.0.0-play-28",
     "org.mockito"             %% "mockito-scala-scalatest"    % "1.17.12",
     "org.scalatestplus"       %% "scalacheck-1-15"            % "3.2.10.0",
     "org.pegdown"             %  "pegdown"                    % "1.6.0",
