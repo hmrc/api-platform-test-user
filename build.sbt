@@ -1,6 +1,7 @@
 import sbt.Keys.baseDirectory
 import sbt.Test
 import sbt.Tests.{Group, SubProcess}
+import uk.gov.hmrc.DefaultBuildSettings
 import uk.gov.hmrc.DefaultBuildSettings._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
@@ -41,6 +42,7 @@ lazy val microservice = (project in file("."))
   .settings(
     Defaults.itSettings,
     inConfig(IntegrationTest)(BloopDefaults.configSettings),
+    DefaultBuildSettings.integrationTestSettings(),
     IntegrationTest / Keys.fork := false,
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it",
