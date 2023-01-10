@@ -30,8 +30,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: ExecutionContext)
     extends PlayMongoRepository[TestUser](
-      collectionName = "testUser", 
-      mongoComponent = mongo, 
+      collectionName = "testUser",
+      mongoComponent = mongo,
       domainFormat = JsonFormatters.formatTestUser,
       extraCodecs = Codecs.playFormatSumCodecs(JsonFormatters.formatTestUser),
       indexes = Seq(
@@ -125,7 +125,6 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     collection.find(equal("userId", userId)).headOption()
   }
 
-
   def fetchIndividualByNino(nino: Nino): Future[Option[TestIndividual]] = {
     collection.find(
       and(
@@ -210,10 +209,10 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
 
   def identifierIsUnique(identifier: String): Future[Boolean] = {
 
-    val query = or(IdentifierFields.map(identifierField => equal(identifierField, identifier)):_*)
+    val query = or(IdentifierFields.map(identifierField => equal(identifierField, identifier)): _*)
     collection.countDocuments(query).toFuture().map { matchedIdentifiers =>
-       val isUnique = matchedIdentifiers == 0
-       isUnique
+      val isUnique = matchedIdentifiers == 0
+      isUnique
     }
   }
 }

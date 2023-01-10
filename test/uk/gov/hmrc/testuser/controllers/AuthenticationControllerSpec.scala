@@ -57,7 +57,7 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
 
-  val testIndividual    = TestIndividual(
+  val testIndividual = TestIndividual(
     userId = user,
     password = password,
     userFullName = userFullName,

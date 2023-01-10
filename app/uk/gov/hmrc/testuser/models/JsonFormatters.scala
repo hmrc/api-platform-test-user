@@ -25,8 +25,8 @@ import uk.gov.hmrc.testuser.connectors.{AuthLoginAddress, Enrolment, GovernmentG
 object WrapAssortedReadsAndWrites extends EnvReads with EnvWrites
 
 object JsonFormatters {
-  
-  implicit val formatLocalDateReads: Reads[LocalDate] = WrapAssortedReadsAndWrites.DefaultLocalDateReads
+
+  implicit val formatLocalDateReads: Reads[LocalDate]   = WrapAssortedReadsAndWrites.DefaultLocalDateReads
   implicit val formatLocalDateWrites: Writes[LocalDate] = WrapAssortedReadsAndWrites.DefaultLocalDateWrites
 
   implicit val crnFormatter              = Json.format[Crn]

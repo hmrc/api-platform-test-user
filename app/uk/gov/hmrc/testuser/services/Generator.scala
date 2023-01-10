@@ -51,10 +51,10 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
     extends Randomiser
     with ApplicationLogger {
 
-  private val userIdGenerator                         = Gen.listOfN(12, Gen.numChar).map(_.mkString)
-  private val passwordGenerator                       = Gen.listOfN(12, Gen.alphaNumChar).map(_.mkString)
-  private val utrGenerator                            = new UtrGenerator()
-  private val ninoGenerator                           = new uk.gov.hmrc.domain.Generator()
+  private val userIdGenerator   = Gen.listOfN(12, Gen.numChar).map(_.mkString)
+  private val passwordGenerator = Gen.listOfN(12, Gen.alphaNumChar).map(_.mkString)
+  private val utrGenerator      = new UtrGenerator()
+  private val ninoGenerator     = new uk.gov.hmrc.domain.Generator()
 
   private val employerReferenceGenerator: Gen[EmpRef] = for {
     taxOfficeNumber    <- Gen.choose(100, 999).map(x => x.toString)

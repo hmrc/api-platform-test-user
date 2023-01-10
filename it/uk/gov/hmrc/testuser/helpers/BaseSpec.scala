@@ -31,25 +31,25 @@ import scala.concurrent.Await._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import org.scalatest.featurespec.AnyFeatureSpec
-import org.scalatest.{BeforeAndAfterEach, BeforeAndAfterAll, GivenWhenThen}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, GivenWhenThen}
 import org.scalatest.matchers.should.Matchers
 
 trait BaseSpec extends AnyFeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with GuiceOneServerPerSuite
-with GivenWhenThen {
+    with GivenWhenThen {
 
-    override def fakeApplication(): Application =  GuiceApplicationBuilder().configure(
-      "auditing.enabled" -> false,
-      "auditing.traceRequests" -> false,
-      "microservice.services.auth-login-api.port" -> AuthLoginApiStub.port,
-      "mongodb.uri" -> "mongodb://localhost:27017/api-platform-test-user-it",
-      "run.mode" -> "It"
-    ).build()
+  override def fakeApplication(): Application = GuiceApplicationBuilder().configure(
+    "auditing.enabled"                          -> false,
+    "auditing.traceRequests"                    -> false,
+    "microservice.services.auth-login-api.port" -> AuthLoginApiStub.port,
+    "mongodb.uri"                               -> "mongodb://localhost:27017/api-platform-test-user-it",
+    "run.mode"                                  -> "It"
+  ).build()
 
-  def mongoRepository =  app.injector.instanceOf[TestUserRepository]
+  def mongoRepository = app.injector.instanceOf[TestUserRepository]
 
-  val timeout = Duration(5, TimeUnit.SECONDS)
+  val timeout    = Duration(5, TimeUnit.SECONDS)
   val serviceUrl = s"http://localhost:$port"
-  val mocks = Seq(AuthLoginApiStub)
+  val mocks      = Seq(AuthLoginApiStub)
 
   override protected def beforeEach(): Unit = {
     mocks.foreach(m => if (!m.server.isRunning) m.server.start())
@@ -70,6 +70,6 @@ with GivenWhenThen {
 
 case class MockHost(port: Int) {
   val server = new WireMockServer(WireMockConfiguration.wireMockConfig().port(port))
-  val mock = new WireMock("localhost", port)
-  val url = s"http://localhost:$port"
+  val mock   = new WireMock("localhost", port)
+  val url    = s"http://localhost:$port"
 }

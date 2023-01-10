@@ -25,8 +25,8 @@ import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 trait IndexVerification extends AsyncHmrcSpec with Eventually {
 
   def verifyIndexes[A](repository: PlayMongoRepository[A], expectedIndex: Seq[BsonDocument]) = {
-      val actualIndexes = await(repository.collection.listIndexes().toFuture())
-      actualIndexes.map(toBsonDocument) should contain allElementsOf expectedIndex
+    val actualIndexes = await(repository.collection.listIndexes().toFuture())
+    actualIndexes.map(toBsonDocument) should contain allElementsOf expectedIndex
   }
 
   private def toBsonDocument(index: Document): BsonDocument = {
@@ -37,4 +37,3 @@ trait IndexVerification extends AsyncHmrcSpec with Eventually {
     d
   }
 }
-

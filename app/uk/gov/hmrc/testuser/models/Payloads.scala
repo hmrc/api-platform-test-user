@@ -44,7 +44,7 @@ object LegacySandboxUser {
   val sandboxAuthenticationRequest = AuthenticationRequest(userId, password)
   val individualDetails            = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
 
-  val sandboxUser                  = TestIndividual(
+  val sandboxUser = TestIndividual(
     userId = userId,
     password = password,
     userFullName = userFullName,

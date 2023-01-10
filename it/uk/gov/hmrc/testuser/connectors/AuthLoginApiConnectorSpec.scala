@@ -36,10 +36,10 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with BeforeAndAfterAll with BeforeAndAfterEach {
 
-  val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
+  val individualDetails   = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
-  val userFullName = "John Doe"
-  val emailAddress = "john.doe@example.com"
+  val userFullName        = "John Doe"
+  val emailAddress        = "john.doe@example.com"
 
   val testIndividual = TestIndividual(
     "individualUser",
@@ -54,12 +54,12 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     vrn = Some("999902541"),
     mtdItId = Some("XGIT00000000054"),
     groupIdentifier = Some("individualGroup"),
-    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT,
-      CTC_LEGACY, CTC))
+    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC_LEGACY, CTC)
+  )
 
   val taxOfficeNumber = "555"
 
-  val taxOfficeReference =  "EIA000"
+  val taxOfficeReference = "EIA000"
 
   val testOrganisation = TestOrganisation(
     userId = "organisationUser",
@@ -81,9 +81,24 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     eoriNumber = Some("GB1234567890"),
     groupIdentifier = Some("organsiationGroup"),
     crn = Some("12345678"),
-    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, SUBMIT_VAT_RETURNS, PAYE_FOR_EMPLOYERS, MTD_INCOME_TAX,
-      MTD_VAT, LISA, SECURE_ELECTRONIC_TRANSFER, RELIEF_AT_SOURCE, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS,
-      SAFETY_AND_SECURITY, CTC_LEGACY, CTC))
+    services = Seq(
+      SELF_ASSESSMENT,
+      NATIONAL_INSURANCE,
+      CORPORATION_TAX,
+      SUBMIT_VAT_RETURNS,
+      PAYE_FOR_EMPLOYERS,
+      MTD_INCOME_TAX,
+      MTD_VAT,
+      LISA,
+      SECURE_ELECTRONIC_TRANSFER,
+      RELIEF_AT_SOURCE,
+      CUSTOMS_SERVICES,
+      GOODS_VEHICLE_MOVEMENTS,
+      SAFETY_AND_SECURITY,
+      CTC_LEGACY,
+      CTC
+    )
+  )
 
   val testAgent = TestAgent(
     userId = "agentUser",
@@ -93,7 +108,8 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     arn = Some("NARN0396245"),
     agentCode = Some("1234509876"),
     groupIdentifier = Some("agentGroup"),
-    services = Seq(AGENT_SERVICES))
+    services = Seq(AGENT_SERVICES)
+  )
 
   val authSession = AuthSession("Bearer 12345", "/auth/oid/12345", "ggToken")
 
@@ -223,7 +239,8 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
              |     }
              |  }
              |}
-        """.stripMargin.replaceAll("\n", ""))))
+        """.stripMargin.replaceAll("\n", "")
+        )))
     }
 
     "create a session for an Organisation" in new Setup {
@@ -389,7 +406,8 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
            |   "usersName": "John Doe",
            |   "email": "john.doe@example.com"
            |}
-        """.stripMargin.replaceAll("\n", ""))))
+        """.stripMargin.replaceAll("\n", "")
+      )))
     }
 
     "create a session for an Agent" in new Setup {
@@ -423,7 +441,8 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
              |   "usersName": "John Doe",
              |   "email": "john.doe@example.com"
              |}
-      """.stripMargin.replaceAll("\n", ""))))
+      """.stripMargin.replaceAll("\n", "")
+        )))
     }
 
     "fail with Upstream5xxResponse when auth-login-api returns an error" in new Setup {

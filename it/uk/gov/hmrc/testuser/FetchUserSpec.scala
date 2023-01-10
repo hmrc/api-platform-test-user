@@ -41,24 +41,24 @@ class FetchUserSpec extends BaseSpec {
 
       Then("The individual is returned")
       Json.parse(response.body) shouldBe Json.parse(
-      s"""{
-        |   "userId": "${individual.userId}",
-        |   "userFullName": "${individual.userFullName}",
-        |   "emailAddress": "${individual.emailAddress}",
-        |   "saUtr": "${individual.saUtr.get}",
-        |   "nino": "${individual.nino.get}",
-        |   "groupIdentifier": "${individual.groupIdentifier.get}",
-        |   "individualDetails": {
-        |     "firstName": "${individual.individualDetails.firstName}",
-        |     "lastName": "${individual.individualDetails.lastName}",
-        |     "dateOfBirth": "${individual.individualDetails.dateOfBirth}",
-        |     "address": {
-        |       "line1": "${individual.individualDetails.address.line1}",
-        |       "line2": "${individual.individualDetails.address.line2}",
-        |       "postcode": "${individual.individualDetails.address.postcode}"
-        |     }
-        |   }
-        |}
+        s"""{
+           |   "userId": "${individual.userId}",
+           |   "userFullName": "${individual.userFullName}",
+           |   "emailAddress": "${individual.emailAddress}",
+           |   "saUtr": "${individual.saUtr.get}",
+           |   "nino": "${individual.nino.get}",
+           |   "groupIdentifier": "${individual.groupIdentifier.get}",
+           |   "individualDetails": {
+           |     "firstName": "${individual.individualDetails.firstName}",
+           |     "lastName": "${individual.individualDetails.lastName}",
+           |     "dateOfBirth": "${individual.individualDetails.dateOfBirth}",
+           |     "address": {
+           |       "line1": "${individual.individualDetails.address.line1}",
+           |       "line2": "${individual.individualDetails.address.line2}",
+           |       "postcode": "${individual.individualDetails.address.postcode}"
+           |     }
+           |   }
+           |}
       """.stripMargin
       )
     }
@@ -67,7 +67,7 @@ class FetchUserSpec extends BaseSpec {
 
       Given("An individual")
       val individual = createIndividual("national-insurance", "self-assessment")
-      val shortNino = NinoNoSuffix(individual.nino.get.substring(0,8))
+      val shortNino  = NinoNoSuffix(individual.nino.get.substring(0, 8))
 
       When("I fetch the individual by its SHORTNINO")
       val response = Http(s"$serviceUrl/individuals/shortnino/$shortNino").asString
@@ -75,14 +75,14 @@ class FetchUserSpec extends BaseSpec {
       Then("The individual is returned")
       Json.parse(response.body) shouldBe Json.parse(
         s"""{
-            |   "userId": "${individual.userId}",
-            |   "userFullName": "${individual.userFullName}",
-            |   "emailAddress": "${individual.emailAddress}",
-            |   "saUtr": "${individual.saUtr.get}",
-            |   "nino": "${individual.nino.get}",
-            |   "groupIdentifier": "${individual.groupIdentifier.get}",
-            |   "individualDetails": ${toJson(individual.individualDetails)}
-            |}
+           |   "userId": "${individual.userId}",
+           |   "userFullName": "${individual.userFullName}",
+           |   "emailAddress": "${individual.emailAddress}",
+           |   "saUtr": "${individual.saUtr.get}",
+           |   "nino": "${individual.nino.get}",
+           |   "groupIdentifier": "${individual.groupIdentifier.get}",
+           |   "individualDetails": ${toJson(individual.individualDetails)}
+           |}
       """.stripMargin
       )
     }
@@ -98,14 +98,14 @@ class FetchUserSpec extends BaseSpec {
       Then("The individual is returned")
       Json.parse(response.body) shouldBe Json.parse(
         s"""{
-            |   "userId": "${individual.userId}",
-            |   "userFullName": "${individual.userFullName}",
-            |   "emailAddress": "${individual.emailAddress}",
-            |   "saUtr": "${individual.saUtr.get}",
-            |   "nino": "${individual.nino.get}",
-            |   "groupIdentifier": "${individual.groupIdentifier.get}",
-            |   "individualDetails": ${toJson(individual.individualDetails)}
-            |}
+           |   "userId": "${individual.userId}",
+           |   "userFullName": "${individual.userFullName}",
+           |   "emailAddress": "${individual.emailAddress}",
+           |   "saUtr": "${individual.saUtr.get}",
+           |   "nino": "${individual.nino.get}",
+           |   "groupIdentifier": "${individual.groupIdentifier.get}",
+           |   "individualDetails": ${toJson(individual.individualDetails)}
+           |}
       """.stripMargin
       )
     }
@@ -140,35 +140,35 @@ class FetchUserSpec extends BaseSpec {
 
       When("I fetch the organisation by its EMPREF")
       val encodedEmpRef = URLEncoder.encode(organisation.empRef.get, "UTF-8")
-      val response = Http(s"$serviceUrl/organisations/empref/${encodedEmpRef}").asString
+      val response      = Http(s"$serviceUrl/organisations/empref/${encodedEmpRef}").asString
 
       Then("The organisation is returned")
       Json.parse(response.body) shouldBe Json.parse(
         s"""{
-            |   "userId": "${organisation.userId}",
-            |   "userFullName": "${organisation.userFullName}",
-            |   "emailAddress": "${organisation.emailAddress}",
-            |   "empRef": "${organisation.empRef.get}",
-            |   "groupIdentifier": "${organisation.groupIdentifier.get}",
-            |   "organisationDetails": {
-            |     "name": "${organisation.organisationDetails.name}",
-            |     "address": {
-            |       "line1": "${organisation.organisationDetails.address.line1}",
-            |       "line2": "${organisation.organisationDetails.address.line2}",
-            |       "postcode": "${organisation.organisationDetails.address.postcode}"
-            |     }
-            |   },
-            |   "individualDetails": {
-            |     "firstName": "${organisation.individualDetails.get.firstName}",
-            |     "lastName": "${organisation.individualDetails.get.lastName}",
-            |     "dateOfBirth": "${organisation.individualDetails.get.dateOfBirth}",
-            |     "address": {
-            |       "line1": "${organisation.individualDetails.get.address.line1}",
-            |       "line2": "${organisation.individualDetails.get.address.line2}",
-            |       "postcode": "${organisation.individualDetails.get.address.postcode}"
-            |     }
-            |   }
-            |}
+           |   "userId": "${organisation.userId}",
+           |   "userFullName": "${organisation.userFullName}",
+           |   "emailAddress": "${organisation.emailAddress}",
+           |   "empRef": "${organisation.empRef.get}",
+           |   "groupIdentifier": "${organisation.groupIdentifier.get}",
+           |   "organisationDetails": {
+           |     "name": "${organisation.organisationDetails.name}",
+           |     "address": {
+           |       "line1": "${organisation.organisationDetails.address.line1}",
+           |       "line2": "${organisation.organisationDetails.address.line2}",
+           |       "postcode": "${organisation.organisationDetails.address.postcode}"
+           |     }
+           |   },
+           |   "individualDetails": {
+           |     "firstName": "${organisation.individualDetails.get.firstName}",
+           |     "lastName": "${organisation.individualDetails.get.lastName}",
+           |     "dateOfBirth": "${organisation.individualDetails.get.dateOfBirth}",
+           |     "address": {
+           |       "line1": "${organisation.individualDetails.get.address.line1}",
+           |       "line2": "${organisation.individualDetails.get.address.line2}",
+           |       "postcode": "${organisation.individualDetails.get.address.postcode}"
+           |     }
+           |   }
+           |}
       """.stripMargin
       )
     }
@@ -184,31 +184,31 @@ class FetchUserSpec extends BaseSpec {
       Then("The organisation is returned along with VAT Registration Date")
       Json.parse(response.body) shouldBe Json.parse(
         s"""{
-            |   "userId": "${organisation.userId}",
-            |   "userFullName": "${organisation.userFullName}",
-            |   "emailAddress": "${organisation.emailAddress}",
-            |   "vrn": "${organisation.vrn.get}",
-            |   "vatRegistrationDate": "${organisation.vatRegistrationDate.get.format(DateTimeFormatter.ISO_DATE)}",
-            |   "groupIdentifier": "${organisation.groupIdentifier.get}",
-            |   "organisationDetails": {
-            |     "name": "${organisation.organisationDetails.name}",
-            |     "address": {
-            |       "line1": "${organisation.organisationDetails.address.line1}",
-            |       "line2": "${organisation.organisationDetails.address.line2}",
-            |       "postcode": "${organisation.organisationDetails.address.postcode}"
-            |     }
-            |   },
-            |   "individualDetails": {
-            |     "firstName": "${organisation.individualDetails.get.firstName}",
-            |     "lastName": "${organisation.individualDetails.get.lastName}",
-            |     "dateOfBirth": "${organisation.individualDetails.get.dateOfBirth}",
-            |     "address": {
-            |       "line1": "${organisation.individualDetails.get.address.line1}",
-            |       "line2": "${organisation.individualDetails.get.address.line2}",
-            |       "postcode": "${organisation.individualDetails.get.address.postcode}"
-            |     }
-            |   }
-            |}
+           |   "userId": "${organisation.userId}",
+           |   "userFullName": "${organisation.userFullName}",
+           |   "emailAddress": "${organisation.emailAddress}",
+           |   "vrn": "${organisation.vrn.get}",
+           |   "vatRegistrationDate": "${organisation.vatRegistrationDate.get.format(DateTimeFormatter.ISO_DATE)}",
+           |   "groupIdentifier": "${organisation.groupIdentifier.get}",
+           |   "organisationDetails": {
+           |     "name": "${organisation.organisationDetails.name}",
+           |     "address": {
+           |       "line1": "${organisation.organisationDetails.address.line1}",
+           |       "line2": "${organisation.organisationDetails.address.line2}",
+           |       "postcode": "${organisation.organisationDetails.address.postcode}"
+           |     }
+           |   },
+           |   "individualDetails": {
+           |     "firstName": "${organisation.individualDetails.get.firstName}",
+           |     "lastName": "${organisation.individualDetails.get.lastName}",
+           |     "dateOfBirth": "${organisation.individualDetails.get.dateOfBirth}",
+           |     "address": {
+           |       "line1": "${organisation.individualDetails.get.address.line1}",
+           |       "line2": "${organisation.individualDetails.get.address.line2}",
+           |       "postcode": "${organisation.individualDetails.get.address.postcode}"
+           |     }
+           |   }
+           |}
       """.stripMargin
       )
     }

@@ -46,7 +46,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
 
   val individualServices = Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
 
-  val config             = ConfigFactory.parseString(
+  val config = ConfigFactory.parseString(
     """randomiser {
       |  individualDetails {
       |    firstName = [
@@ -83,7 +83,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
 
   val agentServices = Seq(ServiceKeys.AGENT_SERVICES)
 
-  val testAgent     = TestAgent(
+  val testAgent = TestAgent(
     userId = userId,
     password = password,
     userFullName = "name",

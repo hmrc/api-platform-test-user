@@ -54,7 +54,8 @@ trait GeneratorProvider {
       |    ]
       |  }
       |}
-      |""".stripMargin)
+      |""".stripMargin
+  )
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 

@@ -25,23 +25,23 @@ import uk.gov.hmrc.testuser.models.UserType.{AGENT, INDIVIDUAL, ORGANISATION, Us
 
 object ServiceKeys extends Enumeration {
   type ServiceKey = Value
-  val NATIONAL_INSURANCE: ServiceKeys.Value                   = Value("national-insurance")
-  val SELF_ASSESSMENT: ServiceKeys.Value                      = Value("self-assessment")
-  val CORPORATION_TAX: ServiceKeys.Value                      = Value("corporation-tax")
-  val PAYE_FOR_EMPLOYERS: ServiceKeys.Value                   = Value("paye-for-employers")
-  val SUBMIT_VAT_RETURNS: ServiceKeys.Value                   = Value("submit-vat-returns")
-  val MTD_VAT: ServiceKeys.Value                              = Value("mtd-vat")
-  val MTD_INCOME_TAX: ServiceKeys.Value                       = Value("mtd-income-tax")
-  val AGENT_SERVICES: ServiceKeys.Value                       = Value("agent-services")
-  val LISA: ServiceKeys.Value                                 = Value("lisa")
-  val SECURE_ELECTRONIC_TRANSFER: ServiceKeys.Value           = Value("secure-electronic-transfer")
-  val RELIEF_AT_SOURCE: ServiceKeys.Value                     = Value("relief-at-source")
-  val CUSTOMS_SERVICES: ServiceKeys.Value                     = Value("customs-services")
-  val GOODS_VEHICLE_MOVEMENTS: ServiceKeys.Value              = Value("goods-vehicle-movements")
-  val IMPORT_CONTROL_SYSTEM: ServiceKeys.Value                = Value("import-control-system")
-  val SAFETY_AND_SECURITY: ServiceKeys.Value                  = Value("safety-and-security")
-  val CTC: ServiceKeys.Value                                  = Value("common-transit-convention-traders")
-  val CTC_LEGACY: ServiceKeys.Value                           = Value("common-transit-convention-traders-legacy")
+  val NATIONAL_INSURANCE: ServiceKeys.Value         = Value("national-insurance")
+  val SELF_ASSESSMENT: ServiceKeys.Value            = Value("self-assessment")
+  val CORPORATION_TAX: ServiceKeys.Value            = Value("corporation-tax")
+  val PAYE_FOR_EMPLOYERS: ServiceKeys.Value         = Value("paye-for-employers")
+  val SUBMIT_VAT_RETURNS: ServiceKeys.Value         = Value("submit-vat-returns")
+  val MTD_VAT: ServiceKeys.Value                    = Value("mtd-vat")
+  val MTD_INCOME_TAX: ServiceKeys.Value             = Value("mtd-income-tax")
+  val AGENT_SERVICES: ServiceKeys.Value             = Value("agent-services")
+  val LISA: ServiceKeys.Value                       = Value("lisa")
+  val SECURE_ELECTRONIC_TRANSFER: ServiceKeys.Value = Value("secure-electronic-transfer")
+  val RELIEF_AT_SOURCE: ServiceKeys.Value           = Value("relief-at-source")
+  val CUSTOMS_SERVICES: ServiceKeys.Value           = Value("customs-services")
+  val GOODS_VEHICLE_MOVEMENTS: ServiceKeys.Value    = Value("goods-vehicle-movements")
+  val IMPORT_CONTROL_SYSTEM: ServiceKeys.Value      = Value("import-control-system")
+  val SAFETY_AND_SECURITY: ServiceKeys.Value        = Value("safety-and-security")
+  val CTC: ServiceKeys.Value                        = Value("common-transit-convention-traders")
+  val CTC_LEGACY: ServiceKeys.Value                 = Value("common-transit-convention-traders-legacy")
 }
 
 case class Service(key: ServiceKey, name: String, allowedUserTypes: Seq[UserType])
@@ -405,7 +405,7 @@ case class LisaManagerReferenceNumber(lisaManagerReferenceNumber: String) extend
 object LisaManagerReferenceNumber extends (String => LisaManagerReferenceNumber) {
   implicit val lisaManRefNumWrite: Writes[LisaManagerReferenceNumber] = new SimpleObjectWrites[LisaManagerReferenceNumber](_.value)
 
-  implicit val lisaManRefNumRead: Reads[LisaManagerReferenceNumber]   =
+  implicit val lisaManRefNumRead: Reads[LisaManagerReferenceNumber] =
     new SimpleObjectReads[LisaManagerReferenceNumber]("lisaManagerReferenceNumber", LisaManagerReferenceNumber.apply)
 }
 

@@ -42,7 +42,7 @@ class TestUserSpec extends BaseSpec {
       val individualCreated = Json.parse(createdResponse.body).as[TestIndividualCreatedResponse]
 
       And("The individual is stored in Mongo with hashed password")
-      val individualFromMongo = result(mongoRepository.fetchByUserId(individualCreated.userId), timeout).get.asInstanceOf[TestIndividual]
+      val individualFromMongo       = result(mongoRepository.fetchByUserId(individualCreated.userId), timeout).get.asInstanceOf[TestIndividual]
       val expectedIndividualCreated = TestIndividualCreatedResponse.from(individualFromMongo.copy(password = individualCreated.password))
       individualCreated shouldBe expectedIndividualCreated
       validatePassword(individualCreated.password, individualFromMongo.password) shouldBe true
@@ -61,7 +61,7 @@ class TestUserSpec extends BaseSpec {
       val organisationCreated = Json.parse(createdResponse.body).as[TestOrganisationCreatedResponse]
 
       And("The organisation is stored in Mongo with hashed password")
-      val organisationFromMongo = result(mongoRepository.fetchByUserId(organisationCreated.userId), timeout).get.asInstanceOf[TestOrganisation]
+      val organisationFromMongo       = result(mongoRepository.fetchByUserId(organisationCreated.userId), timeout).get.asInstanceOf[TestOrganisation]
       val expectedOrganisationCreated = TestOrganisationCreatedResponse.from(organisationFromMongo.copy(password = organisationCreated.password))
       organisationCreated shouldBe expectedOrganisationCreated
       validatePassword(organisationCreated.password, organisationFromMongo.password) shouldBe true
@@ -80,7 +80,7 @@ class TestUserSpec extends BaseSpec {
       val agentCreated = Json.parse(createdResponse.body).as[TestAgentCreatedResponse]
 
       And("The agent is stored in Mongo with hashed password")
-      val agentFromMongo = result(mongoRepository.fetchByUserId(agentCreated.userId), timeout).get.asInstanceOf[TestAgent]
+      val agentFromMongo       = result(mongoRepository.fetchByUserId(agentCreated.userId), timeout).get.asInstanceOf[TestAgent]
       val expectedAgentCreated = TestAgentCreatedResponse.from(agentFromMongo.copy(password = agentCreated.password))
       agentCreated shouldBe expectedAgentCreated
       validatePassword(agentCreated.password, agentFromMongo.password) shouldBe true
@@ -101,5 +101,5 @@ class TestUserSpec extends BaseSpec {
       .postData(s"""{ "serviceNames": [${serviceNames.mkString("\"", "\",\"", "\"")}] }""")
       .header(HeaderNames.CONTENT_TYPE, "application/json").asString
 
-  private def validatePassword(password: String, hashedPassword: String) =  BCryptUtils.checkpw(password, hashedPassword)
+  private def validatePassword(password: String, hashedPassword: String) = BCryptUtils.checkpw(password, hashedPassword)
 }
