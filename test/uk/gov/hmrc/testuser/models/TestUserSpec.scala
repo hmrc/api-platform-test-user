@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.testuser.models
 
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 class TestUserSpec extends AnyFlatSpec with Matchers {
   val userId          = "1234567890"

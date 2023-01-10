@@ -17,9 +17,12 @@
 package uk.gov.hmrc.testuser.models
 
 import java.time.LocalDate
-import play.api.libs.json.{Format, Reads, Writes}
+
 import org.bson.types.ObjectId
+
+import play.api.libs.json.{Format, Reads, Writes}
 import uk.gov.hmrc.domain._
+
 import uk.gov.hmrc.testuser.models.ServiceKeys.ServiceKey
 import uk.gov.hmrc.testuser.models.UserType.{AGENT, INDIVIDUAL, ORGANISATION, UserType}
 

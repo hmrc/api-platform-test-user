@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.testuser.util
 
-import com.typesafe.config.Config
 import java.time.LocalDate
-
 import scala.collection.JavaConverters._
 import scala.util.Random
+
+import com.typesafe.config.Config
 
 trait Randomiser {
   def config: Config

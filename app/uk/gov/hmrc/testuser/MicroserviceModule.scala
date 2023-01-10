@@ -33,10 +33,12 @@ package uk.gov.hmrc.testuser
  */
 
 import javax.inject.{Inject, Provider}
+
+import play.api.inject.Module
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
 import uk.gov.hmrc.testuser.services.PasswordConfig
-import play.api.inject.Module
 
 class MicroserviceModule(val environment: Environment, val configuration: Configuration) extends Module {
 

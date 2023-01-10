@@ -17,16 +17,17 @@
 package uk.gov.hmrc.testuser.controllers
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
+
 import play.api.http.HeaderNames
+import play.api.libs.json.Json
 import play.api.libs.json.Json._
 import play.api.mvc.{ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.testuser.models.{AuthenticationRequest, AuthenticationResponse, ErrorResponse, InvalidCredentials}
-import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.services.{ApplicationLogger, AuthenticationService}
 
-import scala.concurrent.ExecutionContext
-import play.api.libs.json.Json
+import uk.gov.hmrc.testuser.models.JsonFormatters._
+import uk.gov.hmrc.testuser.models.{AuthenticationRequest, AuthenticationResponse, ErrorResponse, InvalidCredentials}
+import uk.gov.hmrc.testuser.services.{ApplicationLogger, AuthenticationService}
 
 object AuthenticationController {
   case class ApiSessionRequest(credId: String)

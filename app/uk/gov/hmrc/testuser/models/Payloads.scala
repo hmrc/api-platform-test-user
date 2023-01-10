@@ -17,8 +17,10 @@
 package uk.gov.hmrc.testuser.models
 
 import java.time.LocalDate
-import uk.gov.hmrc.testuser.models.ServiceKeys._
+
 import uk.gov.hmrc.domain.Nino
+
+import uk.gov.hmrc.testuser.models.ServiceKeys._
 
 case class AuthenticationRequest(username: String, password: String)
 

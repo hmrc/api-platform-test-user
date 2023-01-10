@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.testuser.models.identifiers
 
-import uk.gov.hmrc.testuser.models.LisaManagerReferenceNumber
 import uk.gov.hmrc.testuser.common.utils.HmrcSpec
+import uk.gov.hmrc.testuser.models.LisaManagerReferenceNumber
 
 class LisaManagerReferenceNumberSpec extends HmrcSpec {
   val lisaNumber: LisaManagerReferenceNumber = LisaManagerReferenceNumber("abc123")

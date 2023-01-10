@@ -16,23 +16,21 @@
 
 package uk.gov.hmrc.testuser.connectors
 
-import javax.inject.{Inject, Singleton}
 import java.time.LocalDate
-import play.api.{Configuration, Environment}
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import play.api.http.HeaderNames.{AUTHORIZATION, LOCATION}
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.testuser.models._
+
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
-import uk.gov.hmrc.http.HttpReads.Implicits._
-
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.testuser.models._
 
 @Singleton
 class AuthLoginApiConnector @Inject() (httpClient: HttpClient, val configuration: Configuration, environment: Environment, config: ServicesConfig)(implicit ec: ExecutionContext) {

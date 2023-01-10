@@ -16,28 +16,28 @@
 
 package uk.gov.hmrc.testuser.controllers
 
-import uk.gov.hmrc.testuser.common.LogSuppressing
 import java.time.LocalDate
-import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
-import play.api.libs.json.{JsValue, Json}
-import play.api.libs.json.Json.toJson
-import play.api.test._
-import play.api.test.Helpers._
-import uk.gov.hmrc.domain._
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models.ServiceKeys.ServiceKey
-import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
-import uk.gov.hmrc.testuser.services.TestUserService
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.{failed, successful}
 
-import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import akka.stream.Materializer
-import uk.gov.hmrc.testuser.services.NinoAlreadyUsed
 import akka.stream.testkit.NoMaterializer
+
+import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
+import play.api.libs.json.Json.toJson
+import play.api.libs.json.{JsValue, Json}
+import play.api.test.Helpers._
+import play.api.test._
+import uk.gov.hmrc.domain._
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.testuser.common.LogSuppressing
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.testuser.models.JsonFormatters._
+import uk.gov.hmrc.testuser.models.ServiceKeys.ServiceKey
+import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
+import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.services.{NinoAlreadyUsed, TestUserService}
 
 class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 

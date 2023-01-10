@@ -17,6 +17,7 @@
 package uk.gov.hmrc.testuser.services
 
 import javax.inject.{Inject, Singleton}
+
 import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
 
 @Singleton

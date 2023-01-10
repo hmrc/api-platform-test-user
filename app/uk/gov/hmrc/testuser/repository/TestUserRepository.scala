@@ -17,15 +17,18 @@
 package uk.gov.hmrc.testuser.repository
 
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.Json
-import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.domain._
-import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
-import org.mongodb.scala.model.{IndexModel, IndexOptions}
-import org.mongodb.scala.model.Indexes.ascending
-import org.mongodb.scala.model.Filters.{and, equal, or}
-import uk.gov.hmrc.testuser.models._
 import scala.concurrent.{ExecutionContext, Future}
+
+import org.mongodb.scala.model.Filters.{and, equal, or}
+import org.mongodb.scala.model.Indexes.ascending
+import org.mongodb.scala.model.{IndexModel, IndexOptions}
+
+import play.api.libs.json.Json
+import uk.gov.hmrc.domain._
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
+
+import uk.gov.hmrc.testuser.models._
 
 @Singleton
 class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: ExecutionContext)

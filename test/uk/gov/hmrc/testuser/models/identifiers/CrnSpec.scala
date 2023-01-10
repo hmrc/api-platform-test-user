@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.testuser.models.identifiers
 
-import uk.gov.hmrc.testuser.models.Crn
 import uk.gov.hmrc.testuser.common.utils.HmrcSpec
+import uk.gov.hmrc.testuser.models.Crn
 
 class CrnSpec extends HmrcSpec {
   val crn = Crn("12345678")

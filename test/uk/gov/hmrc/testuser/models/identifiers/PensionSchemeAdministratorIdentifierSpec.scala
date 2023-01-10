@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.testuser.models.identifiers
 
-import uk.gov.hmrc.testuser.models.PensionSchemeAdministratorIdentifier
 import uk.gov.hmrc.testuser.common.utils.HmrcSpec
+import uk.gov.hmrc.testuser.models.PensionSchemeAdministratorIdentifier
 
 class PensionSchemeAdministratorIdentifierSpec extends HmrcSpec {
   val psaIdentifier: PensionSchemeAdministratorIdentifier = PensionSchemeAdministratorIdentifier("abc123")

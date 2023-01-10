@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.testuser.util
 
-import com.typesafe.config.ConfigFactory
 import java.time.LocalDate
+
+import com.typesafe.config.ConfigFactory
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 

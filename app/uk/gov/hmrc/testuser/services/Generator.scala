@@ -16,18 +16,20 @@
 
 package uk.gov.hmrc.testuser.services
 
-import com.typesafe.config.Config
-import javax.inject.{Inject, Singleton}
 import java.time.LocalDate
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Random
+
+import com.typesafe.config.Config
 import org.scalacheck.Gen
+
 import uk.gov.hmrc.domain._
+
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.util.Randomiser
-
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Random
 
 object Generator {
 

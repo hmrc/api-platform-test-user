@@ -17,17 +17,17 @@
 package uk.gov.hmrc.testuser.services
 
 import java.time.LocalDate
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
-import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.models.LegacySandboxUser._
-import uk.gov.hmrc.testuser.models.ServiceKeys._
-import uk.gov.hmrc.testuser.repository.TestUserRepository
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
+import uk.gov.hmrc.testuser.models.LegacySandboxUser._
+import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 class AuthenticationServiceSpec extends AsyncHmrcSpec {
 
