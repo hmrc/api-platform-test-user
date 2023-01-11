@@ -29,7 +29,8 @@ import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.services.ApplicationLogger
 
 @Singleton
-class DesSimulatorConnector @Inject() (httpClient: HttpClient, runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)(implicit ec: ExecutionContext)
+class DesSimulatorConnector @Inject() (httpClient: HttpClient, runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)
+                                      (implicit ec: ExecutionContext)
     extends ApplicationLogger {
 
   import config.baseUrl
@@ -38,7 +39,9 @@ class DesSimulatorConnector @Inject() (httpClient: HttpClient, runModeConfigurat
 
   def createIndividual(individual: TestIndividual)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
     logger.info(s"Calling des-simulator ($serviceUrl) to create individual $individual")
-    httpClient.POST[DesSimulatorTestIndividual, Either[UpstreamErrorResponse, HttpResponse]](s"$serviceUrl/test-users/individuals", DesSimulatorTestIndividual.from(individual)) map {
+    httpClient.POST[DesSimulatorTestIndividual, Either[UpstreamErrorResponse, HttpResponse]](
+      s"$serviceUrl/test-users/individuals",
+      DesSimulatorTestIndividual.from(individual)) map {
       case Right(_)  => individual
       case Left(err) => throw err
     }

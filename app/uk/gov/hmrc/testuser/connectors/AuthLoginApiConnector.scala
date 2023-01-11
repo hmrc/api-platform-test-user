@@ -33,20 +33,23 @@ import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
 
 @Singleton
-class AuthLoginApiConnector @Inject() (httpClient: HttpClient, val configuration: Configuration, environment: Environment, config: ServicesConfig)(implicit ec: ExecutionContext) {
+class AuthLoginApiConnector @Inject() (httpClient: HttpClient, val configuration: Configuration, environment: Environment, config: ServicesConfig)
+                                      (implicit ec: ExecutionContext) {
   import config.baseUrl
 
   lazy val serviceUrl: String = baseUrl("auth-login-api")
 
   def createSession(testUser: TestUser)(implicit hc: HeaderCarrier): Future[AuthSession] = {
 
-    httpClient.POST[GovernmentGatewayLogin, Either[UpstreamErrorResponse, HttpResponse]](s"$serviceUrl/government-gateway/session/login", GovernmentGatewayLogin(testUser)) map {
+    httpClient.POST[GovernmentGatewayLogin, Either[UpstreamErrorResponse, HttpResponse]](s"$serviceUrl/government-gateway/session/login",
+      GovernmentGatewayLogin(testUser)) map {
       case Right(response) =>
         (response.header(AUTHORIZATION), response.header(LOCATION)) match {
           case (Some(authBearerToken), Some(authorityUri)) =>
             val gatewayToken = (response.json \ "gatewayToken").as[String]
             AuthSession(authBearerToken, authorityUri, gatewayToken)
-          case _                                           => throw new RuntimeException("Authorization and Location header must be present in response.")
+          case _  =>
+            throw new RuntimeException("Authorization and Location header must be present in response.")
         }
       case Left(err)       => throw err
     }
@@ -165,9 +168,12 @@ object GovernmentGatewayLogin {
           }
         case MTD_INCOME_TAX             => organisation.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId))) }
         case MTD_VAT                    => organisation.vrn map { vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString()))) }
-        case LISA                       => organisation.lisaManRefNum map { lisaManRefNum => Enrolment("HMRC-LISA-ORG", Seq(Identifier("ZREF", lisaManRefNum))) }
-        case SECURE_ELECTRONIC_TRANSFER => organisation.secureElectronicTransferReferenceNumber map { setRefNum => Enrolment("HMRC-SET-ORG", Seq(Identifier("SRN", setRefNum))) }
-        case RELIEF_AT_SOURCE           => organisation.pensionSchemeAdministratorIdentifier map { psaId => Enrolment("HMRC-PSA-ORG", Seq(Identifier("PSAID", psaId))) }
+        case LISA                       => organisation.lisaManRefNum map {
+                                            lisaManRefNum => Enrolment("HMRC-LISA-ORG", Seq(Identifier("ZREF", lisaManRefNum)))}
+        case SECURE_ELECTRONIC_TRANSFER => organisation.secureElectronicTransferReferenceNumber map {
+                                            setRefNum => Enrolment("HMRC-SET-ORG", Seq(Identifier("SRN", setRefNum)))}
+        case RELIEF_AT_SOURCE           => organisation.pensionSchemeAdministratorIdentifier map {
+                                            psaId => Enrolment("HMRC-PSA-ORG", Seq(Identifier("PSAID", psaId))) }
         case CUSTOMS_SERVICES           => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case CTC_LEGACY                 => organisation.eoriNumber map { eoriNumber => Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber))) }
         case CTC                        => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
