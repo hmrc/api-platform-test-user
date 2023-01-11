@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,20 @@
 package uk.gov.hmrc.testuser.connectors
 
 import javax.inject.{Inject, Singleton}
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.http.HttpReads.Implicits._
-
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.http.UpstreamErrorResponse
+
+import play.api.{Configuration, Environment}
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
+import uk.gov.hmrc.testuser.models.JsonFormatters._
+import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.services.ApplicationLogger
 
 @Singleton
-class DesSimulatorConnector @Inject() (httpClient: HttpClient, runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)(implicit ec: ExecutionContext)
+class DesSimulatorConnector @Inject() (httpClient: HttpClient, runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)
+                                      (implicit ec: ExecutionContext)
     extends ApplicationLogger {
 
   import config.baseUrl
@@ -40,7 +39,9 @@ class DesSimulatorConnector @Inject() (httpClient: HttpClient, runModeConfigurat
 
   def createIndividual(individual: TestIndividual)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
     logger.info(s"Calling des-simulator ($serviceUrl) to create individual $individual")
-    httpClient.POST[DesSimulatorTestIndividual, Either[UpstreamErrorResponse, HttpResponse]](s"$serviceUrl/test-users/individuals", DesSimulatorTestIndividual.from(individual)) map {
+    httpClient.POST[DesSimulatorTestIndividual, Either[UpstreamErrorResponse, HttpResponse]](
+      s"$serviceUrl/test-users/individuals",
+      DesSimulatorTestIndividual.from(individual)) map {
       case Right(_)  => individual
       case Left(err) => throw err
     }

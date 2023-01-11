@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,24 @@
 
 package uk.gov.hmrc.testuser.controllers
 
-import uk.gov.hmrc.testuser.common.LogSuppressing
 import java.time.LocalDate
-import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, UNAUTHORIZED}
-import play.api.libs.json.{JsValue, Json}
-import play.api.libs.json.Json.toJson
-import play.api.test._
-import play.api.test.Helpers._
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models.ServiceKeys._
-import uk.gov.hmrc.testuser.services.AuthenticationService
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.{failed, successful}
 
-import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import play.api.http.HeaderNames
+import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, UNAUTHORIZED}
+import play.api.libs.json.Json.toJson
+import play.api.libs.json.{JsValue, Json}
+import play.api.test.Helpers._
+import play.api.test._
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.testuser.common.LogSuppressing
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.testuser.models.JsonFormatters._
+import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.services.AuthenticationService
 
 class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
@@ -57,7 +57,7 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
   val individualDetails = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
 
-  val testIndividual    = TestIndividual(
+  val testIndividual = TestIndividual(
     userId = user,
     password = password,
     userFullName = userFullName,

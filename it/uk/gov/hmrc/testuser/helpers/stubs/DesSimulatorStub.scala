@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,17 @@ object DesSimulatorStub extends MockHost(11112) {
 
   def willSuccessfullyCreateTestIndividual() = {
     mock.register(post(urlPathEqualTo("/test-users/individuals"))
-        .willReturn(aResponse().withStatus(CREATED)))
+      .willReturn(aResponse().withStatus(CREATED)))
   }
 
   def willFailWhenCreatingTestIndividual() = {
     mock.register(post(urlPathEqualTo("/test-users/individuals"))
-        .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
+      .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
   }
 
   def willSuccessfullyCreateTestOrganisation() = {
     mock.register(post(urlPathEqualTo("/test-users/organisations"))
-        .willReturn(aResponse().withStatus(CREATED)))
+      .willReturn(aResponse().withStatus(CREATED)))
   }
 
   def willFailWhenCreatingTestOrganisation() = {

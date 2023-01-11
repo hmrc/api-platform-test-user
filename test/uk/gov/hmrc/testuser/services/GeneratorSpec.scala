@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,20 @@
 
 package uk.gov.hmrc.testuser.services
 
-import com.typesafe.config.ConfigFactory
 import java.time.LocalDate
+import scala.concurrent.{ExecutionContext, Future}
+
+import com.typesafe.config.ConfigFactory
 import org.scalacheck.Gen
 import org.scalatest.enablers.{Definition, Emptiness}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+
+import uk.gov.hmrc.domain.Nino
+
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
-
-import scala.concurrent.{ExecutionContext, Future}
-
-import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.domain.Nino
 
 trait GeneratorProvider {
 

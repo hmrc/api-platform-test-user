@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.testuser.models.identifiers
 
-import uk.gov.hmrc.testuser.models.LisaManagerReferenceNumber
 import uk.gov.hmrc.testuser.common.utils.HmrcSpec
+import uk.gov.hmrc.testuser.models.LisaManagerReferenceNumber
 
 class LisaManagerReferenceNumberSpec extends HmrcSpec {
   val lisaNumber: LisaManagerReferenceNumber = LisaManagerReferenceNumber("abc123")

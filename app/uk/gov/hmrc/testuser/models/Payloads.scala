@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,10 @@
 package uk.gov.hmrc.testuser.models
 
 import java.time.LocalDate
-import uk.gov.hmrc.testuser.models.ServiceKeys._
+
 import uk.gov.hmrc.domain.Nino
+
+import uk.gov.hmrc.testuser.models.ServiceKeys._
 
 case class AuthenticationRequest(username: String, password: String)
 
@@ -44,7 +46,7 @@ object LegacySandboxUser {
   val sandboxAuthenticationRequest = AuthenticationRequest(userId, password)
   val individualDetails            = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
 
-  val sandboxUser                  = TestIndividual(
+  val sandboxUser = TestIndividual(
     userId = userId,
     password = password,
     userFullName = userFullName,

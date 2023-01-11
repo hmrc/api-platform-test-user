@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.testuser
 
-import uk.gov.hmrc.domain.{CtUtr, EmpRef, Nino, SaUtr, Vrn}
-import uk.gov.hmrc.testuser.models.{Crn, NinoNoSuffix}
 import play.api.mvc.PathBindable
+import uk.gov.hmrc.domain.{CtUtr, EmpRef, Nino, SaUtr, Vrn}
+
+import uk.gov.hmrc.testuser.models.{Crn, NinoNoSuffix}
 
 class SimpleObjectBinder[T](bind: String => T, unbind: T => String)(implicit m: Manifest[T]) extends PathBindable[T] {
 

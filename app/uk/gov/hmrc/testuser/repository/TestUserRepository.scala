@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,24 @@
 package uk.gov.hmrc.testuser.repository
 
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.Json
-import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.domain._
-import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
-import org.mongodb.scala.model.{IndexModel, IndexOptions}
-import org.mongodb.scala.model.Indexes.ascending
-import org.mongodb.scala.model.Filters.{and, equal, or}
-import uk.gov.hmrc.testuser.models._
 import scala.concurrent.{ExecutionContext, Future}
+
+import org.mongodb.scala.model.Filters.{and, equal, or}
+import org.mongodb.scala.model.Indexes.ascending
+import org.mongodb.scala.model.{IndexModel, IndexOptions}
+
+import play.api.libs.json.Json
+import uk.gov.hmrc.domain._
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
+
+import uk.gov.hmrc.testuser.models._
 
 @Singleton
 class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: ExecutionContext)
     extends PlayMongoRepository[TestUser](
-      collectionName = "testUser", 
-      mongoComponent = mongo, 
+      collectionName = "testUser",
+      mongoComponent = mongo,
       domainFormat = JsonFormatters.formatTestUser,
       extraCodecs = Codecs.playFormatSumCodecs(JsonFormatters.formatTestUser),
       indexes = Seq(
@@ -125,7 +128,6 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     collection.find(equal("userId", userId)).headOption()
   }
 
-
   def fetchIndividualByNino(nino: Nino): Future[Option[TestIndividual]] = {
     collection.find(
       and(
@@ -210,10 +212,10 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
 
   def identifierIsUnique(identifier: String): Future[Boolean] = {
 
-    val query = or(IdentifierFields.map(identifierField => equal(identifierField, identifier)):_*)
+    val query = or(IdentifierFields.map(identifierField => equal(identifierField, identifier)): _*)
     collection.countDocuments(query).toFuture().map { matchedIdentifiers =>
-       val isUnique = matchedIdentifiers == 0
-       isUnique
+      val isUnique = matchedIdentifiers == 0
+      isUnique
     }
   }
 }

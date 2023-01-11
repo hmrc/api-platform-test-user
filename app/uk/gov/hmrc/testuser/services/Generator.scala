@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,33 +16,37 @@
 
 package uk.gov.hmrc.testuser.services
 
-import com.typesafe.config.Config
-import javax.inject.{Inject, Singleton}
 import java.time.LocalDate
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Random
+
+import com.typesafe.config.Config
 import org.scalacheck.Gen
+
 import uk.gov.hmrc.domain._
+
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.util.Randomiser
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Random
-
 object Generator {
 
   def whenF[T](services: Seq[ServiceKey])(keys: Seq[ServiceKey])(thenDo: => Future[T])(implicit ec: ExecutionContext): Future[Option[T]] = {
-    if (services.intersect(keys).isEmpty)
+    if (services.intersect(keys).isEmpty) {
       Future.successful(None)
-    else
+    } else {
       thenDo.map(Some.apply)
+    }
   }
 
   def when[T](services: Seq[ServiceKey])(keys: Seq[ServiceKey])(thenDo: => T): Option[T] = {
-    if (services.intersect(keys).isEmpty)
+    if (services.intersect(keys).isEmpty) {
       None
-    else
+    } else {
       Some(thenDo)
+    }
   }
 }
 
@@ -51,10 +55,10 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
     extends Randomiser
     with ApplicationLogger {
 
-  private val userIdGenerator                         = Gen.listOfN(12, Gen.numChar).map(_.mkString)
-  private val passwordGenerator                       = Gen.listOfN(12, Gen.alphaNumChar).map(_.mkString)
-  private val utrGenerator                            = new UtrGenerator()
-  private val ninoGenerator                           = new uk.gov.hmrc.domain.Generator()
+  private val userIdGenerator   = Gen.listOfN(12, Gen.numChar).map(_.mkString)
+  private val passwordGenerator = Gen.listOfN(12, Gen.alphaNumChar).map(_.mkString)
+  private val utrGenerator      = new UtrGenerator()
+  private val ninoGenerator     = new uk.gov.hmrc.domain.Generator()
 
   private val employerReferenceGenerator: Gen[EmpRef] = for {
     taxOfficeNumber    <- Gen.choose(100, 999).map(x => x.toString)
@@ -97,19 +101,8 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       userFullName        = generateUserFullName(individualDetails.firstName, individualDetails.lastName)
       emailAddress        = generateEmailAddress(individualDetails.firstName, individualDetails.lastName)
     } yield TestIndividual(
-      generateUserId,
-      generatePassword,
-      userFullName,
-      emailAddress,
-      individualDetails,
-      saUtr,
-      nino,
-      mtdItId,
-      vrn,
-      vatRegistrationDate,
-      eoriNumber,
-      groupIdentifier,
-      services
+      generateUserId, generatePassword, userFullName, emailAddress, individualDetails,
+      saUtr, nino, mtdItId, vrn, vatRegistrationDate, eoriNumber, groupIdentifier, services
     )
   }
 
@@ -145,28 +138,9 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       individualDetails   = Some(generateIndividualDetails(firstName, lastName))
       companyRegNo       <- whenF(CORPORATION_TAX)(generateCrn)
       taxpayerType       <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
-    } yield TestOrganisation(
-      generateUserId,
-      generatePassword,
-      userFullName,
-      emailAddress,
-      organisationDetails,
-      individualDetails,
-      saUtr,
-      nino,
-      mtdItId,
-      empRef,
-      ctUtr,
-      vrn,
-      vatRegistrationDate,
-      lisaManRefNum,
-      setRefNum,
-      psaId,
-      eoriNumber,
-      groupIdentifier,
-      services,
-      crn = companyRegNo,
-      taxpayerType = taxpayerType
+    } yield TestOrganisation(generateUserId, generatePassword, userFullName, emailAddress, organisationDetails,
+      individualDetails, saUtr, nino, mtdItId, empRef, ctUtr, vrn, vatRegistrationDate, lisaManRefNum,
+      setRefNum, psaId, eoriNumber, groupIdentifier, services, crn = companyRegNo, taxpayerType = taxpayerType
     )
   }
 

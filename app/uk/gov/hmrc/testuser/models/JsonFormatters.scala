@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,18 @@
 package uk.gov.hmrc.testuser.models
 
 import java.time.LocalDate
+
 import play.api.libs.json._
 import uk.gov.hmrc.mongo.play.json.formats.MongoFormats
 import uk.gov.hmrc.play.json.Union
+
 import uk.gov.hmrc.testuser.connectors.{AuthLoginAddress, Enrolment, GovernmentGatewayLogin, Identifier, ItmpData}
 
 object WrapAssortedReadsAndWrites extends EnvReads with EnvWrites
 
 object JsonFormatters {
-  
-  implicit val formatLocalDateReads: Reads[LocalDate] = WrapAssortedReadsAndWrites.DefaultLocalDateReads
+
+  implicit val formatLocalDateReads: Reads[LocalDate]   = WrapAssortedReadsAndWrites.DefaultLocalDateReads
   implicit val formatLocalDateWrites: Writes[LocalDate] = WrapAssortedReadsAndWrites.DefaultLocalDateWrites
 
   implicit val crnFormatter              = Json.format[Crn]

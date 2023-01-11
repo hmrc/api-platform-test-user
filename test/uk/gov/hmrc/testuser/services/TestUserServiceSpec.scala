@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,19 @@
 
 package uk.gov.hmrc.testuser.services
 
+import scala.concurrent.Future.{failed, successful}
+import scala.concurrent.{ExecutionContext, Future}
+
 import com.typesafe.config.ConfigFactory
+
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
 import uk.gov.hmrc.testuser.models.ServiceKeys.{ServiceKey => _}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
-
-import scala.concurrent.Future.{failed, successful}
-import scala.concurrent.ExecutionContext
-
-import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
-import scala.concurrent.Future
 
 class TestUserServiceSpec extends AsyncHmrcSpec {
   implicit def ec = ExecutionContext.global
@@ -46,7 +46,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
 
   val individualServices = Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
 
-  val config             = ConfigFactory.parseString(
+  val config = ConfigFactory.parseString(
     """randomiser {
       |  individualDetails {
       |    firstName = [
@@ -83,7 +83,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
 
   val agentServices = Seq(ServiceKeys.AGENT_SERVICES)
 
-  val testAgent     = TestAgent(
+  val testAgent = TestAgent(
     userId = userId,
     password = password,
     userFullName = "name",

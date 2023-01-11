@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import uk.gov.hmrc.domain._
 import uk.gov.hmrc.mongo.test.MongoSupport
 import uk.gov.hmrc.testuser.helpers.GeneratorProvider
 import uk.gov.hmrc.testuser.models.ServiceKeys._
-import uk.gov.hmrc.testuser.models.{NinoNoSuffix, Crn}
+import uk.gov.hmrc.testuser.models.{Crn, NinoNoSuffix}
 
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
@@ -31,7 +31,7 @@ import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with BeforeAndAfterAll with MongoSupport with IndexVerification {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-  val userRepository = new TestUserRepository(mongoComponent)
+  val userRepository                = new TestUserRepository(mongoComponent)
 
   trait GeneratedTestIndividual extends GeneratorProvider {
     val repository = userRepository
@@ -45,10 +45,12 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     val testOrganisation =
       await(
         generator.generateTestOrganisation(
-          Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT, LISA, CUSTOMS_SERVICES, CTC_LEGACY, CTC), 
+          Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT, LISA, CUSTOMS_SERVICES, CTC_LEGACY, CTC),
           eoriNumber = None,
           nino = None,
-          taxpayerType = None))
+          taxpayerType = None
+        )
+      )
   }
 
   override def beforeEach: Unit = {
@@ -58,7 +60,7 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
 
   "indexes" should {
     "be created for userId" in {
-      val expectedIndex = 
+      val expectedIndex =
         Seq(BsonDocument("name" -> "userIdIndex", "unique" -> true, "background" -> true, "key" -> BsonDocument("userId" -> 1)))
       verifyIndexes(userRepository, expectedIndex)
     }
@@ -66,7 +68,7 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     "be created for all identifier fields" in {
       def expectedIndexes: Seq[BsonDocument] =
         userRepository.IdentifierFields
-          .map(identifierField => BsonDocument("name" ->  s"$identifierField-Index", "background" -> true, "key" -> BsonDocument(identifierField -> 1)))
+          .map(identifierField => BsonDocument("name" -> s"$identifierField-Index", "background" -> true, "key" -> BsonDocument(identifierField -> 1)))
           .toSeq
 
       verifyIndexes(userRepository, expectedIndexes)
@@ -142,8 +144,8 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
   }
 
   "fetchIndividualByShortNino" should {
-    val nino = Nino("CC333333C")
-    val validShortNino = NinoNoSuffix("CC333333")
+    val nino             = Nino("CC333333C")
+    val validShortNino   = NinoNoSuffix("CC333333")
     val invalidShortNino = NinoNoSuffix("CC333334")
 
     "return the individual" in new GeneratedTestIndividual {
@@ -164,14 +166,14 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     "return None when there is an organisation matching" in new GeneratedTestOrganisation {
       await(repository.createUser(testOrganisation))
 
-      val result = await(repository.fetchIndividualByShortNino(NinoNoSuffix(testOrganisation.nino.get.substring(0,8))))
+      val result = await(repository.fetchIndividualByShortNino(NinoNoSuffix(testOrganisation.nino.get.substring(0, 8))))
 
       result shouldBe None
     }
   }
 
   "fetchByNino" should {
-    val nino = Nino("CC333333C")
+    val nino        = Nino("CC333333C")
     val invalidNino = Nino("CC333334C")
 
     "return the user" in new GeneratedTestIndividual {
@@ -364,4 +366,3 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     }
   }
 }
-
