@@ -27,6 +27,6 @@ object AppDependencies {
     "org.scalatestplus"       %% "scalacheck-1-15"            % "3.2.10.0",
     "org.pegdown"             %  "pegdown"                    % "1.6.0",
     "org.scalaj"              %% "scalaj-http"                % "2.4.2",
-    "com.github.tomakehurst"  %  "wiremock-jre8-standalone"   % "2.27.2"
+    "com.github.tomakehurst"  %  "wiremock-standalone"        % "2.27.2"
   ).map (m => m % "test,it")
 }
