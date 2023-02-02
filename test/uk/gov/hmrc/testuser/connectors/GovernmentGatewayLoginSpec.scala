@@ -75,15 +75,18 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       groupIdentifier = Some(groupIdentifier),
       services = Seq(AGENT_SERVICES)
     )
-
     "contain no enrolments when the agent has no services" in {
       val login = GovernmentGatewayLogin(agent.copy(services = Seq.empty))
-
+      println(s"agent confidenceLevel here ${login.confidenceLevel}")
       login.enrolments shouldBe empty
+      val login2 = GovernmentGatewayLogin(agent.copy(services = Seq.empty))
+      println(s"agent confidenceLevel hereeee ${login2.confidenceLevel}")
+      login2.enrolments shouldBe empty
     }
 
     "contain the enrolment HMRC-AS-AGENT when the agent has the 'agent-services' service" in {
       val login = GovernmentGatewayLogin(agent)
+      println(s"agent confidenceLevel here2 ${login.confidenceLevel}")
 
       login.enrolments should contain theSameElementsAs Seq(agentEnrolment)
     }

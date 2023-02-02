@@ -19,15 +19,13 @@ package uk.gov.hmrc.testuser.connectors
 import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-
 import play.api.http.HeaderNames.{AUTHORIZATION, LOCATION}
-import play.api.{Configuration, Environment}
+import play.api.{Configuration, Environment, Play}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
@@ -38,6 +36,7 @@ class AuthLoginApiConnector @Inject() (httpClient: HttpClient, val configuration
   import config.baseUrl
 
   lazy val serviceUrl: String = baseUrl("auth-login-api")
+//  val confidenceLevel: Int = config.getInt("confidenceLevel")
 
   def createSession(testUser: TestUser)(implicit hc: HeaderCarrier): Future[AuthSession] = {
 
@@ -67,7 +66,7 @@ case class GovernmentGatewayLogin(
     enrolments: Seq[Enrolment],
     usersName: String,
     email: String,
-    confidenceLevel: Int = ConfidenceLevel.L200.level,
+    confidenceLevel: Int = ConfidenceLevel.L250.level,
     credentialStrength: String = "strong",
     groupIdentifier: String,
     itmpData: Option[ItmpData],
@@ -118,6 +117,8 @@ object AuthLoginAddress {
 }
 
 object GovernmentGatewayLogin {
+  import com.typesafe.config.ConfigFactory
+  lazy val confidenceLevel: Int = ConfigFactory.load().getInt("confidenceLevel")
 
   def apply(testUser: TestUser): GovernmentGatewayLogin = testUser match {
     case individual: TestIndividual     => fromIndividual(individual)
@@ -148,6 +149,7 @@ object GovernmentGatewayLogin {
       enrolments = individual.services.flatMap(asEnrolment),
       usersName = individual.userFullName,
       email = individual.emailAddress,
+      confidenceLevel = confidenceLevel,
       groupIdentifier = individual.groupIdentifier.getOrElse(""),
       itmpData = Some(ItmpData(individual.individualDetails))
     )
@@ -191,6 +193,7 @@ object GovernmentGatewayLogin {
       enrolments = organisation.services.flatMap(asEnrolment),
       usersName = organisation.userFullName,
       email = organisation.emailAddress,
+      confidenceLevel = confidenceLevel,
       groupIdentifier = organisation.groupIdentifier.getOrElse(""),
       itmpData = organisation.individualDetails.map(ItmpData(_))
     )
@@ -211,6 +214,7 @@ object GovernmentGatewayLogin {
       enrolments = agent.services.flatMap(asEnrolment),
       usersName = agent.userFullName,
       email = agent.emailAddress,
+      confidenceLevel = confidenceLevel,
       credentialRole = Some("user"),
       groupIdentifier = agent.groupIdentifier.getOrElse(""),
       itmpData = None,
