@@ -15,7 +15,7 @@ ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports"
 
 inThisBuild(
   List(
-    scalaVersion := "2.12.15",
+    scalaVersion := "2.13.8",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision
   )
@@ -31,7 +31,7 @@ lazy val microservice = (project in file("."))
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(
     name := appName,
-    scalaVersion := "2.12.15",
+    scalaVersion := "2.13.8",
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
     Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
