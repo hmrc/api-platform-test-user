@@ -360,6 +360,7 @@ case class TestAgentCreatedResponse(
   ) extends TestAgentResponse
 
 object TestAgentCreatedResponse {
+
   def from(agent: TestAgent) = TestAgentCreatedResponse(
     agent.userId,
     agent.password,
@@ -367,7 +368,8 @@ object TestAgentCreatedResponse {
     agent.emailAddress,
     agent.arn,
     agent.agentCode,
-    agent.groupIdentifier)
+    agent.groupIdentifier
+  )
 }
 
 case class DesSimulatorTestIndividual(mtdItId: Option[String], vrn: Option[String], nino: Option[String], saUtr: Option[String])
@@ -377,12 +379,13 @@ object DesSimulatorTestIndividual {
 }
 
 case class DesSimulatorTestOrganisation(
-                                         mtdItId: Option[String],
-                                         nino: Option[String],
-                                         saUtr: Option[String],
-                                         ctUtr: Option[String],
-                                         empRef: Option[String],
-                                         vrn: Option[String])
+    mtdItId: Option[String],
+    nino: Option[String],
+    saUtr: Option[String],
+    ctUtr: Option[String],
+    empRef: Option[String],
+    vrn: Option[String]
+  )
 
 object DesSimulatorTestOrganisation {
 

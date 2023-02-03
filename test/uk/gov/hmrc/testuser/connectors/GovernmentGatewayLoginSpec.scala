@@ -76,7 +76,7 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       services = Seq(AGENT_SERVICES)
     )
     "contain no enrolments when the agent has no services" in {
-      val login = GovernmentGatewayLogin(agent.copy(services = Seq.empty))
+      val login  = GovernmentGatewayLogin(agent.copy(services = Seq.empty))
       login.enrolments shouldBe empty
       val login2 = GovernmentGatewayLogin(agent.copy(services = Seq.empty))
       login2.enrolments shouldBe empty

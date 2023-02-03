@@ -101,8 +101,19 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       userFullName        = generateUserFullName(individualDetails.firstName, individualDetails.lastName)
       emailAddress        = generateEmailAddress(individualDetails.firstName, individualDetails.lastName)
     } yield TestIndividual(
-      generateUserId, generatePassword, userFullName, emailAddress, individualDetails,
-      saUtr, nino, mtdItId, vrn, vatRegistrationDate, eoriNumber, groupIdentifier, services
+      generateUserId,
+      generatePassword,
+      userFullName,
+      emailAddress,
+      individualDetails,
+      saUtr,
+      nino,
+      mtdItId,
+      vrn,
+      vatRegistrationDate,
+      eoriNumber,
+      groupIdentifier,
+      services
     )
   }
 
@@ -138,9 +149,28 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       individualDetails   = Some(generateIndividualDetails(firstName, lastName))
       companyRegNo       <- whenF(CORPORATION_TAX)(generateCrn)
       taxpayerType       <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
-    } yield TestOrganisation(generateUserId, generatePassword, userFullName, emailAddress, organisationDetails,
-      individualDetails, saUtr, nino, mtdItId, empRef, ctUtr, vrn, vatRegistrationDate, lisaManRefNum,
-      setRefNum, psaId, eoriNumber, groupIdentifier, services, crn = companyRegNo, taxpayerType = taxpayerType
+    } yield TestOrganisation(
+      generateUserId,
+      generatePassword,
+      userFullName,
+      emailAddress,
+      organisationDetails,
+      individualDetails,
+      saUtr,
+      nino,
+      mtdItId,
+      empRef,
+      ctUtr,
+      vrn,
+      vatRegistrationDate,
+      lisaManRefNum,
+      setRefNum,
+      psaId,
+      eoriNumber,
+      groupIdentifier,
+      services,
+      crn = companyRegNo,
+      taxpayerType = taxpayerType
     )
   }
 
