@@ -36,7 +36,6 @@ class AuthLoginApiConnector @Inject() (httpClient: HttpClient, val configuration
   import config.baseUrl
 
   lazy val serviceUrl: String = baseUrl("auth-login-api")
-//  val confidenceLevel: Int = config.getInt("confidenceLevel")
 
   def createSession(testUser: TestUser)(implicit hc: HeaderCarrier): Future[AuthSession] = {
 
@@ -66,7 +65,7 @@ case class GovernmentGatewayLogin(
     enrolments: Seq[Enrolment],
     usersName: String,
     email: String,
-    confidenceLevel: Int = ConfidenceLevel.L250.level,
+    confidenceLevel: Int,
     credentialStrength: String = "strong",
     groupIdentifier: String,
     itmpData: Option[ItmpData],
