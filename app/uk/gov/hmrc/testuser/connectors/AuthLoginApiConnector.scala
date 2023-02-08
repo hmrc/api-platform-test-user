@@ -22,7 +22,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.http.HeaderNames.{AUTHORIZATION, LOCATION}
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
@@ -33,22 +32,20 @@ import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
 
 @Singleton
-class AuthLoginApiConnector @Inject() (httpClient: HttpClient, val configuration: Configuration, environment: Environment, config: ServicesConfig)
-                                      (implicit ec: ExecutionContext) {
+class AuthLoginApiConnector @Inject() (httpClient: HttpClient, val configuration: Configuration, environment: Environment, config: ServicesConfig)(implicit ec: ExecutionContext) {
   import config.baseUrl
 
   lazy val serviceUrl: String = baseUrl("auth-login-api")
 
   def createSession(testUser: TestUser)(implicit hc: HeaderCarrier): Future[AuthSession] = {
 
-    httpClient.POST[GovernmentGatewayLogin, Either[UpstreamErrorResponse, HttpResponse]](s"$serviceUrl/government-gateway/session/login",
-      GovernmentGatewayLogin(testUser)) map {
+    httpClient.POST[GovernmentGatewayLogin, Either[UpstreamErrorResponse, HttpResponse]](s"$serviceUrl/government-gateway/session/login", GovernmentGatewayLogin(testUser)) map {
       case Right(response) =>
         (response.header(AUTHORIZATION), response.header(LOCATION)) match {
           case (Some(authBearerToken), Some(authorityUri)) =>
             val gatewayToken = (response.json \ "gatewayToken").as[String]
             AuthSession(authBearerToken, authorityUri, gatewayToken)
-          case _  =>
+          case _                                           =>
             throw new RuntimeException("Authorization and Location header must be present in response.")
         }
       case Left(err)       => throw err
@@ -67,7 +64,7 @@ case class GovernmentGatewayLogin(
     enrolments: Seq[Enrolment],
     usersName: String,
     email: String,
-    confidenceLevel: Int = ConfidenceLevel.L200.level,
+    confidenceLevel: Int,
     credentialStrength: String = "strong",
     groupIdentifier: String,
     itmpData: Option[ItmpData],
@@ -118,6 +115,8 @@ object AuthLoginAddress {
 }
 
 object GovernmentGatewayLogin {
+  import com.typesafe.config.ConfigFactory
+  lazy val confidenceLevel: Int = ConfigFactory.load().getInt("confidenceLevel")
 
   def apply(testUser: TestUser): GovernmentGatewayLogin = testUser match {
     case individual: TestIndividual     => fromIndividual(individual)
@@ -148,6 +147,7 @@ object GovernmentGatewayLogin {
       enrolments = individual.services.flatMap(asEnrolment),
       usersName = individual.userFullName,
       email = individual.emailAddress,
+      confidenceLevel = confidenceLevel,
       groupIdentifier = individual.groupIdentifier.getOrElse(""),
       itmpData = Some(ItmpData(individual.individualDetails))
     )
@@ -169,11 +169,14 @@ object GovernmentGatewayLogin {
         case MTD_INCOME_TAX             => organisation.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId))) }
         case MTD_VAT                    => organisation.vrn map { vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString()))) }
         case LISA                       => organisation.lisaManRefNum map {
-                                            lisaManRefNum => Enrolment("HMRC-LISA-ORG", Seq(Identifier("ZREF", lisaManRefNum)))}
+            lisaManRefNum => Enrolment("HMRC-LISA-ORG", Seq(Identifier("ZREF", lisaManRefNum)))
+          }
         case SECURE_ELECTRONIC_TRANSFER => organisation.secureElectronicTransferReferenceNumber map {
-                                            setRefNum => Enrolment("HMRC-SET-ORG", Seq(Identifier("SRN", setRefNum)))}
+            setRefNum => Enrolment("HMRC-SET-ORG", Seq(Identifier("SRN", setRefNum)))
+          }
         case RELIEF_AT_SOURCE           => organisation.pensionSchemeAdministratorIdentifier map {
-                                            psaId => Enrolment("HMRC-PSA-ORG", Seq(Identifier("PSAID", psaId))) }
+            psaId => Enrolment("HMRC-PSA-ORG", Seq(Identifier("PSAID", psaId)))
+          }
         case CUSTOMS_SERVICES           => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case CTC_LEGACY                 => organisation.eoriNumber map { eoriNumber => Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber))) }
         case CTC                        => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
@@ -191,6 +194,7 @@ object GovernmentGatewayLogin {
       enrolments = organisation.services.flatMap(asEnrolment),
       usersName = organisation.userFullName,
       email = organisation.emailAddress,
+      confidenceLevel = confidenceLevel,
       groupIdentifier = organisation.groupIdentifier.getOrElse(""),
       itmpData = organisation.individualDetails.map(ItmpData(_))
     )
@@ -211,6 +215,7 @@ object GovernmentGatewayLogin {
       enrolments = agent.services.flatMap(asEnrolment),
       usersName = agent.userFullName,
       email = agent.emailAddress,
+      confidenceLevel = confidenceLevel,
       credentialRole = Some("user"),
       groupIdentifier = agent.groupIdentifier.getOrElse(""),
       itmpData = None,

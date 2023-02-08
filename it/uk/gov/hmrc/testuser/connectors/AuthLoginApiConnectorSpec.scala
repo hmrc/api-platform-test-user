@@ -155,7 +155,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
              |   "credId": "${testIndividual.userId}",
              |   "affinityGroup": "Individual",
              |   "nino": "${testIndividual.nino.get}",
-             |   "confidenceLevel": 200,
+             |   "confidenceLevel": 250,
              |   "credentialStrength": "strong",
              |   "groupIdentifier": "${testIndividual.groupIdentifier.get}",
              |   "enrolments": [
@@ -255,7 +255,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
            |   "credId": "${testOrganisation.userId}",
            |   "affinityGroup": "Organisation",
            |   "nino": "${testOrganisation.nino.get}",
-           |   "confidenceLevel": 200,
+           |   "confidenceLevel": 250,
            |   "credentialStrength": "strong",
            |   "groupIdentifier": "${testOrganisation.groupIdentifier.get}",
            |   "itmpData" : {
@@ -422,7 +422,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
              |{
              |   "credId": "${testAgent.userId}",
              |   "affinityGroup": "Agent",
-             |   "confidenceLevel": 200,
+             |   "confidenceLevel": 250,
              |   "credentialStrength": "strong",
              |   "credentialRole": "user",
              |   "groupIdentifier": "${testAgent.groupIdentifier.get}",
