@@ -11,15 +11,9 @@ lazy val appName = "api-platform-test-user"
 
 lazy val playSettings: Seq[Setting[_]] = Seq(routesImport ++= Seq("uk.gov.hmrc.domain._", "uk.gov.hmrc.testuser.models._", "uk.gov.hmrc.testuser.Binders._"))
 
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
-
-inThisBuild(
-  List(
-    scalaVersion := "2.12.15",
-    semanticdbEnabled := true,
-    semanticdbVersion := scalafixSemanticdb.revision
-  )
-)
 
 lazy val microservice = (project in file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
@@ -31,11 +25,11 @@ lazy val microservice = (project in file("."))
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(
     name := appName,
-    scalaVersion := "2.12.15",
+    scalaVersion := "2.13.8",
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
-    Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
-    majorVersion := 0
+    majorVersion := 0,
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "resources"
   )
   .configs(Test)
   .settings(

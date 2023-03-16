@@ -45,10 +45,10 @@ class DesSimulatorConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     implicit val hc = HeaderCarrier()
 
     val underTest = new DesSimulatorConnector(
-      fakeApplication.injector.instanceOf[HttpClient],
-      fakeApplication.injector.instanceOf[Configuration],
-      fakeApplication.injector.instanceOf[Environment],
-      fakeApplication.injector.instanceOf[ServicesConfig]
+      fakeApplication().injector.instanceOf[HttpClient],
+      fakeApplication().injector.instanceOf[Configuration],
+      fakeApplication().injector.instanceOf[Environment],
+      fakeApplication().injector.instanceOf[ServicesConfig]
     ) {
       override lazy val serviceUrl: String = DesSimulatorStub.url
     }
