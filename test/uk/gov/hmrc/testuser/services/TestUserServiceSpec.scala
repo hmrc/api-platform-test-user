@@ -29,6 +29,7 @@ import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
 import uk.gov.hmrc.testuser.models.ServiceKeys.{ServiceKey => _}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
+import uk.gov.hmrc.testuser.services.Generator
 
 class TestUserServiceSpec extends AsyncHmrcSpec {
   implicit def ec = ExecutionContext.global

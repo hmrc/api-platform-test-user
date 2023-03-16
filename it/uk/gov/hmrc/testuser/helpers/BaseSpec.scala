@@ -53,7 +53,7 @@ trait BaseSpec extends AnyFeatureSpec with BeforeAndAfterAll with BeforeAndAfter
 
   override protected def beforeEach(): Unit = {
     mocks.foreach(m => if (!m.server.isRunning) m.server.start())
-    result(mongoRepository.collection.drop.toFuture, timeout)
+    result(mongoRepository.collection.drop().toFuture(), timeout)
     result(mongoRepository.ensureIndexes, timeout)
 
   }
@@ -64,7 +64,7 @@ trait BaseSpec extends AnyFeatureSpec with BeforeAndAfterAll with BeforeAndAfter
 
   override protected def afterAll(): Unit = {
     mocks.foreach(_.server.stop())
-    result(mongoRepository.collection.drop.toFuture, timeout)
+    result(mongoRepository.collection.drop().toFuture(), timeout)
   }
 }
 

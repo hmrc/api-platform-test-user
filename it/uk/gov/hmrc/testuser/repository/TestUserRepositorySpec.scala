@@ -53,8 +53,8 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       )
   }
 
-  override def beforeEach: Unit = {
-    await(userRepository.collection.drop.toFuture())
+  override def beforeEach(): Unit = {
+    await(userRepository.collection.drop().toFuture())
     await(userRepository.ensureIndexes)
   }
 
@@ -81,14 +81,14 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       val result = await(repository.createUser(testIndividual))
 
       result shouldBe testIndividual
-      await(repository.collection.find(Filters.equal("_id", testIndividual._id)).headOption) shouldBe Some(testIndividual)
+      await(repository.collection.find(Filters.equal("_id", testIndividual._id)).headOption()) shouldBe Some(testIndividual)
     }
 
     "create a test organisation in the repository" in new GeneratedTestOrganisation {
       val result = await(repository.createUser(testOrganisation))
 
       result shouldBe testOrganisation
-      await(repository.collection.find(Filters.equal("_id", testOrganisation._id)).headOption) shouldBe Some(testOrganisation)
+      await(repository.collection.find(Filters.equal("_id", testOrganisation._id)).headOption()) shouldBe Some(testOrganisation)
     }
   }
 

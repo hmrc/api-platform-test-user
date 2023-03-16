@@ -11,11 +11,11 @@ object AppDependencies {
   lazy val compile: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"             %% "bootstrap-backend-play-28"  % bootstrapVersion,
     "uk.gov.hmrc"             %% "play-json-union-formatter"  % "1.17.0-play-28",
-    "uk.gov.hmrc"             %% "domain"                     % "6.2.0-play-28",
+    "uk.gov.hmrc"             %% "domain"                     % "8.1.0-play-28",
     "uk.gov.hmrc.mongo"       %% "hmrc-mongo-play-28"         % mongoVersion,
-    "org.mindrot"             % "jbcrypt"                     % "0.4",
+    "org.mindrot"             %  "jbcrypt"                    % "0.4",
     "com.typesafe.play"       %% "play-json"                  % "2.9.2",
-    "org.scalacheck"          %% "scalacheck"                 % "1.13.5"
+    "org.scalacheck"          %% "scalacheck"                 % "1.14.1"
   )
 
   lazy val test: Seq[ModuleID] = Seq(

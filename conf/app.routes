@@ -1,14 +1,14 @@
 # microservice specific routes
 
-POST        /individuals                        uk.gov.hmrc.testuser.controllers.TestUserController.createIndividual
-POST        /organisations                      uk.gov.hmrc.testuser.controllers.TestUserController.createOrganisation
-POST        /agents                             uk.gov.hmrc.testuser.controllers.TestUserController.createAgent
+POST        /individuals                        uk.gov.hmrc.testuser.controllers.TestUserController.createIndividual()
+POST        /organisations                      uk.gov.hmrc.testuser.controllers.TestUserController.createOrganisation()
+POST        /agents                             uk.gov.hmrc.testuser.controllers.TestUserController.createAgent()
 
 GET         /services                           uk.gov.hmrc.testuser.controllers.TestUserController.getServices
 
-POST        /session                            uk.gov.hmrc.testuser.controllers.AuthenticationController.authenticate
-POST        /bas-gateway/session                uk.gov.hmrc.testuser.controllers.AuthenticationController.authenticate
-POST        /bas-gateway/api/session            uk.gov.hmrc.testuser.controllers.AuthenticationController.authenticateByCredId
+POST        /session                            uk.gov.hmrc.testuser.controllers.AuthenticationController.authenticate()
+POST        /bas-gateway/session                uk.gov.hmrc.testuser.controllers.AuthenticationController.authenticate()
+POST        /bas-gateway/api/session            uk.gov.hmrc.testuser.controllers.AuthenticationController.authenticateByCredId()
 
 GET         /individuals/nino/:nino             uk.gov.hmrc.testuser.controllers.TestUserController.fetchIndividualByNino(nino: uk.gov.hmrc.domain.Nino)
 GET         /individuals/shortnino/:shortNino   uk.gov.hmrc.testuser.controllers.TestUserController.fetchIndividualByShortNino(shortNino: uk.gov.hmrc.testuser.models.NinoNoSuffix)

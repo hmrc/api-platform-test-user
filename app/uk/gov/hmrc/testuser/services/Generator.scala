@@ -380,7 +380,7 @@ object VrnChecksum {
   private def weightedTotal(reference: String): Int = {
     val weighting = List(8, 7, 6, 5, 4, 3, 2)
     val ref       = reference.map(_.asDigit).take(7)
-    (ref, weighting).zipped.map(_ * _).sum
+    ref.lazyZip(weighting).map(_ * _).sum
   }
 
   private def calcCheckSum9755(total: Int): Int = calcCheckSum97(total + 55).toInt
