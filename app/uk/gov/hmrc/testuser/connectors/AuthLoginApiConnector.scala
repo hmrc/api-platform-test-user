@@ -19,14 +19,13 @@ package uk.gov.hmrc.testuser.connectors
 import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-
 import play.api.http.HeaderNames.{AUTHORIZATION, LOCATION}
 import play.api.{Configuration, Environment}
+import play.api.libs.json.Json
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
@@ -55,6 +54,8 @@ class AuthLoginApiConnector @Inject() (httpClient: HttpClient, val configuration
 
 case class Identifier(key: String, value: String)
 
+case class MdtpInformation(deviceId: String, sessionId: String)
+
 case class Enrolment(key: String, identifiers: Seq[Identifier], state: String = "Activated")
 
 case class GovernmentGatewayLogin(
@@ -68,6 +69,7 @@ case class GovernmentGatewayLogin(
     credentialStrength: String = "strong",
     groupIdentifier: String,
     itmpData: Option[ItmpData],
+    mdtpInformation: Option[MdtpInformation] = Some(MdtpInformation("TestDeviceId", "TestSessionId")),
     credentialRole: Option[String] = None,
     agentCode: Option[String] = None
   )

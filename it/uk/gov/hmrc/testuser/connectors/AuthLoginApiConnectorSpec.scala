@@ -237,6 +237,10 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
              |       "countryName" : "United Kingdom",
              |       "countryCode" : "GB"
              |     }
+             |  },
+             |  "mdtpInformation" :{
+             |  "deviceId":"TestDeviceId",
+             |  "sessionId":"TestSessionId"
              |  }
              |}
         """.stripMargin.replaceAll("\n", "")
@@ -271,6 +275,10 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
            |       "countryCode" : "GB"
            |     }
            |   },
+           |  "mdtpInformation" :{
+           |  "deviceId":"TestDeviceId",
+           |  "sessionId":"TestSessionId"
+           |  },
            |   "enrolments": [
            |     {
            |       "key": "IR-SA",
@@ -438,6 +446,10 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
              |       }]
              |     }
              |   ],
+             |  "mdtpInformation" :{
+             |  "deviceId":"TestDeviceId",
+             |  "sessionId":"TestSessionId"
+             |  },
              |   "usersName": "John Doe",
              |   "email": "john.doe@example.com"
              |}
