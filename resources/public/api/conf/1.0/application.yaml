@@ -4,7 +4,7 @@ info:
   contact: {}
   version: '1.0'
 servers:
-- url: https://api.service.hmrc.gov.uk/
+- url: https://test-api.service.hmrc.gov.uk/
   variables: {}
 paths:
   /create-test-user/individuals:
@@ -117,7 +117,7 @@ components:
         See https://developer.service.hmrc.gov.uk/api-documentation/docs/authorisation/application-restricted-endpoints for details.
       flows:
         clientCredentials:
-          tokenUrl: https://api.service.hmrc.gov.uk/oauth/token
+          tokenUrl: https://test-api.service.hmrc.gov.uk/oauth/token
           scopes: {}
 tags:
 - name: create-test-user
