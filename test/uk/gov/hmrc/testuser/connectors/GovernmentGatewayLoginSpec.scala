@@ -16,13 +16,16 @@
 
 package uk.gov.hmrc.testuser.connectors
 
-import java.time.LocalDate
+import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.LocalDate
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import uk.gov.hmrc.testuser.models._
 
 class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
+  implicit val hc: HeaderCarrier = HeaderCarrier()
+
   val user                = "user"
   val groupIdentifier     = "groupIdentifier"
   val password            = "password"

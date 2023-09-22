@@ -57,6 +57,13 @@ case class Identifier(key: String, value: String)
 
 case class MdtpInformation(deviceId: String, sessionId: String)
 
+object MdtpInformation {
+
+  def fromHeaderCarrier(implicit hc: HeaderCarrier): MdtpInformation = {
+    MdtpInformation(hc.deviceID.getOrElse("TestDeviceId"), hc.sessionId.map(_.value).getOrElse("TestSessionId"))
+  }
+}
+
 case class Enrolment(key: String, identifiers: Seq[Identifier], state: String = "Activated")
 
 case class GovernmentGatewayLogin(
@@ -70,7 +77,7 @@ case class GovernmentGatewayLogin(
     credentialStrength: String = "strong",
     groupIdentifier: String,
     itmpData: Option[ItmpData],
-    mdtpInformation: Option[MdtpInformation] = Some(MdtpInformation("TestDeviceId", "TestSessionId")),
+    mdtpInformation: Option[MdtpInformation] = None,
     credentialRole: Option[String] = None,
     agentCode: Option[String] = None
   )
@@ -121,13 +128,13 @@ object GovernmentGatewayLogin {
   import com.typesafe.config.ConfigFactory
   lazy val confidenceLevel: Int = ConfigFactory.load().getInt("confidenceLevel")
 
-  def apply(testUser: TestUser): GovernmentGatewayLogin = testUser match {
+  def apply(testUser: TestUser)(implicit hc: HeaderCarrier): GovernmentGatewayLogin = testUser match {
     case individual: TestIndividual     => fromIndividual(individual)
     case organisation: TestOrganisation => fromOrganisation(organisation)
     case agent: TestAgent               => fromAgent(agent)
   }
 
-  private def fromIndividual(individual: TestIndividual): GovernmentGatewayLogin = {
+  private def fromIndividual(individual: TestIndividual)(implicit hc: HeaderCarrier): GovernmentGatewayLogin = {
 
     def asEnrolment(serviceName: ServiceKey) = {
       serviceName match {
@@ -152,11 +159,12 @@ object GovernmentGatewayLogin {
       email = individual.emailAddress,
       confidenceLevel = confidenceLevel,
       groupIdentifier = individual.groupIdentifier.getOrElse(""),
-      itmpData = Some(ItmpData(individual.individualDetails))
+      itmpData = Some(ItmpData(individual.individualDetails)),
+      mdtpInformation = Some(MdtpInformation.fromHeaderCarrier)
     )
   }
 
-  private def fromOrganisation(organisation: TestOrganisation): GovernmentGatewayLogin = {
+  private def fromOrganisation(organisation: TestOrganisation)(implicit hc: HeaderCarrier): GovernmentGatewayLogin = {
 
     def asEnrolment(serviceName: ServiceKey) = {
       serviceName match {
@@ -199,11 +207,12 @@ object GovernmentGatewayLogin {
       email = organisation.emailAddress,
       confidenceLevel = confidenceLevel,
       groupIdentifier = organisation.groupIdentifier.getOrElse(""),
-      itmpData = organisation.individualDetails.map(ItmpData(_))
+      itmpData = organisation.individualDetails.map(ItmpData(_)),
+      mdtpInformation = Some(MdtpInformation.fromHeaderCarrier)
     )
   }
 
-  private def fromAgent(agent: TestAgent): GovernmentGatewayLogin = {
+  private def fromAgent(agent: TestAgent)(implicit hc: HeaderCarrier): GovernmentGatewayLogin = {
     def asEnrolment(serviceName: ServiceKey) = {
       serviceName match {
         case AGENT_SERVICES => agent.arn map { arn => Enrolment("HMRC-AS-AGENT", Seq(Identifier("AgentReferenceNumber", arn))) }
@@ -222,7 +231,8 @@ object GovernmentGatewayLogin {
       credentialRole = Some("user"),
       groupIdentifier = agent.groupIdentifier.getOrElse(""),
       itmpData = None,
-      agentCode = agent.agentCode
+      agentCode = agent.agentCode,
+      mdtpInformation = Some(MdtpInformation.fromHeaderCarrier)
     )
   }
 }

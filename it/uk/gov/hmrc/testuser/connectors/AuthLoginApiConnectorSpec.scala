@@ -17,19 +17,18 @@
 package uk.gov.hmrc.testuser.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequestedFor, urlPathEqualTo}
+
 import java.time.LocalDate
 import org.scalatest.BeforeAndAfterEach
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionId, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ServiceKeys._
 import play.api.test.Helpers._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import org.scalatest.BeforeAndAfterAll
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -144,6 +143,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
   "createSession" should {
     "create a session for an Individual" in new Setup {
       AuthLoginApiStub.willReturnTheSession(authSession)
+      implicit override val hc = HeaderCarrier(sessionId = Some(SessionId("sessions")), deviceID = Some("MyDevice"))
 
       val result = await(underTest.createSession(testIndividual))
 
@@ -239,8 +239,8 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
              |     }
              |  },
              |  "mdtpInformation" :{
-             |  "deviceId":"TestDeviceId",
-             |  "sessionId":"TestSessionId"
+             |  "deviceId":"MyDevice",
+             |  "sessionId":"sessions"
              |  }
              |}
         """.stripMargin.replaceAll("\n", "")
