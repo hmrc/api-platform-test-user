@@ -22,7 +22,7 @@ import play.api.libs.json._
 import uk.gov.hmrc.mongo.play.json.formats.MongoFormats
 import uk.gov.hmrc.play.json.Union
 
-import uk.gov.hmrc.testuser.connectors.{AuthLoginAddress, Enrolment, GovernmentGatewayLogin, Identifier, ItmpData}
+import uk.gov.hmrc.testuser.connectors._
 
 object WrapAssortedReadsAndWrites extends EnvReads with EnvWrites
 
@@ -72,6 +72,7 @@ object JsonFormatters {
 
   implicit val formatAuthLoginAddress       = Json.format[AuthLoginAddress]
   implicit val formatItmpData               = Json.format[ItmpData]
+  implicit val formatMdtpInformation        = Json.format[MdtpInformation]
   implicit val formatGovernmentGatewayLogin = Json.format[GovernmentGatewayLogin]
 
   implicit val formatDesSimulatorTestIndividual   = Json.format[DesSimulatorTestIndividual]
