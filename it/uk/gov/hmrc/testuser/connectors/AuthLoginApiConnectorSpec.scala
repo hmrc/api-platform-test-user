@@ -95,7 +95,8 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       GOODS_VEHICLE_MOVEMENTS,
       SAFETY_AND_SECURITY,
       CTC_LEGACY,
-      CTC
+      CTC,
+      EMCS
     )
   )
 
@@ -407,6 +408,15 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
            |       "identifiers": [
            |       {
            |         "key":"EORINumber",
+           |         "value":"${testOrganisation.eoriNumber.get}"
+           |       }]
+           |     },
+           |     {
+           |       "key": "HMRC-EMCS-ORG",
+           |       "state": "Activated",
+           |       "identifiers": [
+           |       {
+           |         "key":"ExciseNumber",
            |         "value":"${testOrganisation.eoriNumber.get}"
            |       }]
            |     }

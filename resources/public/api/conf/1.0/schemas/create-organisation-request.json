@@ -89,6 +89,11 @@
             "title": "common-transit-convention-traders-legacy",
             "enum": ["common-transit-convention-traders-legacy"],
             "description": "Generates an EORI number and enrols the user for legacy Common Transit Convention Traders."
+          },
+          {
+            "title": "excise-movement-control-system",
+            "enum": ["excise-movement-control-system"],
+            "description": "Generates an Excise Number and enrols the user for Excise Movement Control System."
           }
         ]
       },
@@ -96,10 +101,10 @@
     },
     "eoriNumber": {
       "type": "string",
-      "description": "Economic Operator Registration and Identification (EORI) number.",
-      "minLength": 14,
+      "description": "Economic Operator Registration and Identification (EORI) number. Also temporarily supports an Excise Number",
+      "minLength": 13,
       "maxLength": 17,
-      "pattern": "^(GB|XI)[0-9]{12,15}$"
+      "pattern": "^((GB|XI)[0-9]{12,15})|([A-Z]{2}[a-zA-Z0-9]{11})$"
     },
     "nino": {
       "type": "string",

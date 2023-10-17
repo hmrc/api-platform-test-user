@@ -15,7 +15,8 @@
     "import-control-system",
     "safety-and-security",
     "common-transit-convention-traders",
-    "common-transit-convention-traders-legacy"
+    "common-transit-convention-traders-legacy",
+    "excise-movement-control-system"
 ],
   "eoriNumber": "GB123456789012",
   "taxpayerType": "Individual"
