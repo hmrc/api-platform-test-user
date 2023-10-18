@@ -64,6 +64,8 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val pensionSchemeAdministratorIdentifier    = "A1234567"
   val rawEoriNumber                           = "GB123456789012"
   val eoriNumber                              = EoriNumber(rawEoriNumber)
+  val rawExciseNumber                         = "GBWK254706100"
+  val exciseNumber                            = EoriNumber(rawExciseNumber) // using EORI for now
   val taxpayerType                            = TaxpayerType("Individual")
   val rawTaxpayerType                         = "Individual"
 
@@ -152,6 +154,11 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
     def createOrganisationWithProvidedEoriRequest = {
       val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["national-insurance"], "eoriNumber": "$rawEoriNumber"}""")
+      FakeRequest().withBody[JsValue](jsonPayload)
+    }
+
+    def createOrganisationWithProvidedExciseNumberRequest = {
+      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["national-insurance"], "eoriNumber": "$rawExciseNumber"}""")
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
@@ -308,6 +315,20 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       )(any[HeaderCarrier])).thenReturn(successful(Right(testOrganisation)))
 
       val result = underTest.createOrganisation()(createOrganisationWithProvidedEoriRequest)
+
+      status(result) shouldBe CREATED
+    }
+
+    "return 201 (Created) with the created organisation with provided excise number" in new Setup {
+
+      when(underTest.testUserService.createTestOrganisation(
+        eqTo(createOrganisationServices),
+        eqTo(Some(exciseNumber)),
+        eqTo(None),
+        eqTo(None)
+      )(any[HeaderCarrier])).thenReturn(successful(Right(testOrganisation)))
+
+      val result = underTest.createOrganisation()(createOrganisationWithProvidedExciseNumberRequest)
 
       status(result) shouldBe CREATED
     }

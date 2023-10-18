@@ -191,6 +191,7 @@ object GovernmentGatewayLogin {
         case CUSTOMS_SERVICES           => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case CTC_LEGACY                 => organisation.eoriNumber map { eoriNumber => Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber))) }
         case CTC                        => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
+        case EMCS                       => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-EMCS-ORG", Seq(Identifier("ExciseNumber", eoriNumber))) }
         case GOODS_VEHICLE_MOVEMENTS    => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case SAFETY_AND_SECURITY        => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-SS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case IMPORT_CONTROL_SYSTEM      => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber))) }

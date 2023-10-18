@@ -74,6 +74,11 @@ trait GeneratorProvider {
 
   val eoriGenerator = Gen.listOfN(12, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
 
+  val exciseNumberGenerator = for {
+    firstPart <- Gen.stringOfN(2, Gen.alphaUpperChar)
+    secondPart <- Gen.stringOfN(11, Gen.alphaNumChar)
+  } yield EoriNumber(s"$firstPart$secondPart")
+
   val ninoGenerator = Gen.listOfN(6, Gen.numChar).map("PE" + _.mkString + "A")
 }
 
@@ -503,11 +508,38 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       org.eoriNumber shouldBe Some(eori.value)
     }
 
-    "do not generate EORI when none of CUSTOMS_SERVICE, GOODS_VEHICLE_MOVEMENTS, CTC, SAFETY_AND_SECURITY service is included" in new Setup {
+    "do not generate EORI when none of CUSTOMS_SERVICE, GOODS_VEHICLE_MOVEMENTS, CTC, SAFETY_AND_SECURITY, EMCS service is included" in new Setup {
       when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
       val eoriToIgnore = eoriGenerator.sample.get
 
       val org = await(underTest.generateTestOrganisation(Seq.empty, Some(eoriToIgnore), None, None))
+
+      org shouldHave (eoriDefined = false)
+    }
+
+    "generate an Excise Number (EORI for now) when EMCS service is included" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(EMCS), None, None, None))
+
+      org shouldHave (eoriDefined = true)
+    }
+
+    "use provided Excise Number (EORI for now) when EMCS service is included" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      val exciseNumber = exciseNumberGenerator.sample.get
+
+      val org = await(underTest.generateTestOrganisation(Seq(EMCS), Some(exciseNumber), None, None))
+
+      org shouldHave (eoriDefined = true)
+      org.eoriNumber shouldBe Some(exciseNumber.value)
+    }
+
+    "do not generate Excise Number (EORI for now) when EMCS service is not included" in new Setup {
+      when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+      val exciseNumberToIgnore = exciseNumberGenerator.sample.get
+
+      val org = await(underTest.generateTestOrganisation(Seq.empty, Some(exciseNumberToIgnore), None, None))
 
       org shouldHave (eoriDefined = false)
     }

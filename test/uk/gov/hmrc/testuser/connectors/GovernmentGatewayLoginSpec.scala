@@ -45,6 +45,7 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
   val secureElectronicTransferReferenceNumber = "123456789012"
   val pensionSchemeAdministratorIdentifier    = "A1234567"
   val eoriNumber                              = "GB1234567890"
+  val exciseNumber                            = "GBWK254706100"
   private val taxOfficeNumber                 = "555"
   private val taxOfficeReference              = "EIA000"
   val empRef                                  = s"$taxOfficeNumber/$taxOfficeReference"
@@ -65,6 +66,8 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
   val goodsVehicleMovementsEnrolment = Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
   val ssEnrolment                    = Enrolment("HMRC-SS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
   val icsEnrolment                   = Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber)))
+  val emcsEnrolment                  = Enrolment("HMRC-EMCS-ORG", Seq(Identifier("ExciseNumber", exciseNumber)))
+  val emcsEnrolmentUsingDefaultEori  = Enrolment("HMRC-EMCS-ORG", Seq(Identifier("ExciseNumber", eoriNumber)))
 
   "A GovernmentGatewayLogin created from a TestAgent" should {
 
@@ -243,7 +246,8 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
         SAFETY_AND_SECURITY,
         CTC_LEGACY,
         CTC,
-        IMPORT_CONTROL_SYSTEM
+        IMPORT_CONTROL_SYSTEM,
+        EMCS
       )
     )
 
@@ -272,7 +276,8 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
           ssEnrolment,
           ctcEnrolment,
           ctcLegacyEnrolment,
-          icsEnrolment
+          icsEnrolment,
+          emcsEnrolmentUsingDefaultEori
         )
     }
 
@@ -324,6 +329,12 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       val login = GovernmentGatewayLogin(organisation.copy(services = Seq(SAFETY_AND_SECURITY)))
 
       login.enrolments should contain theSameElementsAs Seq(ssEnrolment)
+    }
+
+    "contain the correct enrolment for excise movement control system" in {
+      val login = GovernmentGatewayLogin(organisation.copy(services = Seq(EMCS), eoriNumber = Some(exciseNumber)))
+
+      login.enrolments should contain theSameElementsAs Seq(emcsEnrolment)
     }
 
     "not have the credential role populated" in {

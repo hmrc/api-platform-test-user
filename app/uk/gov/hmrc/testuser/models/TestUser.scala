@@ -45,6 +45,7 @@ object ServiceKeys extends Enumeration {
   val SAFETY_AND_SECURITY: ServiceKeys.Value        = Value("safety-and-security")
   val CTC: ServiceKeys.Value                        = Value("common-transit-convention-traders")
   val CTC_LEGACY: ServiceKeys.Value                 = Value("common-transit-convention-traders-legacy")
+  val EMCS: ServiceKeys.Value                       = Value("excise-movement-control-system")
 }
 
 case class Service(key: ServiceKey, name: String, allowedUserTypes: Seq[UserType])
@@ -68,7 +69,8 @@ object Services extends Seq[Service] {
     Service(ServiceKeys.IMPORT_CONTROL_SYSTEM, "Import Control System", Seq(ORGANISATION)),
     Service(ServiceKeys.CTC_LEGACY, "Common Transit Convention Traders Legacy", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKeys.CTC, "Common Transit Convention Traders", Seq(INDIVIDUAL, ORGANISATION)),
-    Service(ServiceKeys.SAFETY_AND_SECURITY, "Safety and Security", Seq(ORGANISATION))
+    Service(ServiceKeys.SAFETY_AND_SECURITY, "Safety and Security", Seq(ORGANISATION)),
+    Service(ServiceKeys.EMCS, "Excise Movement Control System", Seq(ORGANISATION))
   )
 
   override def length: Int = services.length
@@ -459,13 +461,15 @@ object PensionSchemeAdministratorIdentifier extends (String => PensionSchemeAdmi
 }
 
 case class EoriNumber(override val value: String) extends TaxIdentifier with SimpleName {
-  require(EoriNumber.isValid(value), s"$value is not a valid EORI.")
+  // Temporarily supports ExciseNumber for EMCS
+  require(EoriNumber.isValid(value), s"$value is not a valid EORI/ExciseNumber.")
 
   override val name = EoriNumber.name
 }
 
 object EoriNumber extends SimpleName {
-  val validEoriFormat = "^(GB|XI)[0-9]{12,15}$"
+  // Temporarily supports ExciseNumber for EMCS by adding | and the second capturing group
+  val validEoriFormat = "^((GB|XI)[0-9]{12,15})|([A-Z]{2}[a-zA-Z0-9]{11})$"
 
   def isValid(eoriNumber: String) = eoriNumber.matches(validEoriFormat)
 
