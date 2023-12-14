@@ -124,7 +124,6 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val createAgentServices        = Seq(ServiceKeys.AGENT_SERVICES)
 
   trait Setup {
-    // implicit val materializer: Materializer = NoMaterializer
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val request = FakeRequest()
