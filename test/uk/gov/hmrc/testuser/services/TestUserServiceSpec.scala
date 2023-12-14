@@ -17,7 +17,7 @@
 package uk.gov.hmrc.testuser.services
 
 import scala.concurrent.Future.{failed, successful}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
 import com.typesafe.config.ConfigFactory
 
@@ -30,7 +30,6 @@ import uk.gov.hmrc.testuser.models.ServiceKeys.{ServiceKey => _}
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.services.Generator
-import scala.concurrent.ExecutionContextExecutor
 
 class TestUserServiceSpec extends AsyncHmrcSpec {
   implicit def ec: ExecutionContextExecutor = ExecutionContext.global
@@ -94,7 +93,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
   )
 
   trait Setup {
-    implicit val hc: HeaderCarrier              = HeaderCarrier()
+    implicit val hc: HeaderCarrier                  = HeaderCarrier()
     implicit def executionContext: ExecutionContext = mock[ExecutionContext]
 
     val mockTestUserRepository = mock[TestUserRepository]
