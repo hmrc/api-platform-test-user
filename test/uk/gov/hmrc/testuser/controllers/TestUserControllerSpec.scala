@@ -20,9 +20,6 @@ import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.{failed, successful}
 
-import akka.stream.Materializer
-import akka.stream.testkit.NoMaterializer
-
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.Json.toJson
 import play.api.libs.json.{JsValue, Json}
@@ -127,8 +124,8 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val createAgentServices        = Seq(ServiceKeys.AGENT_SERVICES)
 
   trait Setup {
-    implicit val materializer: Materializer = NoMaterializer
-    implicit val hc                         = HeaderCarrier()
+    // implicit val materializer: Materializer = NoMaterializer
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val request = FakeRequest()
 

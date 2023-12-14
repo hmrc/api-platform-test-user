@@ -11,9 +11,9 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
-    <logger name="akka" level="ERROR">
+    <!-- <logger name="akka" level="ERROR">
         <appender-ref ref="STDOUT"/>
-    </logger>
+    </logger> -->
 
     <root level="ERROR">
         <appender-ref ref="STDOUT"/>

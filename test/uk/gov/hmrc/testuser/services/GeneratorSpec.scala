@@ -75,7 +75,7 @@ trait GeneratorProvider {
   val eoriGenerator = Gen.listOfN(12, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
 
   val exciseNumberGenerator = for {
-    firstPart <- Gen.stringOfN(2, Gen.alphaUpperChar)
+    firstPart  <- Gen.stringOfN(2, Gen.alphaUpperChar)
     secondPart <- Gen.stringOfN(11, Gen.alphaNumChar)
   } yield EoriNumber(s"$firstPart$secondPart")
 

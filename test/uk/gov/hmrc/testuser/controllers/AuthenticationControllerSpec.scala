@@ -117,7 +117,7 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")
 
   trait Setup {
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val createRequest = FakeRequest()
 
