@@ -18,6 +18,8 @@ package uk.gov.hmrc.testuser.models
 
 import java.time.LocalDate
 
+import org.bson.types.ObjectId
+
 import play.api.libs.json._
 import uk.gov.hmrc.mongo.play.json.formats.MongoFormats
 import uk.gov.hmrc.play.json.Union
@@ -31,16 +33,16 @@ object JsonFormatters {
   implicit val formatLocalDateReads: Reads[LocalDate]   = WrapAssortedReadsAndWrites.DefaultLocalDateReads
   implicit val formatLocalDateWrites: Writes[LocalDate] = WrapAssortedReadsAndWrites.DefaultLocalDateWrites
 
-  implicit val crnFormatter              = Json.format[Crn]
-  implicit val formatObjectId            = MongoFormats.objectIdFormat
-  implicit val formatServiceName         = EnumJson.enumFormat(ServiceKeys)
-  implicit val formatUserType            = EnumJson.enumFormat(UserType)
-  implicit val formatAddress             = Json.format[Address]
-  implicit val formatIndividualDetails   = Json.format[IndividualDetails]
-  implicit val formatOrganisationDetails = Json.format[OrganisationDetails]
-  implicit val formatTestIndividual      = Json.format[TestIndividual]
-  implicit val formatTestOrganisation    = Json.format[TestOrganisation]
-  implicit val formatTestAgent           = Json.format[TestAgent]
+  implicit val crnFormatter: OFormat[Crn]                              = Json.format[Crn]
+  implicit val formatObjectId: Format[ObjectId]                        = MongoFormats.objectIdFormat
+  implicit val formatServiceName: Format[ServiceKeys.Value]            = EnumJson.enumFormat(ServiceKeys)
+  implicit val formatUserType: Format[UserType.Value]                  = EnumJson.enumFormat(UserType)
+  implicit val formatAddress: OFormat[Address]                         = Json.format[Address]
+  implicit val formatIndividualDetails: OFormat[IndividualDetails]     = Json.format[IndividualDetails]
+  implicit val formatOrganisationDetails: OFormat[OrganisationDetails] = Json.format[OrganisationDetails]
+  implicit val formatTestIndividual: OFormat[TestIndividual]           = Json.format[TestIndividual]
+  implicit val formatTestOrganisation: OFormat[TestOrganisation]       = Json.format[TestOrganisation]
+  implicit val formatTestAgent: OFormat[TestAgent]                     = Json.format[TestAgent]
 
   implicit val formatTestUser: Format[TestUser] = Union.from[TestUser]("userType")
     .and[TestIndividual](UserType.INDIVIDUAL.toString)
@@ -48,35 +50,35 @@ object JsonFormatters {
     .and[TestAgent](UserType.AGENT.toString)
     .format
 
-  implicit val formatCreateTestIndividualResponse   = Json.format[TestIndividualCreatedResponse]
-  implicit val formatCreateTestOrganisationResponse = Json.format[TestOrganisationCreatedResponse]
-  implicit val formatCreateTestAgentResponse        = Json.format[TestAgentCreatedResponse]
+  implicit val formatCreateTestIndividualResponse: OFormat[TestIndividualCreatedResponse]     = Json.format[TestIndividualCreatedResponse]
+  implicit val formatCreateTestOrganisationResponse: OFormat[TestOrganisationCreatedResponse] = Json.format[TestOrganisationCreatedResponse]
+  implicit val formatCreateTestAgentResponse: OFormat[TestAgentCreatedResponse]               = Json.format[TestAgentCreatedResponse]
 
-  implicit val formatAuthenticationRequest  = Json.format[AuthenticationRequest]
-  implicit val formatAuthenticationResponse = Json.format[AuthenticationResponse]
+  implicit val formatAuthenticationRequest: OFormat[AuthenticationRequest]   = Json.format[AuthenticationRequest]
+  implicit val formatAuthenticationResponse: OFormat[AuthenticationResponse] = Json.format[AuthenticationResponse]
 
-  implicit val formatCreateUserServicesRequest = Json.format[CreateUserRequest]
+  implicit val formatCreateUserServicesRequest: OFormat[CreateUserRequest] = Json.format[CreateUserRequest]
 
-  implicit val formatTaxpayerType                      = Json.valueFormat[TaxpayerType]
-  implicit val formatEoriNumber                        = Json.valueFormat[EoriNumber]
-  implicit val formatCreateUserWithOptionalEoriRequest = Json.format[CreateUserWithOptionalRequestParams]
+  implicit val formatTaxpayerType: Format[TaxpayerType]                                              = Json.valueFormat[TaxpayerType]
+  implicit val formatEoriNumber: Format[EoriNumber]                                                  = Json.valueFormat[EoriNumber]
+  implicit val formatCreateUserWithOptionalEoriRequest: OFormat[CreateUserWithOptionalRequestParams] = Json.format[CreateUserWithOptionalRequestParams]
 
-  implicit val formatFetchTestIndividualResponse   = Json.format[FetchTestIndividualResponse]
-  implicit val formatFetchTestOrganisationResponse = Json.format[FetchTestOrganisationResponse]
+  implicit val formatFetchTestIndividualResponse: OFormat[FetchTestIndividualResponse]     = Json.format[FetchTestIndividualResponse]
+  implicit val formatFetchTestOrganisationResponse: OFormat[FetchTestOrganisationResponse] = Json.format[FetchTestOrganisationResponse]
 
-  implicit val formatErrorCode     = EnumJson.enumFormat(ErrorCode)
-  implicit val formatErrorResponse = Json.format[ErrorResponse]
+  implicit val formatErrorCode: Format[ErrorCode.Value]    = EnumJson.enumFormat(ErrorCode)
+  implicit val formatErrorResponse: OFormat[ErrorResponse] = Json.format[ErrorResponse]
 
-  implicit val formatTaxIdentifier = Json.format[Identifier]
-  implicit val formatEnrolment     = Json.format[Enrolment]
+  implicit val formatTaxIdentifier: OFormat[Identifier] = Json.format[Identifier]
+  implicit val formatEnrolment: OFormat[Enrolment]      = Json.format[Enrolment]
 
-  implicit val formatAuthLoginAddress       = Json.format[AuthLoginAddress]
-  implicit val formatItmpData               = Json.format[ItmpData]
-  implicit val formatMdtpInformation        = Json.format[MdtpInformation]
-  implicit val formatGovernmentGatewayLogin = Json.format[GovernmentGatewayLogin]
+  implicit val formatAuthLoginAddress: OFormat[AuthLoginAddress]             = Json.format[AuthLoginAddress]
+  implicit val formatItmpData: OFormat[ItmpData]                             = Json.format[ItmpData]
+  implicit val formatMdtpInformation: OFormat[MdtpInformation]               = Json.format[MdtpInformation]
+  implicit val formatGovernmentGatewayLogin: OFormat[GovernmentGatewayLogin] = Json.format[GovernmentGatewayLogin]
 
-  implicit val formatDesSimulatorTestIndividual   = Json.format[DesSimulatorTestIndividual]
-  implicit val formatDesSimulatorTestOrganisation = Json.format[DesSimulatorTestOrganisation]
+  implicit val formatDesSimulatorTestIndividual: OFormat[DesSimulatorTestIndividual]     = Json.format[DesSimulatorTestIndividual]
+  implicit val formatDesSimulatorTestOrganisation: OFormat[DesSimulatorTestOrganisation] = Json.format[DesSimulatorTestOrganisation]
 
-  implicit val formatServices = Json.format[Service]
+  implicit val formatServices: OFormat[Service] = Json.format[Service]
 }

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.testuser.services
 
 import scala.concurrent.Future.{failed, successful}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
 import com.typesafe.config.ConfigFactory
 
@@ -32,7 +32,7 @@ import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.services.Generator
 
 class TestUserServiceSpec extends AsyncHmrcSpec {
-  implicit def ec = ExecutionContext.global
+  implicit def ec: ExecutionContextExecutor = ExecutionContext.global
 
   val userId          = "user"
   val groupIdentifier = "groupIdentifier"
@@ -93,8 +93,8 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
   )
 
   trait Setup {
-    implicit val hc               = HeaderCarrier()
-    implicit def executionContext = mock[ExecutionContext]
+    implicit val hc: HeaderCarrier                  = HeaderCarrier()
+    implicit def executionContext: ExecutionContext = mock[ExecutionContext]
 
     val mockTestUserRepository = mock[TestUserRepository]
     val generator              = new Generator(mockTestUserRepository, config)

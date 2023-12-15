@@ -20,8 +20,8 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 import play.api.http.HeaderNames
-import play.api.libs.json.Json
 import play.api.libs.json.Json._
+import play.api.libs.json.{Json, OWrites, Reads}
 import play.api.mvc.{ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -34,8 +34,8 @@ object AuthenticationController {
 
   case class ApiSessionResponse(bearerToken: String)
 
-  implicit val jsonWrites = Json.writes[ApiSessionResponse]
-  implicit val jsonReads  = Json.reads[ApiSessionRequest]
+  implicit val jsonWrites: OWrites[ApiSessionResponse] = Json.writes[ApiSessionResponse]
+  implicit val jsonReads: Reads[ApiSessionRequest]     = Json.reads[ApiSessionRequest]
 }
 
 @Singleton

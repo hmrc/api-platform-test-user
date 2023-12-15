@@ -41,12 +41,18 @@ object Generator {
     }
   }
 
-  def whenElseF[T](services: Seq[ServiceKey])
-                  (ifKeys: Seq[ServiceKey])
-                  (thenDo: => Future[T])
-                  (elseKeys: Seq[ServiceKey])
-                  (elseDo: => Future[T])
-                  (implicit ec: ExecutionContext): Future[Option[T]] = {
+  def whenElseF[T](
+      services: Seq[ServiceKey]
+    )(
+      ifKeys: Seq[ServiceKey]
+    )(
+      thenDo: => Future[T]
+    )(
+      elseKeys: Seq[ServiceKey]
+    )(
+      elseDo: => Future[T]
+    )(implicit ec: ExecutionContext
+    ): Future[Option[T]] = {
     if (services.intersect(ifKeys).nonEmpty) {
       thenDo.map(Some.apply)
     } else if (services.intersect(elseKeys).nonEmpty) {
@@ -86,12 +92,13 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
   private val setRefNumGenerator        = new SecureElectronicTransferReferenceNumberGenerator()
   private val psaIdGenerator            = new PensionSchemeAdministratorIdentifierGenerator()
   private val eoriGenerator             = Gen.listOfN(12, Gen.numChar).map("GB" + _.mkString).map(EoriNumber.apply)
-  private val exciseNumberGenerator     = for {
-    firstPart <- Gen.listOfN(2, Gen.alphaUpperChar).map(_.mkString)
+
+  private val exciseNumberGenerator = for {
+    firstPart  <- Gen.listOfN(2, Gen.alphaUpperChar).map(_.mkString)
     secondPart <- Gen.listOfN(11, Gen.alphaNumChar).map(_.mkString)
   } yield EoriNumber(s"$firstPart$secondPart")
-  private val arnGenerator              = new ArnGenerator()
-  private val crnGenerator              = new CompanyReferenceNumberGenerator()
+  private val arnGenerator          = new ArnGenerator()
+  private val crnGenerator          = new CompanyReferenceNumberGenerator()
 
   private val agentCodeGenerator = Gen.listOfN(10, Gen.numChar).map(_.mkString)
 
@@ -147,7 +154,8 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
 
     def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
 
-    def whenElseF[T](ifKeys: ServiceKey*)(thenDo: => Future[T])(elseKeys: ServiceKey*)(elseDo: => Future[T]): Future[Option[T]] = Generator.whenElseF(services)(ifKeys)(thenDo)(elseKeys)(elseDo)
+    def whenElseF[T](ifKeys: ServiceKey*)(thenDo: => Future[T])(elseKeys: ServiceKey*)(elseDo: => Future[T]): Future[Option[T]] =
+      Generator.whenElseF(services)(ifKeys)(thenDo)(elseKeys)(elseDo)
 
     def when[T](keys: ServiceKey*)(thenDo: => T): Option[T] = Generator.when(services)(keys)(thenDo)
 
@@ -162,7 +170,9 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       lisaManRefNum      <- whenF(LISA)(generateLisaManRefNum)
       setRefNum           = when(SECURE_ELECTRONIC_TRANSFER)(generateSetRefNum)
       psaId               = when(RELIEF_AT_SOURCE)(generatePsaId)
-      eoriNumber         <- whenElseF(CUSTOMS_SERVICES, CTC_LEGACY, CTC, SAFETY_AND_SECURITY, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))(EMCS)(useProvidedOrGenerateEoriNumber(eoriNumber, forEMCS = true))
+      eoriNumber         <- whenElseF(CUSTOMS_SERVICES, CTC_LEGACY, CTC, SAFETY_AND_SECURITY, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))(EMCS)(
+                              useProvidedOrGenerateEoriNumber(eoriNumber, forEMCS = true)
+                            )
       groupIdentifier     = Some(generateGroupIdentifier)
       firstName           = generateFirstName
       lastName            = generateLastName

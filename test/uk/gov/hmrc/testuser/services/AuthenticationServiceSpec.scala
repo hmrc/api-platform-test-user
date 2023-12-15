@@ -54,7 +54,7 @@ class AuthenticationServiceSpec extends AsyncHmrcSpec {
   )
 
   trait Setup {
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val underTest = new AuthenticationService(mock[PasswordService], mock[AuthLoginApiConnector], mock[TestUserRepository])
 

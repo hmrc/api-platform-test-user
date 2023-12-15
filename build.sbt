@@ -9,11 +9,13 @@ import bloop.integrations.sbt.BloopDefaults
 
 lazy val appName = "api-platform-test-user"
 
+scalaVersion := "2.13.12"
+
 lazy val playSettings: Seq[Setting[_]] = Seq(routesImport ++= Seq("uk.gov.hmrc.domain._", "uk.gov.hmrc.testuser.models._", "uk.gov.hmrc.testuser.Binders._"))
 
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
-ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
+ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 
 lazy val microservice = (project in file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
@@ -24,7 +26,6 @@ lazy val microservice = (project in file("."))
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(
     name := appName,
-    scalaVersion := "2.13.8",
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
     majorVersion := 0,
@@ -65,3 +66,12 @@ def oneForkedJvmPerTest(tests: Seq[TestDefinition]): Seq[Group] =
   tests map { test =>
     Group(test.name, Seq(test), SubProcess(ForkOptions().withRunJVMOptions(Vector("-Dtest.name=" + test.name))))
   }
+
+commands ++= Seq(
+  Command.command("run-all-tests") { state => "test" :: "it:test" :: state },
+
+  Command.command("clean-and-test") { state => "clean" :: "compile" :: "run-all-tests" :: state },
+
+  // Coverage does not need compile !
+  Command.command("pre-commit") { state => "clean" :: "scalafmtAll" :: "scalafixAll" :: "coverage" :: "run-all-tests" :: "coverageReport" :: "coverageOff" :: state }
+)

@@ -4,8 +4,7 @@ import play.core.PlayVersion
 object AppDependencies {
   def apply(): Seq[ModuleID] = compile ++ test
 
-  val AkkaVersion           = "2.6.20"
-  lazy val bootstrapVersion = "7.12.0"
+  lazy val bootstrapVersion = "8.2.0"
   lazy val mongoVersion     = "0.74.0"
 
   lazy val compile: Seq[ModuleID] = Seq(
@@ -22,7 +21,6 @@ object AppDependencies {
     "uk.gov.hmrc"           %% "bootstrap-test-play-28"   % bootstrapVersion,
     "uk.gov.hmrc.mongo"     %% "hmrc-mongo-test-play-28"  % mongoVersion,
     "com.typesafe.play"     %% "play-test"                % PlayVersion.current,
-    "com.typesafe.akka"     %% "akka-stream-testkit"      % AkkaVersion,
     "org.mockito"           %% "mockito-scala-scalatest"  % "1.17.12",
     "org.scalatestplus"     %% "scalacheck-1-15"          % "3.2.10.0",
     "org.pegdown"            % "pegdown"                  % "1.6.0",

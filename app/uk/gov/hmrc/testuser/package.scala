@@ -42,11 +42,11 @@ object CtUtrBinder        extends SimpleObjectBinder[CtUtr](CtUtr.apply, _.value
 object CrnBinder          extends SimpleObjectBinder[Crn](Crn.apply, _.value)
 
 package object Binders {
-  implicit val ninoNoSuffixBinder = NinoNoSuffixBinder
-  implicit val ninoBinder         = NinoBinder
-  implicit val saUtrBinder        = SaUtrBinder
-  implicit val empRefBinder       = EmpRefBinder
-  implicit val vrnBinder          = VrnBinder
-  implicit val ctUtrBinder        = CtUtrBinder
-  implicit val crnBinder          = CrnBinder
+  implicit val ninoNoSuffixBinder: NinoNoSuffixBinder.type = NinoNoSuffixBinder
+  implicit val ninoBinder: NinoBinder.type                 = NinoBinder
+  implicit val saUtrBinder: SaUtrBinder.type               = SaUtrBinder
+  implicit val empRefBinder: EmpRefBinder.type             = EmpRefBinder
+  implicit val vrnBinder: VrnBinder.type                   = VrnBinder
+  implicit val ctUtrBinder: CtUtrBinder.type               = CtUtrBinder
+  implicit val crnBinder: CrnBinder.type                   = CrnBinder
 }
