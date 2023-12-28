@@ -13,13 +13,19 @@ Unit and integration tests can be run with the following bash script:
 
     ./run_all_tests.sh
 
-Note that integration tests require a running version of Mongo 3.2, listening on localhost:27017. A simple way to achieve this
+Note that integration tests require a running version of Mongo 4.4, listening on localhost:27017. A simple way to achieve this
 is to run with a docker image:
 
-    docker run -p 27017:27017 --name mongo -d mongo:3.2
+    docker run -p 27017:27017 --name mongo -d mongo:4.4
 
 ### Creating a local test user
 
+To create a local test user using a browser frontend, check out [api-platform-test-user-frontend](https://github.com/hmrc/api-platform-test-user-frontend)
+and follow its README.
+
+To create a local test user without a frontend, first start the service by running `run_local.sh`.
+
+A test individual can then be created with curl.
 ```
 curl --location --request POST 'http://localhost:9617/individuals' \
 --header 'Content-Type: application/json' \
@@ -36,6 +42,8 @@ curl --location --request POST 'http://localhost:9617/individuals' \
   "eoriNumber": "GB123456789012"
 }'
 ```
+
+Test organisations and agents can be created similarly, using the respective endpoints in `conf/app.routes`.
 
 ### License
 
