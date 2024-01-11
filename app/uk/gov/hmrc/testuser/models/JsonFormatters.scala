@@ -35,8 +35,6 @@ object JsonFormatters {
 
   implicit val crnFormatter: OFormat[Crn]                              = Json.format[Crn]
   implicit val formatObjectId: Format[ObjectId]                        = MongoFormats.objectIdFormat
-  implicit val formatServiceName: Format[ServiceKeys.Value]            = EnumJson.enumFormat(ServiceKeys)
-  implicit val formatUserType: Format[UserType.Value]                  = EnumJson.enumFormat(UserType)
   implicit val formatAddress: OFormat[Address]                         = Json.format[Address]
   implicit val formatIndividualDetails: OFormat[IndividualDetails]     = Json.format[IndividualDetails]
   implicit val formatOrganisationDetails: OFormat[OrganisationDetails] = Json.format[OrganisationDetails]
@@ -66,7 +64,6 @@ object JsonFormatters {
   implicit val formatFetchTestIndividualResponse: OFormat[FetchTestIndividualResponse]     = Json.format[FetchTestIndividualResponse]
   implicit val formatFetchTestOrganisationResponse: OFormat[FetchTestOrganisationResponse] = Json.format[FetchTestOrganisationResponse]
 
-  implicit val formatErrorCode: Format[ErrorCode.Value]    = EnumJson.enumFormat(ErrorCode)
   implicit val formatErrorResponse: OFormat[ErrorResponse] = Json.format[ErrorResponse]
 
   implicit val formatTaxIdentifier: OFormat[Identifier] = Json.format[Identifier]
@@ -80,5 +77,4 @@ object JsonFormatters {
   implicit val formatDesSimulatorTestIndividual: OFormat[DesSimulatorTestIndividual]     = Json.format[DesSimulatorTestIndividual]
   implicit val formatDesSimulatorTestOrganisation: OFormat[DesSimulatorTestOrganisation] = Json.format[DesSimulatorTestOrganisation]
 
-  implicit val formatServices: OFormat[Service] = Json.format[Service]
 }

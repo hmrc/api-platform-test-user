@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionId, UpstreamErrorResp
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.models.ServiceKey._
 import play.api.test.Helpers._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -114,7 +114,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
   val authSession = AuthSession("Bearer 12345", "/auth/oid/12345", "ggToken")
 
   trait Setup {
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val underTest = new AuthLoginApiConnector(
       app.injector.instanceOf[HttpClient],
@@ -144,7 +144,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
   "createSession" should {
     "create a session for an Individual" in new Setup {
       AuthLoginApiStub.willReturnTheSession(authSession)
-      implicit override val hc = HeaderCarrier(sessionId = Some(SessionId("sessions")), deviceID = Some("MyDevice"))
+      implicit override val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessions")), deviceID = Some("MyDevice"))
 
       val result = await(underTest.createSession(testIndividual))
 

@@ -31,9 +31,9 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.testuser.common.LogSuppressing
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models.ServiceKeys.ServiceKey
+import uk.gov.hmrc.testuser.models.ServiceKey._
 import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
-import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.models.{ErrorCode, ErrorResponse, _}
 import uk.gov.hmrc.testuser.services.{NinoAlreadyUsed, TestUserService}
 
 class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
@@ -119,9 +119,9 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     Some("1234509876")
   )
 
-  val createIndividualServices   = Seq(ServiceKeys.NATIONAL_INSURANCE)
-  val createOrganisationServices = Seq(ServiceKeys.NATIONAL_INSURANCE)
-  val createAgentServices        = Seq(ServiceKeys.AGENT_SERVICES)
+  val createIndividualServices   = Seq(NATIONAL_INSURANCE)
+  val createOrganisationServices = Seq(NATIONAL_INSURANCE)
+  val createAgentServices        = Seq(AGENT_SERVICES)
 
   trait Setup {
     implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -619,7 +619,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     "return the services" in new Setup {
       val result = underTest.getServices()(request)
 
-      contentAsJson(result) shouldBe Json.toJson(Services)
+      contentAsJson(result) shouldBe Json.toJson(Services.all)
     }
   }
 }

@@ -24,7 +24,7 @@ import scalaj.http.Http
 import uk.gov.hmrc.testuser.helpers.BaseSpec
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.models.ServiceKey._
 
 import scala.concurrent.Await._
 

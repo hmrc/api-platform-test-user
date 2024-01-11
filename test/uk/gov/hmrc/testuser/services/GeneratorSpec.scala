@@ -27,7 +27,7 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.domain.Nino
 
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.models.ServiceKey._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
@@ -100,7 +100,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
   "whenF" should {
     implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
-    val allKeys = Services.services.map(_.key)
+    val allKeys = Services.all.map(_.key)
 
     "return None when no keys match" in {
       await(
@@ -129,7 +129,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
   }
 
   "when" should {
-    val allKeys = Services.services.map(_.key)
+    val allKeys = Services.all.map(_.key)
 
     "return None when no keys match" in {
       Generator.when(allKeys)(Seq.empty)("Oops") shouldBe None

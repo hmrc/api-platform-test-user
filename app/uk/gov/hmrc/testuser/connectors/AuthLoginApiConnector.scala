@@ -28,7 +28,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorR
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.models.ServiceKey._
 import uk.gov.hmrc.testuser.models._
 
 @Singleton

@@ -23,63 +23,6 @@ import org.bson.types.ObjectId
 import play.api.libs.json.{Format, Reads, Writes}
 import uk.gov.hmrc.domain._
 
-import uk.gov.hmrc.testuser.models.ServiceKeys.ServiceKey
-import uk.gov.hmrc.testuser.models.UserType.{AGENT, INDIVIDUAL, ORGANISATION, UserType}
-
-object ServiceKeys extends Enumeration {
-  type ServiceKey = Value
-  val NATIONAL_INSURANCE: ServiceKeys.Value         = Value("national-insurance")
-  val SELF_ASSESSMENT: ServiceKeys.Value            = Value("self-assessment")
-  val CORPORATION_TAX: ServiceKeys.Value            = Value("corporation-tax")
-  val PAYE_FOR_EMPLOYERS: ServiceKeys.Value         = Value("paye-for-employers")
-  val SUBMIT_VAT_RETURNS: ServiceKeys.Value         = Value("submit-vat-returns")
-  val MTD_VAT: ServiceKeys.Value                    = Value("mtd-vat")
-  val MTD_INCOME_TAX: ServiceKeys.Value             = Value("mtd-income-tax")
-  val AGENT_SERVICES: ServiceKeys.Value             = Value("agent-services")
-  val LISA: ServiceKeys.Value                       = Value("lisa")
-  val SECURE_ELECTRONIC_TRANSFER: ServiceKeys.Value = Value("secure-electronic-transfer")
-  val RELIEF_AT_SOURCE: ServiceKeys.Value           = Value("relief-at-source")
-  val CUSTOMS_SERVICES: ServiceKeys.Value           = Value("customs-services")
-  val GOODS_VEHICLE_MOVEMENTS: ServiceKeys.Value    = Value("goods-vehicle-movements")
-  val IMPORT_CONTROL_SYSTEM: ServiceKeys.Value      = Value("import-control-system")
-  val SAFETY_AND_SECURITY: ServiceKeys.Value        = Value("safety-and-security")
-  val CTC: ServiceKeys.Value                        = Value("common-transit-convention-traders")
-  val CTC_LEGACY: ServiceKeys.Value                 = Value("common-transit-convention-traders-legacy")
-  val EMCS: ServiceKeys.Value                       = Value("excise-movement-control-system")
-}
-
-case class Service(key: ServiceKey, name: String, allowedUserTypes: Seq[UserType])
-
-object Services extends Seq[Service] {
-
-  val services = Seq(
-    Service(ServiceKeys.NATIONAL_INSURANCE, "National Insurance", Seq(INDIVIDUAL, ORGANISATION)),
-    Service(ServiceKeys.SELF_ASSESSMENT, "Self Assessment", Seq(INDIVIDUAL, ORGANISATION)),
-    Service(ServiceKeys.CORPORATION_TAX, "Corporation Tax", Seq(ORGANISATION)),
-    Service(ServiceKeys.PAYE_FOR_EMPLOYERS, "PAYE for Employers", Seq(ORGANISATION)),
-    Service(ServiceKeys.SUBMIT_VAT_RETURNS, "Submit VAT Returns", Seq(ORGANISATION)),
-    Service(ServiceKeys.MTD_VAT, "MTD VAT", Seq(INDIVIDUAL, ORGANISATION)),
-    Service(ServiceKeys.MTD_INCOME_TAX, "MTD Income Tax", Seq(INDIVIDUAL, ORGANISATION)),
-    Service(ServiceKeys.AGENT_SERVICES, "Agent Services", Seq(AGENT)),
-    Service(ServiceKeys.LISA, "Lifetime ISA", Seq(ORGANISATION)),
-    Service(ServiceKeys.SECURE_ELECTRONIC_TRANSFER, "Secure Electronic Transfer", Seq(ORGANISATION)),
-    Service(ServiceKeys.RELIEF_AT_SOURCE, "Relief at Source", Seq(ORGANISATION)),
-    Service(ServiceKeys.CUSTOMS_SERVICES, "Customs Services", Seq(INDIVIDUAL, ORGANISATION)),
-    Service(ServiceKeys.GOODS_VEHICLE_MOVEMENTS, "Goods Vehicle Services", Seq(INDIVIDUAL, ORGANISATION)),
-    Service(ServiceKeys.IMPORT_CONTROL_SYSTEM, "Import Control System", Seq(ORGANISATION)),
-    Service(ServiceKeys.CTC_LEGACY, "Common Transit Convention Traders Legacy", Seq(INDIVIDUAL, ORGANISATION)),
-    Service(ServiceKeys.CTC, "Common Transit Convention Traders", Seq(INDIVIDUAL, ORGANISATION)),
-    Service(ServiceKeys.SAFETY_AND_SECURITY, "Safety and Security", Seq(ORGANISATION)),
-    Service(ServiceKeys.EMCS, "Excise Movement Control System", Seq(ORGANISATION))
-  )
-
-  override def length: Int = services.length
-
-  override def apply(idx: Int): Service = services.apply(idx)
-
-  override def iterator: Iterator[Service] = services.iterator
-}
-
 sealed trait TestUser {
   val userId: String
   val password: String

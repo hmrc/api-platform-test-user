@@ -23,7 +23,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.testuser.helpers.GeneratorProvider
 import uk.gov.hmrc.testuser.helpers.stubs.DesSimulatorStub
-import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.models.ServiceKey._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import play.api.test.Helpers._
 
@@ -42,7 +42,7 @@ class DesSimulatorConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     val testIndividual   = await(generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE), None, None))
     val testOrganisation = await(generator.generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX), None, None, None))
 
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val underTest = new DesSimulatorConnector(
       fakeApplication().injector.instanceOf[HttpClient],

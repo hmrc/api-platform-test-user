@@ -20,8 +20,6 @@ import java.time.LocalDate
 
 import uk.gov.hmrc.domain.Nino
 
-import uk.gov.hmrc.testuser.models.ServiceKeys._
-
 case class AuthenticationRequest(username: String, password: String)
 
 case class AuthenticationResponse(gatewayToken: String, affinityGroup: String)
@@ -55,29 +53,9 @@ object LegacySandboxUser {
     saUtr = Some("1700000000"),
     nino = Some("AA000017A"),
     groupIdentifier = groupIdentifier,
-    services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT)
+    services = Seq(ServiceKey.NATIONAL_INSURANCE, ServiceKey.SELF_ASSESSMENT)
   )
 }
 
-case class InvalidCredentials(msg: String)        extends Exception
-case class UserNotFound(userType: UserType.Value) extends Exception
-
-object ErrorCode extends Enumeration {
-
-  type ErrorCode = Value
-
-  val INTERNAL_SERVER_ERROR = Value("INTERNAL_SERVER_ERROR")
-  val INVALID_CREDENTIALS   = Value("INVALID_CREDENTIALS")
-  val USER_NOT_FOUND        = Value("USER_NOT_FOUND")
-  val NINO_ALREADY_USED     = Value("NINO_ALREADY_USED")
-}
-
-case class ErrorResponse(code: ErrorCode.Value, message: String)
-
-object ErrorResponse {
-  val internalServerError       = ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "An unexpected error occurred")
-  val invalidCredentialsError   = ErrorResponse(ErrorCode.INVALID_CREDENTIALS, "Invalid Authentication information provided")
-  val individualNotFoundError   = ErrorResponse(ErrorCode.USER_NOT_FOUND, "The individual can not be found")
-  val organisationNotFoundError = ErrorResponse(ErrorCode.USER_NOT_FOUND, "The organisation can not be found")
-  val ninoAlreadyUsed           = ErrorResponse(ErrorCode.NINO_ALREADY_USED, "The nino specified has already been used")
-}
+case class InvalidCredentials(msg: String)  extends Exception
+case class UserNotFound(userType: UserType) extends Exception

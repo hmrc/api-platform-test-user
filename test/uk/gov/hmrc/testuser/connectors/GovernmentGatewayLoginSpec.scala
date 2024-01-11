@@ -21,7 +21,7 @@ import java.time.LocalDate
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.models.ServiceKey._
 import uk.gov.hmrc.testuser.models._
 
 class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {

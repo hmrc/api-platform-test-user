@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.testuser.connectors.DesSimulatorConnector
-import uk.gov.hmrc.testuser.models.ServiceKeys.{ServiceKey => _}
+import uk.gov.hmrc.testuser.models.ServiceKey._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.services.Generator
@@ -45,7 +45,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
   val shortNino       = "CC333333"
   val empRef          = "555/EIA000"
 
-  val individualServices = Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
+  val individualServices = Seq(NATIONAL_INSURANCE, MTD_INCOME_TAX)
 
   val config = ConfigFactory.parseString(
     """randomiser {
@@ -80,9 +80,9 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
       |""".stripMargin
   )
 
-  val organisationServices = Seq(ServiceKeys.NATIONAL_INSURANCE, ServiceKeys.MTD_INCOME_TAX)
+  val organisationServices = Seq(NATIONAL_INSURANCE, MTD_INCOME_TAX)
 
-  val agentServices = Seq(ServiceKeys.AGENT_SERVICES)
+  val agentServices = Seq(AGENT_SERVICES)
 
   val testAgent = TestAgent(
     userId = userId,

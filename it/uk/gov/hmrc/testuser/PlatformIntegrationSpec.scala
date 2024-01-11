@@ -30,7 +30,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 class PlatformIntegrationSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
 
   trait Setup {
-    implicit def mat: akka.stream.Materializer = app.injector.instanceOf[akka.stream.Materializer]
+    implicit def mat: org.apache.pekko.stream.Materializer = app.injector.instanceOf[org.apache.pekko.stream.Materializer]
 
     val documentationController = app.injector.instanceOf[DocumentationController]
     val request                 = FakeRequest()

@@ -26,7 +26,7 @@ import org.scalacheck.Gen
 
 import uk.gov.hmrc.domain._
 
-import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.models.ServiceKey._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.util.Randomiser

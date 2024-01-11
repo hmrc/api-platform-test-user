@@ -132,7 +132,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     collection.find(
       and(
         equal("nino", Codecs.toBson(nino)),
-        equal("userType", Codecs.toBson(UserType.INDIVIDUAL))
+        equal("userType", UserType.INDIVIDUAL.toString)
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestIndividual]))
   }
@@ -148,7 +148,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     collection.find(
       and(
         equal("nino", Codecs.toBson(matchShortNino)),
-        equal("userType", Codecs.toBson(UserType.INDIVIDUAL))
+        equal("userType", UserType.INDIVIDUAL.toString)
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestIndividual]))
   }
@@ -157,7 +157,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     collection.find(
       and(
         equal("saUtr", Codecs.toBson(saUtr)),
-        equal("userType", Codecs.toBson(UserType.INDIVIDUAL))
+        equal("userType", UserType.INDIVIDUAL.toString())
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestIndividual]))
   }
@@ -166,7 +166,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     collection.find(
       and(
         equal("vrn", Codecs.toBson(vrn)),
-        equal("userType", Codecs.toBson(UserType.INDIVIDUAL))
+        equal("userType", UserType.INDIVIDUAL.toString())
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestIndividual]))
   }
@@ -187,7 +187,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     collection.find(
       and(
         equal("vrn", Codecs.toBson(vrn)),
-        equal("userType", Codecs.toBson(UserType.ORGANISATION))
+        equal("userType", UserType.ORGANISATION.toString)
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
@@ -196,7 +196,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     collection.find(
       and(
         equal("saUtr", Codecs.toBson(saUtr)),
-        equal("userType", Codecs.toBson(UserType.ORGANISATION))
+        equal("userType", UserType.ORGANISATION.toString)
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
@@ -205,7 +205,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     collection.find(
       and(
         equal("crn", crn.value),
-        equal("userType", Codecs.toBson(UserType.ORGANISATION))
+        equal("userType", UserType.ORGANISATION.toString)
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
   }

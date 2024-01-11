@@ -22,7 +22,7 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.mongo.test.MongoSupport
 import uk.gov.hmrc.testuser.helpers.GeneratorProvider
-import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.models.ServiceKey._
 import uk.gov.hmrc.testuser.models.{Crn, NinoNoSuffix}
 
 import scala.concurrent.ExecutionContext

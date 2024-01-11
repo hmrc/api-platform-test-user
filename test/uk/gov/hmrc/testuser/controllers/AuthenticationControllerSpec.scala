@@ -31,8 +31,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.testuser.common.LogSuppressing
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models.ServiceKeys._
-import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.models.ServiceKey._
+import uk.gov.hmrc.testuser.models.{ErrorResponse, _}
 import uk.gov.hmrc.testuser.services.AuthenticationService
 
 class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {

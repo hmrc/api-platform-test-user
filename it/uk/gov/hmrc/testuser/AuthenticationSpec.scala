@@ -26,6 +26,7 @@ import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ErrorResponse.invalidCredentialsError
 import uk.gov.hmrc.testuser.models.JsonFormatters._
+import models.ErrorResponse
 
 class AuthenticationSpec extends BaseSpec {
 
