@@ -55,7 +55,7 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
 
   override def beforeEach(): Unit = {
     await(userRepository.collection.drop().toFuture())
-    await(userRepository.ensureIndexes)
+    await(userRepository.ensureIndexes())
   }
 
   "indexes" should {
