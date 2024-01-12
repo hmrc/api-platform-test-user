@@ -49,9 +49,10 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
       emailAddress = emailAddress,
       organisationDetails = organisationDetails,
       individualDetails = None,
-      lisaManRefNum = Some("Z123456"),
-      groupIdentifier = Some(groupIdentifier),
-      crn = None
+      props = Map(
+        TestUserPropKey.lisaManRefNum   -> "Z123456",
+        TestUserPropKey.groupIdentifier -> groupIdentifier
+      )
     )
 
     TestOrganisationCreatedResponse.from(testOrganisation) shouldBe

@@ -84,6 +84,21 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     groupIdentifier = Some(groupIdentifier)
   )
 
+  val props = Map[TestUserPropKey, String](
+    TestUserPropKey.saUtr                                   -> saUtr,
+    TestUserPropKey.nino                                    -> nino.value,
+    TestUserPropKey.mtdItId                                 -> mtdItId,
+    TestUserPropKey.empRef                                  -> empRef,
+    TestUserPropKey.ctUtr                                   -> ctUtr,
+    TestUserPropKey.vrn                                     -> vrn,
+    TestUserPropKey.lisaManRefNum                           -> lisaManagerReferenceNumber,
+    TestUserPropKey.eoriNumber                              -> rawEoriNumber,
+    TestUserPropKey.groupIdentifier                         -> groupIdentifier,
+    TestUserPropKey.secureElectronicTransferReferenceNumber -> secureElectronicTransferReferenceNumber,
+    TestUserPropKey.pensionSchemeAdministratorIdentifier    -> pensionSchemeAdministratorIdentifier,
+    TestUserPropKey.crn                                     -> crn
+  )
+
   val testOrganisation = TestOrganisation(
     userId = user,
     password = password,
@@ -91,23 +106,11 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     emailAddress = emailAddress,
     organisationDetails = organisationDetails,
     individualDetails = Some(individualDetails),
-    saUtr = Some(saUtr),
-    nino = Some(nino.value),
-    mtdItId = Some(mtdItId),
-    empRef = Some(empRef),
-    ctUtr = Some(ctUtr),
-    vrn = Some(vrn),
     vatRegistrationDate = Some(vatRegistrationDate),
-    lisaManRefNum = Some(lisaManagerReferenceNumber),
-    secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
-    pensionSchemeAdministratorIdentifier = Some(pensionSchemeAdministratorIdentifier),
-    eoriNumber = Some(rawEoriNumber),
-    groupIdentifier = Some(groupIdentifier),
-    crn = Some(crn),
-    taxpayerType = None
+    props = props
   )
 
-  val testOrganisationTaxpayerType = testOrganisation.copy(taxpayerType = Some("Individual"))
+  val testOrganisationTaxpayerType = testOrganisation.copy(props = testOrganisation.props + (TestUserPropKey.taxpayerType -> "Individual"))
 
   val testAgent = TestAgent(
     user,

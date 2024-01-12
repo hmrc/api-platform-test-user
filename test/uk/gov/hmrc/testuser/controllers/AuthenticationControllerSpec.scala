@@ -78,6 +78,19 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     address = Address("225 Baker St", "Marylebone", "NW1 6XE")
   )
 
+  val props = Map[TestUserPropKey, String](
+    TestUserPropKey.saUtr           -> saUtr,
+    TestUserPropKey.nino            -> nino,
+    TestUserPropKey.mtdItId         -> mtdItId,
+    TestUserPropKey.empRef          -> empRef,
+    TestUserPropKey.ctUtr           -> ctUtr,
+    TestUserPropKey.vrn             -> vrn,
+    TestUserPropKey.lisaManRefNum   -> lisaManRefNum,
+    TestUserPropKey.eoriNumber      -> eoriNumber,
+    TestUserPropKey.groupIdentifier -> groupIdentifier,
+    TestUserPropKey.crn             -> crn
+  )
+
   val testOrganisation = TestOrganisation(
     userId = user,
     password = password,
@@ -85,17 +98,7 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     emailAddress = emailAddress,
     organisationDetails = organisationDetails,
     individualDetails = Some(individualDetails),
-    saUtr = Some(saUtr),
-    nino = Some(nino),
-    mtdItId = Some(mtdItId),
-    empRef = Some(empRef),
-    ctUtr = Some(ctUtr),
-    vrn = Some(vrn),
     vatRegistrationDate = Some(vatRegistrationDate),
-    lisaManRefNum = Some(lisaManRefNum),
-    eoriNumber = Some(eoriNumber),
-    groupIdentifier = Some(groupIdentifier),
-    crn = Some(crn),
     services =
       Seq(
         SELF_ASSESSMENT,
@@ -111,7 +114,8 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         CTC,
         CTC_LEGACY,
         IMPORT_CONTROL_SYSTEM
-      )
+      ),
+    props = props
   )
 
   val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")

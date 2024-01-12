@@ -20,8 +20,68 @@ import java.time.LocalDate
 
 import org.bson.types.ObjectId
 
-import play.api.libs.json.{Format, Reads, Writes}
+import play.api.libs.json.{OFormat, Reads, Writes, _}
 import uk.gov.hmrc.domain._
+
+case class Address(line1: String, line2: String, postcode: String)
+
+object Address {
+  implicit val fmt: Format[Address] = Json.format[Address]
+}
+
+case class IndividualDetails(firstName: String, lastName: String, dateOfBirth: LocalDate, address: Address)
+
+object IndividualDetails {
+  implicit val fmt: Format[IndividualDetails] = Json.format[IndividualDetails]
+}
+
+case class OrganisationDetails(name: String, address: Address)
+
+object OrganisationDetails {
+  implicit val fmt: OFormat[OrganisationDetails] = Json.format[OrganisationDetails]
+}
+
+sealed trait TestUserPropKey
+
+object TestUserPropKey {
+  case object saUtr                                   extends TestUserPropKey
+  case object nino                                    extends TestUserPropKey
+  case object mtdItId                                 extends TestUserPropKey
+  case object empRef                                  extends TestUserPropKey
+  case object ctUtr                                   extends TestUserPropKey
+  case object vrn                                     extends TestUserPropKey
+  case object lisaManRefNum                           extends TestUserPropKey
+  case object secureElectronicTransferReferenceNumber extends TestUserPropKey
+  case object pensionSchemeAdministratorIdentifier    extends TestUserPropKey
+  case object eoriNumber                              extends TestUserPropKey
+  case object groupIdentifier                         extends TestUserPropKey
+  case object crn                                     extends TestUserPropKey
+  case object taxpayerType                            extends TestUserPropKey
+
+  val values: Set[TestUserPropKey] = Set(
+    saUtr,
+    nino,
+    mtdItId,
+    empRef,
+    ctUtr,
+    vrn,
+    lisaManRefNum,
+    secureElectronicTransferReferenceNumber,
+    pensionSchemeAdministratorIdentifier,
+    eoriNumber,
+    groupIdentifier,
+    crn,
+    taxpayerType
+  )
+
+  def apply(text: String): Option[TestUserPropKey] = TestUserPropKey.values.find(_.toString == text)
+
+  def unsafeApply(text: String): TestUserPropKey     = {
+    apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid TestUserPropKey"))
+  }
+  implicit val write: Writes[TestUserPropKey]        = Writes[TestUserPropKey](b => JsString(b.toString))
+  implicit val keyWrites: KeyWrites[TestUserPropKey] = _.toString
+}
 
 sealed trait TestUser {
   val userId: String
@@ -30,7 +90,68 @@ sealed trait TestUser {
   val emailAddress: String
   val affinityGroup: String
   val services: Seq[ServiceKey]
-  val _id: ObjectId
+}
+
+case class TestOrganisation(
+    override val userId: String,
+    override val password: String,
+    override val userFullName: String,
+    override val emailAddress: String,
+    organisationDetails: OrganisationDetails,
+    individualDetails: Option[IndividualDetails],
+    override val services: Seq[ServiceKey] = Seq.empty,
+    vatRegistrationDate: Option[LocalDate] = None,
+    props: Map[TestUserPropKey, String] = Map.empty
+  ) extends TestUser {
+  override val affinityGroup = "Organisation"
+
+  lazy val saUtr                                   = props.get(TestUserPropKey.saUtr)
+  lazy val nino                                    = props.get(TestUserPropKey.nino)
+  lazy val mtdItId                                 = props.get(TestUserPropKey.mtdItId)
+  lazy val empRef                                  = props.get(TestUserPropKey.empRef)
+  lazy val ctUtr                                   = props.get(TestUserPropKey.ctUtr)
+  lazy val vrn                                     = props.get(TestUserPropKey.vrn)
+  lazy val lisaManRefNum                           = props.get(TestUserPropKey.lisaManRefNum)
+  lazy val secureElectronicTransferReferenceNumber = props.get(TestUserPropKey.secureElectronicTransferReferenceNumber)
+  lazy val pensionSchemeAdministratorIdentifier    = props.get(TestUserPropKey.pensionSchemeAdministratorIdentifier)
+  lazy val eoriNumber                              = props.get(TestUserPropKey.eoriNumber)
+  lazy val groupIdentifier                         = props.get(TestUserPropKey.groupIdentifier)
+  lazy val crn                                     = props.get(TestUserPropKey.crn)
+  lazy val taxpayerType                            = props.get(TestUserPropKey.taxpayerType)
+}
+
+object TestOrganisation {
+  import play.api.libs.functional.syntax._
+
+  def convertMap(in: Map[String, JsValue]): Map[TestUserPropKey, String] = {
+    in.collect { case (key, JsString(value)) if (TestUserPropKey(key).isDefined) => (TestUserPropKey.unsafeApply(key), value) }
+  }
+
+  val reads: Reads[TestOrganisation] = (
+    (JsPath \ "userId").read[String] and
+      (JsPath \ "password").read[String] and
+      (JsPath \ "userFullName").read[String] and
+      (JsPath \ "emailAddress").read[String] and
+      (JsPath \ "organisationDetails").read[OrganisationDetails] and
+      (JsPath \ "individualDetails").readNullable[IndividualDetails] and
+      (JsPath \ "services").readWithDefault[Seq[ServiceKey]](Seq.empty) and
+      (JsPath \ "vatRegistrationDate").readNullable[LocalDate] and
+      (JsPath).read[Map[String, JsValue]].map(convertMap(_))
+  )(TestOrganisation.apply _)
+
+  val writes: OWrites[TestOrganisation] = (
+    (JsPath \ "userId").write[String] and
+      (JsPath \ "password").write[String] and
+      (JsPath \ "userFullName").write[String] and
+      (JsPath \ "emailAddress").write[String] and
+      (JsPath \ "organisationDetails").write[OrganisationDetails] and
+      (JsPath \ "individualDetails").writeNullable[IndividualDetails] and
+      (JsPath \ "services").write[Seq[ServiceKey]] and
+      (JsPath \ "vatRegistrationDate").writeNullable[LocalDate] and
+      (JsPath).write[Map[TestUserPropKey, String]]
+  )(unlift(TestOrganisation.unapply _))
+
+  implicit val format: OFormat[TestOrganisation] = OFormat(reads, writes)
 }
 
 case class TestIndividual(
@@ -47,37 +168,38 @@ case class TestIndividual(
     eoriNumber: Option[String] = None,
     groupIdentifier: Option[String] = None,
     override val services: Seq[ServiceKey] = Seq.empty,
-    override val _id: ObjectId = ObjectId.get
+    _id: ObjectId = ObjectId.get
   ) extends TestUser {
   override val affinityGroup = "Individual"
+
 }
 
-case class TestOrganisation(
-    override val userId: String,
-    override val password: String,
-    override val userFullName: String,
-    override val emailAddress: String,
-    organisationDetails: OrganisationDetails,
-    individualDetails: Option[IndividualDetails],
-    saUtr: Option[String] = None,
-    nino: Option[String] = None,
-    mtdItId: Option[String] = None,
-    empRef: Option[String] = None,
-    ctUtr: Option[String] = None,
-    vrn: Option[String] = None,
-    vatRegistrationDate: Option[LocalDate] = None,
-    lisaManRefNum: Option[String] = None,
-    secureElectronicTransferReferenceNumber: Option[String] = None,
-    pensionSchemeAdministratorIdentifier: Option[String] = None,
-    eoriNumber: Option[String] = None,
-    groupIdentifier: Option[String] = None,
-    override val services: Seq[ServiceKey] = Seq.empty,
-    override val _id: ObjectId = ObjectId.get,
-    crn: Option[String] = None,
-    taxpayerType: Option[String] = None
-  ) extends TestUser {
-  override val affinityGroup = "Organisation"
-}
+// case class TestOrganisation(
+//     override val userId: String,
+//     override val password: String,
+//     override val userFullName: String,
+//     override val emailAddress: String,
+//     organisationDetails: OrganisationDetails,
+//     individualDetails: Option[IndividualDetails],
+//     saUtr: Option[String] = None,
+//     nino: Option[String] = None,
+//     mtdItId: Option[String] = None,
+//     empRef: Option[String] = None,
+//     ctUtr: Option[String] = None,
+//     vrn: Option[String] = None,
+//     vatRegistrationDate: Option[LocalDate] = None,
+//     lisaManRefNum: Option[String] = None,
+//     secureElectronicTransferReferenceNumber: Option[String] = None,
+//     pensionSchemeAdministratorIdentifier: Option[String] = None,
+//     eoriNumber: Option[String] = None,
+//     groupIdentifier: Option[String] = None,
+//     override val services: Seq[ServiceKey] = Seq.empty,
+//     _id: ObjectId = ObjectId.get,
+//     crn: Option[String] = None,
+//     taxpayerType: Option[String] = None
+//   ) extends TestUser {
+//   override val affinityGroup = "Organisation"
+// }
 
 case class TestAgent(
     override val userId: String,
@@ -88,254 +210,9 @@ case class TestAgent(
     groupIdentifier: Option[String] = None,
     agentCode: Option[String] = None,
     override val services: Seq[ServiceKey] = Seq.empty,
-    override val _id: ObjectId = ObjectId.get
+    _id: ObjectId = ObjectId.get
   ) extends TestUser {
   override val affinityGroup = "Agent"
-}
-
-sealed trait TestUserResponse {
-  val userId: String
-  val userFullName: String
-  val emailAddress: String
-}
-
-sealed trait TestIndividualResponse extends TestUserResponse {
-  val individualDetails: IndividualDetails
-  val saUtr: Option[String]
-  val nino: Option[String]
-  val mtdItId: Option[String]
-  val vrn: Option[String]
-  val vatRegistrationDate: Option[LocalDate]
-  val eoriNumber: Option[String]
-  val groupIdentifier: Option[String]
-}
-
-sealed trait TestOrganisationResponse extends TestUserResponse {
-  val organisationDetails: OrganisationDetails
-  val individualDetails: Option[IndividualDetails]
-  val saUtr: Option[String]
-  val nino: Option[String]
-  val mtdItId: Option[String]
-  val empRef: Option[String]
-  val ctUtr: Option[String]
-  val vrn: Option[String]
-  val vatRegistrationDate: Option[LocalDate]
-  val lisaManagerReferenceNumber: Option[String]
-  val secureElectronicTransferReferenceNumber: Option[String]
-  val pensionSchemeAdministratorIdentifier: Option[String]
-  val eoriNumber: Option[String]
-  val groupIdentifier: Option[String]
-  val crn: Option[String]
-  val taxpayerType: Option[String]
-}
-
-sealed trait TestAgentResponse extends TestUserResponse {
-  val agentServicesAccountNumber: Option[String]
-  val groupIdentifier: Option[String]
-}
-
-case class FetchTestIndividualResponse(
-    override val userId: String,
-    override val userFullName: String,
-    override val emailAddress: String,
-    override val individualDetails: IndividualDetails,
-    override val saUtr: Option[String] = None,
-    override val nino: Option[String] = None,
-    override val mtdItId: Option[String] = None,
-    override val vrn: Option[String] = None,
-    override val vatRegistrationDate: Option[LocalDate] = None,
-    override val eoriNumber: Option[String] = None,
-    override val groupIdentifier: Option[String] = None
-  ) extends TestIndividualResponse
-
-object FetchTestIndividualResponse {
-
-  def from(individual: TestIndividual) = FetchTestIndividualResponse(
-    individual.userId,
-    individual.userFullName,
-    individual.emailAddress,
-    individual.individualDetails,
-    individual.saUtr,
-    individual.nino,
-    individual.mtdItId,
-    individual.vrn,
-    individual.vatRegistrationDate,
-    individual.eoriNumber,
-    individual.groupIdentifier
-  )
-}
-
-case class TestIndividualCreatedResponse(
-    override val userId: String,
-    password: String,
-    override val userFullName: String,
-    override val emailAddress: String,
-    override val individualDetails: IndividualDetails,
-    override val saUtr: Option[String],
-    override val nino: Option[String],
-    override val mtdItId: Option[String],
-    override val vrn: Option[String],
-    override val vatRegistrationDate: Option[LocalDate] = None,
-    override val eoriNumber: Option[String] = None,
-    override val groupIdentifier: Option[String] = None
-  ) extends TestIndividualResponse
-
-object TestIndividualCreatedResponse {
-
-  def from(individual: TestIndividual) = TestIndividualCreatedResponse(
-    individual.userId,
-    individual.password,
-    individual.userFullName,
-    individual.emailAddress,
-    individual.individualDetails,
-    individual.saUtr,
-    individual.nino,
-    individual.mtdItId,
-    individual.vrn,
-    individual.vatRegistrationDate,
-    individual.eoriNumber,
-    individual.groupIdentifier
-  )
-}
-
-case class FetchTestOrganisationResponse(
-    override val userId: String,
-    override val userFullName: String,
-    override val emailAddress: String,
-    override val organisationDetails: OrganisationDetails,
-    override val individualDetails: Option[IndividualDetails],
-    override val saUtr: Option[String] = None,
-    override val nino: Option[String] = None,
-    override val mtdItId: Option[String] = None,
-    override val empRef: Option[String] = None,
-    override val ctUtr: Option[String] = None,
-    override val vrn: Option[String] = None,
-    override val vatRegistrationDate: Option[LocalDate] = None,
-    override val lisaManagerReferenceNumber: Option[String] = None,
-    override val secureElectronicTransferReferenceNumber: Option[String] = None,
-    override val pensionSchemeAdministratorIdentifier: Option[String] = None,
-    override val eoriNumber: Option[String] = None,
-    override val groupIdentifier: Option[String] = None,
-    override val crn: Option[String] = None,
-    override val taxpayerType: Option[String] = None
-  ) extends TestOrganisationResponse
-
-object FetchTestOrganisationResponse {
-
-  def from(organisation: TestOrganisation) = FetchTestOrganisationResponse(
-    organisation.userId,
-    organisation.userFullName,
-    organisation.emailAddress,
-    organisation.organisationDetails,
-    organisation.individualDetails,
-    organisation.saUtr,
-    organisation.nino,
-    organisation.mtdItId,
-    organisation.empRef,
-    organisation.ctUtr,
-    organisation.vrn,
-    organisation.vatRegistrationDate,
-    organisation.lisaManRefNum,
-    organisation.secureElectronicTransferReferenceNumber,
-    organisation.pensionSchemeAdministratorIdentifier,
-    organisation.eoriNumber,
-    organisation.groupIdentifier,
-    organisation.crn,
-    organisation.taxpayerType
-  )
-}
-
-case class TestOrganisationCreatedResponse(
-    override val userId: String,
-    password: String,
-    override val userFullName: String,
-    override val emailAddress: String,
-    override val organisationDetails: OrganisationDetails,
-    override val individualDetails: Option[IndividualDetails],
-    override val saUtr: Option[String],
-    override val nino: Option[String],
-    override val mtdItId: Option[String],
-    override val empRef: Option[String],
-    override val ctUtr: Option[String],
-    override val vrn: Option[String],
-    override val vatRegistrationDate: Option[LocalDate] = None,
-    override val lisaManagerReferenceNumber: Option[String],
-    override val secureElectronicTransferReferenceNumber: Option[String],
-    override val pensionSchemeAdministratorIdentifier: Option[String],
-    override val eoriNumber: Option[String] = None,
-    override val groupIdentifier: Option[String] = None,
-    override val crn: Option[String] = None,
-    override val taxpayerType: Option[String] = None
-  ) extends TestOrganisationResponse
-
-object TestOrganisationCreatedResponse {
-
-  def from(organisation: TestOrganisation) = TestOrganisationCreatedResponse(
-    organisation.userId,
-    organisation.password,
-    organisation.userFullName,
-    organisation.emailAddress,
-    organisation.organisationDetails,
-    organisation.individualDetails,
-    organisation.saUtr,
-    organisation.nino,
-    organisation.mtdItId,
-    organisation.empRef,
-    organisation.ctUtr,
-    organisation.vrn,
-    organisation.vatRegistrationDate,
-    organisation.lisaManRefNum,
-    organisation.secureElectronicTransferReferenceNumber,
-    organisation.pensionSchemeAdministratorIdentifier,
-    organisation.eoriNumber,
-    organisation.groupIdentifier,
-    organisation.crn,
-    organisation.taxpayerType
-  )
-}
-
-case class TestAgentCreatedResponse(
-    override val userId: String,
-    password: String,
-    override val userFullName: String,
-    override val emailAddress: String,
-    override val agentServicesAccountNumber: Option[String],
-    val agentCode: Option[String],
-    override val groupIdentifier: Option[String]
-  ) extends TestAgentResponse
-
-object TestAgentCreatedResponse {
-
-  def from(agent: TestAgent) = TestAgentCreatedResponse(
-    agent.userId,
-    agent.password,
-    agent.userFullName,
-    agent.emailAddress,
-    agent.arn,
-    agent.agentCode,
-    agent.groupIdentifier
-  )
-}
-
-case class DesSimulatorTestIndividual(mtdItId: Option[String], vrn: Option[String], nino: Option[String], saUtr: Option[String])
-
-object DesSimulatorTestIndividual {
-  def from(individual: TestIndividual) = DesSimulatorTestIndividual(individual.mtdItId, individual.vrn, individual.nino, individual.saUtr)
-}
-
-case class DesSimulatorTestOrganisation(
-    mtdItId: Option[String],
-    nino: Option[String],
-    saUtr: Option[String],
-    ctUtr: Option[String],
-    empRef: Option[String],
-    vrn: Option[String]
-  )
-
-object DesSimulatorTestOrganisation {
-
-  def from(organisation: TestOrganisation) =
-    DesSimulatorTestOrganisation(organisation.mtdItId, organisation.nino, organisation.saUtr, organisation.ctUtr, organisation.empRef, organisation.vrn)
 }
 
 case class MtdItId(mtdItId: String) extends TaxIdentifier with SimpleName {
@@ -443,9 +320,3 @@ object Crn extends SimpleName with (String => Crn) {
   override val name: String = "crn"
 
 }
-
-case class Address(line1: String, line2: String, postcode: String)
-
-case class IndividualDetails(firstName: String, lastName: String, dateOfBirth: LocalDate, address: Address)
-
-case class OrganisationDetails(name: String, address: Address)

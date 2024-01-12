@@ -172,10 +172,8 @@ object GovernmentGatewayLogin {
         case CORPORATION_TAX            => organisation.ctUtr map { ctUtr => Enrolment("IR-CT", Seq(Identifier("UTR", ctUtr))) }
         case SUBMIT_VAT_RETURNS         => organisation.vrn map { vrn => Enrolment("HMCE-VATDEC-ORG", Seq(Identifier("VATRegNo", vrn))) }
         case PAYE_FOR_EMPLOYERS         => organisation.empRef map { empRef =>
-            {
-              val ref = EmpRef.fromIdentifiers(empRef)
-              Enrolment("IR-PAYE", Seq(Identifier("TaxOfficeNumber", ref.taxOfficeNumber), Identifier("TaxOfficeReference", ref.taxOfficeReference)))
-            }
+            val ref = EmpRef.fromIdentifiers(empRef)
+            Enrolment("IR-PAYE", Seq(Identifier("TaxOfficeNumber", ref.taxOfficeNumber), Identifier("TaxOfficeReference", ref.taxOfficeReference)))
           }
         case MTD_INCOME_TAX             => organisation.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId))) }
         case MTD_VAT                    => organisation.vrn map { vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString()))) }
@@ -192,7 +190,9 @@ object GovernmentGatewayLogin {
         case CTC_LEGACY                 => organisation.eoriNumber map { eoriNumber => Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber))) }
         case CTC                        => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case EMCS                       => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-EMCS-ORG", Seq(Identifier("ExciseNumber", eoriNumber))) }
-        case GOODS_VEHICLE_MOVEMENTS    => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
+        case GOODS_VEHICLE_MOVEMENTS    => organisation.eoriNumber map { eoriNumber =>
+            Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
+          }
         case SAFETY_AND_SECURITY        => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-SS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case IMPORT_CONTROL_SYSTEM      => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber))) }
         case _                          => None

@@ -27,6 +27,7 @@ import uk.gov.hmrc.testuser.models.{Crn, NinoNoSuffix}
 
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.testuser.models.TestUserPropKey
 
 class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with BeforeAndAfterAll with MongoSupport with IndexVerification {
 
@@ -88,7 +89,7 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       val result = await(repository.createUser(testOrganisation))
 
       result shouldBe testOrganisation
-      await(repository.collection.find(Filters.equal("_id", testOrganisation._id)).headOption()) shouldBe Some(testOrganisation)
+      await(repository.collection.find(Filters.equal("nino", testOrganisation.nino)).headOption()) shouldBe Some(testOrganisation)
     }
   }
 
@@ -186,7 +187,7 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     }
 
     "return the organisation" in new GeneratedTestOrganisation {
-      val organisation = testOrganisation.copy(nino = Some(nino.toString()))
+      val organisation = testOrganisation.copy(props = testOrganisation.props + (TestUserPropKey.nino -> nino.toString()))
       await(repository.createUser(organisation))
 
       val result = await(repository.fetchByNino(nino))

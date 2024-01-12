@@ -116,11 +116,11 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
 
     val testIndividual = testIndividualWithNoServices.copy(services = individualServices)
 
-    val testOrganisationWithNoServices = await(generator.generateTestOrganisation(Seq.empty, None, None, None).map(
-      _.copy(
+    val testOrganisationWithNoServices = await(generator.generateTestOrganisation(Seq.empty, None, None, None).map(a =>
+      a.copy(
         userId = userId,
         password = password,
-        empRef = Some(empRef)
+        props = a.props + (TestUserPropKey.empRef -> empRef)
       )
     ))
 

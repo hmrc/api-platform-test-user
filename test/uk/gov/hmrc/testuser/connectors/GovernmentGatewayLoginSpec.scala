@@ -210,7 +210,20 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
   }
 
   "A GovernmentGatewayLogin created from a TestOrganisation" should {
-
+    val props        = Map[TestUserPropKey, String](
+      TestUserPropKey.saUtr                                   -> saUtr,
+      TestUserPropKey.nino                                    -> nino,
+      TestUserPropKey.mtdItId                                 -> mtdItId,
+      TestUserPropKey.empRef                                  -> empRef,
+      TestUserPropKey.ctUtr                                   -> ctUtr,
+      TestUserPropKey.vrn                                     -> vrn,
+      TestUserPropKey.lisaManRefNum                           -> lisaManRefNum,
+      TestUserPropKey.secureElectronicTransferReferenceNumber -> secureElectronicTransferReferenceNumber,
+      TestUserPropKey.pensionSchemeAdministratorIdentifier    -> pensionSchemeAdministratorIdentifier,
+      TestUserPropKey.eoriNumber                              -> eoriNumber,
+      TestUserPropKey.groupIdentifier                         -> groupIdentifier,
+      TestUserPropKey.crn                                     -> crn
+    )
     val organisation = TestOrganisation(
       userId = user,
       password = password,
@@ -218,18 +231,6 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       emailAddress = emailAddress,
       organisationDetails = organisationDetails,
       individualDetails = Some(individualDetails),
-      saUtr = Some(saUtr),
-      nino = Some(nino),
-      mtdItId = Some(mtdItId),
-      empRef = Some(empRef),
-      ctUtr = Some(ctUtr),
-      vrn = Some(vrn),
-      lisaManRefNum = Some(lisaManRefNum),
-      secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
-      pensionSchemeAdministratorIdentifier = Some(pensionSchemeAdministratorIdentifier),
-      eoriNumber = Some(eoriNumber),
-      groupIdentifier = Some(groupIdentifier),
-      crn = Some(crn),
       services = Seq(
         AGENT_SERVICES,
         NATIONAL_INSURANCE,
@@ -249,7 +250,8 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
         CTC,
         IMPORT_CONTROL_SYSTEM,
         EMCS
-      )
+      ),
+      props = props
     )
 
     "contain no enrolments when the organisation has no services" in {
@@ -333,7 +335,7 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
     }
 
     "contain the correct enrolment for excise movement control system" in {
-      val login = GovernmentGatewayLogin(organisation.copy(services = Seq(EMCS), eoriNumber = Some(exciseNumber)))
+      val login = GovernmentGatewayLogin(organisation.copy(services = Seq(EMCS), props = organisation.props + (TestUserPropKey.eoriNumber -> exciseNumber)))
 
       login.enrolments should contain theSameElementsAs Seq(emcsEnrolment)
     }

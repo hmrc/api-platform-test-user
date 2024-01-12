@@ -58,7 +58,34 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
 
   val taxOfficeNumber = "555"
 
-  val taxOfficeReference = "EIA000"
+  val taxOfficeReference                      = "EIA000"
+  val saUtr                                   = "1555369052"
+  val nino                                    = "CC333333C"
+  val mtdItId                                 = "XGIT00000000054"
+  val empRef                                  = s"$taxOfficeNumber/$taxOfficeReference"
+  val ctUtr                                   = "1555369053"
+  val vrn                                     = "999902541"
+  val lisaManRefNum                           = "Z123456"
+  val secureElectronicTransferReferenceNumber = "123456789012"
+  val pensionSchemeAdministratorIdentifier    = "A1234567"
+  val eoriNumber                              = "GB1234567890"
+  val groupIdentifier                         = "organsiationGroup"
+  val crn                                     = "12345678"
+
+  val props = Map[TestUserPropKey, String](
+    TestUserPropKey.saUtr                                   -> saUtr,
+    TestUserPropKey.nino                                    -> nino,
+    TestUserPropKey.mtdItId                                 -> mtdItId,
+    TestUserPropKey.empRef                                  -> empRef,
+    TestUserPropKey.ctUtr                                   -> ctUtr,
+    TestUserPropKey.vrn                                     -> vrn,
+    TestUserPropKey.lisaManRefNum                           -> lisaManRefNum,
+    TestUserPropKey.secureElectronicTransferReferenceNumber -> secureElectronicTransferReferenceNumber,
+    TestUserPropKey.pensionSchemeAdministratorIdentifier    -> pensionSchemeAdministratorIdentifier,
+    TestUserPropKey.eoriNumber                              -> eoriNumber,
+    TestUserPropKey.groupIdentifier                         -> groupIdentifier,
+    TestUserPropKey.crn                                     -> crn
+  )
 
   val testOrganisation = TestOrganisation(
     userId = "organisationUser",
@@ -67,19 +94,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     emailAddress = emailAddress,
     organisationDetails = organisationDetails,
     individualDetails = Some(individualDetails),
-    saUtr = Some("1555369052"),
-    nino = Some("CC333333C"),
-    mtdItId = Some("XGIT00000000054"),
-    empRef = Some(s"$taxOfficeNumber/$taxOfficeReference"),
-    ctUtr = Some("1555369053"),
-    vrn = Some("999902541"),
     vatRegistrationDate = Some(LocalDate.parse("1997-01-01")),
-    lisaManRefNum = Some("Z123456"),
-    secureElectronicTransferReferenceNumber = Some("123456789012"),
-    pensionSchemeAdministratorIdentifier = Some("A1234567"),
-    eoriNumber = Some("GB1234567890"),
-    groupIdentifier = Some("organsiationGroup"),
-    crn = Some("12345678"),
     services = Seq(
       SELF_ASSESSMENT,
       NATIONAL_INSURANCE,
@@ -97,7 +112,8 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       CTC_LEGACY,
       CTC,
       EMCS
-    )
+    ),
+    props = props
   )
 
   val testAgent = TestAgent(

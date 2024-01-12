@@ -182,29 +182,37 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       individualDetails   = Some(generateIndividualDetails(firstName, lastName))
       companyRegNo       <- whenF(CORPORATION_TAX)(generateCrn)
       taxpayerType       <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
-    } yield TestOrganisation(
-      generateUserId,
-      generatePassword,
-      userFullName,
-      emailAddress,
-      organisationDetails,
-      individualDetails,
-      saUtr,
-      nino,
-      mtdItId,
-      empRef,
-      ctUtr,
-      vrn,
-      vatRegistrationDate,
-      lisaManRefNum,
-      setRefNum,
-      psaId,
-      eoriNumber,
-      groupIdentifier,
-      services,
-      crn = companyRegNo,
-      taxpayerType = taxpayerType
-    )
+
+    } yield {
+      val props = Map[TestUserPropKey, Option[String]](
+        TestUserPropKey.saUtr                                   -> saUtr,
+        TestUserPropKey.nino                                    -> nino,
+        TestUserPropKey.mtdItId                                 -> mtdItId,
+        TestUserPropKey.empRef                                  -> empRef,
+        TestUserPropKey.ctUtr                                   -> ctUtr,
+        TestUserPropKey.vrn                                     -> vrn,
+        TestUserPropKey.lisaManRefNum                           -> lisaManRefNum,
+        TestUserPropKey.secureElectronicTransferReferenceNumber -> setRefNum,
+        TestUserPropKey.pensionSchemeAdministratorIdentifier    -> psaId,
+        TestUserPropKey.eoriNumber                              -> eoriNumber,
+        TestUserPropKey.groupIdentifier                         -> groupIdentifier,
+        TestUserPropKey.crn                                     -> companyRegNo,
+        TestUserPropKey.taxpayerType                            -> taxpayerType
+      ).collect {
+        case (key, Some(value)) => key -> value
+      }
+      TestOrganisation(
+        generateUserId,
+        generatePassword,
+        userFullName,
+        emailAddress,
+        organisationDetails,
+        individualDetails,
+        services,
+        vatRegistrationDate,
+        props
+      )
+    }
   }
 
   def generateTestAgent(services: Seq[ServiceKey] = Seq.empty): Future[TestAgent] = {
