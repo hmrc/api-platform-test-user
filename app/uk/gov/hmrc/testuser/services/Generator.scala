@@ -128,21 +128,28 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       individualDetails   = generateIndividualDetails
       userFullName        = generateUserFullName(individualDetails.firstName, individualDetails.lastName)
       emailAddress        = generateEmailAddress(individualDetails.firstName, individualDetails.lastName)
-    } yield TestIndividual(
-      generateUserId,
-      generatePassword,
-      userFullName,
-      emailAddress,
-      individualDetails,
-      saUtr,
-      nino,
-      mtdItId,
-      vrn,
-      vatRegistrationDate,
-      eoriNumber,
-      groupIdentifier,
-      services
-    )
+    } yield {
+      val props = Map[TestUserPropKey, Option[String]](
+        TestUserPropKey.saUtr           -> saUtr,
+        TestUserPropKey.nino            -> nino,
+        TestUserPropKey.mtdItId         -> mtdItId,
+        TestUserPropKey.vrn             -> vrn,
+        TestUserPropKey.eoriNumber      -> eoriNumber,
+        TestUserPropKey.groupIdentifier -> groupIdentifier
+      ).collect {
+        case (key, Some(value)) => key -> value
+      }
+      TestIndividual(
+        generateUserId,
+        generatePassword,
+        userFullName,
+        emailAddress,
+        individualDetails,
+        services,
+        vatRegistrationDate,
+        props
+      )
+    }
   }
 
   def generateTestOrganisation(
@@ -231,7 +238,16 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       userFullName    = generateUserFullName(firstName, lastName)
       emailAddress    = generateEmailAddress(firstName, lastName)
       groupIdentifier = Some(generateGroupIdentifier)
-    } yield TestAgent(generateUserId, generatePassword, userFullName, emailAddress, arn, agentCode, groupIdentifier, services)
+    } yield {
+      val props = Map[TestUserPropKey, Option[String]](
+        TestUserPropKey.groupIdentifier -> groupIdentifier,
+        TestUserPropKey.arn             -> arn,
+        TestUserPropKey.agentCode       -> agentCode
+      ).collect {
+        case (key, Some(value)) => key -> value
+      }
+      TestAgent(generateUserId, generatePassword, userFullName, emailAddress, services, props)
+    }
   }
 
   def generateUserFullName(firstName: String, lastName: String) = s"$firstName $lastName"

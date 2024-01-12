@@ -89,7 +89,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
     password = password,
     userFullName = "name",
     emailAddress = "email",
-    groupIdentifier = Some(groupIdentifier)
+    props = Map(TestUserPropKey.groupIdentifier -> groupIdentifier)
   )
 
   trait Setup {
@@ -105,12 +105,11 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
     when(underTest.passwordService.validate(*, *)).thenReturn(false)
     when(underTest.passwordService.validate(password, hashedPassword)).thenReturn(true)
 
-    val testIndividualWithNoServices = await(generator.generateTestIndividual(Seq.empty, None, None).map(
-      _.copy(
+    val testIndividualWithNoServices = await(generator.generateTestIndividual(Seq.empty, None, None).map(i =>
+      i.copy(
         userId = userId,
         password = password,
-        nino = Some(nino),
-        saUtr = Some(saUtr)
+        props = i.props + (TestUserPropKey.nino -> nino) + (TestUserPropKey.saUtr -> saUtr)
       )
     ))
 

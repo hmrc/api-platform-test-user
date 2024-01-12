@@ -77,10 +77,12 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       password = password,
       userFullName = userFullName,
       emailAddress = emailAddress,
-      arn = Some(arn),
-      agentCode = Some("1234509876"),
-      groupIdentifier = Some(groupIdentifier),
-      services = Seq(AGENT_SERVICES)
+      services = Seq(AGENT_SERVICES),
+      props = Map(
+        TestUserPropKey.arn             -> arn,
+        TestUserPropKey.agentCode       -> "1234509876",
+        TestUserPropKey.groupIdentifier -> groupIdentifier
+      )
     )
     "contain no enrolments when the agent has no services" in {
       val login  = GovernmentGatewayLogin(agent.copy(services = Seq.empty))
@@ -116,13 +118,15 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       userFullName = userFullName,
       emailAddress = emailAddress,
       individualDetails = individualDetails,
-      saUtr = Some(saUtr),
-      nino = Some(nino),
-      mtdItId = Some(mtdItId),
-      eoriNumber = Some(eoriNumber),
-      vrn = Some(vrn),
-      groupIdentifier = Some(groupIdentifier),
-      services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC_LEGACY, CTC)
+      services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC_LEGACY, CTC),
+      props = Map(
+        TestUserPropKey.saUtr           -> saUtr,
+        TestUserPropKey.nino            -> nino,
+        TestUserPropKey.mtdItId         -> mtdItId,
+        TestUserPropKey.eoriNumber      -> eoriNumber,
+        TestUserPropKey.vrn             -> vrn,
+        TestUserPropKey.groupIdentifier -> groupIdentifier
+      )
     )
 
     "contain no enrolments when the individual has no services" in {

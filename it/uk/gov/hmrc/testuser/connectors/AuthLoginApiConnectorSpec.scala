@@ -40,20 +40,24 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
   val userFullName        = "John Doe"
   val emailAddress        = "john.doe@example.com"
 
-  val testIndividual = TestIndividual(
+  val individualProps     = Map[TestUserPropKey, String](
+    TestUserPropKey.eoriNumber      -> "GB1234567890",
+    TestUserPropKey.nino            -> "CC444444C",
+    TestUserPropKey.vrn             -> "999902541",
+    TestUserPropKey.mtdItId         -> "XGIT00000000054",
+    TestUserPropKey.groupIdentifier -> "individualGroup",
+    TestUserPropKey.saUtr           -> "1555369052"
+  )
+
+  val testIndividual      = TestIndividual(
     "individualUser",
     "password",
     userFullName,
     emailAddress,
     individualDetails,
-    Some("1555369052"),
     vatRegistrationDate = Some(LocalDate.parse("1997-01-01")),
-    eoriNumber = Some("GB1234567890"),
-    nino = Some("CC444444C"),
-    vrn = Some("999902541"),
-    mtdItId = Some("XGIT00000000054"),
-    groupIdentifier = Some("individualGroup"),
-    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC_LEGACY, CTC)
+    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC_LEGACY, CTC),
+    props = individualProps
   )
 
   val taxOfficeNumber = "555"
@@ -72,7 +76,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
   val groupIdentifier                         = "organsiationGroup"
   val crn                                     = "12345678"
 
-  val props = Map[TestUserPropKey, String](
+  val orgProps = Map[TestUserPropKey, String](
     TestUserPropKey.saUtr                                   -> saUtr,
     TestUserPropKey.nino                                    -> nino,
     TestUserPropKey.mtdItId                                 -> mtdItId,
@@ -113,7 +117,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       CTC,
       EMCS
     ),
-    props = props
+    props = orgProps
   )
 
   val testAgent = TestAgent(
@@ -121,10 +125,12 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     password = "password",
     userFullName = userFullName,
     emailAddress = emailAddress,
-    arn = Some("NARN0396245"),
-    agentCode = Some("1234509876"),
-    groupIdentifier = Some("agentGroup"),
-    services = Seq(AGENT_SERVICES)
+    services = Seq(AGENT_SERVICES),
+    props = Map(
+      TestUserPropKey.arn             -> "NARN0396245",
+      TestUserPropKey.agentCode       -> "1234509876",
+      TestUserPropKey.groupIdentifier -> "agentGroup"
+    )
   )
 
   val authSession = AuthSession("Bearer 12345", "/auth/oid/12345", "ggToken")

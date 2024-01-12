@@ -63,14 +63,16 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     userFullName = userFullName,
     emailAddress = emailAddress,
     individualDetails = individualDetails,
-    saUtr = Some(saUtr),
-    nino = Some(nino),
-    mtdItId = Some(mtdItId),
-    vrn = Some(vrn),
+    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC, CTC_LEGACY, IMPORT_CONTROL_SYSTEM),
     vatRegistrationDate = Some(vatRegistrationDate),
-    eoriNumber = Some(eoriNumber),
-    groupIdentifier = Some(groupIdentifier),
-    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC, CTC_LEGACY, IMPORT_CONTROL_SYSTEM)
+    props = Map(
+      TestUserPropKey.saUtr           -> saUtr,
+      TestUserPropKey.nino            -> nino,
+      TestUserPropKey.mtdItId         -> mtdItId,
+      TestUserPropKey.vrn             -> vrn,
+      TestUserPropKey.eoriNumber      -> eoriNumber,
+      TestUserPropKey.groupIdentifier -> groupIdentifier
+    )
   )
 
   val organisationDetails = OrganisationDetails(

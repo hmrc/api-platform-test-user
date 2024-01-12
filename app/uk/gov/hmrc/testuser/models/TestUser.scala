@@ -18,8 +18,6 @@ package uk.gov.hmrc.testuser.models
 
 import java.time.LocalDate
 
-import org.bson.types.ObjectId
-
 import play.api.libs.json.{OFormat, Reads, Writes, _}
 import uk.gov.hmrc.domain._
 
@@ -57,6 +55,8 @@ object TestUserPropKey {
   case object groupIdentifier                         extends TestUserPropKey
   case object crn                                     extends TestUserPropKey
   case object taxpayerType                            extends TestUserPropKey
+  case object arn                                     extends TestUserPropKey
+  case object agentCode                               extends TestUserPropKey
 
   val values: Set[TestUserPropKey] = Set(
     saUtr,
@@ -71,7 +71,9 @@ object TestUserPropKey {
     eoriNumber,
     groupIdentifier,
     crn,
-    taxpayerType
+    taxpayerType,
+    arn,
+    agentCode
   )
 
   def apply(text: String): Option[TestUserPropKey] = TestUserPropKey.values.find(_.toString == text)
@@ -81,6 +83,10 @@ object TestUserPropKey {
   }
   implicit val write: Writes[TestUserPropKey]        = Writes[TestUserPropKey](b => JsString(b.toString))
   implicit val keyWrites: KeyWrites[TestUserPropKey] = _.toString
+
+  def convertMap(in: Map[String, JsValue]): Map[TestUserPropKey, String] = {
+    in.collect { case (key, JsString(value)) if (TestUserPropKey(key).isDefined) => (TestUserPropKey.unsafeApply(key), value) }
+  }
 }
 
 sealed trait TestUser {
@@ -88,7 +94,7 @@ sealed trait TestUser {
   val password: String
   val userFullName: String
   val emailAddress: String
-  val affinityGroup: String
+  def affinityGroup: String
   val services: Seq[ServiceKey]
 }
 
@@ -103,7 +109,7 @@ case class TestOrganisation(
     vatRegistrationDate: Option[LocalDate] = None,
     props: Map[TestUserPropKey, String] = Map.empty
   ) extends TestUser {
-  override val affinityGroup = "Organisation"
+  val affinityGroup = "Organisation"
 
   lazy val saUtr                                   = props.get(TestUserPropKey.saUtr)
   lazy val nino                                    = props.get(TestUserPropKey.nino)
@@ -123,10 +129,6 @@ case class TestOrganisation(
 object TestOrganisation {
   import play.api.libs.functional.syntax._
 
-  def convertMap(in: Map[String, JsValue]): Map[TestUserPropKey, String] = {
-    in.collect { case (key, JsString(value)) if (TestUserPropKey(key).isDefined) => (TestUserPropKey.unsafeApply(key), value) }
-  }
-
   val reads: Reads[TestOrganisation] = (
     (JsPath \ "userId").read[String] and
       (JsPath \ "password").read[String] and
@@ -136,7 +138,7 @@ object TestOrganisation {
       (JsPath \ "individualDetails").readNullable[IndividualDetails] and
       (JsPath \ "services").readWithDefault[Seq[ServiceKey]](Seq.empty) and
       (JsPath \ "vatRegistrationDate").readNullable[LocalDate] and
-      (JsPath).read[Map[String, JsValue]].map(convertMap(_))
+      (JsPath).read[Map[String, JsValue]].map(TestUserPropKey.convertMap(_))
   )(TestOrganisation.apply _)
 
   val writes: OWrites[TestOrganisation] = (
@@ -160,59 +162,84 @@ case class TestIndividual(
     override val userFullName: String,
     override val emailAddress: String,
     individualDetails: IndividualDetails,
-    saUtr: Option[String] = None,
-    nino: Option[String] = None,
-    mtdItId: Option[String] = None,
-    vrn: Option[String] = None,
-    vatRegistrationDate: Option[LocalDate] = None,
-    eoriNumber: Option[String] = None,
-    groupIdentifier: Option[String] = None,
     override val services: Seq[ServiceKey] = Seq.empty,
-    _id: ObjectId = ObjectId.get
+    vatRegistrationDate: Option[LocalDate] = None,
+    props: Map[TestUserPropKey, String] = Map.empty
   ) extends TestUser {
-  override val affinityGroup = "Individual"
-
+  val affinityGroup                        = "Individual"
+  lazy val saUtr: Option[String]           = props.get(TestUserPropKey.saUtr)
+  lazy val nino: Option[String]            = props.get(TestUserPropKey.nino)
+  lazy val mtdItId: Option[String]         = props.get(TestUserPropKey.mtdItId)
+  lazy val vrn: Option[String]             = props.get(TestUserPropKey.vrn)
+  lazy val eoriNumber: Option[String]      = props.get(TestUserPropKey.eoriNumber)
+  lazy val groupIdentifier: Option[String] = props.get(TestUserPropKey.groupIdentifier)
 }
 
-// case class TestOrganisation(
-//     override val userId: String,
-//     override val password: String,
-//     override val userFullName: String,
-//     override val emailAddress: String,
-//     organisationDetails: OrganisationDetails,
-//     individualDetails: Option[IndividualDetails],
-//     saUtr: Option[String] = None,
-//     nino: Option[String] = None,
-//     mtdItId: Option[String] = None,
-//     empRef: Option[String] = None,
-//     ctUtr: Option[String] = None,
-//     vrn: Option[String] = None,
-//     vatRegistrationDate: Option[LocalDate] = None,
-//     lisaManRefNum: Option[String] = None,
-//     secureElectronicTransferReferenceNumber: Option[String] = None,
-//     pensionSchemeAdministratorIdentifier: Option[String] = None,
-//     eoriNumber: Option[String] = None,
-//     groupIdentifier: Option[String] = None,
-//     override val services: Seq[ServiceKey] = Seq.empty,
-//     _id: ObjectId = ObjectId.get,
-//     crn: Option[String] = None,
-//     taxpayerType: Option[String] = None
-//   ) extends TestUser {
-//   override val affinityGroup = "Organisation"
-// }
+object TestIndividual {
+  import play.api.libs.functional.syntax._
+
+  val reads: Reads[TestIndividual] = (
+    (JsPath \ "userId").read[String] and
+      (JsPath \ "password").read[String] and
+      (JsPath \ "userFullName").read[String] and
+      (JsPath \ "emailAddress").read[String] and
+      (JsPath \ "individualDetails").read[IndividualDetails] and
+      (JsPath \ "services").readWithDefault[Seq[ServiceKey]](Seq.empty) and
+      (JsPath \ "vatRegistrationDate").readNullable[LocalDate] and
+      (JsPath).read[Map[String, JsValue]].map(TestUserPropKey.convertMap(_))
+  )(TestIndividual.apply _)
+
+  val writes: OWrites[TestIndividual] = (
+    (JsPath \ "userId").write[String] and
+      (JsPath \ "password").write[String] and
+      (JsPath \ "userFullName").write[String] and
+      (JsPath \ "emailAddress").write[String] and
+      (JsPath \ "individualDetails").write[IndividualDetails] and
+      (JsPath \ "services").write[Seq[ServiceKey]] and
+      (JsPath \ "vatRegistrationDate").writeNullable[LocalDate] and
+      (JsPath).write[Map[TestUserPropKey, String]]
+  )(unlift(TestIndividual.unapply _))
+
+  implicit val format: OFormat[TestIndividual] = OFormat(reads, writes)
+}
 
 case class TestAgent(
     override val userId: String,
     override val password: String,
     override val userFullName: String,
     override val emailAddress: String,
-    arn: Option[String] = None,
-    groupIdentifier: Option[String] = None,
-    agentCode: Option[String] = None,
     override val services: Seq[ServiceKey] = Seq.empty,
-    _id: ObjectId = ObjectId.get
+    props: Map[TestUserPropKey, String] = Map.empty
   ) extends TestUser {
-  override val affinityGroup = "Agent"
+  val affinityGroup                        = "Agent"
+  lazy val arn: Option[String]             = props.get(TestUserPropKey.arn)
+  lazy val agentCode: Option[String]       = props.get(TestUserPropKey.agentCode)
+  lazy val groupIdentifier: Option[String] = props.get(TestUserPropKey.groupIdentifier)
+}
+
+object TestAgent {
+  import play.api.libs.functional.syntax._
+
+  val reads: Reads[TestAgent] = (
+    (JsPath \ "userId").read[String] and
+      (JsPath \ "password").read[String] and
+      (JsPath \ "userFullName").read[String] and
+      (JsPath \ "emailAddress").read[String] and
+      (JsPath \ "services").readWithDefault[Seq[ServiceKey]](Seq.empty) and
+      (JsPath).read[Map[String, JsValue]].map(TestUserPropKey.convertMap(_))
+  )(TestAgent.apply _)
+
+  val writes: OWrites[TestAgent] = (
+    (JsPath \ "userId").write[String] and
+      (JsPath \ "password").write[String] and
+      (JsPath \ "userFullName").write[String] and
+      (JsPath \ "emailAddress").write[String] and
+      (JsPath \ "services").write[Seq[ServiceKey]] and
+      (JsPath).write[Map[TestUserPropKey, String]]
+  )(unlift(TestAgent.unapply _))
+
+  implicit val format: OFormat[TestAgent] = OFormat(reads, writes)
+
 }
 
 case class MtdItId(mtdItId: String) extends TaxIdentifier with SimpleName {

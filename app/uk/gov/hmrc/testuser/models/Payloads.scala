@@ -37,12 +37,18 @@ case class CreateUserRequest(serviceNames: Option[Seq[ServiceKey]])
 
 object LegacySandboxUser {
   private val userId               = "user1"
-  private val groupIdentifier      = Some("groupIdentifier1")
+  private val groupIdentifier      = "groupIdentifier1"
   private val password             = "password1"
   private val userFullName         = "John Doe"
   private val emailAddress         = "john.doe@example.com"
   val sandboxAuthenticationRequest = AuthenticationRequest(userId, password)
   val individualDetails            = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
+
+  val props = Map[TestUserPropKey, String](
+    TestUserPropKey.saUtr           -> "1700000000",
+    TestUserPropKey.nino            -> "AA000017A",
+    TestUserPropKey.groupIdentifier -> groupIdentifier
+  )
 
   val sandboxUser = TestIndividual(
     userId = userId,
@@ -50,10 +56,8 @@ object LegacySandboxUser {
     userFullName = userFullName,
     emailAddress = emailAddress,
     individualDetails = individualDetails,
-    saUtr = Some("1700000000"),
-    nino = Some("AA000017A"),
-    groupIdentifier = groupIdentifier,
-    services = Seq(ServiceKey.NATIONAL_INSURANCE, ServiceKey.SELF_ASSESSMENT)
+    services = Seq(ServiceKey.NATIONAL_INSURANCE, ServiceKey.SELF_ASSESSMENT),
+    props = props
   )
 }
 

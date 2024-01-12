@@ -82,7 +82,7 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       val result = await(repository.createUser(testIndividual))
 
       result shouldBe testIndividual
-      await(repository.collection.find(Filters.equal("_id", testIndividual._id)).headOption()) shouldBe Some(testIndividual)
+      await(repository.collection.find(Filters.equal("nino", testIndividual.nino.get)).headOption()) shouldBe Some(testIndividual)
     }
 
     "create a test organisation in the repository" in new GeneratedTestOrganisation {
@@ -150,7 +150,7 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     val invalidShortNino = NinoNoSuffix("CC333334")
 
     "return the individual" in new GeneratedTestIndividual {
-      val individual = testIndividual.copy(nino = Some(nino.toString()))
+      val individual = testIndividual.copy(props = testIndividual.props + (TestUserPropKey.nino -> nino.toString()))
       await(repository.createUser(individual))
 
       val result = await(repository.fetchIndividualByShortNino(validShortNino))
@@ -178,7 +178,7 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     val invalidNino = Nino("CC333334C")
 
     "return the user" in new GeneratedTestIndividual {
-      val individual = testIndividual.copy(nino = Some(nino.toString()))
+      val individual = testIndividual.copy(props = testIndividual.props + (TestUserPropKey.nino -> nino.toString()))
       await(repository.createUser(individual))
 
       val result = await(repository.fetchByNino(nino))

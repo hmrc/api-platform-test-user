@@ -33,10 +33,8 @@ object JsonFormatters {
   implicit val formatLocalDateReads: Reads[LocalDate]   = WrapAssortedReadsAndWrites.DefaultLocalDateReads
   implicit val formatLocalDateWrites: Writes[LocalDate] = WrapAssortedReadsAndWrites.DefaultLocalDateWrites
 
-  implicit val crnFormatter: OFormat[Crn]                    = Json.format[Crn]
-  implicit val formatObjectId: Format[ObjectId]              = MongoFormats.objectIdFormat
-  implicit val formatTestIndividual: OFormat[TestIndividual] = Json.format[TestIndividual]
-  implicit val formatTestAgent: OFormat[TestAgent]           = Json.format[TestAgent]
+  implicit val crnFormatter: OFormat[Crn]       = Json.format[Crn]
+  implicit val formatObjectId: Format[ObjectId] = MongoFormats.objectIdFormat
 
   implicit val formatTestUser: Format[TestUser] = Union.from[TestUser]("userType")
     .and[TestIndividual](UserType.INDIVIDUAL.toString)

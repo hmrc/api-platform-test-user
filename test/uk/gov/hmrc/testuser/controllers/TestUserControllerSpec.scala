@@ -69,22 +69,26 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val individualDetails   = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
 
-  val testIndividual = TestIndividual(
+  val indiviudalProps     = Map[TestUserPropKey, String](
+    TestUserPropKey.saUtr           -> saUtr,
+    TestUserPropKey.nino            -> nino.value,
+    TestUserPropKey.mtdItId         -> mtdItId,
+    TestUserPropKey.vrn             -> vrn,
+    TestUserPropKey.eoriNumber      -> rawEoriNumber,
+    TestUserPropKey.groupIdentifier -> groupIdentifier
+  )
+
+  val testIndividual      = TestIndividual(
     userId = user,
     password = password,
     userFullName = userFullName,
     emailAddress = emailAddress,
     individualDetails = individualDetails,
-    saUtr = Some(saUtr),
-    nino = Some(nino.value),
-    mtdItId = Some(mtdItId),
-    vrn = Some(vrn),
     vatRegistrationDate = Some(vatRegistrationDate),
-    eoriNumber = Some(rawEoriNumber),
-    groupIdentifier = Some(groupIdentifier)
+    props = indiviudalProps
   )
 
-  val props = Map[TestUserPropKey, String](
+  val orgProps = Map[TestUserPropKey, String](
     TestUserPropKey.saUtr                                   -> saUtr,
     TestUserPropKey.nino                                    -> nino.value,
     TestUserPropKey.mtdItId                                 -> mtdItId,
@@ -107,19 +111,23 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     organisationDetails = organisationDetails,
     individualDetails = Some(individualDetails),
     vatRegistrationDate = Some(vatRegistrationDate),
-    props = props
+    props = orgProps
   )
 
   val testOrganisationTaxpayerType = testOrganisation.copy(props = testOrganisation.props + (TestUserPropKey.taxpayerType -> "Individual"))
 
-  val testAgent = TestAgent(
+  val agentProps                   = Map[TestUserPropKey, String](
+    TestUserPropKey.arn             -> arn,
+    TestUserPropKey.groupIdentifier -> groupIdentifier,
+    TestUserPropKey.agentCode       -> "1234509876"
+  )
+
+  val testAgent                    = TestAgent(
     user,
     password,
     userFullName,
     emailAddress,
-    Some(arn),
-    groupIdentifier = Some(groupIdentifier),
-    Some("1234509876")
+    props = agentProps
   )
 
   val createIndividualServices   = Seq(NATIONAL_INSURANCE)
