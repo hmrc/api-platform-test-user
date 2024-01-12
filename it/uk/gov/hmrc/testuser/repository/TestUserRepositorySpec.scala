@@ -89,7 +89,7 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       val result = await(repository.createUser(testOrganisation))
 
       result shouldBe testOrganisation
-      await(repository.collection.find(Filters.equal("nino", testOrganisation.nino)).headOption()) shouldBe Some(testOrganisation)
+      await(repository.collection.find(Filters.equal("nino", testOrganisation.nino.get)).headOption()) shouldBe Some(testOrganisation)
     }
   }
 
