@@ -210,7 +210,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
 
-  def identifierIsUnique(identifier: String): Future[Boolean] = {
+  def identifierIsUnique(propKey: TestUserPropKey)(identifier: String): Future[Boolean] = {
 
     val query = or(IdentifierFields.map(identifierField => equal(identifierField, identifier)): _*)
     collection.countDocuments(query).toFuture().map { matchedIdentifiers =>

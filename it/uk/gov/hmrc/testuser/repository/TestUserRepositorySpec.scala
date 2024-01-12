@@ -346,24 +346,24 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     "return false when individual identifiers already exist" in new GeneratedTestIndividual {
       val testUser = await(repository.createUser(testIndividual))
 
-      await(repository.identifierIsUnique(testUser.saUtr.get)) shouldBe false
-      await(repository.identifierIsUnique(testUser.nino.get)) shouldBe false
-      await(repository.identifierIsUnique(testUser.vrn.get)) shouldBe false
-      await(repository.identifierIsUnique(testUser.mtdItId.get)) shouldBe false
-      await(repository.identifierIsUnique(testUser.eoriNumber.get)) shouldBe false
+      await(repository.identifierIsUnique(TestUserPropKey.saUtr)(testUser.saUtr.get)) shouldBe false
+      await(repository.identifierIsUnique(TestUserPropKey.nino)(testUser.nino.get)) shouldBe false
+      await(repository.identifierIsUnique(TestUserPropKey.vrn)(testUser.vrn.get)) shouldBe false
+      await(repository.identifierIsUnique(TestUserPropKey.mtdItId)(testUser.mtdItId.get)) shouldBe false
+      await(repository.identifierIsUnique(TestUserPropKey.eoriNumber)(testUser.eoriNumber.get)) shouldBe false
     }
 
     "return false when organisation identifiers already exist" in new GeneratedTestOrganisation {
       val testUser = await(repository.createUser(testOrganisation))
 
-      await(repository.identifierIsUnique(testUser.saUtr.get)) shouldBe false
-      await(repository.identifierIsUnique(testUser.nino.get)) shouldBe false
-      await(repository.identifierIsUnique(testUser.vrn.get)) shouldBe false
-      await(repository.identifierIsUnique(testUser.empRef.get)) shouldBe false
-      await(repository.identifierIsUnique(testUser.ctUtr.get)) shouldBe false
-      await(repository.identifierIsUnique(testUser.mtdItId.get)) shouldBe false
-      await(repository.identifierIsUnique(testUser.lisaManRefNum.get)) shouldBe false
-      await(repository.identifierIsUnique(testUser.eoriNumber.get)) shouldBe false
+      await(repository.identifierIsUnique(TestUserPropKey.saUtr)(testUser.saUtr.get)) shouldBe false
+      await(repository.identifierIsUnique(TestUserPropKey.nino)(testUser.nino.get)) shouldBe false
+      await(repository.identifierIsUnique(TestUserPropKey.vrn)(testUser.vrn.get)) shouldBe false
+      await(repository.identifierIsUnique(TestUserPropKey.empRef)(testUser.empRef.get)) shouldBe false
+      await(repository.identifierIsUnique(TestUserPropKey.ctUtr)(testUser.ctUtr.get)) shouldBe false
+      await(repository.identifierIsUnique(TestUserPropKey.mtdItId)(testUser.mtdItId.get)) shouldBe false
+      await(repository.identifierIsUnique(TestUserPropKey.lisaManRefNum)(testUser.lisaManRefNum.get)) shouldBe false
+      await(repository.identifierIsUnique(TestUserPropKey.eoriNumber)(testUser.eoriNumber.get)) shouldBe false
     }
   }
 }

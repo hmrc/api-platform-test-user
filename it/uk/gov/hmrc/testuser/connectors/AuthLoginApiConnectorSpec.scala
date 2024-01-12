@@ -40,7 +40,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
   val userFullName        = "John Doe"
   val emailAddress        = "john.doe@example.com"
 
-  val individualProps     = Map[TestUserPropKey, String](
+  val individualProps = Map[TestUserPropKey, String](
     TestUserPropKey.eoriNumber      -> "GB1234567890",
     TestUserPropKey.nino            -> "CC444444C",
     TestUserPropKey.vrn             -> "999902541",
@@ -49,7 +49,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     TestUserPropKey.saUtr           -> "1555369052"
   )
 
-  val testIndividual      = TestIndividual(
+  val testIndividual = TestIndividual(
     "individualUser",
     "password",
     userFullName,

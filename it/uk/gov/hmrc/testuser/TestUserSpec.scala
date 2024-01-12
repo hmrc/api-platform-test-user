@@ -61,7 +61,7 @@ class TestUserSpec extends BaseSpec {
       val organisationCreated = Json.parse(createdResponse.body).as[TestOrganisationCreatedResponse]
 
       And("The organisation is stored in Mongo with hashed password")
-      val organisationFromMongo       = result(mongoRepository.fetchByUserId(organisationCreated.userId), timeout).get.asInstanceOf[TestOrganisation]
+      val organisationFromMongo = result(mongoRepository.fetchByUserId(organisationCreated.userId), timeout).get.asInstanceOf[TestOrganisation]
 
       val expectedOrganisationCreated = TestOrganisationCreatedResponse.from(organisationFromMongo.copy(password = organisationCreated.password))
       organisationCreated shouldBe expectedOrganisationCreated

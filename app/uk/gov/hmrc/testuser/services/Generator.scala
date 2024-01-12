@@ -293,47 +293,47 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
 
   private def generatePassword = passwordGenerator.sample.get
 
-  private def generateUniqueIdentifier[T <: String](generatorFunction: () => T, count: Int = 1)(implicit ec: ExecutionContext): Future[T] = {
+  private def generateUniqueIdentifier[T <: String](propKey: TestUserPropKey)(generatorFunction: () => T, count: Int = 1)(implicit ec: ExecutionContext): Future[T] = {
     logger.info(s"Generating tax identifier attempt $count")
     val generatedIdentifier = generatorFunction()
-    testUserRepository.identifierIsUnique(generatedIdentifier)
-      .flatMap(unique => if (unique) Future(generatedIdentifier) else generateUniqueIdentifier(generatorFunction, count + 1))
+    testUserRepository.identifierIsUnique(propKey)(generatedIdentifier)
+      .flatMap(unique => if (unique) Future(generatedIdentifier) else generateUniqueIdentifier(propKey)(generatorFunction, count + 1))
   }
 
-  private def generateEmpRef: Future[String] = generateUniqueIdentifier(() => { employerReferenceGenerator.sample.get.toString })
-  private def generateSaUtr: Future[String]  = generateUniqueIdentifier(() => { utrGenerator.next })
-  private def generateNino: Future[String]   = generateUniqueIdentifier(() => { ninoGenerator.nextNino.value })
-  private def generateCtUtr: Future[String]  = generateUniqueIdentifier(() => { utrGenerator.next })
-  private def generateVrn: Future[String]    = generateUniqueIdentifier(() => { Vrn(vrnGenerator.sample.get).vrn })
+  private def generateEmpRef: Future[String] = generateUniqueIdentifier(TestUserPropKey.empRef)(() => { employerReferenceGenerator.sample.get.toString })
+  private def generateSaUtr: Future[String]  = generateUniqueIdentifier(TestUserPropKey.saUtr)(() => { utrGenerator.next })
+  private def generateNino: Future[String]   = generateUniqueIdentifier(TestUserPropKey.nino)(() => { ninoGenerator.nextNino.value })
+  private def generateCtUtr: Future[String]  = generateUniqueIdentifier(TestUserPropKey.ctUtr)(() => { utrGenerator.next })
+  private def generateVrn: Future[String]    = generateUniqueIdentifier(TestUserPropKey.vrn)(() => { Vrn(vrnGenerator.sample.get).vrn })
 
-  private def generateCrn: Future[String] = generateUniqueIdentifier(() => {
+  private def generateCrn: Future[String] = generateUniqueIdentifier(TestUserPropKey.crn)(() => {
     crnGenerator.next
   })
 
-  private def generateLisaManRefNum: Future[String] = generateUniqueIdentifier(() => {
+  private def generateLisaManRefNum: Future[String] = generateUniqueIdentifier(TestUserPropKey.lisaManRefNum)(() => {
     lisaManRefNumGenerator.next.lisaManagerReferenceNumber
   })
 
-  private def generateMtdId: Future[String] = generateUniqueIdentifier(() => {
+  private def generateMtdId: Future[String] = generateUniqueIdentifier(TestUserPropKey.mtdItId)(() => {
     mtdItIdGenerator.next.mtdItId
   })
 
-  private def generateEoriNumber: Future[String] = generateUniqueIdentifier(() => {
+  private def generateEoriNumber: Future[String] = generateUniqueIdentifier(TestUserPropKey.eoriNumber)(() => {
     eoriGenerator.sample.get.value
   })
 
-  private def generateExciseNumber: Future[String] = generateUniqueIdentifier(() => {
+  private def generateExciseNumber: Future[String] = generateUniqueIdentifier(TestUserPropKey.eoriNumber)(() => {
     exciseNumberGenerator.sample.get.value
   })
 
-  private def generateAgentCode: Future[String] = generateUniqueIdentifier(() => {
+  private def generateAgentCode: Future[String] = generateUniqueIdentifier(TestUserPropKey.agentCode)(() => {
     agentCodeGenerator.sample.get
   })
 
   private def generateSetRefNum: String = setRefNumGenerator.next
   private def generatePsaId: String     = psaIdGenerator.next
 
-  private def generateArn: Future[String] = generateUniqueIdentifier(() => {
+  private def generateArn: Future[String] = generateUniqueIdentifier(TestUserPropKey.arn)(() => {
     arnGenerator.next
   })
 }

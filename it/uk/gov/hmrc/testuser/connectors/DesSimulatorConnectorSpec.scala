@@ -37,7 +37,7 @@ class DesSimulatorConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
 
   trait Setup extends GeneratorProvider {
     val repository = mock[TestUserRepository]
-    when(repository.identifierIsUnique(any[String])).thenReturn(Future(true))
+    when(repository.identifierIsUnique(*)(*)).thenReturn(Future(true))
 
     val testIndividual   = await(generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE), None, None))
     val testOrganisation = await(generator.generateTestOrganisation(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX), None, None, None))
