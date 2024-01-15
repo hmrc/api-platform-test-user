@@ -45,6 +45,12 @@ curl --location --request POST 'http://localhost:9617/individuals' \
 
 Test organisations and agents can be created similarly, using the respective endpoints in `conf/app.routes`.
 
+### Adding fields
+
+* In /app/uk/gov/hmrc/testuser/models/TestUser.scala
+* update TestUserPropKey to have your new key.
+* Use the new key inside of the generators.
+
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html")
