@@ -22,6 +22,7 @@ import org.scalatest.matchers.should.Matchers
 class TestUserSpec extends AnyFlatSpec with Matchers {
   val userId          = "1234567890"
   val groupIdentifier = "groupIdentifier"
+  val lisaRefNum      = "Z123456"
   val password        = "l3tm31n"
   val userFullName    = "John Doe"
   val emailAddress    = "john.doe@example.com"
@@ -50,7 +51,7 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
       organisationDetails = organisationDetails,
       individualDetails = None,
       props = Map(
-        TestUserPropKey.lisaManRefNum   -> "Z123456",
+        TestUserPropKey.lisaManRefNum   -> lisaRefNum,
         TestUserPropKey.groupIdentifier -> groupIdentifier
       )
     )
@@ -63,17 +64,10 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
         emailAddress = emailAddress,
         organisationDetails = organisationDetails,
         individualDetails = None,
-        saUtr = None,
-        nino = None,
-        mtdItId = None,
-        empRef = None,
-        ctUtr = None,
-        vrn = None,
-        vatRegistrationDate = None,
-        lisaManagerReferenceNumber = Some("Z123456"),
-        secureElectronicTransferReferenceNumber = None,
-        pensionSchemeAdministratorIdentifier = None,
-        groupIdentifier = Some(groupIdentifier)
+        props = Map(
+          "lisaManagerReferenceNumber" -> lisaRefNum,
+          "groupIdentifier"            -> groupIdentifier
+        )
       )
   }
 
@@ -90,7 +84,17 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
       )
     )
 
-    TestAgentCreatedResponse.from(testAgent) shouldBe TestAgentCreatedResponse(userId, password, userFullName, emailAddress, Some(arn), Some(agentCode), Some(groupIdentifier))
+    TestAgentCreatedResponse.from(testAgent) shouldBe TestAgentCreatedResponse(
+      userId,
+      password,
+      userFullName,
+      emailAddress,
+      Map(
+        "agentServicesAccountNumber" -> arn,
+        "agentCode"                  -> agentCode,
+        "groupIdentifier"            -> groupIdentifier
+      )
+    )
   }
 
   "Services" should "get size equal to all services when length called" in {

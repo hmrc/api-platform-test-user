@@ -19,7 +19,7 @@ package uk.gov.hmrc.testuser.repository
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import org.mongodb.scala.model.Filters.{and, equal, or}
+import org.mongodb.scala.model.Filters.{and, equal}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
 
@@ -212,7 +212,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
 
   def identifierIsUnique(propKey: TestUserPropKey)(identifier: String): Future[Boolean] = {
 
-    val query = or(IdentifierFields.map(identifierField => equal(identifierField, identifier)): _*)
+    val query = equal(propKey.toString, identifier)
     collection.countDocuments(query).toFuture().map { matchedIdentifiers =>
       val isUnique = matchedIdentifiers == 0
       isUnique

@@ -42,10 +42,6 @@ object JsonFormatters {
     .and[TestAgent](UserType.AGENT.toString)
     .format
 
-  implicit val formatCreateTestIndividualResponse: OFormat[TestIndividualCreatedResponse]     = Json.format[TestIndividualCreatedResponse]
-  implicit val formatCreateTestOrganisationResponse: OFormat[TestOrganisationCreatedResponse] = Json.format[TestOrganisationCreatedResponse]
-  implicit val formatCreateTestAgentResponse: OFormat[TestAgentCreatedResponse]               = Json.format[TestAgentCreatedResponse]
-
   implicit val formatAuthenticationRequest: OFormat[AuthenticationRequest]   = Json.format[AuthenticationRequest]
   implicit val formatAuthenticationResponse: OFormat[AuthenticationResponse] = Json.format[AuthenticationResponse]
 
@@ -54,9 +50,6 @@ object JsonFormatters {
   implicit val formatTaxpayerType: Format[TaxpayerType]                                              = Json.valueFormat[TaxpayerType]
   implicit val formatEoriNumber: Format[EoriNumber]                                                  = Json.valueFormat[EoriNumber]
   implicit val formatCreateUserWithOptionalEoriRequest: OFormat[CreateUserWithOptionalRequestParams] = Json.format[CreateUserWithOptionalRequestParams]
-
-  implicit val formatFetchTestIndividualResponse: OFormat[FetchTestIndividualResponse]     = Json.format[FetchTestIndividualResponse]
-  implicit val formatFetchTestOrganisationResponse: OFormat[FetchTestOrganisationResponse] = Json.format[FetchTestOrganisationResponse]
 
   implicit val formatErrorResponse: OFormat[ErrorResponse] = Json.format[ErrorResponse]
 

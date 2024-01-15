@@ -46,7 +46,11 @@ class TestUserController @Inject() (val testUserService: TestUserService, cc: Co
           logger.error(s"Unepected error response from testUserService.createTestIndividual: ${error.toString}")
           BadRequest
         }
-        case Right(createdIndividual)         => Created(toJson(TestIndividualCreatedResponse.from(createdIndividual)))
+        case Right(createdIndividual)         =>
+          println(s"******* $createdIndividual")
+          val json = toJson(TestIndividualCreatedResponse.from(createdIndividual))
+          println(s"******* ${json.toString}")
+          Created(toJson(TestIndividualCreatedResponse.from(createdIndividual)))
       }
     } recover recovery
   }

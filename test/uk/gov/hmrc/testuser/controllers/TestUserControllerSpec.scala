@@ -198,6 +198,14 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       val result = underTest.createIndividual()(createIndividualRequest)
 
       status(result) shouldBe CREATED
+      val props = Map(
+        "saUtr"           -> saUtr,
+        "nino"            -> nino.value,
+        "mtdItId"         -> mtdItId,
+        "vrn"             -> vrn,
+        "eoriNumber"      -> rawEoriNumber,
+        "groupIdentifier" -> groupIdentifier
+      )
 
       contentAsJson(result) shouldBe toJson(
         TestIndividualCreatedResponse(
@@ -206,13 +214,8 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
           userFullName,
           emailAddress,
           individualDetails,
-          Some(saUtr),
-          Some(nino.value),
-          Some(mtdItId),
-          Some(vrn),
           Some(vatRegistrationDate),
-          Some(rawEoriNumber),
-          Some(groupIdentifier)
+          props
         )
       )
     }
@@ -262,7 +265,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
       when(
-        underTest.testUserService.createTestIndividual(*,*,*)(*)
+        underTest.testUserService.createTestIndividual(*, *, *)(*)
       ).thenReturn(failed(new RuntimeException("expected test error")))
 
       val result = underTest.createIndividual()(createIndividualRequest)
@@ -284,6 +287,22 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       val result = underTest.createOrganisation()(createOrganisationRequest)
 
       status(result) shouldBe CREATED
+
+      val props = Map(
+        "saUtr"                                   -> saUtr,
+        "nino"                                    -> nino.value,
+        "mtdItId"                                 -> mtdItId,
+        "empRef"                                  -> empRef,
+        "ctUtr"                                   -> ctUtr,
+        "vrn"                                     -> vrn,
+        "lisaManagerReferenceNumber"              -> lisaManagerReferenceNumber,
+        "secureElectronicTransferReferenceNumber" -> secureElectronicTransferReferenceNumber,
+        "pensionSchemeAdministratorIdentifier"    -> pensionSchemeAdministratorIdentifier,
+        "eoriNumber"                              -> rawEoriNumber,
+        "groupIdentifier"                         -> groupIdentifier,
+        "crn"                                     -> crn
+      )
+
       contentAsJson(result) shouldBe toJson(TestOrganisationCreatedResponse(
         user,
         password,
@@ -291,20 +310,8 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         emailAddress,
         organisationDetails,
         Some(individualDetails),
-        Some(saUtr),
-        Some(nino.value),
-        Some(mtdItId),
-        Some(empRef),
-        Some(ctUtr),
-        Some(vrn),
         Some(vatRegistrationDate),
-        Some(lisaManagerReferenceNumber),
-        Some(secureElectronicTransferReferenceNumber),
-        Some(pensionSchemeAdministratorIdentifier),
-        Some(rawEoriNumber),
-        Some(groupIdentifier),
-        Some(crn),
-        None
+        props
       ))
     }
 
@@ -382,9 +389,19 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       when(underTest.testUserService.createTestAgent(createAgentServices)).thenReturn(successful(testAgent))
 
       val result = underTest.createAgent()(createAgentRequest)
-
+      val props  = Map(
+        "agentServicesAccountNumber" -> arn,
+        "agentCode"                  -> agentCode,
+        "groupIdentifier"            -> groupIdentifier
+      )
       status(result) shouldBe CREATED
-      contentAsJson(result) shouldBe toJson(TestAgentCreatedResponse(user, password, userFullName, emailAddress, Some(arn), Some(agentCode), Some(groupIdentifier)))
+      contentAsJson(result) shouldBe toJson(TestAgentCreatedResponse(
+        user,
+        password,
+        userFullName,
+        emailAddress,
+        props
+      ))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the agent failed" in new Setup {
