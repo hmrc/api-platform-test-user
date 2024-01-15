@@ -47,9 +47,7 @@ class TestUserController @Inject() (val testUserService: TestUserService, cc: Co
           BadRequest
         }
         case Right(createdIndividual)         =>
-          println(s"******* $createdIndividual")
           val json = toJson(TestIndividualCreatedResponse.from(createdIndividual))
-          println(s"******* ${json.toString}")
           Created(toJson(TestIndividualCreatedResponse.from(createdIndividual)))
       }
     } recover recovery
