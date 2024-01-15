@@ -2,7 +2,8 @@
 
 [ ![Download](https://api.bintray.com/packages/hmrc/releases/api-platform-test-user/images/download.svg) ](https://bintray.com/hmrc/releases/api-platform-test-user/_latestVersion)
 
-This is the backend microservice for the creation of test users in the API Platform for the External Test Environment.
+This is a published API on the API Platform.
+It is the backend microservice for the creation of test users in the API Platform for the External Test Environment.
 Test users and organisations are stored in mongo.
 
 It exposes endpoints as documented on the [Developer Hub](https://developer.service.hmrc.gov.uk/api-documentation/docs/api/service/api-platform-test-user).
