@@ -19,7 +19,7 @@ package uk.gov.hmrc.testuser.repository
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import org.mongodb.scala.model.Filters.{and, equal, or}
+import org.mongodb.scala.model.Filters.{and, equal}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
 
@@ -132,7 +132,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     collection.find(
       and(
         equal("nino", Codecs.toBson(nino)),
-        equal("userType", Codecs.toBson(UserType.INDIVIDUAL))
+        equal("userType", UserType.INDIVIDUAL.toString)
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestIndividual]))
   }
@@ -148,7 +148,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     collection.find(
       and(
         equal("nino", Codecs.toBson(matchShortNino)),
-        equal("userType", Codecs.toBson(UserType.INDIVIDUAL))
+        equal("userType", UserType.INDIVIDUAL.toString)
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestIndividual]))
   }
@@ -157,7 +157,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     collection.find(
       and(
         equal("saUtr", Codecs.toBson(saUtr)),
-        equal("userType", Codecs.toBson(UserType.INDIVIDUAL))
+        equal("userType", UserType.INDIVIDUAL.toString())
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestIndividual]))
   }
@@ -166,7 +166,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     collection.find(
       and(
         equal("vrn", Codecs.toBson(vrn)),
-        equal("userType", Codecs.toBson(UserType.INDIVIDUAL))
+        equal("userType", UserType.INDIVIDUAL.toString())
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestIndividual]))
   }
@@ -187,7 +187,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     collection.find(
       and(
         equal("vrn", Codecs.toBson(vrn)),
-        equal("userType", Codecs.toBson(UserType.ORGANISATION))
+        equal("userType", UserType.ORGANISATION.toString)
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
@@ -196,7 +196,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     collection.find(
       and(
         equal("saUtr", Codecs.toBson(saUtr)),
-        equal("userType", Codecs.toBson(UserType.ORGANISATION))
+        equal("userType", UserType.ORGANISATION.toString)
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
@@ -205,14 +205,14 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
     collection.find(
       and(
         equal("crn", crn.value),
-        equal("userType", Codecs.toBson(UserType.ORGANISATION))
+        equal("userType", UserType.ORGANISATION.toString)
       )
     ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
   }
 
-  def identifierIsUnique(identifier: String): Future[Boolean] = {
+  def identifierIsUnique(propKey: TestUserPropKey)(identifier: String): Future[Boolean] = {
 
-    val query = or(IdentifierFields.map(identifierField => equal(identifierField, identifier)): _*)
+    val query = equal(propKey.toString, identifier)
     collection.countDocuments(query).toFuture().map { matchedIdentifiers =>
       val isUnique = matchedIdentifiers == 0
       isUnique

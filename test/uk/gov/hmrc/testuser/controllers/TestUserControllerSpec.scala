@@ -31,9 +31,9 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.testuser.common.LogSuppressing
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models.ServiceKeys.ServiceKey
+import uk.gov.hmrc.testuser.models.ServiceKey._
 import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
-import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.models.{ErrorCode, ErrorResponse, _}
 import uk.gov.hmrc.testuser.services.{NinoAlreadyUsed, TestUserService}
 
 class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
@@ -69,19 +69,38 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val individualDetails   = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
 
+  val indiviudalProps = Map[TestUserPropKey, String](
+    TestUserPropKey.saUtr           -> saUtr,
+    TestUserPropKey.nino            -> nino.value,
+    TestUserPropKey.mtdItId         -> mtdItId,
+    TestUserPropKey.vrn             -> vrn,
+    TestUserPropKey.eoriNumber      -> rawEoriNumber,
+    TestUserPropKey.groupIdentifier -> groupIdentifier
+  )
+
   val testIndividual = TestIndividual(
     userId = user,
     password = password,
     userFullName = userFullName,
     emailAddress = emailAddress,
     individualDetails = individualDetails,
-    saUtr = Some(saUtr),
-    nino = Some(nino.value),
-    mtdItId = Some(mtdItId),
-    vrn = Some(vrn),
     vatRegistrationDate = Some(vatRegistrationDate),
-    eoriNumber = Some(rawEoriNumber),
-    groupIdentifier = Some(groupIdentifier)
+    props = indiviudalProps
+  )
+
+  val orgProps = Map[TestUserPropKey, String](
+    TestUserPropKey.saUtr                                   -> saUtr,
+    TestUserPropKey.nino                                    -> nino.value,
+    TestUserPropKey.mtdItId                                 -> mtdItId,
+    TestUserPropKey.empRef                                  -> empRef,
+    TestUserPropKey.ctUtr                                   -> ctUtr,
+    TestUserPropKey.vrn                                     -> vrn,
+    TestUserPropKey.lisaManRefNum                           -> lisaManagerReferenceNumber,
+    TestUserPropKey.eoriNumber                              -> rawEoriNumber,
+    TestUserPropKey.groupIdentifier                         -> groupIdentifier,
+    TestUserPropKey.secureElectronicTransferReferenceNumber -> secureElectronicTransferReferenceNumber,
+    TestUserPropKey.pensionSchemeAdministratorIdentifier    -> pensionSchemeAdministratorIdentifier,
+    TestUserPropKey.crn                                     -> crn
   )
 
   val testOrganisation = TestOrganisation(
@@ -91,37 +110,29 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     emailAddress = emailAddress,
     organisationDetails = organisationDetails,
     individualDetails = Some(individualDetails),
-    saUtr = Some(saUtr),
-    nino = Some(nino.value),
-    mtdItId = Some(mtdItId),
-    empRef = Some(empRef),
-    ctUtr = Some(ctUtr),
-    vrn = Some(vrn),
     vatRegistrationDate = Some(vatRegistrationDate),
-    lisaManRefNum = Some(lisaManagerReferenceNumber),
-    secureElectronicTransferReferenceNumber = Some(secureElectronicTransferReferenceNumber),
-    pensionSchemeAdministratorIdentifier = Some(pensionSchemeAdministratorIdentifier),
-    eoriNumber = Some(rawEoriNumber),
-    groupIdentifier = Some(groupIdentifier),
-    crn = Some(crn),
-    taxpayerType = None
+    props = orgProps
   )
 
-  val testOrganisationTaxpayerType = testOrganisation.copy(taxpayerType = Some("Individual"))
+  val testOrganisationTaxpayerType = testOrganisation.copy(props = testOrganisation.props + (TestUserPropKey.taxpayerType -> "Individual"))
+
+  val agentProps = Map[TestUserPropKey, String](
+    TestUserPropKey.arn             -> arn,
+    TestUserPropKey.groupIdentifier -> groupIdentifier,
+    TestUserPropKey.agentCode       -> "1234509876"
+  )
 
   val testAgent = TestAgent(
     user,
     password,
     userFullName,
     emailAddress,
-    Some(arn),
-    groupIdentifier = Some(groupIdentifier),
-    Some("1234509876")
+    props = agentProps
   )
 
-  val createIndividualServices   = Seq(ServiceKeys.NATIONAL_INSURANCE)
-  val createOrganisationServices = Seq(ServiceKeys.NATIONAL_INSURANCE)
-  val createAgentServices        = Seq(ServiceKeys.AGENT_SERVICES)
+  val createIndividualServices   = Seq(NATIONAL_INSURANCE)
+  val createOrganisationServices = Seq(NATIONAL_INSURANCE)
+  val createAgentServices        = Seq(AGENT_SERVICES)
 
   trait Setup {
     implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -181,12 +192,20 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   "createIndividual" should {
     "return 201 (Created) with the created individual" in new Setup {
       when(
-        underTest.testUserService.createTestIndividual(eqTo(createIndividualServices), eqTo(None), eqTo(None))(any[HeaderCarrier])
+        underTest.testUserService.createTestIndividual(eqTo(createIndividualServices), eqTo(None), eqTo(None))(*)
       ).thenReturn(successful(Right(testIndividual)))
 
       val result = underTest.createIndividual()(createIndividualRequest)
 
       status(result) shouldBe CREATED
+      val props = Map(
+        "saUtr"           -> saUtr,
+        "nino"            -> nino.value,
+        "mtdItId"         -> mtdItId,
+        "vrn"             -> vrn,
+        "eoriNumber"      -> rawEoriNumber,
+        "groupIdentifier" -> groupIdentifier
+      )
 
       contentAsJson(result) shouldBe toJson(
         TestIndividualCreatedResponse(
@@ -195,13 +214,8 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
           userFullName,
           emailAddress,
           individualDetails,
-          Some(saUtr),
-          Some(nino.value),
-          Some(mtdItId),
-          Some(vrn),
           Some(vatRegistrationDate),
-          Some(rawEoriNumber),
-          Some(groupIdentifier)
+          props
         )
       )
     }
@@ -212,7 +226,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
           eqTo(createIndividualServices),
           eqTo(Some(eoriNumber)),
           eqTo(None)
-        )(any[HeaderCarrier])
+        )(*)
       ).thenReturn(successful(Right(testIndividual)))
 
       val result = underTest.createIndividual()(createIndividualWithProvidedEoriRequest)
@@ -226,7 +240,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
           eqTo(createIndividualServices),
           eqTo(None),
           eqTo(Some(nino))
-        )(any[HeaderCarrier])
+        )(*)
       ).thenReturn(successful(Right(testIndividual)))
 
       val result = underTest.createIndividual()(createIndividualWithProvidedNinoRequest)
@@ -240,7 +254,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
           eqTo(createIndividualServices),
           eqTo(None),
           eqTo(Some(nino))
-        )(any[HeaderCarrier])
+        )(*)
       ).thenReturn(successful(Left(NinoAlreadyUsed)))
 
       val result = underTest.createIndividual()(createIndividualWithProvidedNinoRequest)
@@ -251,11 +265,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "fail with 500 (Internal Server Error) when the creation of the individual failed" in new Setup {
       when(
-        underTest.testUserService.createTestIndividual(
-          any[Seq[ServiceKey]],
-          any[Option[EoriNumber]],
-          any[Option[Nino]]
-        )(any[HeaderCarrier])
+        underTest.testUserService.createTestIndividual(*, *, *)(*)
       ).thenReturn(failed(new RuntimeException("expected test error")))
 
       val result = underTest.createIndividual()(createIndividualRequest)
@@ -271,12 +281,28 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "return 201 (Created) with the created organisation" in new Setup {
 
-      when(underTest.testUserService.createTestOrganisation(eqTo(createOrganisationServices), eqTo(None), eqTo(None), eqTo(None))(any[HeaderCarrier]))
+      when(underTest.testUserService.createTestOrganisation(eqTo(createOrganisationServices), eqTo(None), eqTo(None), eqTo(None))(*))
         .thenReturn(successful(Right(testOrganisation)))
 
       val result = underTest.createOrganisation()(createOrganisationRequest)
 
       status(result) shouldBe CREATED
+
+      val props = Map(
+        "saUtr"                                   -> saUtr,
+        "nino"                                    -> nino.value,
+        "mtdItId"                                 -> mtdItId,
+        "empRef"                                  -> empRef,
+        "ctUtr"                                   -> ctUtr,
+        "vrn"                                     -> vrn,
+        "lisaManagerReferenceNumber"              -> lisaManagerReferenceNumber,
+        "secureElectronicTransferReferenceNumber" -> secureElectronicTransferReferenceNumber,
+        "pensionSchemeAdministratorIdentifier"    -> pensionSchemeAdministratorIdentifier,
+        "eoriNumber"                              -> rawEoriNumber,
+        "groupIdentifier"                         -> groupIdentifier,
+        "crn"                                     -> crn
+      )
+
       contentAsJson(result) shouldBe toJson(TestOrganisationCreatedResponse(
         user,
         password,
@@ -284,20 +310,8 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         emailAddress,
         organisationDetails,
         Some(individualDetails),
-        Some(saUtr),
-        Some(nino.value),
-        Some(mtdItId),
-        Some(empRef),
-        Some(ctUtr),
-        Some(vrn),
         Some(vatRegistrationDate),
-        Some(lisaManagerReferenceNumber),
-        Some(secureElectronicTransferReferenceNumber),
-        Some(pensionSchemeAdministratorIdentifier),
-        Some(rawEoriNumber),
-        Some(groupIdentifier),
-        Some(crn),
-        None
+        props
       ))
     }
 
@@ -308,7 +322,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         eqTo(Some(eoriNumber)),
         eqTo(None),
         eqTo(None)
-      )(any[HeaderCarrier])).thenReturn(successful(Right(testOrganisation)))
+      )(*)).thenReturn(successful(Right(testOrganisation)))
 
       val result = underTest.createOrganisation()(createOrganisationWithProvidedEoriRequest)
 
@@ -322,7 +336,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         eqTo(Some(exciseNumber)),
         eqTo(None),
         eqTo(None)
-      )(any[HeaderCarrier])).thenReturn(successful(Right(testOrganisation)))
+      )(*)).thenReturn(successful(Right(testOrganisation)))
 
       val result = underTest.createOrganisation()(createOrganisationWithProvidedExciseNumberRequest)
 
@@ -336,7 +350,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         eqTo(None),
         eqTo(Some(nino)),
         eqTo(None)
-      )(any[HeaderCarrier])).thenReturn(successful(Right(testOrganisation)))
+      )(*)).thenReturn(successful(Right(testOrganisation)))
 
       val result = underTest.createOrganisation()(createOrganisationWithProvidedNinoRequest)
 
@@ -350,7 +364,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         eqTo(Some(eoriNumber)),
         eqTo(None),
         eqTo(Some(taxpayerType))
-      )(any[HeaderCarrier])).thenReturn(successful(Right(testOrganisationTaxpayerType)))
+      )(*)).thenReturn(successful(Right(testOrganisationTaxpayerType)))
 
       val result = underTest.createOrganisation()(createOrganisationWithProvidedEoriRequestTaxpayerType)
 
@@ -358,7 +372,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     }
 
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
-      when(underTest.testUserService.createTestOrganisation(any[Seq[ServiceKey]], any[Option[EoriNumber]], eqTo(None), eqTo(None))(any[HeaderCarrier]))
+      when(underTest.testUserService.createTestOrganisation(*, *, eqTo(None), eqTo(None))(*))
         .thenReturn(failed(new RuntimeException("expected test error")))
 
       val result = underTest.createOrganisation()(createOrganisationRequest)
@@ -375,9 +389,19 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       when(underTest.testUserService.createTestAgent(createAgentServices)).thenReturn(successful(testAgent))
 
       val result = underTest.createAgent()(createAgentRequest)
-
+      val props  = Map(
+        "agentServicesAccountNumber" -> arn,
+        "agentCode"                  -> agentCode,
+        "groupIdentifier"            -> groupIdentifier
+      )
       status(result) shouldBe CREATED
-      contentAsJson(result) shouldBe toJson(TestAgentCreatedResponse(user, password, userFullName, emailAddress, Some(arn), Some(agentCode), Some(groupIdentifier)))
+      contentAsJson(result) shouldBe toJson(TestAgentCreatedResponse(
+        user,
+        password,
+        userFullName,
+        emailAddress,
+        props
+      ))
     }
 
     "fail with 500 (Internal Server Error) when the creation of the agent failed" in new Setup {
@@ -619,7 +643,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     "return the services" in new Setup {
       val result = underTest.getServices()(request)
 
-      contentAsJson(result) shouldBe Json.toJson(Services)
+      contentAsJson(result) shouldBe Json.toJson(Services.all)
     }
   }
 }

@@ -26,7 +26,7 @@ import org.scalacheck.Gen
 
 import uk.gov.hmrc.domain._
 
-import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.models.ServiceKey._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.util.Randomiser
@@ -128,21 +128,28 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       individualDetails   = generateIndividualDetails
       userFullName        = generateUserFullName(individualDetails.firstName, individualDetails.lastName)
       emailAddress        = generateEmailAddress(individualDetails.firstName, individualDetails.lastName)
-    } yield TestIndividual(
-      generateUserId,
-      generatePassword,
-      userFullName,
-      emailAddress,
-      individualDetails,
-      saUtr,
-      nino,
-      mtdItId,
-      vrn,
-      vatRegistrationDate,
-      eoriNumber,
-      groupIdentifier,
-      services
-    )
+    } yield {
+      val props = Map[TestUserPropKey, Option[String]](
+        TestUserPropKey.saUtr           -> saUtr,
+        TestUserPropKey.nino            -> nino,
+        TestUserPropKey.mtdItId         -> mtdItId,
+        TestUserPropKey.vrn             -> vrn,
+        TestUserPropKey.eoriNumber      -> eoriNumber,
+        TestUserPropKey.groupIdentifier -> groupIdentifier
+      ).collect {
+        case (key, Some(value)) => key -> value
+      }
+      TestIndividual(
+        generateUserId,
+        generatePassword,
+        userFullName,
+        emailAddress,
+        individualDetails,
+        services,
+        vatRegistrationDate,
+        props
+      )
+    }
   }
 
   def generateTestOrganisation(
@@ -182,29 +189,37 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       individualDetails   = Some(generateIndividualDetails(firstName, lastName))
       companyRegNo       <- whenF(CORPORATION_TAX)(generateCrn)
       taxpayerType       <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
-    } yield TestOrganisation(
-      generateUserId,
-      generatePassword,
-      userFullName,
-      emailAddress,
-      organisationDetails,
-      individualDetails,
-      saUtr,
-      nino,
-      mtdItId,
-      empRef,
-      ctUtr,
-      vrn,
-      vatRegistrationDate,
-      lisaManRefNum,
-      setRefNum,
-      psaId,
-      eoriNumber,
-      groupIdentifier,
-      services,
-      crn = companyRegNo,
-      taxpayerType = taxpayerType
-    )
+
+    } yield {
+      val props = Map[TestUserPropKey, Option[String]](
+        TestUserPropKey.saUtr                                   -> saUtr,
+        TestUserPropKey.nino                                    -> nino,
+        TestUserPropKey.mtdItId                                 -> mtdItId,
+        TestUserPropKey.empRef                                  -> empRef,
+        TestUserPropKey.ctUtr                                   -> ctUtr,
+        TestUserPropKey.vrn                                     -> vrn,
+        TestUserPropKey.lisaManRefNum                           -> lisaManRefNum,
+        TestUserPropKey.secureElectronicTransferReferenceNumber -> setRefNum,
+        TestUserPropKey.pensionSchemeAdministratorIdentifier    -> psaId,
+        TestUserPropKey.eoriNumber                              -> eoriNumber,
+        TestUserPropKey.groupIdentifier                         -> groupIdentifier,
+        TestUserPropKey.crn                                     -> companyRegNo,
+        TestUserPropKey.taxpayerType                            -> taxpayerType
+      ).collect {
+        case (key, Some(value)) => key -> value
+      }
+      TestOrganisation(
+        generateUserId,
+        generatePassword,
+        userFullName,
+        emailAddress,
+        organisationDetails,
+        individualDetails,
+        services,
+        vatRegistrationDate,
+        props
+      )
+    }
   }
 
   def generateTestAgent(services: Seq[ServiceKey] = Seq.empty): Future[TestAgent] = {
@@ -223,7 +238,16 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       userFullName    = generateUserFullName(firstName, lastName)
       emailAddress    = generateEmailAddress(firstName, lastName)
       groupIdentifier = Some(generateGroupIdentifier)
-    } yield TestAgent(generateUserId, generatePassword, userFullName, emailAddress, arn, agentCode, groupIdentifier, services)
+    } yield {
+      val props = Map[TestUserPropKey, Option[String]](
+        TestUserPropKey.groupIdentifier -> groupIdentifier,
+        TestUserPropKey.arn             -> arn,
+        TestUserPropKey.agentCode       -> agentCode
+      ).collect {
+        case (key, Some(value)) => key -> value
+      }
+      TestAgent(generateUserId, generatePassword, userFullName, emailAddress, services, props)
+    }
   }
 
   def generateUserFullName(firstName: String, lastName: String) = s"$firstName $lastName"
@@ -269,47 +293,47 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
 
   private def generatePassword = passwordGenerator.sample.get
 
-  private def generateUniqueIdentifier[T <: String](generatorFunction: () => T, count: Int = 1)(implicit ec: ExecutionContext): Future[T] = {
+  private def generateUniqueIdentifier[T <: String](propKey: TestUserPropKey)(generatorFunction: () => T, count: Int = 1)(implicit ec: ExecutionContext): Future[T] = {
     logger.info(s"Generating tax identifier attempt $count")
     val generatedIdentifier = generatorFunction()
-    testUserRepository.identifierIsUnique(generatedIdentifier)
-      .flatMap(unique => if (unique) Future(generatedIdentifier) else generateUniqueIdentifier(generatorFunction, count + 1))
+    testUserRepository.identifierIsUnique(propKey)(generatedIdentifier)
+      .flatMap(unique => if (unique) Future(generatedIdentifier) else generateUniqueIdentifier(propKey)(generatorFunction, count + 1))
   }
 
-  private def generateEmpRef: Future[String] = generateUniqueIdentifier(() => { employerReferenceGenerator.sample.get.toString })
-  private def generateSaUtr: Future[String]  = generateUniqueIdentifier(() => { utrGenerator.next })
-  private def generateNino: Future[String]   = generateUniqueIdentifier(() => { ninoGenerator.nextNino.value })
-  private def generateCtUtr: Future[String]  = generateUniqueIdentifier(() => { utrGenerator.next })
-  private def generateVrn: Future[String]    = generateUniqueIdentifier(() => { Vrn(vrnGenerator.sample.get).vrn })
+  private def generateEmpRef: Future[String] = generateUniqueIdentifier(TestUserPropKey.empRef)(() => { employerReferenceGenerator.sample.get.toString })
+  private def generateSaUtr: Future[String]  = generateUniqueIdentifier(TestUserPropKey.saUtr)(() => { utrGenerator.next })
+  private def generateNino: Future[String]   = generateUniqueIdentifier(TestUserPropKey.nino)(() => { ninoGenerator.nextNino.value })
+  private def generateCtUtr: Future[String]  = generateUniqueIdentifier(TestUserPropKey.ctUtr)(() => { utrGenerator.next })
+  private def generateVrn: Future[String]    = generateUniqueIdentifier(TestUserPropKey.vrn)(() => { Vrn(vrnGenerator.sample.get).vrn })
 
-  private def generateCrn: Future[String] = generateUniqueIdentifier(() => {
+  private def generateCrn: Future[String] = generateUniqueIdentifier(TestUserPropKey.crn)(() => {
     crnGenerator.next
   })
 
-  private def generateLisaManRefNum: Future[String] = generateUniqueIdentifier(() => {
+  private def generateLisaManRefNum: Future[String] = generateUniqueIdentifier(TestUserPropKey.lisaManRefNum)(() => {
     lisaManRefNumGenerator.next.lisaManagerReferenceNumber
   })
 
-  private def generateMtdId: Future[String] = generateUniqueIdentifier(() => {
+  private def generateMtdId: Future[String] = generateUniqueIdentifier(TestUserPropKey.mtdItId)(() => {
     mtdItIdGenerator.next.mtdItId
   })
 
-  private def generateEoriNumber: Future[String] = generateUniqueIdentifier(() => {
+  private def generateEoriNumber: Future[String] = generateUniqueIdentifier(TestUserPropKey.eoriNumber)(() => {
     eoriGenerator.sample.get.value
   })
 
-  private def generateExciseNumber: Future[String] = generateUniqueIdentifier(() => {
+  private def generateExciseNumber: Future[String] = generateUniqueIdentifier(TestUserPropKey.eoriNumber)(() => {
     exciseNumberGenerator.sample.get.value
   })
 
-  private def generateAgentCode: Future[String] = generateUniqueIdentifier(() => {
+  private def generateAgentCode: Future[String] = generateUniqueIdentifier(TestUserPropKey.agentCode)(() => {
     agentCodeGenerator.sample.get
   })
 
   private def generateSetRefNum: String = setRefNumGenerator.next
   private def generatePsaId: String     = psaIdGenerator.next
 
-  private def generateArn: Future[String] = generateUniqueIdentifier(() => {
+  private def generateArn: Future[String] = generateUniqueIdentifier(TestUserPropKey.arn)(() => {
     arnGenerator.next
   })
 }

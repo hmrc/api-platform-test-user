@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.testuser.models.ErrorResponse.{individualNotFoundError, organisationNotFoundError}
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.UserType.{INDIVIDUAL, ORGANISATION}
-import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.models.{ErrorResponse, _}
 import uk.gov.hmrc.testuser.services._
 
 @Singleton
@@ -46,7 +46,9 @@ class TestUserController @Inject() (val testUserService: TestUserService, cc: Co
           logger.error(s"Unepected error response from testUserService.createTestIndividual: ${error.toString}")
           BadRequest
         }
-        case Right(createdIndividual)         => Created(toJson(TestIndividualCreatedResponse.from(createdIndividual)))
+        case Right(createdIndividual)         =>
+          val json = toJson(TestIndividualCreatedResponse.from(createdIndividual))
+          Created(toJson(TestIndividualCreatedResponse.from(createdIndividual)))
       }
     } recover recovery
   }
@@ -140,6 +142,6 @@ class TestUserController @Inject() (val testUserService: TestUserService, cc: Co
   }
 
   def getServices = Action { _ =>
-    Ok(toJson(Services))
+    Ok(toJson(Services.all))
   }
 }

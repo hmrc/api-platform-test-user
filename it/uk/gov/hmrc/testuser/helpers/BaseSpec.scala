@@ -28,7 +28,6 @@ import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 import scala.concurrent.Await._
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, GivenWhenThen}
@@ -54,7 +53,7 @@ trait BaseSpec extends AnyFeatureSpec with BeforeAndAfterAll with BeforeAndAfter
   override protected def beforeEach(): Unit = {
     mocks.foreach(m => if (!m.server.isRunning) m.server.start())
     result(mongoRepository.collection.drop().toFuture(), timeout)
-    result(mongoRepository.ensureIndexes, timeout)
+    result(mongoRepository.ensureIndexes(), timeout)
 
   }
 

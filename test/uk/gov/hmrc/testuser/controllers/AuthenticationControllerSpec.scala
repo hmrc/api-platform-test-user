@@ -31,8 +31,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.testuser.common.LogSuppressing
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models.ServiceKeys._
-import uk.gov.hmrc.testuser.models._
+import uk.gov.hmrc.testuser.models.ServiceKey._
+import uk.gov.hmrc.testuser.models.{ErrorResponse, _}
 import uk.gov.hmrc.testuser.services.AuthenticationService
 
 class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
@@ -63,19 +63,34 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     userFullName = userFullName,
     emailAddress = emailAddress,
     individualDetails = individualDetails,
-    saUtr = Some(saUtr),
-    nino = Some(nino),
-    mtdItId = Some(mtdItId),
-    vrn = Some(vrn),
+    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC, CTC_LEGACY, IMPORT_CONTROL_SYSTEM),
     vatRegistrationDate = Some(vatRegistrationDate),
-    eoriNumber = Some(eoriNumber),
-    groupIdentifier = Some(groupIdentifier),
-    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC, CTC_LEGACY, IMPORT_CONTROL_SYSTEM)
+    props = Map(
+      TestUserPropKey.saUtr           -> saUtr,
+      TestUserPropKey.nino            -> nino,
+      TestUserPropKey.mtdItId         -> mtdItId,
+      TestUserPropKey.vrn             -> vrn,
+      TestUserPropKey.eoriNumber      -> eoriNumber,
+      TestUserPropKey.groupIdentifier -> groupIdentifier
+    )
   )
 
   val organisationDetails = OrganisationDetails(
     name = "Company ABCDEF",
     address = Address("225 Baker St", "Marylebone", "NW1 6XE")
+  )
+
+  val props = Map[TestUserPropKey, String](
+    TestUserPropKey.saUtr           -> saUtr,
+    TestUserPropKey.nino            -> nino,
+    TestUserPropKey.mtdItId         -> mtdItId,
+    TestUserPropKey.empRef          -> empRef,
+    TestUserPropKey.ctUtr           -> ctUtr,
+    TestUserPropKey.vrn             -> vrn,
+    TestUserPropKey.lisaManRefNum   -> lisaManRefNum,
+    TestUserPropKey.eoriNumber      -> eoriNumber,
+    TestUserPropKey.groupIdentifier -> groupIdentifier,
+    TestUserPropKey.crn             -> crn
   )
 
   val testOrganisation = TestOrganisation(
@@ -85,17 +100,7 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     emailAddress = emailAddress,
     organisationDetails = organisationDetails,
     individualDetails = Some(individualDetails),
-    saUtr = Some(saUtr),
-    nino = Some(nino),
-    mtdItId = Some(mtdItId),
-    empRef = Some(empRef),
-    ctUtr = Some(ctUtr),
-    vrn = Some(vrn),
     vatRegistrationDate = Some(vatRegistrationDate),
-    lisaManRefNum = Some(lisaManRefNum),
-    eoriNumber = Some(eoriNumber),
-    groupIdentifier = Some(groupIdentifier),
-    crn = Some(crn),
     services =
       Seq(
         SELF_ASSESSMENT,
@@ -111,7 +116,8 @@ class AuthenticationControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         CTC,
         CTC_LEGACY,
         IMPORT_CONTROL_SYSTEM
-      )
+      ),
+    props = props
   )
 
   val authSession = AuthSession("Bearer AUTH_BEARER", "/auth/oid/12345", "gatewayToken")

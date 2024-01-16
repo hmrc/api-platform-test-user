@@ -19,15 +19,14 @@ package uk.gov.hmrc.testuser
 import java.net.URLEncoder
 
 import play.api.http.HeaderNames
-import play.api.libs.json.Json
-import play.api.libs.json.Json.toJson
+import play.api.libs.json._
 import scalaj.http.Http
 import uk.gov.hmrc.testuser.helpers.BaseSpec
 import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.models.JsonFormatters._
 import java.time.format.DateTimeFormatter
 
 class FetchUserSpec extends BaseSpec {
+  import TestCreatedResponseReads._
 
   Feature("Fetch a test user") {
 
@@ -37,7 +36,7 @@ class FetchUserSpec extends BaseSpec {
       val individual = createIndividual("national-insurance", "self-assessment")
 
       When("I fetch the individual by its NINO")
-      val response = Http(s"$serviceUrl/individuals/nino/${individual.nino.get}").asString
+      val response = Http(s"$serviceUrl/individuals/nino/${individual.props("nino")}").asString
 
       Then("The individual is returned")
       Json.parse(response.body) shouldBe Json.parse(
@@ -45,9 +44,9 @@ class FetchUserSpec extends BaseSpec {
            |   "userId": "${individual.userId}",
            |   "userFullName": "${individual.userFullName}",
            |   "emailAddress": "${individual.emailAddress}",
-           |   "saUtr": "${individual.saUtr.get}",
-           |   "nino": "${individual.nino.get}",
-           |   "groupIdentifier": "${individual.groupIdentifier.get}",
+           |   "saUtr": "${individual.props("saUtr")}",
+           |   "nino": "${individual.props("nino")}",
+           |   "groupIdentifier": "${individual.props("groupIdentifier")}",
            |   "individualDetails": {
            |     "firstName": "${individual.individualDetails.firstName}",
            |     "lastName": "${individual.individualDetails.lastName}",
@@ -67,7 +66,7 @@ class FetchUserSpec extends BaseSpec {
 
       Given("An individual")
       val individual = createIndividual("national-insurance", "self-assessment")
-      val shortNino  = NinoNoSuffix(individual.nino.get.substring(0, 8))
+      val shortNino  = NinoNoSuffix(individual.props("nino").substring(0, 8))
 
       When("I fetch the individual by its SHORTNINO")
       val response = Http(s"$serviceUrl/individuals/shortnino/$shortNino").asString
@@ -78,10 +77,10 @@ class FetchUserSpec extends BaseSpec {
            |   "userId": "${individual.userId}",
            |   "userFullName": "${individual.userFullName}",
            |   "emailAddress": "${individual.emailAddress}",
-           |   "saUtr": "${individual.saUtr.get}",
-           |   "nino": "${individual.nino.get}",
-           |   "groupIdentifier": "${individual.groupIdentifier.get}",
-           |   "individualDetails": ${toJson(individual.individualDetails)}
+           |   "saUtr": "${individual.props("saUtr")}",
+           |   "nino": "${individual.props("nino")}",
+           |   "groupIdentifier": "${individual.props("groupIdentifier")}",
+           |   "individualDetails": ${Json.toJson(individual.individualDetails)}
            |}
       """.stripMargin
       )
@@ -93,7 +92,7 @@ class FetchUserSpec extends BaseSpec {
       val individual = createIndividual("national-insurance", "self-assessment")
 
       When("I fetch the individual by its SAUTR")
-      val response = Http(s"$serviceUrl/individuals/sautr/${individual.saUtr.get}").asString
+      val response = Http(s"$serviceUrl/individuals/sautr/${individual.props("saUtr")}").asString
 
       Then("The individual is returned")
       Json.parse(response.body) shouldBe Json.parse(
@@ -101,10 +100,10 @@ class FetchUserSpec extends BaseSpec {
            |   "userId": "${individual.userId}",
            |   "userFullName": "${individual.userFullName}",
            |   "emailAddress": "${individual.emailAddress}",
-           |   "saUtr": "${individual.saUtr.get}",
-           |   "nino": "${individual.nino.get}",
-           |   "groupIdentifier": "${individual.groupIdentifier.get}",
-           |   "individualDetails": ${toJson(individual.individualDetails)}
+           |   "saUtr": "${individual.props("saUtr")}",
+           |   "nino": "${individual.props("nino")}",
+           |   "groupIdentifier": "${individual.props("groupIdentifier")}",
+           |   "individualDetails": ${Json.toJson(individual.individualDetails)}
            |}
       """.stripMargin
       )
@@ -116,7 +115,7 @@ class FetchUserSpec extends BaseSpec {
       val individual = createIndividual("mtd-vat")
 
       When("I fetch the individual by its VRN")
-      val response = Http(s"$serviceUrl/individuals/vrn/${individual.vrn.get}").asString
+      val response = Http(s"$serviceUrl/individuals/vrn/${individual.props("vrn")}").asString
 
       Then("The individual is returned along with VAT Registration Date")
       Json.parse(response.body) shouldBe Json.parse(
@@ -125,9 +124,9 @@ class FetchUserSpec extends BaseSpec {
            |   "userFullName": "${individual.userFullName}",
            |   "emailAddress": "${individual.emailAddress}",
            |   "vatRegistrationDate": "${individual.vatRegistrationDate.get.format(DateTimeFormatter.ISO_DATE)}",
-           |   "vrn": "${individual.vrn.get}",
-           |   "groupIdentifier": "${individual.groupIdentifier.get}",
-           |   "individualDetails": ${toJson(individual.individualDetails)}
+           |   "vrn": "${individual.props("vrn")}",
+           |   "groupIdentifier": "${individual.props("groupIdentifier")}",
+           |   "individualDetails": ${Json.toJson(individual.individualDetails)}
            |}
       """.stripMargin
       )
@@ -139,7 +138,7 @@ class FetchUserSpec extends BaseSpec {
       val organisation = createOrganisation("paye-for-employers")
 
       When("I fetch the organisation by its EMPREF")
-      val encodedEmpRef = URLEncoder.encode(organisation.empRef.get, "UTF-8")
+      val encodedEmpRef = URLEncoder.encode(organisation.props("empRef"), "UTF-8")
       val response      = Http(s"$serviceUrl/organisations/empref/${encodedEmpRef}").asString
 
       Then("The organisation is returned")
@@ -148,8 +147,8 @@ class FetchUserSpec extends BaseSpec {
            |   "userId": "${organisation.userId}",
            |   "userFullName": "${organisation.userFullName}",
            |   "emailAddress": "${organisation.emailAddress}",
-           |   "empRef": "${organisation.empRef.get}",
-           |   "groupIdentifier": "${organisation.groupIdentifier.get}",
+           |   "empRef": "${organisation.props("empRef")}",
+           |   "groupIdentifier": "${organisation.props("groupIdentifier")}",
            |   "organisationDetails": {
            |     "name": "${organisation.organisationDetails.name}",
            |     "address": {
@@ -179,7 +178,7 @@ class FetchUserSpec extends BaseSpec {
       val organisation = createOrganisation("mtd-vat")
 
       When("I fetch the organisation by its VRN")
-      val response = Http(s"$serviceUrl/organisations/vrn/${organisation.vrn.get}").asString
+      val response = Http(s"$serviceUrl/organisations/vrn/${organisation.props("vrn")}").asString
 
       Then("The organisation is returned along with VAT Registration Date")
       Json.parse(response.body) shouldBe Json.parse(
@@ -187,9 +186,9 @@ class FetchUserSpec extends BaseSpec {
            |   "userId": "${organisation.userId}",
            |   "userFullName": "${organisation.userFullName}",
            |   "emailAddress": "${organisation.emailAddress}",
-           |   "vrn": "${organisation.vrn.get}",
+           |   "vrn": "${organisation.props("vrn")}",
            |   "vatRegistrationDate": "${organisation.vatRegistrationDate.get.format(DateTimeFormatter.ISO_DATE)}",
-           |   "groupIdentifier": "${organisation.groupIdentifier.get}",
+           |   "groupIdentifier": "${organisation.props("groupIdentifier")}",
            |   "organisationDetails": {
            |     "name": "${organisation.organisationDetails.name}",
            |     "address": {
@@ -218,7 +217,8 @@ class FetchUserSpec extends BaseSpec {
     val createdResponse = Http(s"$serviceUrl/individuals")
       .postData(s"""{ "serviceNames": [${services.map(s => s""" "$s" """).mkString(",")}] }""")
       .header(HeaderNames.CONTENT_TYPE, "application/json").asString
-    Json.parse(createdResponse.body).as[TestIndividualCreatedResponse]
+    val json            = Json.parse(createdResponse.body)
+    json.as[TestIndividualCreatedResponse]
   }
 
   private def createOrganisation(services: String*): TestOrganisationCreatedResponse = {

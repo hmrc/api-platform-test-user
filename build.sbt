@@ -13,6 +13,8 @@ scalaVersion := "2.13.12"
 
 lazy val playSettings: Seq[Setting[_]] = Seq(routesImport ++= Seq("uk.gov.hmrc.domain._", "uk.gov.hmrc.testuser.models._", "uk.gov.hmrc.testuser.Binders._"))
 
+Global / bloopAggregateSourceDependencies := true
+
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
@@ -33,7 +35,6 @@ lazy val microservice = (project in file("."))
   )
   .configs(Test)
   .settings(
-    inConfig(Test)(BloopDefaults.configSettings),
     Test / parallelExecution := false,
     Test / fork := false,
     Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),

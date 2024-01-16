@@ -33,26 +33,14 @@ object JsonFormatters {
   implicit val formatLocalDateReads: Reads[LocalDate]   = WrapAssortedReadsAndWrites.DefaultLocalDateReads
   implicit val formatLocalDateWrites: Writes[LocalDate] = WrapAssortedReadsAndWrites.DefaultLocalDateWrites
 
-  implicit val crnFormatter: OFormat[Crn]                              = Json.format[Crn]
-  implicit val formatObjectId: Format[ObjectId]                        = MongoFormats.objectIdFormat
-  implicit val formatServiceName: Format[ServiceKeys.Value]            = EnumJson.enumFormat(ServiceKeys)
-  implicit val formatUserType: Format[UserType.Value]                  = EnumJson.enumFormat(UserType)
-  implicit val formatAddress: OFormat[Address]                         = Json.format[Address]
-  implicit val formatIndividualDetails: OFormat[IndividualDetails]     = Json.format[IndividualDetails]
-  implicit val formatOrganisationDetails: OFormat[OrganisationDetails] = Json.format[OrganisationDetails]
-  implicit val formatTestIndividual: OFormat[TestIndividual]           = Json.format[TestIndividual]
-  implicit val formatTestOrganisation: OFormat[TestOrganisation]       = Json.format[TestOrganisation]
-  implicit val formatTestAgent: OFormat[TestAgent]                     = Json.format[TestAgent]
+  implicit val crnFormatter: OFormat[Crn]       = Json.format[Crn]
+  implicit val formatObjectId: Format[ObjectId] = MongoFormats.objectIdFormat
 
   implicit val formatTestUser: Format[TestUser] = Union.from[TestUser]("userType")
     .and[TestIndividual](UserType.INDIVIDUAL.toString)
     .and[TestOrganisation](UserType.ORGANISATION.toString)
     .and[TestAgent](UserType.AGENT.toString)
     .format
-
-  implicit val formatCreateTestIndividualResponse: OFormat[TestIndividualCreatedResponse]     = Json.format[TestIndividualCreatedResponse]
-  implicit val formatCreateTestOrganisationResponse: OFormat[TestOrganisationCreatedResponse] = Json.format[TestOrganisationCreatedResponse]
-  implicit val formatCreateTestAgentResponse: OFormat[TestAgentCreatedResponse]               = Json.format[TestAgentCreatedResponse]
 
   implicit val formatAuthenticationRequest: OFormat[AuthenticationRequest]   = Json.format[AuthenticationRequest]
   implicit val formatAuthenticationResponse: OFormat[AuthenticationResponse] = Json.format[AuthenticationResponse]
@@ -63,10 +51,6 @@ object JsonFormatters {
   implicit val formatEoriNumber: Format[EoriNumber]                                                  = Json.valueFormat[EoriNumber]
   implicit val formatCreateUserWithOptionalEoriRequest: OFormat[CreateUserWithOptionalRequestParams] = Json.format[CreateUserWithOptionalRequestParams]
 
-  implicit val formatFetchTestIndividualResponse: OFormat[FetchTestIndividualResponse]     = Json.format[FetchTestIndividualResponse]
-  implicit val formatFetchTestOrganisationResponse: OFormat[FetchTestOrganisationResponse] = Json.format[FetchTestOrganisationResponse]
-
-  implicit val formatErrorCode: Format[ErrorCode.Value]    = EnumJson.enumFormat(ErrorCode)
   implicit val formatErrorResponse: OFormat[ErrorResponse] = Json.format[ErrorResponse]
 
   implicit val formatTaxIdentifier: OFormat[Identifier] = Json.format[Identifier]
@@ -80,5 +64,4 @@ object JsonFormatters {
   implicit val formatDesSimulatorTestIndividual: OFormat[DesSimulatorTestIndividual]     = Json.format[DesSimulatorTestIndividual]
   implicit val formatDesSimulatorTestOrganisation: OFormat[DesSimulatorTestOrganisation] = Json.format[DesSimulatorTestOrganisation]
 
-  implicit val formatServices: OFormat[Service] = Json.format[Service]
 }

@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.testuser.connectors.AuthLoginApiConnector
 import uk.gov.hmrc.testuser.models.LegacySandboxUser._
-import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.models.ServiceKey._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
@@ -46,11 +46,13 @@ class AuthenticationServiceSpec extends AsyncHmrcSpec {
     userFullName = userFullName,
     emailAddress = emailAddress,
     individualDetails = individualDetails,
-    saUtr = Some("1555369052"),
-    nino = Some("CC333333C"),
-    mtdItId = Some("XGIT00000000054"),
-    groupIdentifier = Some(groupIdentifier),
-    services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX)
+    services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX),
+    props = Map(
+      TestUserPropKey.saUtr           -> "1555369052",
+      TestUserPropKey.nino            -> "CC333333C",
+      TestUserPropKey.mtdItId         -> "XGIT00000000054",
+      TestUserPropKey.groupIdentifier -> groupIdentifier
+    )
   )
 
   trait Setup {

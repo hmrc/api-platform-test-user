@@ -16,19 +16,19 @@
 
 package uk.gov.hmrc.testuser
 
-import org.apache.http.HttpStatus._
 import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
 import play.api.http.HeaderNames
-import play.api.libs.json.Json
+import play.api.libs.json._
+import org.apache.http.HttpStatus._
 import scalaj.http.Http
 import uk.gov.hmrc.testuser.helpers.BaseSpec
 import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.models.JsonFormatters._
-import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.models.ServiceKey._
 
 import scala.concurrent.Await._
 
-class TestUserSpec extends BaseSpec {
+class TestUserISpec extends BaseSpec {
+  import TestCreatedResponseReads._
 
   Feature("Create a test user") {
 
@@ -44,7 +44,7 @@ class TestUserSpec extends BaseSpec {
       And("The individual is stored in Mongo with hashed password")
       val individualFromMongo       = result(mongoRepository.fetchByUserId(individualCreated.userId), timeout).get.asInstanceOf[TestIndividual]
       val expectedIndividualCreated = TestIndividualCreatedResponse.from(individualFromMongo.copy(password = individualCreated.password))
-      individualCreated shouldBe expectedIndividualCreated
+      Json.toJson(individualCreated) shouldBe Json.toJson(expectedIndividualCreated)
       validatePassword(individualCreated.password, individualFromMongo.password) shouldBe true
 
       And("The individual has the expected services")
@@ -61,9 +61,10 @@ class TestUserSpec extends BaseSpec {
       val organisationCreated = Json.parse(createdResponse.body).as[TestOrganisationCreatedResponse]
 
       And("The organisation is stored in Mongo with hashed password")
-      val organisationFromMongo       = result(mongoRepository.fetchByUserId(organisationCreated.userId), timeout).get.asInstanceOf[TestOrganisation]
+      val organisationFromMongo = result(mongoRepository.fetchByUserId(organisationCreated.userId), timeout).get.asInstanceOf[TestOrganisation]
+
       val expectedOrganisationCreated = TestOrganisationCreatedResponse.from(organisationFromMongo.copy(password = organisationCreated.password))
-      organisationCreated shouldBe expectedOrganisationCreated
+      Json.toJson(organisationCreated) shouldBe Json.toJson(expectedOrganisationCreated)
       validatePassword(organisationCreated.password, organisationFromMongo.password) shouldBe true
 
       And("The organisation has the expected services")
@@ -82,7 +83,7 @@ class TestUserSpec extends BaseSpec {
       And("The agent is stored in Mongo with hashed password")
       val agentFromMongo       = result(mongoRepository.fetchByUserId(agentCreated.userId), timeout).get.asInstanceOf[TestAgent]
       val expectedAgentCreated = TestAgentCreatedResponse.from(agentFromMongo.copy(password = agentCreated.password))
-      agentCreated shouldBe expectedAgentCreated
+      Json.toJson(agentCreated) shouldBe Json.toJson(expectedAgentCreated)
       validatePassword(agentCreated.password, agentFromMongo.password) shouldBe true
 
       And("The agent has the expected services")

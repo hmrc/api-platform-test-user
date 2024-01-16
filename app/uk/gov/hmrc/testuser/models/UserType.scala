@@ -16,7 +16,24 @@
 
 package uk.gov.hmrc.testuser.models
 
-object UserType extends Enumeration {
-  type UserType = Value
-  val INDIVIDUAL, ORGANISATION, AGENT = Value
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.SealedTraitJsonFormatting
+
+sealed trait UserType
+
+object UserType {
+  case object INDIVIDUAL   extends UserType
+  case object ORGANISATION extends UserType
+  case object AGENT        extends UserType
+
+  val values: Set[UserType] = Set(INDIVIDUAL, ORGANISATION, AGENT)
+
+  def apply(text: String): Option[UserType] = UserType.values.find(_.toString == text.toUpperCase)
+
+  def unsafeApply(text: String): UserType = {
+    apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid User Type"))
+  }
+
+  import play.api.libs.json.Format
+
+  implicit val format: Format[UserType] = SealedTraitJsonFormatting.createFormatFor[UserType]("User Type", apply(_))
 }

@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionId, UpstreamErrorResp
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.models.ServiceKeys._
+import uk.gov.hmrc.testuser.models.ServiceKey._
 import play.api.test.Helpers._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -40,25 +40,56 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
   val userFullName        = "John Doe"
   val emailAddress        = "john.doe@example.com"
 
+  val individualProps = Map[TestUserPropKey, String](
+    TestUserPropKey.eoriNumber      -> "GB1234567890",
+    TestUserPropKey.nino            -> "CC444444C",
+    TestUserPropKey.vrn             -> "999902541",
+    TestUserPropKey.mtdItId         -> "XGIT00000000054",
+    TestUserPropKey.groupIdentifier -> "individualGroup",
+    TestUserPropKey.saUtr           -> "1555369052"
+  )
+
   val testIndividual = TestIndividual(
     "individualUser",
     "password",
     userFullName,
     emailAddress,
     individualDetails,
-    Some("1555369052"),
     vatRegistrationDate = Some(LocalDate.parse("1997-01-01")),
-    eoriNumber = Some("GB1234567890"),
-    nino = Some("CC444444C"),
-    vrn = Some("999902541"),
-    mtdItId = Some("XGIT00000000054"),
-    groupIdentifier = Some("individualGroup"),
-    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC_LEGACY, CTC)
+    services = Seq(SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC_LEGACY, CTC),
+    props = individualProps
   )
 
   val taxOfficeNumber = "555"
 
-  val taxOfficeReference = "EIA000"
+  val taxOfficeReference                      = "EIA000"
+  val saUtr                                   = "1555369052"
+  val nino                                    = "CC333333C"
+  val mtdItId                                 = "XGIT00000000054"
+  val empRef                                  = s"$taxOfficeNumber/$taxOfficeReference"
+  val ctUtr                                   = "1555369053"
+  val vrn                                     = "999902541"
+  val lisaManRefNum                           = "Z123456"
+  val secureElectronicTransferReferenceNumber = "123456789012"
+  val pensionSchemeAdministratorIdentifier    = "A1234567"
+  val eoriNumber                              = "GB1234567890"
+  val groupIdentifier                         = "organsiationGroup"
+  val crn                                     = "12345678"
+
+  val orgProps = Map[TestUserPropKey, String](
+    TestUserPropKey.saUtr                                   -> saUtr,
+    TestUserPropKey.nino                                    -> nino,
+    TestUserPropKey.mtdItId                                 -> mtdItId,
+    TestUserPropKey.empRef                                  -> empRef,
+    TestUserPropKey.ctUtr                                   -> ctUtr,
+    TestUserPropKey.vrn                                     -> vrn,
+    TestUserPropKey.lisaManRefNum                           -> lisaManRefNum,
+    TestUserPropKey.secureElectronicTransferReferenceNumber -> secureElectronicTransferReferenceNumber,
+    TestUserPropKey.pensionSchemeAdministratorIdentifier    -> pensionSchemeAdministratorIdentifier,
+    TestUserPropKey.eoriNumber                              -> eoriNumber,
+    TestUserPropKey.groupIdentifier                         -> groupIdentifier,
+    TestUserPropKey.crn                                     -> crn
+  )
 
   val testOrganisation = TestOrganisation(
     userId = "organisationUser",
@@ -67,19 +98,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     emailAddress = emailAddress,
     organisationDetails = organisationDetails,
     individualDetails = Some(individualDetails),
-    saUtr = Some("1555369052"),
-    nino = Some("CC333333C"),
-    mtdItId = Some("XGIT00000000054"),
-    empRef = Some(s"$taxOfficeNumber/$taxOfficeReference"),
-    ctUtr = Some("1555369053"),
-    vrn = Some("999902541"),
     vatRegistrationDate = Some(LocalDate.parse("1997-01-01")),
-    lisaManRefNum = Some("Z123456"),
-    secureElectronicTransferReferenceNumber = Some("123456789012"),
-    pensionSchemeAdministratorIdentifier = Some("A1234567"),
-    eoriNumber = Some("GB1234567890"),
-    groupIdentifier = Some("organsiationGroup"),
-    crn = Some("12345678"),
     services = Seq(
       SELF_ASSESSMENT,
       NATIONAL_INSURANCE,
@@ -97,7 +116,8 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       CTC_LEGACY,
       CTC,
       EMCS
-    )
+    ),
+    props = orgProps
   )
 
   val testAgent = TestAgent(
@@ -105,16 +125,18 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     password = "password",
     userFullName = userFullName,
     emailAddress = emailAddress,
-    arn = Some("NARN0396245"),
-    agentCode = Some("1234509876"),
-    groupIdentifier = Some("agentGroup"),
-    services = Seq(AGENT_SERVICES)
+    services = Seq(AGENT_SERVICES),
+    props = Map(
+      TestUserPropKey.arn             -> "NARN0396245",
+      TestUserPropKey.agentCode       -> "1234509876",
+      TestUserPropKey.groupIdentifier -> "agentGroup"
+    )
   )
 
   val authSession = AuthSession("Bearer 12345", "/auth/oid/12345", "ggToken")
 
   trait Setup {
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val underTest = new AuthLoginApiConnector(
       app.injector.instanceOf[HttpClient],
@@ -144,7 +166,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
   "createSession" should {
     "create a session for an Individual" in new Setup {
       AuthLoginApiStub.willReturnTheSession(authSession)
-      implicit override val hc = HeaderCarrier(sessionId = Some(SessionId("sessions")), deviceID = Some("MyDevice"))
+      implicit override val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessions")), deviceID = Some("MyDevice"))
 
       val result = await(underTest.createSession(testIndividual))
 

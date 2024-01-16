@@ -26,6 +26,7 @@ import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ErrorResponse.invalidCredentialsError
 import uk.gov.hmrc.testuser.models.JsonFormatters._
+import models.ErrorResponse
 
 class AuthenticationSpec extends BaseSpec {
 
@@ -41,7 +42,7 @@ class AuthenticationSpec extends BaseSpec {
       AuthLoginApiStub.willReturnTheSession(authSession)
 
       When("I authenticate with the individual's credentials")
-      val response = authenticate(individual.userId, individual.password)
+      val response = authenticate((individual \ "userId").as[String], (individual \ "password").as[String])
 
       Then("The response contains the auth session and the 'Individual' affinity group")
       response.code shouldBe CREATED
@@ -60,7 +61,7 @@ class AuthenticationSpec extends BaseSpec {
       AuthLoginApiStub.willReturnTheSession(authSession)
 
       When("I authenticate with the organisation's credentials")
-      val response = authenticate(organisation.userId, organisation.password)
+      val response = authenticate((organisation \ "userId").as[String], (organisation \ "password").as[String])
 
       Then("The response contains the auth session and the 'Organisation' affinity group")
       response.code shouldBe CREATED
@@ -79,7 +80,7 @@ class AuthenticationSpec extends BaseSpec {
       AuthLoginApiStub.willReturnTheSession(authSession)
 
       When("I authenticate with the agents's credentials")
-      val response = authenticate(agent.userId, agent.password)
+      val response = authenticate((agent \ "userId").as[String], (agent \ "password").as[String])
 
       Then("The response contains the auth session and the 'Agent' affinity group")
       response.code shouldBe CREATED
@@ -104,7 +105,7 @@ class AuthenticationSpec extends BaseSpec {
       val individualCreated = createIndividual()
 
       When("I authenticate with a wrong password")
-      val response = authenticate(individualCreated.userId, "wrongPassword")
+      val response = authenticate((individualCreated \ "userId").as[String], "wrongPassword")
 
       Then("The response says that the credentials are invalid")
       response.code shouldBe UNAUTHORIZED
@@ -114,17 +115,17 @@ class AuthenticationSpec extends BaseSpec {
 
   private def createIndividual() = {
     val individualCreatedResponse = createUser("individuals", Seq("national-insurance"))
-    Json.parse(individualCreatedResponse.body).as[TestIndividualCreatedResponse]
+    Json.parse(individualCreatedResponse.body)
   }
 
   private def createOrganisation() = {
     val organisationCreatedResponse = createUser("organisations", Seq("national-insurance", "mtd-income-tax"))
-    Json.parse(organisationCreatedResponse.body).as[TestOrganisationCreatedResponse]
+    Json.parse(organisationCreatedResponse.body)
   }
 
   private def createAgent() = {
     val agentCreatedResponse = createUser("agents", Seq("agent-services"))
-    Json.parse(agentCreatedResponse.body).as[TestAgentCreatedResponse]
+    Json.parse(agentCreatedResponse.body)
   }
 
   private def createUser(endpoint: String, serviceNames: Seq[String]) =
