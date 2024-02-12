@@ -39,7 +39,12 @@ class AuthLoginApiConnector @Inject() (httpClient: HttpClient, val configuration
 
   def createSession(testUser: TestUser)(implicit hc: HeaderCarrier): Future[AuthSession] = {
 
-    httpClient.POST[GovernmentGatewayLogin, Either[UpstreamErrorResponse, HttpResponse]](s"$serviceUrl/government-gateway/session/login", GovernmentGatewayLogin(testUser)) map {
+    httpClient.POST[GovernmentGatewayLogin, Either[UpstreamErrorResponse, HttpResponse]](s"$serviceUrl/government-gateway/session/login", GovernmentGatewayLogin(testUser))(
+      implicitly,
+      implicitly,
+      hc.copy(authorization = None),
+      implicitly
+    ) map {
       case Right(response) =>
         (response.header(AUTHORIZATION), response.header(LOCATION)) match {
           case (Some(authBearerToken), Some(authorityUri)) =>
