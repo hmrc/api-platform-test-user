@@ -24,5 +24,5 @@ object AppDependencies {
     "org.scalatestplus"     %% "scalacheck-1-15"                  % "3.2.11.0",
     "org.pegdown"            % "pegdown"                          % "1.6.0",
     "org.scalaj"            %% "scalaj-http"                      % "2.4.2",
-  ).map(m => m % "test,it")
+  ).map(m => m % "test")
 }

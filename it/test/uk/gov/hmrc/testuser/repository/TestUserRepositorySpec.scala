@@ -16,18 +16,19 @@
 
 package uk.gov.hmrc.testuser.repository
 
-import org.mongodb.scala.model.Filters
+import scala.concurrent.ExecutionContext
+
 import org.mongodb.scala.bson.BsonDocument
+import org.mongodb.scala.model.Filters
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
+
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.mongo.test.MongoSupport
+
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.testuser.helpers.GeneratorProvider
 import uk.gov.hmrc.testuser.models.ServiceKey._
-import uk.gov.hmrc.testuser.models.{Crn, NinoNoSuffix}
-
-import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.testuser.models.TestUserPropKey
+import uk.gov.hmrc.testuser.models.{Crn, NinoNoSuffix, TestUserPropKey}
 
 class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with BeforeAndAfterAll with MongoSupport with IndexVerification {
 

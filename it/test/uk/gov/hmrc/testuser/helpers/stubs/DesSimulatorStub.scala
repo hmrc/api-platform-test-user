@@ -17,25 +17,30 @@
 package uk.gov.hmrc.testuser.helpers.stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import play.api.http.HeaderNames.{AUTHORIZATION, LOCATION}
+
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR}
+
 import uk.gov.hmrc.testuser.helpers.MockHost
-import uk.gov.hmrc.testuser.models.AuthSession
 
-object AuthLoginApiStub extends MockHost(11111) {
+object DesSimulatorStub extends MockHost(11112) {
 
-  def willReturnTheSession(session: AuthSession) = {
-    mock.register(post(urlPathEqualTo("/government-gateway/session/login"))
-      .willReturn(aResponse()
-        .withStatus(CREATED)
-        .withBody(s"""{"gatewayToken": "${session.gatewayToken}"}""")
-        .withHeader(AUTHORIZATION, session.authBearerToken)
-        .withHeader(LOCATION, session.authorityUri)))
+  def willSuccessfullyCreateTestIndividual() = {
+    mock.register(post(urlPathEqualTo("/test-users/individuals"))
+      .willReturn(aResponse().withStatus(CREATED)))
   }
 
-  def willFailToReturnASession() = {
-    mock.register(post(urlPathEqualTo("/government-gateway/session/login"))
-      .willReturn(aResponse()
-        .withStatus(INTERNAL_SERVER_ERROR)))
+  def willFailWhenCreatingTestIndividual() = {
+    mock.register(post(urlPathEqualTo("/test-users/individuals"))
+      .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
+  }
+
+  def willSuccessfullyCreateTestOrganisation() = {
+    mock.register(post(urlPathEqualTo("/test-users/organisations"))
+      .willReturn(aResponse().withStatus(CREATED)))
+  }
+
+  def willFailWhenCreatingTestOrganisation() = {
+    mock.register(post(urlPathEqualTo("/test-users/organisations"))
+      .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
   }
 }

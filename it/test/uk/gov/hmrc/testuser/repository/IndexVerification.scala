@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.testuser.repository
 
-import org.scalatest.concurrent.Eventually
 import org.mongodb.scala.Document
 import org.mongodb.scala.bson.BsonDocument
+import org.scalatest.concurrent.Eventually
+
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 
 trait IndexVerification extends AsyncHmrcSpec with Eventually {

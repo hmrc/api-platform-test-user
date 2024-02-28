@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.testuser.helpers
 
+import scala.concurrent.ExecutionContext
+
 import com.typesafe.config.ConfigFactory
+
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 import uk.gov.hmrc.testuser.services.Generator
-
-import scala.concurrent.ExecutionContext
 
 trait GeneratorProvider {
 
