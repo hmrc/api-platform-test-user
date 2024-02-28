@@ -68,7 +68,6 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
   val ssEnrolment                    = Enrolment("HMRC-SS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
   val icsEnrolment                   = Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber)))
   val emcsEnrolment                  = Enrolment("HMRC-EMCS-ORG", Seq(Identifier("ExciseNumber", exciseNumber)))
-  val emcsEnrolmentUsingDefaultEori  = Enrolment("HMRC-EMCS-ORG", Seq(Identifier("ExciseNumber", eoriNumber)))
 
   "A GovernmentGatewayLogin created from a TestAgent" should {
 
@@ -225,6 +224,7 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       TestUserPropKey.secureElectronicTransferReferenceNumber -> secureElectronicTransferReferenceNumber,
       TestUserPropKey.pensionSchemeAdministratorIdentifier    -> pensionSchemeAdministratorIdentifier,
       TestUserPropKey.eoriNumber                              -> eoriNumber,
+      TestUserPropKey.exciseNumber                            -> exciseNumber,
       TestUserPropKey.groupIdentifier                         -> groupIdentifier,
       TestUserPropKey.crn                                     -> crn
     )
@@ -284,7 +284,7 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
           ctcEnrolment,
           ctcLegacyEnrolment,
           icsEnrolment,
-          emcsEnrolmentUsingDefaultEori
+          emcsEnrolment
         )
     }
 
@@ -339,7 +339,7 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
     }
 
     "contain the correct enrolment for excise movement control system" in {
-      val login = GovernmentGatewayLogin(organisation.copy(services = Seq(EMCS), props = organisation.props + (TestUserPropKey.eoriNumber -> exciseNumber)))
+      val login = GovernmentGatewayLogin(organisation.copy(services = Seq(EMCS)))
 
       login.enrolments should contain theSameElementsAs Seq(emcsEnrolment)
     }

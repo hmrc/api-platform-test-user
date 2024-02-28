@@ -145,6 +145,10 @@
       "type": "string",
       "description": "Economic Operator Registration and Identification (EORI) number."
     },
+    "exciseNumber": {
+      "type": "string",
+      "description": "Excise Number."
+    },
     "crn": {
       "type": "string",
       "description": "Company Reference Number"

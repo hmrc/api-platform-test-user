@@ -101,10 +101,17 @@
     },
     "eoriNumber": {
       "type": "string",
-      "description": "Economic Operator Registration and Identification (EORI) number. Also temporarily supports an Excise Number",
-      "minLength": 13,
+      "description": "Economic Operator Registration and Identification (EORI) number.",
+      "minLength": 14,
       "maxLength": 17,
-      "pattern": "^((GB|XI)[0-9]{12,15})|([A-Z]{2}[a-zA-Z0-9]{11})$"
+      "pattern": "^(GB|XI)[0-9]{12,15}$"
+    },
+    "exciseNumber": {
+      "type": "string",
+      "description": "Excise Number. Must be enrolled with 'excise-movement-control-system' for this to be used",
+      "minLength": 13,
+      "maxLength": 13,
+      "pattern": "^[A-Z]{2}[a-zA-Z0-9]{11}$"
     },
     "nino": {
       "type": "string",
