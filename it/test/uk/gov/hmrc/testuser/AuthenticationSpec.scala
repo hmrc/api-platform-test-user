@@ -16,17 +16,18 @@
 
 package uk.gov.hmrc.testuser
 
+import scalaj.http.Http
+
 import play.api.http.HeaderNames
 import play.api.http.Status.{CREATED, UNAUTHORIZED}
 import play.api.libs.json.Json
 import play.api.libs.json.Json.{obj, stringify}
-import scalaj.http.Http
+
 import uk.gov.hmrc.testuser.helpers.BaseSpec
 import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
-import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.models.ErrorResponse.invalidCredentialsError
 import uk.gov.hmrc.testuser.models.JsonFormatters._
-import models.ErrorResponse
+import uk.gov.hmrc.testuser.models.{ErrorResponse, _}
 
 class AuthenticationSpec extends BaseSpec {
 

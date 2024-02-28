@@ -17,13 +17,15 @@
 package uk.gov.hmrc.testuser
 
 import java.net.URLEncoder
+import java.time.format.DateTimeFormatter
+
+import scalaj.http.Http
 
 import play.api.http.HeaderNames
 import play.api.libs.json._
-import scalaj.http.Http
+
 import uk.gov.hmrc.testuser.helpers.BaseSpec
 import uk.gov.hmrc.testuser.models._
-import java.time.format.DateTimeFormatter
 
 class FetchUserSpec extends BaseSpec {
   import TestCreatedResponseReads._

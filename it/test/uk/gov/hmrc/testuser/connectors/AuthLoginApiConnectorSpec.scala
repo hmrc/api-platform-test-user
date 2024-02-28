@@ -16,22 +16,22 @@
 
 package uk.gov.hmrc.testuser.connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequestedFor, urlPathEqualTo}
-
 import java.time.LocalDate
-import org.scalatest.BeforeAndAfterEach
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequestedFor, urlPathEqualTo}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
+import play.api.test.Helpers._
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionId, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
-import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.models.ServiceKey._
-import play.api.test.Helpers._
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
-import org.scalatest.BeforeAndAfterAll
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
+import uk.gov.hmrc.testuser.models.ServiceKey._
+import uk.gov.hmrc.testuser.models._
 
 class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with BeforeAndAfterAll with BeforeAndAfterEach {
 

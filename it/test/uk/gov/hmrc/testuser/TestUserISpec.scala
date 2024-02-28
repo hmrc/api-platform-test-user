@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.testuser
 
+import scala.concurrent.Await._
+
+import org.apache.http.HttpStatus._
 import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
+import scalaj.http.Http
+
 import play.api.http.HeaderNames
 import play.api.libs.json._
-import org.apache.http.HttpStatus._
-import scalaj.http.Http
-import uk.gov.hmrc.testuser.helpers.BaseSpec
-import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.models.ServiceKey._
 
-import scala.concurrent.Await._
+import uk.gov.hmrc.testuser.helpers.BaseSpec
+import uk.gov.hmrc.testuser.models.ServiceKey._
+import uk.gov.hmrc.testuser.models._
 
 class TestUserISpec extends BaseSpec {
   import TestCreatedResponseReads._

@@ -16,22 +16,21 @@
 
 package uk.gov.hmrc.testuser.connectors
 
-import org.scalatest.BeforeAndAfterEach
+import scala.concurrent.Future
+
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
+import play.api.test.Helpers._
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.http.HttpClient
+
+import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.testuser.helpers.GeneratorProvider
 import uk.gov.hmrc.testuser.helpers.stubs.DesSimulatorStub
 import uk.gov.hmrc.testuser.models.ServiceKey._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
-import play.api.test.Helpers._
-
-import scala.concurrent.Future
-import uk.gov.hmrc.http.UpstreamErrorResponse
-import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import org.scalatest.BeforeAndAfterAll
 
 class DesSimulatorConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with BeforeAndAfterAll {
 

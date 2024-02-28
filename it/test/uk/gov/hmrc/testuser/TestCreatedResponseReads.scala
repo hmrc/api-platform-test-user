@@ -16,11 +16,13 @@
 
 package uk.gov.hmrc.testuser
 
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
-import uk.gov.hmrc.testuser.models._
-import uk.gov.hmrc.testuser.models.JsonFormatters._
 import java.time.LocalDate
+
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
+
+import uk.gov.hmrc.testuser.models.JsonFormatters._
+import uk.gov.hmrc.testuser.models._
 
 object TestCreatedResponseReads {
 

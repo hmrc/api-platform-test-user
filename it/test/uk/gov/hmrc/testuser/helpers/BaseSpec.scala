@@ -17,21 +17,22 @@
 package uk.gov.hmrc.testuser.helpers
 
 import java.util.concurrent.TimeUnit
+import scala.concurrent.Await._
+import scala.concurrent.duration.Duration
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, GivenWhenThen}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
+
 import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import uk.gov.hmrc.testuser.repository.TestUserRepository
-
-import scala.concurrent.Await._
-import scala.concurrent.duration.Duration
-import org.scalatest.featurespec.AnyFeatureSpec
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, GivenWhenThen}
-import org.scalatest.matchers.should.Matchers
 
 trait BaseSpec extends AnyFeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with GuiceOneServerPerSuite
     with GivenWhenThen {
