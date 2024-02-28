@@ -61,11 +61,6 @@ lazy val it = (project in file("it"))
     addTestReportOption(Test, "int-test-reports")
   )
 
-// def oneForkedJvmPerTest(tests: Seq[TestDefinition]): Seq[Group] =
-//   tests map { test =>
-//     Group(test.name, Seq(test), SubProcess(ForkOptions().withRunJVMOptions(Vector("-Dtest.name=" + test.name))))
-//   }
-
 commands ++= Seq(
   Command.command("run-all-tests") { state => "test" :: "it/test" :: state },
 
