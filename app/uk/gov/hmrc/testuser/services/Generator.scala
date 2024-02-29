@@ -85,7 +85,7 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
     eoriNumber.fold(generateEoriNumber)(provided => Future.successful(provided.value))
   }
 
-  def useProvidedOrGeneratedExciseNumber(exciseNumber: Option[ExciseNumber]): Future[String] = {
+  def useProvidedOrGenerateExciseNumber(exciseNumber: Option[ExciseNumber]): Future[String] = {
     exciseNumber.fold(generateExciseNumber)(provided => Future.successful(provided.value))
   }
 
@@ -158,7 +158,7 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       setRefNum           = when(SECURE_ELECTRONIC_TRANSFER)(generateSetRefNum)
       psaId               = when(RELIEF_AT_SOURCE)(generatePsaId)
       eoriNumber         <- whenF(CUSTOMS_SERVICES, CTC_LEGACY, CTC, SAFETY_AND_SECURITY, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
-      exciseNumber       <- whenF(EMCS)(useProvidedOrGeneratedExciseNumber(exciseNumber))
+      exciseNumber       <- whenF(EMCS)(useProvidedOrGenerateExciseNumber(exciseNumber))
       groupIdentifier     = Some(generateGroupIdentifier)
       firstName           = generateFirstName
       lastName            = generateLastName
