@@ -52,6 +52,7 @@ object TestUserPropKey {
   case object secureElectronicTransferReferenceNumber extends TestUserPropKey
   case object pensionSchemeAdministratorIdentifier    extends TestUserPropKey
   case object eoriNumber                              extends TestUserPropKey
+  case object exciseNumber                            extends TestUserPropKey
   case object groupIdentifier                         extends TestUserPropKey
   case object crn                                     extends TestUserPropKey
   case object taxpayerType                            extends TestUserPropKey
@@ -69,6 +70,7 @@ object TestUserPropKey {
     secureElectronicTransferReferenceNumber,
     pensionSchemeAdministratorIdentifier,
     eoriNumber,
+    exciseNumber,
     groupIdentifier,
     crn,
     taxpayerType,
@@ -121,6 +123,7 @@ case class TestOrganisation(
   lazy val secureElectronicTransferReferenceNumber = props.get(TestUserPropKey.secureElectronicTransferReferenceNumber)
   lazy val pensionSchemeAdministratorIdentifier    = props.get(TestUserPropKey.pensionSchemeAdministratorIdentifier)
   lazy val eoriNumber                              = props.get(TestUserPropKey.eoriNumber)
+  lazy val exciseNumber                            = props.get(TestUserPropKey.exciseNumber)
   lazy val groupIdentifier                         = props.get(TestUserPropKey.groupIdentifier)
   lazy val crn                                     = props.get(TestUserPropKey.crn)
   lazy val taxpayerType                            = props.get(TestUserPropKey.taxpayerType)
@@ -308,19 +311,31 @@ object PensionSchemeAdministratorIdentifier extends (String => PensionSchemeAdmi
 }
 
 case class EoriNumber(override val value: String) extends TaxIdentifier with SimpleName {
-  // Temporarily supports ExciseNumber for EMCS
-  require(EoriNumber.isValid(value), s"$value is not a valid EORI/ExciseNumber.")
+  require(EoriNumber.isValid(value), s"$value is not a valid EORI.")
 
   override val name = EoriNumber.name
 }
 
 object EoriNumber extends SimpleName {
-  // Temporarily supports ExciseNumber for EMCS by adding | and the second capturing group
-  val validEoriFormat = "^((GB|XI)[0-9]{12,15})|([A-Z]{2}[a-zA-Z0-9]{11})$"
+  val validEoriFormat = "^(GB|XI)[0-9]{12,15}$"
 
   def isValid(eoriNumber: String) = eoriNumber.matches(validEoriFormat)
 
   override val name = "eoriNumber"
+}
+
+case class ExciseNumber(override val value: String) extends TaxIdentifier with SimpleName {
+  require(ExciseNumber.isValid(value), s"$value is not a valid Excise Number.")
+
+  override val name = ExciseNumber.name
+}
+
+object ExciseNumber extends SimpleName {
+  val validExciseNumberFormat = "^[A-Z]{2}[a-zA-Z0-9]{11}$"
+
+  def isValid(exciseNumber: String) = exciseNumber.matches(validExciseNumberFormat)
+
+  override val name = "exciseNumber"
 }
 
 case class TaxpayerType(override val value: String) extends SimpleName with TaxIdentifier {

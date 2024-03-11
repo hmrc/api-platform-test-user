@@ -49,6 +49,7 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
         generator.generateTestOrganisation(
           Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT, LISA, CUSTOMS_SERVICES, CTC_LEGACY, CTC),
           eoriNumber = None,
+          exciseNumber = None,
           nino = None,
           taxpayerType = None
         )

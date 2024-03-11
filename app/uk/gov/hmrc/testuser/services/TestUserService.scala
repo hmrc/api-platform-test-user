@@ -78,11 +78,12 @@ class TestUserService @Inject() (
   def createTestOrganisation(
       serviceNames: Seq[ServiceKey],
       eoriNumber: Option[EoriNumber],
+      exciseNumber: Option[ExciseNumber],
       nino: Option[Nino],
       taxpayerType: Option[TaxpayerType]
     )(implicit hc: HeaderCarrier
     ): Future[Either[CreateTestUserError, TestOrganisation]] = validateNinoRequest(nino) {
-    generator.generateTestOrganisation(serviceNames, eoriNumber, nino, taxpayerType).flatMap { organisation =>
+    generator.generateTestOrganisation(serviceNames, eoriNumber, exciseNumber, nino, taxpayerType).flatMap { organisation =>
       val hashedPassword = passwordService.hash(organisation.password)
 
       testUserRepository.createUser(organisation.copy(password = hashedPassword)) map {

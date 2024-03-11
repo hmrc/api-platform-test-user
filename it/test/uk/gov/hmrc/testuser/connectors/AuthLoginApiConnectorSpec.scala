@@ -73,6 +73,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
   val secureElectronicTransferReferenceNumber = "123456789012"
   val pensionSchemeAdministratorIdentifier    = "A1234567"
   val eoriNumber                              = "GB1234567890"
+  val exciseNumber                            = "GBWK254706100"
   val groupIdentifier                         = "organsiationGroup"
   val crn                                     = "12345678"
 
@@ -87,6 +88,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     TestUserPropKey.secureElectronicTransferReferenceNumber -> secureElectronicTransferReferenceNumber,
     TestUserPropKey.pensionSchemeAdministratorIdentifier    -> pensionSchemeAdministratorIdentifier,
     TestUserPropKey.eoriNumber                              -> eoriNumber,
+    TestUserPropKey.exciseNumber                            -> exciseNumber,
     TestUserPropKey.groupIdentifier                         -> groupIdentifier,
     TestUserPropKey.crn                                     -> crn
   )
@@ -439,7 +441,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
            |       "identifiers": [
            |       {
            |         "key":"ExciseNumber",
-           |         "value":"${testOrganisation.eoriNumber.get}"
+           |         "value":"${testOrganisation.exciseNumber.get}"
            |       }]
            |     }
            |   ],

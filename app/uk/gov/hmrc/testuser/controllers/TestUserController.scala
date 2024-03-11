@@ -47,7 +47,6 @@ class TestUserController @Inject() (val testUserService: TestUserService, cc: Co
           BadRequest
         }
         case Right(createdIndividual)         =>
-          val json = toJson(TestIndividualCreatedResponse.from(createdIndividual))
           Created(toJson(TestIndividualCreatedResponse.from(createdIndividual)))
       }
     } recover recovery
@@ -58,6 +57,7 @@ class TestUserController @Inject() (val testUserService: TestUserService, cc: Co
       testUserService.createTestOrganisation(
         createUserRequest.serviceNames.getOrElse(Seq.empty),
         createUserRequest.eoriNumber,
+        createUserRequest.exciseNumber,
         createUserRequest.nino,
         createUserRequest.taxpayerType
       ) map {

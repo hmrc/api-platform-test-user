@@ -62,7 +62,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val rawEoriNumber                           = "GB123456789012"
   val eoriNumber                              = EoriNumber(rawEoriNumber)
   val rawExciseNumber                         = "GBWK254706100"
-  val exciseNumber                            = EoriNumber(rawExciseNumber) // using EORI for now
+  val exciseNumber                            = ExciseNumber(rawExciseNumber)
   val taxpayerType                            = TaxpayerType("Individual")
   val rawTaxpayerType                         = "Individual"
 
@@ -97,6 +97,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     TestUserPropKey.vrn                                     -> vrn,
     TestUserPropKey.lisaManRefNum                           -> lisaManagerReferenceNumber,
     TestUserPropKey.eoriNumber                              -> rawEoriNumber,
+    TestUserPropKey.exciseNumber                            -> rawExciseNumber,
     TestUserPropKey.groupIdentifier                         -> groupIdentifier,
     TestUserPropKey.secureElectronicTransferReferenceNumber -> secureElectronicTransferReferenceNumber,
     TestUserPropKey.pensionSchemeAdministratorIdentifier    -> pensionSchemeAdministratorIdentifier,
@@ -165,7 +166,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     }
 
     def createOrganisationWithProvidedExciseNumberRequest = {
-      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["national-insurance"], "eoriNumber": "$rawExciseNumber"}""")
+      val jsonPayload: JsValue = Json.parse(s"""{"serviceNames":["national-insurance"], "exciseNumber": "$rawExciseNumber"}""")
       FakeRequest().withBody[JsValue](jsonPayload)
     }
 
@@ -281,7 +282,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "return 201 (Created) with the created organisation" in new Setup {
 
-      when(underTest.testUserService.createTestOrganisation(eqTo(createOrganisationServices), eqTo(None), eqTo(None), eqTo(None))(*))
+      when(underTest.testUserService.createTestOrganisation(eqTo(createOrganisationServices), eqTo(None), eqTo(None), eqTo(None), eqTo(None))(*))
         .thenReturn(successful(Right(testOrganisation)))
 
       val result = underTest.createOrganisation()(createOrganisationRequest)
@@ -299,6 +300,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         "secureElectronicTransferReferenceNumber" -> secureElectronicTransferReferenceNumber,
         "pensionSchemeAdministratorIdentifier"    -> pensionSchemeAdministratorIdentifier,
         "eoriNumber"                              -> rawEoriNumber,
+        "exciseNumber"                            -> rawExciseNumber,
         "groupIdentifier"                         -> groupIdentifier,
         "crn"                                     -> crn
       )
@@ -321,6 +323,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         eqTo(createOrganisationServices),
         eqTo(Some(eoriNumber)),
         eqTo(None),
+        eqTo(None),
         eqTo(None)
       )(*)).thenReturn(successful(Right(testOrganisation)))
 
@@ -333,6 +336,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
       when(underTest.testUserService.createTestOrganisation(
         eqTo(createOrganisationServices),
+        eqTo(None),
         eqTo(Some(exciseNumber)),
         eqTo(None),
         eqTo(None)
@@ -347,6 +351,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
       when(underTest.testUserService.createTestOrganisation(
         eqTo(createOrganisationServices),
+        eqTo(None),
         eqTo(None),
         eqTo(Some(nino)),
         eqTo(None)
@@ -363,6 +368,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         eqTo(createOrganisationServices),
         eqTo(Some(eoriNumber)),
         eqTo(None),
+        eqTo(None),
         eqTo(Some(taxpayerType))
       )(*)).thenReturn(successful(Right(testOrganisationTaxpayerType)))
 
@@ -372,7 +378,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     }
 
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
-      when(underTest.testUserService.createTestOrganisation(*, *, eqTo(None), eqTo(None))(*))
+      when(underTest.testUserService.createTestOrganisation(*, *, eqTo(None), eqTo(None), eqTo(None))(*))
         .thenReturn(failed(new RuntimeException("expected test error")))
 
       val result = underTest.createOrganisation()(createOrganisationRequest)

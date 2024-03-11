@@ -29,6 +29,7 @@ case class AuthSession(authBearerToken: String, authorityUri: String, gatewayTok
 case class CreateUserWithOptionalRequestParams(
     serviceNames: Option[Seq[ServiceKey]],
     eoriNumber: Option[EoriNumber],
+    exciseNumber: Option[ExciseNumber],
     nino: Option[Nino],
     taxpayerType: Option[TaxpayerType]
   )

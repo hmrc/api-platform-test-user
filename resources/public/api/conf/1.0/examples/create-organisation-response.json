@@ -32,6 +32,7 @@
   "secureElectronicTransferReferenceNumber":"123456789012",
   "pensionSchemeAdministratorIdentifier":"A1234567",
   "eoriNumber":"GB123456789012",
+  "exciseNumber":"GBWK254706100",
   "crn": "12345678",
   "taxPayerType":"Individual"
 }
