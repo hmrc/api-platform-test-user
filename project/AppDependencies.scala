@@ -4,7 +4,7 @@ import play.core.PlayVersion
 object AppDependencies {
   def apply(): Seq[ModuleID] = compile ++ test
 
-  lazy val bootstrapVersion = "8.4.0"
+  lazy val bootstrapVersion = "8.5.0"
   lazy val mongoVersion     = "1.7.0"
 
   lazy val compile: Seq[ModuleID] = Seq(
@@ -13,7 +13,7 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "domain-play-30"             % "9.0.0",
     "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-30"         % mongoVersion,
     "org.mindrot"        % "jbcrypt"                    % "0.4",
-    "uk.gov.hmrc"       %% "api-platform-common-domain" % "0.10.0",
+    "uk.gov.hmrc"       %% "api-platform-common-domain" % "0.13.0",
     "org.scalacheck"    %% "scalacheck"                 % "1.17.0"
   )
 
