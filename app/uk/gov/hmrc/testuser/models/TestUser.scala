@@ -59,6 +59,7 @@ object TestUserPropKey {
   case object arn                                     extends TestUserPropKey
   case object agentCode                               extends TestUserPropKey
 
+  // N.B. Adding to this list will create another index !!
   val values: Set[TestUserPropKey] = Set(
     saUtr,
     nino,

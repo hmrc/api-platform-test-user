@@ -30,6 +30,18 @@ import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 
 import uk.gov.hmrc.testuser.models._
 
+object TestUserRepository {
+
+  val identifierIndexes = TestUserPropKey.values.map(_.toString()).toSeq.map(name =>
+    IndexModel(
+      ascending(name),
+      IndexOptions()
+        .name(s"${name}-Index")
+        .background(true)
+    )
+  )
+}
+
 @Singleton
 class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: ExecutionContext)
     extends PlayMongoRepository[TestUser](
@@ -37,86 +49,22 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
       mongoComponent = mongo,
       domainFormat = JsonFormatters.formatTestUser,
       extraCodecs = Codecs.playFormatSumCodecs(JsonFormatters.formatTestUser),
-      indexes = Seq(
-        IndexModel(
-          ascending("userId"),
-          IndexOptions()
-            .name("userIdIndex")
-            .unique(true)
-            .background(true)
-        ),
-        IndexModel(
-          ascending("nino"),
-          IndexOptions()
-            .name("nino-Index")
-            .background(true)
-        ),
-        IndexModel(
-          ascending("saUtr"),
-          IndexOptions()
-            .name("saUtr-Index")
-            .background(true)
-        ),
-        IndexModel(
-          ascending("vrn"),
-          IndexOptions()
-            .name("vrn-Index")
-            .background(true)
-        ),
-        IndexModel(
-          ascending("empRef"),
-          IndexOptions()
-            .name("empRef-Index")
-            .background(true)
-        ),
-        IndexModel(
-          ascending("mtdItId"),
-          IndexOptions()
-            .name("mtdItId-Index")
-            .background(true)
-        ),
-        IndexModel(
-          ascending("ctUtr"),
-          IndexOptions()
-            .name("ctUtr-Index")
-            .background(true)
-        ),
-        IndexModel(
-          ascending("lisaManRefNum"),
-          IndexOptions()
-            .name("lisaManRefNum-Index")
-            .background(true)
-        ),
-        IndexModel(
-          ascending("eoriNumber"),
-          IndexOptions()
-            .name("eoriNumber-Index")
-            .background(true)
-        ),
-        IndexModel(
-          ascending("arn"),
-          IndexOptions()
-            .name("arn-Index")
-            .background(true)
-        ),
-        IndexModel(
-          ascending("groupIdentifier"),
-          IndexOptions()
-            .name("groupIdentifier-Index")
-            .background(true)
-        ),
-        IndexModel(
-          ascending("crn"),
-          IndexOptions()
-            .name("crn-Index")
-            .background(true)
+      indexes =
+        Seq(
+          IndexModel(
+            ascending("userId"),
+            IndexOptions()
+              .name("userIdIndex")
+              .unique(true)
+              .background(true)
+          )
         )
-      ),
+          ++ TestUserRepository.identifierIndexes,
       replaceIndexes = true
     ) {
 
   // List of fields that contain generated identifiers
-  val IdentifierFields: Seq[String] = Seq("nino", "saUtr", "vrn", "empRef", "mtdItId", "ctUtr", "lisaManRefNum", "eoriNumber", "arn", "groupIdentifier", "crn")
+  val IdentifierFields: Seq[String] = TestUserPropKey.values.map(_.toString()).toSeq
 
   def createUser[T <: TestUser](testUser: T): Future[T] = {
     collection.insertOne(testUser)
