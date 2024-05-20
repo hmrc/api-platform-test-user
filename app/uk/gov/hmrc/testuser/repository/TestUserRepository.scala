@@ -110,6 +110,13 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
           IndexOptions()
             .name("crn-Index")
             .background(true)
+        ),
+        IndexModel(
+          ascending("exciseNumber"),
+          IndexOptions()
+            .name("exciseNumber-Index")
+            .background(true)
+            .sparse(true)
         )
       ),
       replaceIndexes = true
