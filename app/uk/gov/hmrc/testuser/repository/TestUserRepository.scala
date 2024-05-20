@@ -211,11 +211,6 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
   }
 
   def identifierIsUnique(propKey: TestUserPropKey)(identifier: String): Future[Boolean] = {
-
-    val query = equal(propKey.toString, identifier)
-    collection.countDocuments(query).toFuture().map { matchedIdentifiers =>
-      val isUnique = matchedIdentifiers == 0
-      isUnique
-    }
+    collection.find(equal(propKey.toString, identifier)).limit(1).headOption().map(_.isEmpty)
   }
 }
