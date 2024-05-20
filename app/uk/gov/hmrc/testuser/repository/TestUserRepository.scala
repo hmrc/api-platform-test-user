@@ -117,6 +117,13 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
             .name("exciseNumber-Index")
             .background(true)
             .sparse(true)
+        ),
+        IndexModel(
+          ascending("secureElectronicTransferReferenceNumber"),
+          IndexOptions()
+            .name("setRefNbr-Index")
+            .background(true)
+            .sparse(true)
         )
       ),
       replaceIndexes = true
