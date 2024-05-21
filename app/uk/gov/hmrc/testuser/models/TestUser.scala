@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.testuser.models
 
-import java.time.LocalDate
+import java.time.{Instant, LocalDate}
 
 import play.api.libs.json.{OFormat, Reads, Writes, _}
 import uk.gov.hmrc.domain._
@@ -92,19 +92,25 @@ object TestUserPropKey {
 }
 
 sealed trait TestUser {
-  val userId: String
-  val password: String
-  val userFullName: String
-  val emailAddress: String
+  def userId: String
+  def password: String
+  def userFullName: String
+  def emailAddress: String
   def affinityGroup: String
-  val services: Seq[ServiceKey]
+  def services: Seq[ServiceKey]
+}
+
+trait HasTTL {
+  self: TestUser =>
+
+  def lastAccess: Instant
 }
 
 case class TestOrganisation(
-    override val userId: String,
-    override val password: String,
-    override val userFullName: String,
-    override val emailAddress: String,
+    userId: String,
+    password: String,
+    userFullName: String,
+    emailAddress: String,
     organisationDetails: OrganisationDetails,
     individualDetails: Option[IndividualDetails],
     override val services: Seq[ServiceKey] = Seq.empty,
@@ -131,6 +137,7 @@ case class TestOrganisation(
 
 object TestOrganisation {
   import play.api.libs.functional.syntax._
+  import play.api.libs.json.Reads
 
   val reads: Reads[TestOrganisation] = (
     (JsPath \ "userId").read[String] and
@@ -160,12 +167,12 @@ object TestOrganisation {
 }
 
 case class TestIndividual(
-    override val userId: String,
-    override val password: String,
-    override val userFullName: String,
-    override val emailAddress: String,
+    userId: String,
+    password: String,
+    userFullName: String,
+    emailAddress: String,
     individualDetails: IndividualDetails,
-    override val services: Seq[ServiceKey] = Seq.empty,
+    services: Seq[ServiceKey] = Seq.empty,
     vatRegistrationDate: Option[LocalDate] = None,
     props: Map[TestUserPropKey, String] = Map.empty
   ) extends TestUser {
@@ -207,11 +214,11 @@ object TestIndividual {
 }
 
 case class TestAgent(
-    override val userId: String,
-    override val password: String,
-    override val userFullName: String,
-    override val emailAddress: String,
-    override val services: Seq[ServiceKey] = Seq.empty,
+    userId: String,
+    password: String,
+    userFullName: String,
+    emailAddress: String,
+    services: Seq[ServiceKey] = Seq.empty,
     props: Map[TestUserPropKey, String] = Map.empty
   ) extends TestUser {
   val affinityGroup                        = "Agent"

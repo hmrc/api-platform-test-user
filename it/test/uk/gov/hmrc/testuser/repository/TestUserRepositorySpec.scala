@@ -16,9 +16,12 @@
 
 package uk.gov.hmrc.testuser.repository
 
+import java.time.Clock
 import scala.concurrent.ExecutionContext
 
+import org.bson.conversions.Bson
 import org.mongodb.scala.bson.BsonDocument
+import org.mongodb.scala.bson.collection.mutable.Document
 import org.mongodb.scala.model.Filters
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 
@@ -32,8 +35,17 @@ import uk.gov.hmrc.testuser.models.{Crn, NinoNoSuffix, TestUserPropKey}
 
 class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with BeforeAndAfterAll with MongoSupport with IndexVerification {
 
+  def getLastAccessFor(query: Bson): Long = {
+    await(mongoDatabase.getCollection("testUser").find[Document](query).toFuture())
+      .flatMap(_.toList)
+      .filter(_._1 == "lastAccess")
+      .head
+      ._2
+      .asDateTime().getValue()
+  }
+
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-  val userRepository                = new TestUserRepository(mongoComponent)
+  val userRepository                = new TestUserRepository(mongoComponent, Clock.systemUTC())
 
   trait GeneratedTestIndividual extends GeneratorProvider {
     val repository = userRepository
@@ -70,7 +82,6 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
   }
 
   "createUser" should {
-
     "create a test individual in the repository" in new GeneratedTestIndividual {
       val result = await(repository.createUser(testIndividual))
 
@@ -79,10 +90,21 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     }
 
     "create a test organisation in the repository" in new GeneratedTestOrganisation {
+
       val result = await(repository.createUser(testOrganisation))
 
       result shouldBe testOrganisation
       await(repository.collection.find(Filters.equal("nino", testOrganisation.nino.get)).headOption()) shouldBe Some(testOrganisation)
+
+    }
+
+    "ensure create a test organisation adds lastAccess field" in new GeneratedTestOrganisation {
+
+      val beforeCnt = await(repository.collection.countDocuments(Filters.exists("lastAccess")).toFuture())
+      await(repository.createUser(testOrganisation))
+      val afterCnt  = await(repository.collection.countDocuments(Filters.exists("lastAccess")).toFuture())
+
+      beforeCnt shouldBe afterCnt - 1
     }
   }
 
@@ -102,6 +124,22 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       val result = await(repository.fetchByUserId(testOrganisation.userId))
 
       result shouldBe Some(testOrganisation)
+    }
+
+    "update the lastAccess field" in new GeneratedTestIndividual {
+      val query = Filters.equal("userId", testIndividual.userId)
+
+      await(repository.createUser(testIndividual))
+      val time1 = getLastAccessFor(query)
+
+      Thread.sleep(100)
+
+      // Fetch causes update
+      await(repository.fetchByUserId(testIndividual.userId))
+      val time2 = getLastAccessFor(query)
+
+      time1 should be < time2
+
     }
 
     "return None when no user matches the userId" in {

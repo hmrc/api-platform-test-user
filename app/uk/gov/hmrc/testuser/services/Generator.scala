@@ -226,7 +226,14 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       ).collect {
         case (key, Some(value)) => key -> value
       }
-      TestAgent(generateUserId, generatePassword, userFullName, emailAddress, services, props)
+      TestAgent(
+        generateUserId,
+        generatePassword,
+        userFullName,
+        emailAddress,
+        services,
+        props
+      )
     }
   }
 

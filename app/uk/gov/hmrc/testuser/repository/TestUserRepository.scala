@@ -16,14 +16,17 @@
 
 package uk.gov.hmrc.testuser.repository
 
+import java.time.Clock
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
+import org.bson.conversions.Bson
 import org.mongodb.scala.model.Filters.{and, equal}
 import org.mongodb.scala.model.Indexes.ascending
-import org.mongodb.scala.model.{IndexModel, IndexOptions}
+import org.mongodb.scala.model.{Aggregates, Field, IndexModel, IndexOptions}
 
 import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
@@ -31,7 +34,7 @@ import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.testuser.models._
 
 @Singleton
-class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: ExecutionContext)
+class TestUserRepository @Inject() (mongo: MongoComponent, val clock: Clock)(implicit ec: ExecutionContext)
     extends PlayMongoRepository[TestUser](
       collectionName = "testUser",
       mongoComponent = mongo,
@@ -148,98 +151,111 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
         )
       ),
       replaceIndexes = true
-    ) {
+    ) with ClockNow {
 
   def createUser[T <: TestUser](testUser: T): Future[T] = {
     collection.insertOne(testUser)
       .toFuture()
+      .flatMap { inserted =>
+        val byId = equal("_id", inserted.getInsertedId())
+        fetchMarkAccess(byId)
+      }
       .map(_ => testUser)
   }
 
+  private def fetchMarkAccess(query: Bson): Future[Option[TestUser]] = {
+    val aggregates = Seq(Aggregates.set(Field("lastAccess", now())))
+    collection.findOneAndUpdate(query, aggregates).headOption()
+  }
+
+  private def fetchMarkAccessAs[T <: TestUser](query: Bson): Future[Option[T]] = {
+    fetchMarkAccess(query) map (_ map (_.asInstanceOf[T]))
+  }
+
   def fetchByUserId(userId: String): Future[Option[TestUser]] = {
-    collection.find(equal("userId", userId)).headOption()
+    fetchMarkAccess(equal("userId", userId))
   }
 
   def fetchIndividualByNino(nino: Nino): Future[Option[TestIndividual]] = {
-    collection.find(
+    fetchMarkAccessAs[TestIndividual](
       and(
         equal("nino", Codecs.toBson(nino)),
         equal("userType", UserType.INDIVIDUAL.toString)
       )
-    ).toFuture() map (_.headOption map (_.asInstanceOf[TestIndividual]))
+    )
   }
 
   def fetchByNino(nino: Nino): Future[Option[TestUser]] = {
-    collection.find(
+    fetchMarkAccessAs[TestUser](
       equal("nino", Codecs.toBson(nino))
-    ).toFuture() map (_.headOption map (_.asInstanceOf[TestUser]))
+    )
   }
 
   def fetchIndividualByShortNino(shortNino: NinoNoSuffix): Future[Option[TestIndividual]] = {
     val matchShortNino = Json.obj("$regex" -> s"${shortNino.value}\\w")
-    collection.find(
+    fetchMarkAccessAs[TestIndividual](
       and(
         equal("nino", Codecs.toBson(matchShortNino)),
         equal("userType", UserType.INDIVIDUAL.toString)
       )
-    ).toFuture() map (_.headOption map (_.asInstanceOf[TestIndividual]))
+    )
   }
 
   def fetchIndividualBySaUtr(saUtr: SaUtr): Future[Option[TestIndividual]] = {
-    collection.find(
+    fetchMarkAccessAs[TestIndividual](
       and(
         equal("saUtr", Codecs.toBson(saUtr)),
         equal("userType", UserType.INDIVIDUAL.toString())
       )
-    ).toFuture() map (_.headOption map (_.asInstanceOf[TestIndividual]))
+    )
   }
 
   def fetchIndividualByVrn(vrn: Vrn): Future[Option[TestIndividual]] = {
-    collection.find(
+    fetchMarkAccessAs[TestIndividual](
       and(
         equal("vrn", Codecs.toBson(vrn)),
         equal("userType", UserType.INDIVIDUAL.toString())
       )
-    ).toFuture() map (_.headOption map (_.asInstanceOf[TestIndividual]))
+    )
   }
 
   def fetchOrganisationByEmpRef(empRef: EmpRef): Future[Option[TestOrganisation]] = {
-    collection.find(
+    fetchMarkAccessAs[TestOrganisation](
       equal("empRef", Codecs.toBson(empRef))
-    ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
+    )
   }
 
   def fetchOrganisationByCtUtr(utr: CtUtr): Future[Option[TestOrganisation]] = {
-    collection.find(
+    fetchMarkAccessAs[TestOrganisation](
       equal("ctUtr", Codecs.toBson(utr))
-    ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
+    )
   }
 
   def fetchOrganisationByVrn(vrn: Vrn): Future[Option[TestOrganisation]] = {
-    collection.find(
+    fetchMarkAccessAs[TestOrganisation](
       and(
         equal("vrn", Codecs.toBson(vrn)),
         equal("userType", UserType.ORGANISATION.toString)
       )
-    ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
+    )
   }
 
   def fetchOrganisationBySaUtr(saUtr: SaUtr): Future[Option[TestOrganisation]] = {
-    collection.find(
+    fetchMarkAccessAs[TestOrganisation](
       and(
         equal("saUtr", Codecs.toBson(saUtr)),
         equal("userType", UserType.ORGANISATION.toString)
       )
-    ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
+    )
   }
 
   def fetchOrganisationByCrn(crn: Crn): Future[Option[TestOrganisation]] = {
-    collection.find(
+    fetchMarkAccessAs[TestOrganisation](
       and(
         equal("crn", crn.value),
         equal("userType", UserType.ORGANISATION.toString)
       )
-    ).toFuture() map (_.headOption map (_.asInstanceOf[TestOrganisation]))
+    )
   }
 
   def identifierIsUnique(propKey: TestUserPropKey)(identifier: String): Future[Boolean] = {
