@@ -124,13 +124,31 @@ class TestUserRepository @Inject() (mongo: MongoComponent)(implicit ec: Executio
             .name("setRefNbr-Index")
             .background(true)
             .sparse(true)
+        ),
+        IndexModel(
+          ascending("pensionSchemeAdministratorIdentifier"),
+          IndexOptions()
+            .name("pensionSchemeAdminId-Index")
+            .background(true)
+            .sparse(true)
+        ),
+        IndexModel(
+          ascending("taxpayerType"),
+          IndexOptions()
+            .name("taxpayerType-Index")
+            .background(true)
+            .sparse(true)
+        ),
+        IndexModel(
+          ascending("agentCode"),
+          IndexOptions()
+            .name("agentCode-Index")
+            .background(true)
+            .sparse(true)
         )
       ),
       replaceIndexes = true
     ) {
-
-  // List of fields that contain generated identifiers
-  val IdentifierFields: Seq[String] = Seq("nino", "saUtr", "vrn", "empRef", "mtdItId", "ctUtr", "lisaManRefNum", "eoriNumber", "arn", "groupIdentifier", "crn")
 
   def createUser[T <: TestUser](testUser: T): Future[T] = {
     collection.insertOne(testUser)

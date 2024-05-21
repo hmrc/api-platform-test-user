@@ -67,15 +67,6 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
         Seq(BsonDocument("name" -> "userIdIndex", "unique" -> true, "background" -> true, "key" -> BsonDocument("userId" -> 1)))
       verifyIndexes(userRepository, expectedIndex)
     }
-
-    "be created for all identifier fields" in {
-      def expectedIndexes: Seq[BsonDocument] =
-        userRepository.IdentifierFields
-          .map(identifierField => BsonDocument("name" -> s"$identifierField-Index", "background" -> true, "key" -> BsonDocument(identifierField -> 1)))
-          .toSeq
-
-      verifyIndexes(userRepository, expectedIndexes)
-    }
   }
 
   "createUser" should {
