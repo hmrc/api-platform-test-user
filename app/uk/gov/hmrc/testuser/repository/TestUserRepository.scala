@@ -53,54 +53,63 @@ class TestUserRepository @Inject() (mongo: MongoComponent, val clock: Clock)(imp
           IndexOptions()
             .name("nino-Index")
             .background(true)
+            .sparse(true)
         ),
         IndexModel(
           ascending("saUtr"),
           IndexOptions()
             .name("saUtr-Index")
             .background(true)
+            .sparse(true)
         ),
         IndexModel(
           ascending("vrn"),
           IndexOptions()
             .name("vrn-Index")
             .background(true)
+            .sparse(true)
         ),
         IndexModel(
           ascending("empRef"),
           IndexOptions()
             .name("empRef-Index")
             .background(true)
+            .sparse(true)
         ),
         IndexModel(
           ascending("mtdItId"),
           IndexOptions()
             .name("mtdItId-Index")
             .background(true)
+            .sparse(true)
         ),
         IndexModel(
           ascending("ctUtr"),
           IndexOptions()
             .name("ctUtr-Index")
             .background(true)
+            .sparse(true)
         ),
         IndexModel(
           ascending("lisaManRefNum"),
           IndexOptions()
             .name("lisaManRefNum-Index")
             .background(true)
+            .sparse(true)
         ),
         IndexModel(
           ascending("eoriNumber"),
           IndexOptions()
             .name("eoriNumber-Index")
             .background(true)
+            .sparse(true)
         ),
         IndexModel(
           ascending("arn"),
           IndexOptions()
             .name("arn-Index")
             .background(true)
+            .sparse(true)
         ),
         IndexModel(
           ascending("groupIdentifier"),
@@ -113,6 +122,7 @@ class TestUserRepository @Inject() (mongo: MongoComponent, val clock: Clock)(imp
           IndexOptions()
             .name("crn-Index")
             .background(true)
+            .sparse(true)
         ),
         IndexModel(
           ascending("exciseNumber"),
