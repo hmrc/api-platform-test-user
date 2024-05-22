@@ -119,19 +119,33 @@ case class TestOrganisation(
   ) extends TestUser {
   val affinityGroup = "Organisation"
 
+  // I O
   lazy val saUtr                                   = props.get(TestUserPropKey.saUtr)
+  // I O
   lazy val nino                                    = props.get(TestUserPropKey.nino)
+  // I O
   lazy val mtdItId                                 = props.get(TestUserPropKey.mtdItId)
+  // O
   lazy val empRef                                  = props.get(TestUserPropKey.empRef)
+  // O
   lazy val ctUtr                                   = props.get(TestUserPropKey.ctUtr)
+  // I O
   lazy val vrn                                     = props.get(TestUserPropKey.vrn)
+  // O
   lazy val lisaManRefNum                           = props.get(TestUserPropKey.lisaManRefNum)
+  // O
   lazy val secureElectronicTransferReferenceNumber = props.get(TestUserPropKey.secureElectronicTransferReferenceNumber)
+  // O
   lazy val pensionSchemeAdministratorIdentifier    = props.get(TestUserPropKey.pensionSchemeAdministratorIdentifier)
+  // I O
   lazy val eoriNumber                              = props.get(TestUserPropKey.eoriNumber)
+  // O
   lazy val exciseNumber                            = props.get(TestUserPropKey.exciseNumber)
+  // I O A
   lazy val groupIdentifier                         = props.get(TestUserPropKey.groupIdentifier)
+  // O
   lazy val crn                                     = props.get(TestUserPropKey.crn)
+  // O
   lazy val taxpayerType                            = props.get(TestUserPropKey.taxpayerType)
 }
 

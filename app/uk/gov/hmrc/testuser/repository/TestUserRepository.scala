@@ -148,6 +148,13 @@ class TestUserRepository @Inject() (mongo: MongoComponent, val clock: Clock)(imp
             .name("agentCode-Index")
             .background(true)
             .sparse(true)
+        ),
+        IndexModel(
+          ascending("lastAccess"),
+          IndexOptions()
+            .name("lastAccess-Index")
+            .background(true)
+            .sparse(true)
         )
       ),
       replaceIndexes = true
