@@ -44,6 +44,15 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       .asDateTime().getValue()
   }
 
+  def getCreatedOnFor(query: Bson): Long = {
+    await(mongoDatabase.getCollection("testUser").find[Document](query).toFuture())
+      .flatMap(_.toList)
+      .filter(_._1 == "createdOn")
+      .head
+      ._2
+      .asDateTime().getValue()
+  }
+
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   val userRepository                = new TestUserRepository(mongoComponent, Clock.systemUTC())
 
@@ -89,6 +98,16 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       await(repository.collection.find(Filters.equal("nino", testIndividual.nino.get)).headOption()) shouldBe Some(testIndividual)
     }
 
+    "create a test individual sets lastAccess and CreatedOn" in new GeneratedTestIndividual {
+      await(repository.createUser(testIndividual))
+
+      val query   = Filters.equal("userId", testIndividual.userId)
+      val timeLA1 = getLastAccessFor(query)
+      val timeCO1 = getCreatedOnFor(query)
+
+      timeLA1 shouldBe timeCO1
+    }
+
     "create a test organisation in the repository" in new GeneratedTestOrganisation {
 
       val result = await(repository.createUser(testOrganisation))
@@ -126,20 +145,22 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       result shouldBe Some(testOrganisation)
     }
 
-    "update the lastAccess field" in new GeneratedTestIndividual {
+    "update the lastAccess but not createdOn" in new GeneratedTestIndividual {
       val query = Filters.equal("userId", testIndividual.userId)
 
       await(repository.createUser(testIndividual))
-      val time1 = getLastAccessFor(query)
+      val timeLA1 = getLastAccessFor(query)
+      val timeCO1 = getCreatedOnFor(query)
 
       Thread.sleep(100)
 
       // Fetch causes update
       await(repository.fetchByUserId(testIndividual.userId))
-      val time2 = getLastAccessFor(query)
+      val timeLA2 = getLastAccessFor(query)
+      val timeCO2 = getCreatedOnFor(query)
 
-      time1 should be < time2
-
+      timeLA1 should be < timeLA2
+      timeCO1 shouldBe timeCO2
     }
 
     "return None when no user matches the userId" in {

@@ -173,15 +173,21 @@ class TestUserRepository @Inject() (mongo: MongoComponent, val clock: Clock)(imp
   def createUser[T <: TestUser](testUser: T): Future[T] = {
     collection.insertOne(testUser)
       .toFuture()
-      .flatMap { inserted =>
-        val byId = equal("_id", inserted.getInsertedId())
-        fetchMarkAccess(byId)
+      .flatMap { _ =>
+        val byId = equal("userId", testUser.userId)
+        markCreated(byId)
       }
       .map(_ => testUser)
   }
 
+  private def markCreated(query: Bson): Future[Option[TestUser]] = {
+    val timestamp  = instant()
+    val aggregates = Seq(Aggregates.set(Field("lastAccess", timestamp), Field("createdOn", timestamp)))
+    collection.findOneAndUpdate(query, aggregates).headOption()
+  }
+
   private def fetchMarkAccess(query: Bson): Future[Option[TestUser]] = {
-    val aggregates = Seq(Aggregates.set(Field("lastAccess", now())))
+    val aggregates = Seq(Aggregates.set(Field("lastAccess", instant())))
     collection.findOneAndUpdate(query, aggregates).headOption()
   }
 
