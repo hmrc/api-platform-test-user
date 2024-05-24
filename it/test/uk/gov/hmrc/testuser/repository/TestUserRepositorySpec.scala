@@ -53,8 +53,10 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       .asDateTime().getValue()
   }
 
+  val config = TestUserRepository.Config("second", 1)
+
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-  val userRepository                = new TestUserRepository(mongoComponent, Clock.systemUTC())
+  val userRepository                = new TestUserRepository(config, mongoComponent, Clock.systemUTC())
 
   trait GeneratedTestIndividual extends GeneratorProvider {
     val repository = userRepository
@@ -152,7 +154,7 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       val timeLA1 = getLastAccessFor(query)
       val timeCO1 = getCreatedOnFor(query)
 
-      Thread.sleep(100)
+      Thread.sleep(2000)
 
       // Fetch causes update
       await(repository.fetchByUserId(testIndividual.userId))
