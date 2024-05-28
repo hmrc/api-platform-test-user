@@ -53,17 +53,19 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       .asDateTime().getValue()
   }
 
+  val config = TestUserRepository.Config("second", 1)
+
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-  val userRepository                = new TestUserRepository(mongoComponent, Clock.systemUTC())
+  val userRepository                = new TestUserRepository(config, mongoComponent, Clock.systemUTC())
 
   trait GeneratedTestIndividual extends GeneratorProvider {
-    val repository = userRepository
+    lazy val repository = userRepository
 
     val testIndividual = await(generator.generateTestIndividual(Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, MTD_VAT, CUSTOMS_SERVICES, CTC_LEGACY, CTC), None, None))
   }
 
   trait GeneratedTestOrganisation extends GeneratorProvider {
-    val repository = userRepository
+    lazy val repository = userRepository
 
     val testOrganisation =
       await(
@@ -152,7 +154,7 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       val timeLA1 = getLastAccessFor(query)
       val timeCO1 = getCreatedOnFor(query)
 
-      Thread.sleep(100)
+      Thread.sleep(2000)
 
       // Fetch causes update
       await(repository.fetchByUserId(testIndividual.userId))
@@ -160,6 +162,24 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       val timeCO2 = getCreatedOnFor(query)
 
       timeLA1 should be < timeLA2
+      timeCO1 shouldBe timeCO2
+    }
+
+    "do not update the lastAccess when read within significant time period" in new GeneratedTestIndividual {
+      val query = Filters.equal("userId", testIndividual.userId)
+
+      await(repository.createUser(testIndividual))
+      val timeLA1 = getLastAccessFor(query)
+      val timeCO1 = getCreatedOnFor(query)
+
+      Thread.sleep(20)
+
+      // Fetch causes update
+      await(repository.fetchByUserId(testIndividual.userId))
+      val timeLA2 = getLastAccessFor(query)
+      val timeCO2 = getCreatedOnFor(query)
+
+      timeLA1 shouldBe timeLA2
       timeCO1 shouldBe timeCO2
     }
 

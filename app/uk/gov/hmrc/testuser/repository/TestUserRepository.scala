@@ -21,7 +21,8 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import org.bson.conversions.Bson
-import org.mongodb.scala.model.Filters.{and, equal}
+import org.mongodb.scala.bson
+import org.mongodb.scala.model.Filters._
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{Aggregates, Field, IndexModel, IndexOptions}
 
@@ -33,8 +34,12 @@ import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 
 import uk.gov.hmrc.testuser.models._
 
+object TestUserRepository {
+  case class Config(unit: String, amount: Int)
+}
+
 @Singleton
-class TestUserRepository @Inject() (mongo: MongoComponent, val clock: Clock)(implicit ec: ExecutionContext)
+class TestUserRepository @Inject() (config: TestUserRepository.Config, mongo: MongoComponent, val clock: Clock)(implicit ec: ExecutionContext)
     extends PlayMongoRepository[TestUser](
       collectionName = "testUser",
       mongoComponent = mongo,
@@ -170,6 +175,37 @@ class TestUserRepository @Inject() (mongo: MongoComponent, val clock: Clock)(imp
       replaceIndexes = true
     ) with ClockNow {
 
+  //
+  // Update the lastAccess if and only if it is $amount x $unit time after the current value
+  // in other words - only update it when it has changed significantly.
+  private val json = s"""{
+                        |"$$set": { 
+                        |   "lastAccess": {
+                        |      "$$cond": {
+                        |        "if": { 
+                        |            "$$lte": [
+                        |                {
+                        |                  "$$dateAdd": {
+                        |                      "startDate": "$$lastAccess",
+                        |                      "unit": "${config.unit}",
+                        |                      "amount": ${config.amount}
+                        |                  }
+                        |                },
+                        |                "$$$$NOW"  
+                        |            ]
+                        |        },
+                        |        "then": 
+                        |            "$$$$NOW"
+                        |        ,
+                        |        "else":
+                        |            "$$lastAccess"
+                        |    }
+                        |  }
+                        |}
+                        |}""".stripMargin
+
+  private val aggregates = Seq(bson.BsonDocument(json))
+
   def createUser[T <: TestUser](testUser: T): Future[T] = {
     collection.insertOne(testUser)
       .toFuture()
@@ -187,7 +223,6 @@ class TestUserRepository @Inject() (mongo: MongoComponent, val clock: Clock)(imp
   }
 
   private def fetchMarkAccess(query: Bson): Future[Option[TestUser]] = {
-    val aggregates = Seq(Aggregates.set(Field("lastAccess", instant())))
     collection.findOneAndUpdate(query, aggregates).headOption()
   }
 
