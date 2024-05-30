@@ -151,7 +151,7 @@ object GovernmentGatewayLogin {
         case CTC_LEGACY                  => individual.eoriNumber map { eoriNumber => Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber))) }
         case CTC                         => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case IMPORT_CONTROL_SYSTEM       => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber))) }
-        case TAX_FREE_CHILDCARE_PAYMENTS => individual.nino map { nino => Enrolment("tax-free-childcare-payments", Seq(Identifier("nino", nino))) }
+        case TAX_FREE_CHILDCARE_PAYMENTS => individual.nino map { nino => Enrolment("HMRC-TFCP-ORG", Seq(Identifier("nino", nino))) }
         case _                           => None
       }
     }
