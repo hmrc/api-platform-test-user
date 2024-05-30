@@ -14,10 +14,10 @@ Unit and integration tests can be run with the following bash script:
 
     ./run_all_tests.sh
 
-Note that integration tests require a running version of Mongo 4.4, listening on localhost:27017. A simple way to achieve this
+Note that integration tests require a running version of Mongo 5.0, listening on localhost:27017. A simple way to achieve this
 is to run with a docker image:
 
-    docker run -p 27017:27017 --name mongo -d mongo:4.4
+    docker run -p 27017:27017 --name mongo -d mongo:5.0
 
 ### Creating a local test user
 

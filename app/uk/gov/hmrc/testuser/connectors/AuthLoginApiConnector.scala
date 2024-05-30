@@ -143,15 +143,16 @@ object GovernmentGatewayLogin {
 
     def asEnrolment(serviceName: ServiceKey) = {
       serviceName match {
-        case SELF_ASSESSMENT         => individual.saUtr map { saUtr => Enrolment("IR-SA", Seq(Identifier("UTR", saUtr))) }
-        case MTD_INCOME_TAX          => individual.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId))) }
-        case CUSTOMS_SERVICES        => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
-        case GOODS_VEHICLE_MOVEMENTS => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
-        case MTD_VAT                 => individual.vrn map { vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn))) }
-        case CTC_LEGACY              => individual.eoriNumber map { eoriNumber => Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber))) }
-        case CTC                     => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
-        case IMPORT_CONTROL_SYSTEM   => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber))) }
-        case _                       => None
+        case SELF_ASSESSMENT             => individual.saUtr map { saUtr => Enrolment("IR-SA", Seq(Identifier("UTR", saUtr))) }
+        case MTD_INCOME_TAX              => individual.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId))) }
+        case CUSTOMS_SERVICES            => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
+        case GOODS_VEHICLE_MOVEMENTS     => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
+        case MTD_VAT                     => individual.vrn map { vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn))) }
+        case CTC_LEGACY                  => individual.eoriNumber map { eoriNumber => Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber))) }
+        case CTC                         => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
+        case IMPORT_CONTROL_SYSTEM       => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber))) }
+        case TAX_FREE_CHILDCARE_PAYMENTS => individual.nino map { nino => Enrolment("tax-free-childcare-payments", Seq(Identifier("nino", nino))) }
+        case _                           => None
       }
     }
 

@@ -23,44 +23,46 @@ sealed trait ServiceKey {
 }
 
 object ServiceKey {
-  case object NATIONAL_INSURANCE         extends ServiceKey
-  case object SELF_ASSESSMENT            extends ServiceKey
-  case object CORPORATION_TAX            extends ServiceKey
-  case object PAYE_FOR_EMPLOYERS         extends ServiceKey
-  case object SUBMIT_VAT_RETURNS         extends ServiceKey
-  case object MTD_VAT                    extends ServiceKey
-  case object MTD_INCOME_TAX             extends ServiceKey
-  case object AGENT_SERVICES             extends ServiceKey
-  case object LISA                       extends ServiceKey
-  case object SECURE_ELECTRONIC_TRANSFER extends ServiceKey
-  case object RELIEF_AT_SOURCE           extends ServiceKey
-  case object CUSTOMS_SERVICES           extends ServiceKey
-  case object GOODS_VEHICLE_MOVEMENTS    extends ServiceKey
-  case object IMPORT_CONTROL_SYSTEM      extends ServiceKey
-  case object SAFETY_AND_SECURITY        extends ServiceKey
-  case object CTC                        extends ServiceKey
-  case object CTC_LEGACY                 extends ServiceKey
-  case object EMCS                       extends ServiceKey
+  case object NATIONAL_INSURANCE          extends ServiceKey
+  case object SELF_ASSESSMENT             extends ServiceKey
+  case object CORPORATION_TAX             extends ServiceKey
+  case object PAYE_FOR_EMPLOYERS          extends ServiceKey
+  case object SUBMIT_VAT_RETURNS          extends ServiceKey
+  case object MTD_VAT                     extends ServiceKey
+  case object MTD_INCOME_TAX              extends ServiceKey
+  case object AGENT_SERVICES              extends ServiceKey
+  case object LISA                        extends ServiceKey
+  case object SECURE_ELECTRONIC_TRANSFER  extends ServiceKey
+  case object RELIEF_AT_SOURCE            extends ServiceKey
+  case object CUSTOMS_SERVICES            extends ServiceKey
+  case object GOODS_VEHICLE_MOVEMENTS     extends ServiceKey
+  case object IMPORT_CONTROL_SYSTEM       extends ServiceKey
+  case object SAFETY_AND_SECURITY         extends ServiceKey
+  case object CTC                         extends ServiceKey
+  case object CTC_LEGACY                  extends ServiceKey
+  case object EMCS                        extends ServiceKey
+  case object TAX_FREE_CHILDCARE_PAYMENTS extends ServiceKey
 
   private def asText(serviceKey: ServiceKey): String = serviceKey match {
-    case NATIONAL_INSURANCE         => "national-insurance"
-    case SELF_ASSESSMENT            => "self-assessment"
-    case CORPORATION_TAX            => "corporation-tax"
-    case PAYE_FOR_EMPLOYERS         => "paye-for-employers"
-    case SUBMIT_VAT_RETURNS         => "submit-vat-returns"
-    case MTD_VAT                    => "mtd-vat"
-    case MTD_INCOME_TAX             => "mtd-income-tax"
-    case AGENT_SERVICES             => "agent-services"
-    case LISA                       => "lisa"
-    case SECURE_ELECTRONIC_TRANSFER => "secure-electronic-transfer"
-    case RELIEF_AT_SOURCE           => "relief-at-source"
-    case CUSTOMS_SERVICES           => "customs-services"
-    case GOODS_VEHICLE_MOVEMENTS    => "goods-vehicle-movements"
-    case IMPORT_CONTROL_SYSTEM      => "import-control-system"
-    case SAFETY_AND_SECURITY        => "safety-and-security"
-    case CTC                        => "common-transit-convention-traders"
-    case CTC_LEGACY                 => "common-transit-convention-traders-legacy"
-    case EMCS                       => "excise-movement-control-system"
+    case NATIONAL_INSURANCE          => "national-insurance"
+    case SELF_ASSESSMENT             => "self-assessment"
+    case CORPORATION_TAX             => "corporation-tax"
+    case PAYE_FOR_EMPLOYERS          => "paye-for-employers"
+    case SUBMIT_VAT_RETURNS          => "submit-vat-returns"
+    case MTD_VAT                     => "mtd-vat"
+    case MTD_INCOME_TAX              => "mtd-income-tax"
+    case AGENT_SERVICES              => "agent-services"
+    case LISA                        => "lisa"
+    case SECURE_ELECTRONIC_TRANSFER  => "secure-electronic-transfer"
+    case RELIEF_AT_SOURCE            => "relief-at-source"
+    case CUSTOMS_SERVICES            => "customs-services"
+    case GOODS_VEHICLE_MOVEMENTS     => "goods-vehicle-movements"
+    case IMPORT_CONTROL_SYSTEM       => "import-control-system"
+    case SAFETY_AND_SECURITY         => "safety-and-security"
+    case CTC                         => "common-transit-convention-traders"
+    case CTC_LEGACY                  => "common-transit-convention-traders-legacy"
+    case EMCS                        => "excise-movement-control-system"
+    case TAX_FREE_CHILDCARE_PAYMENTS => "tax-free-childcare-payments"
   }
 
   val values: Set[ServiceKey] = Set(
@@ -81,7 +83,8 @@ object ServiceKey {
     SAFETY_AND_SECURITY,
     CTC,
     CTC_LEGACY,
-    EMCS
+    EMCS,
+    TAX_FREE_CHILDCARE_PAYMENTS
   )
 
   def apply(text: String): Option[ServiceKey] = ServiceKey.values.find(_.toString == text)
