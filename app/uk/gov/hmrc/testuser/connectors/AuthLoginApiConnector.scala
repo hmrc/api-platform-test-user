@@ -21,10 +21,12 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.http.HeaderNames.{AUTHORIZATION, LOCATION}
+import play.api.libs.json.Json
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import uk.gov.hmrc.testuser.models.JsonFormatters._
@@ -32,29 +34,33 @@ import uk.gov.hmrc.testuser.models.ServiceKey._
 import uk.gov.hmrc.testuser.models._
 
 @Singleton
-class AuthLoginApiConnector @Inject() (httpClient: HttpClient, val configuration: Configuration, environment: Environment, config: ServicesConfig)(implicit ec: ExecutionContext) {
+class AuthLoginApiConnector @Inject() (
+    httpClient: HttpClientV2,
+    val configuration: Configuration,
+    environment: Environment,
+    config: ServicesConfig
+  )(implicit ec: ExecutionContext
+  ) {
   import config.baseUrl
 
   lazy val serviceUrl: String = baseUrl("auth-login-api")
 
   def createSession(testUser: TestUser)(implicit hc: HeaderCarrier): Future[AuthSession] = {
 
-    httpClient.POST[GovernmentGatewayLogin, Either[UpstreamErrorResponse, HttpResponse]](s"$serviceUrl/government-gateway/session/login", GovernmentGatewayLogin(testUser))(
-      implicitly,
-      implicitly,
-      hc.copy(authorization = None),
-      implicitly
-    ) map {
-      case Right(response) =>
-        (response.header(AUTHORIZATION), response.header(LOCATION)) match {
-          case (Some(authBearerToken), Some(authorityUri)) =>
-            val gatewayToken = (response.json \ "gatewayToken").as[String]
-            AuthSession(authBearerToken, authorityUri, gatewayToken)
-          case _                                           =>
-            throw new RuntimeException("Authorization and Location header must be present in response.")
-        }
-      case Left(err)       => throw err
-    }
+    httpClient.post(url"$serviceUrl/government-gateway/session/login")(hc.copy(authorization = None))
+      .withBody(Json.toJson(GovernmentGatewayLogin(testUser)))
+      .execute[Either[UpstreamErrorResponse, HttpResponse]]
+      .map {
+        case Right(response) =>
+          (response.header(AUTHORIZATION), response.header(LOCATION)) match {
+            case (Some(authBearerToken), Some(authorityUri)) =>
+              val gatewayToken = (response.json \ "gatewayToken").as[String]
+              AuthSession(authBearerToken, authorityUri, gatewayToken)
+            case _                                           =>
+              throw new RuntimeException("Authorization and Location header must be present in response.")
+          }
+        case Left(err)       => throw err
+      }
   }
 }
 

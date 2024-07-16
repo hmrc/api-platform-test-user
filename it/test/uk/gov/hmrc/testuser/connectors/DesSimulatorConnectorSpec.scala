@@ -23,7 +23,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.test.Helpers._
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
@@ -44,7 +45,7 @@ class DesSimulatorConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val underTest = new DesSimulatorConnector(
-      fakeApplication().injector.instanceOf[HttpClient],
+      fakeApplication().injector.instanceOf[HttpClientV2],
       fakeApplication().injector.instanceOf[Configuration],
       fakeApplication().injector.instanceOf[Environment],
       fakeApplication().injector.instanceOf[ServicesConfig]

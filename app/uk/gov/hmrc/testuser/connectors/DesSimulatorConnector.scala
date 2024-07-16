@@ -19,9 +19,11 @@ package uk.gov.hmrc.testuser.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
+import play.api.libs.json.Json
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import uk.gov.hmrc.testuser.models.JsonFormatters._
@@ -29,8 +31,13 @@ import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.services.ApplicationLogger
 
 @Singleton
-class DesSimulatorConnector @Inject() (httpClient: HttpClient, runModeConfiguration: Configuration, environment: Environment, config: ServicesConfig)(implicit ec: ExecutionContext)
-    extends ApplicationLogger {
+class DesSimulatorConnector @Inject() (
+    httpClient: HttpClientV2,
+    runModeConfiguration: Configuration,
+    environment: Environment,
+    config: ServicesConfig
+  )(implicit ec: ExecutionContext
+  ) extends ApplicationLogger {
 
   import config.baseUrl
 
@@ -38,23 +45,23 @@ class DesSimulatorConnector @Inject() (httpClient: HttpClient, runModeConfigurat
 
   def createIndividual(individual: TestIndividual)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
     logger.info(s"Calling des-simulator ($serviceUrl) to create individual $individual")
-    httpClient.POST[DesSimulatorTestIndividual, Either[UpstreamErrorResponse, HttpResponse]](
-      s"$serviceUrl/test-users/individuals",
-      DesSimulatorTestIndividual.from(individual)
-    ) map {
-      case Right(_)  => individual
-      case Left(err) => throw err
-    }
+    httpClient.post(url"$serviceUrl/test-users/individuals")
+      .withBody(Json.toJson(DesSimulatorTestIndividual.from(individual)))
+      .execute[Either[UpstreamErrorResponse, HttpResponse]]
+      .map {
+        case Right(_)  => individual
+        case Left(err) => throw err
+      }
   }
 
   def createOrganisation(organisation: TestOrganisation)(implicit hc: HeaderCarrier): Future[TestOrganisation] = {
     logger.info(s"Calling des-simulator ($serviceUrl) to create organisation $organisation")
-    httpClient.POST[DesSimulatorTestOrganisation, Either[UpstreamErrorResponse, HttpResponse]](
-      s"$serviceUrl/test-users/organisations",
-      DesSimulatorTestOrganisation.from(organisation)
-    ) map {
-      case Right(_)  => organisation
-      case Left(err) => throw err
-    }
+    httpClient.post(url"$serviceUrl/test-users/organisations")
+      .withBody(Json.toJson(DesSimulatorTestOrganisation.from(organisation)))
+      .execute[Either[UpstreamErrorResponse, HttpResponse]]
+      .map {
+        case Right(_)  => organisation
+        case Left(err) => throw err
+      }
   }
 }
