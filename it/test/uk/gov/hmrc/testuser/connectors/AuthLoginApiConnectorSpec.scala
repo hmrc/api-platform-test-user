@@ -25,7 +25,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.test.Helpers._
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionId, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
@@ -141,7 +142,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val underTest = new AuthLoginApiConnector(
-      app.injector.instanceOf[HttpClient],
+      app.injector.instanceOf[HttpClientV2],
       app.injector.instanceOf[Configuration],
       app.injector.instanceOf[Environment],
       app.injector.instanceOf[ServicesConfig]

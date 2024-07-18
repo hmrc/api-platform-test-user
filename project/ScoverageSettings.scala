@@ -13,7 +13,6 @@ object ScoverageSettings {
       "app.*",
       ".*Reverse.*",
       ".*Routes.*",
-      "com\\.kenshoo\\.play\\.metrics\\.*",
       "uk\\.gov\\.hmrc\\.testuser\\.MicroserviceModule",
       ".*definition.*",
       ".*BuildInfo.*",
