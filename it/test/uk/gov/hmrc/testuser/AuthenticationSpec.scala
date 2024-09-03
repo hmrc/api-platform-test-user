@@ -16,20 +16,20 @@
 
 package uk.gov.hmrc.testuser
 
-import scalaj.http.Http
+import sttp.client3.{UriContext, basicRequest}
+import sttp.model.StatusCode
 
 import play.api.http.HeaderNames
-import play.api.http.Status.{CREATED, UNAUTHORIZED}
 import play.api.libs.json.Json
 import play.api.libs.json.Json.{obj, stringify}
 
-import uk.gov.hmrc.testuser.helpers.BaseSpec
+import uk.gov.hmrc.testuser.helpers.BaseFeatureSpec
 import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import uk.gov.hmrc.testuser.models.ErrorResponse.invalidCredentialsError
 import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.{ErrorResponse, _}
 
-class AuthenticationSpec extends BaseSpec {
+class AuthenticationSpec extends BaseFeatureSpec {
 
   Feature("Authenticate a user") {
 
@@ -46,8 +46,8 @@ class AuthenticationSpec extends BaseSpec {
       val response = authenticate((individual \ "userId").as[String], (individual \ "password").as[String])
 
       Then("The response contains the auth session and the 'Individual' affinity group")
-      response.code shouldBe CREATED
-      Json.parse(response.body).as[AuthenticationResponse] shouldBe AuthenticationResponse(authSession.gatewayToken, "Individual")
+      response.code shouldBe StatusCode.Created
+      Json.parse(response.body.value).as[AuthenticationResponse] shouldBe AuthenticationResponse(authSession.gatewayToken, "Individual")
       response.headers(HeaderNames.LOCATION).mkString shouldBe authSession.authorityUri
       response.headers(HeaderNames.AUTHORIZATION).mkString shouldBe authSession.authBearerToken
     }
@@ -65,8 +65,8 @@ class AuthenticationSpec extends BaseSpec {
       val response = authenticate((organisation \ "userId").as[String], (organisation \ "password").as[String])
 
       Then("The response contains the auth session and the 'Organisation' affinity group")
-      response.code shouldBe CREATED
-      Json.parse(response.body).as[AuthenticationResponse] shouldBe AuthenticationResponse(authSession.gatewayToken, "Organisation")
+      response.code shouldBe StatusCode.Created
+      Json.parse(response.body.value).as[AuthenticationResponse] shouldBe AuthenticationResponse(authSession.gatewayToken, "Organisation")
       response.headers(HeaderNames.LOCATION).mkString shouldBe authSession.authorityUri
       response.headers(HeaderNames.AUTHORIZATION).mkString shouldBe authSession.authBearerToken
     }
@@ -84,8 +84,8 @@ class AuthenticationSpec extends BaseSpec {
       val response = authenticate((agent \ "userId").as[String], (agent \ "password").as[String])
 
       Then("The response contains the auth session and the 'Agent' affinity group")
-      response.code shouldBe CREATED
-      Json.parse(response.body).as[AuthenticationResponse] shouldBe AuthenticationResponse(authSession.gatewayToken, "Agent")
+      response.code shouldBe StatusCode.Created
+      Json.parse(response.body.value).as[AuthenticationResponse] shouldBe AuthenticationResponse(authSession.gatewayToken, "Agent")
       response.headers(HeaderNames.LOCATION).mkString shouldBe authSession.authorityUri
       response.headers(HeaderNames.AUTHORIZATION).mkString shouldBe authSession.authBearerToken
     }
@@ -96,8 +96,8 @@ class AuthenticationSpec extends BaseSpec {
       val response = authenticate("unknown_user", "password")
 
       Then("The response says that the credentials are invalid")
-      response.code shouldBe UNAUTHORIZED
-      Json.parse(response.body).as[ErrorResponse] shouldBe invalidCredentialsError
+      response.code shouldBe StatusCode.Unauthorized
+      Json.parse(response.body.left.value).as[ErrorResponse] shouldBe invalidCredentialsError
     }
 
     Scenario("Invalid password") {
@@ -109,34 +109,40 @@ class AuthenticationSpec extends BaseSpec {
       val response = authenticate((individualCreated \ "userId").as[String], "wrongPassword")
 
       Then("The response says that the credentials are invalid")
-      response.code shouldBe UNAUTHORIZED
-      Json.parse(response.body).as[ErrorResponse] shouldBe invalidCredentialsError
+      response.code shouldBe StatusCode.Unauthorized
+      Json.parse(response.body.left.value).as[ErrorResponse] shouldBe invalidCredentialsError
     }
   }
 
   private def createIndividual() = {
     val individualCreatedResponse = createUser("individuals", Seq("national-insurance"))
-    Json.parse(individualCreatedResponse.body)
+    Json.parse(individualCreatedResponse.body.value)
   }
 
   private def createOrganisation() = {
     val organisationCreatedResponse = createUser("organisations", Seq("national-insurance", "mtd-income-tax"))
-    Json.parse(organisationCreatedResponse.body)
+    Json.parse(organisationCreatedResponse.body.value)
   }
 
   private def createAgent() = {
     val agentCreatedResponse = createUser("agents", Seq("agent-services"))
-    Json.parse(agentCreatedResponse.body)
+    Json.parse(agentCreatedResponse.body.value)
   }
 
   private def createUser(endpoint: String, serviceNames: Seq[String]) =
-    Http(s"$serviceUrl/$endpoint")
-      .postData(s"""{ "serviceNames": [${serviceNames.mkString("\"", "\",\"", "\"")}] }""")
-      .header(HeaderNames.CONTENT_TYPE, "application/json").asString
+    http(
+      basicRequest
+        .post(uri"$serviceUrl/$endpoint")
+        .body(s"""{ "serviceNames": [${serviceNames.mkString("\"", "\",\"", "\"")}] }""")
+        .contentType("application/json")
+    )
 
   private def authenticate(userId: String, password: String) = {
-    Http(s"$serviceUrl/session")
-      .postData(stringify(obj("username" -> userId, "password" -> password)))
-      .header(HeaderNames.CONTENT_TYPE, "application/json").asString
+    http(
+      basicRequest
+        .post(uri"$serviceUrl/session")
+        .body(stringify(obj("username" -> userId, "password" -> password)))
+        .contentType("application/json")
+    )
   }
 }

@@ -18,18 +18,17 @@ package uk.gov.hmrc.testuser
 
 import scala.concurrent.Await._
 
-import org.apache.http.HttpStatus._
 import org.mindrot.jbcrypt.{BCrypt => BCryptUtils}
-import scalaj.http.Http
+import sttp.client3.{UriContext, basicRequest}
+import sttp.model.StatusCode
 
-import play.api.http.HeaderNames
 import play.api.libs.json._
 
-import uk.gov.hmrc.testuser.helpers.BaseSpec
+import uk.gov.hmrc.testuser.helpers.BaseFeatureSpec
 import uk.gov.hmrc.testuser.models.ServiceKey._
 import uk.gov.hmrc.testuser.models._
 
-class TestUserISpec extends BaseSpec {
+class TestUserISpec extends BaseFeatureSpec {
   import TestCreatedResponseReads._
 
   Feature("Create a test user") {
@@ -40,8 +39,8 @@ class TestUserISpec extends BaseSpec {
       val createdResponse = createIndividual(Seq("national-insurance"))
 
       Then("The response contains the details of the individual created")
-      createdResponse.code shouldBe SC_CREATED
-      val individualCreated = Json.parse(createdResponse.body).as[TestIndividualCreatedResponse]
+      createdResponse.code shouldBe StatusCode.Created
+      val individualCreated = Json.parse(createdResponse.body.value).as[TestIndividualCreatedResponse]
 
       And("The individual is stored in Mongo with hashed password")
       val individualFromMongo       = result(mongoRepository.fetchByUserId(individualCreated.userId), timeout).get.asInstanceOf[TestIndividual]
@@ -59,8 +58,8 @@ class TestUserISpec extends BaseSpec {
       val createdResponse = createOrganisation(Seq("national-insurance", "mtd-income-tax", "lisa"))
 
       Then("The response contains the details of the organisation created")
-      createdResponse.code shouldBe SC_CREATED
-      val organisationCreated = Json.parse(createdResponse.body).as[TestOrganisationCreatedResponse]
+      createdResponse.code shouldBe StatusCode.Created
+      val organisationCreated = Json.parse(createdResponse.body.value).as[TestOrganisationCreatedResponse]
 
       And("The organisation is stored in Mongo with hashed password")
       val organisationFromMongo = result(mongoRepository.fetchByUserId(organisationCreated.userId), timeout).get.asInstanceOf[TestOrganisation]
@@ -79,8 +78,8 @@ class TestUserISpec extends BaseSpec {
       val createdResponse = createAgent(Seq("agent-services"))
 
       Then("The response contains the details of the agent created")
-      createdResponse.code shouldBe SC_CREATED
-      val agentCreated = Json.parse(createdResponse.body).as[TestAgentCreatedResponse]
+      createdResponse.code shouldBe StatusCode.Created
+      val agentCreated = Json.parse(createdResponse.body.value).as[TestAgentCreatedResponse]
 
       And("The agent is stored in Mongo with hashed password")
       val agentFromMongo       = result(mongoRepository.fetchByUserId(agentCreated.userId), timeout).get.asInstanceOf[TestAgent]
@@ -100,9 +99,12 @@ class TestUserISpec extends BaseSpec {
   private def createAgent(serviceNames: Seq[String]) = callEndpoint("agents", serviceNames)
 
   private def callEndpoint(endpoint: String, serviceNames: Seq[String]) =
-    Http(s"$serviceUrl/$endpoint")
-      .postData(s"""{ "serviceNames": [${serviceNames.mkString("\"", "\",\"", "\"")}] }""")
-      .header(HeaderNames.CONTENT_TYPE, "application/json").asString
+    http(
+      basicRequest
+        .post(uri"$serviceUrl/$endpoint")
+        .body(s"""{ "serviceNames": [${serviceNames.mkString("\"", "\",\"", "\"")}] }""")
+        .contentType("application/json")
+    )
 
   private def validatePassword(password: String, hashedPassword: String) = BCryptUtils.checkpw(password, hashedPassword)
 }

@@ -19,15 +19,14 @@ package uk.gov.hmrc.testuser
 import java.net.URLEncoder
 import java.time.format.DateTimeFormatter
 
-import scalaj.http.Http
+import sttp.client3.{UriContext, basicRequest}
 
-import play.api.http.HeaderNames
 import play.api.libs.json._
 
-import uk.gov.hmrc.testuser.helpers.BaseSpec
+import uk.gov.hmrc.testuser.helpers.BaseFeatureSpec
 import uk.gov.hmrc.testuser.models._
 
-class FetchUserSpec extends BaseSpec {
+class FetchUserSpec extends BaseFeatureSpec {
   import TestCreatedResponseReads._
 
   Feature("Fetch a test user") {
@@ -38,10 +37,13 @@ class FetchUserSpec extends BaseSpec {
       val individual = createIndividual("national-insurance", "self-assessment")
 
       When("I fetch the individual by its NINO")
-      val response = Http(s"$serviceUrl/individuals/nino/${individual.props("nino")}").asString
+      val response = http(
+        basicRequest
+          .get(uri"$serviceUrl/individuals/nino/${individual.props("nino")}")
+      )
 
       Then("The individual is returned")
-      Json.parse(response.body) shouldBe Json.parse(
+      Json.parse(response.body.value) shouldBe Json.parse(
         s"""{
            |   "userId": "${individual.userId}",
            |   "userFullName": "${individual.userFullName}",
@@ -71,10 +73,13 @@ class FetchUserSpec extends BaseSpec {
       val shortNino  = NinoNoSuffix(individual.props("nino").substring(0, 8))
 
       When("I fetch the individual by its SHORTNINO")
-      val response = Http(s"$serviceUrl/individuals/shortnino/$shortNino").asString
+      val response = http(
+        basicRequest
+          .get(uri"$serviceUrl/individuals/shortnino/$shortNino")
+      )
 
       Then("The individual is returned")
-      Json.parse(response.body) shouldBe Json.parse(
+      Json.parse(response.body.value) shouldBe Json.parse(
         s"""{
            |   "userId": "${individual.userId}",
            |   "userFullName": "${individual.userFullName}",
@@ -94,10 +99,13 @@ class FetchUserSpec extends BaseSpec {
       val individual = createIndividual("national-insurance", "self-assessment")
 
       When("I fetch the individual by its SAUTR")
-      val response = Http(s"$serviceUrl/individuals/sautr/${individual.props("saUtr")}").asString
+      val response = http(
+        basicRequest
+          .get(uri"$serviceUrl/individuals/sautr/${individual.props("saUtr")}")
+      )
 
       Then("The individual is returned")
-      Json.parse(response.body) shouldBe Json.parse(
+      Json.parse(response.body.value) shouldBe Json.parse(
         s"""{
            |   "userId": "${individual.userId}",
            |   "userFullName": "${individual.userFullName}",
@@ -117,10 +125,13 @@ class FetchUserSpec extends BaseSpec {
       val individual = createIndividual("mtd-vat")
 
       When("I fetch the individual by its VRN")
-      val response = Http(s"$serviceUrl/individuals/vrn/${individual.props("vrn")}").asString
+      val response = http(
+        basicRequest
+          .get(uri"$serviceUrl/individuals/vrn/${individual.props("vrn")}")
+      )
 
       Then("The individual is returned along with VAT Registration Date")
-      Json.parse(response.body) shouldBe Json.parse(
+      Json.parse(response.body.value) shouldBe Json.parse(
         s"""{
            |   "userId": "${individual.userId}",
            |   "userFullName": "${individual.userFullName}",
@@ -141,10 +152,13 @@ class FetchUserSpec extends BaseSpec {
 
       When("I fetch the organisation by its EMPREF")
       val encodedEmpRef = URLEncoder.encode(organisation.props("empRef"), "UTF-8")
-      val response      = Http(s"$serviceUrl/organisations/empref/${encodedEmpRef}").asString
+      val response      = http(
+        basicRequest
+          .get(uri"$serviceUrl/organisations/empref/${encodedEmpRef}")
+      )
 
       Then("The organisation is returned")
-      Json.parse(response.body) shouldBe Json.parse(
+      Json.parse(response.body.value) shouldBe Json.parse(
         s"""{
            |   "userId": "${organisation.userId}",
            |   "userFullName": "${organisation.userFullName}",
@@ -180,10 +194,13 @@ class FetchUserSpec extends BaseSpec {
       val organisation = createOrganisation("mtd-vat")
 
       When("I fetch the organisation by its VRN")
-      val response = Http(s"$serviceUrl/organisations/vrn/${organisation.props("vrn")}").asString
+      val response = http(
+        basicRequest
+          .get(uri"$serviceUrl/organisations/vrn/${organisation.props("vrn")}")
+      )
 
       Then("The organisation is returned along with VAT Registration Date")
-      Json.parse(response.body) shouldBe Json.parse(
+      Json.parse(response.body.value) shouldBe Json.parse(
         s"""{
            |   "userId": "${organisation.userId}",
            |   "userFullName": "${organisation.userFullName}",
@@ -216,17 +233,23 @@ class FetchUserSpec extends BaseSpec {
   }
 
   private def createIndividual(services: String*): TestIndividualCreatedResponse = {
-    val createdResponse = Http(s"$serviceUrl/individuals")
-      .postData(s"""{ "serviceNames": [${services.map(s => s""" "$s" """).mkString(",")}] }""")
-      .header(HeaderNames.CONTENT_TYPE, "application/json").asString
-    val json            = Json.parse(createdResponse.body)
+    val createdResponse = http(
+      basicRequest
+        .post(uri"$serviceUrl/individuals")
+        .body(s"""{ "serviceNames": [${services.map(s => s""" "$s" """).mkString(",")}] }""")
+        .contentType("application/json")
+    )
+    val json            = Json.parse(createdResponse.body.value)
     json.as[TestIndividualCreatedResponse]
   }
 
   private def createOrganisation(services: String*): TestOrganisationCreatedResponse = {
-    val createdResponse = Http(s"$serviceUrl/organisations")
-      .postData(s"""{ "serviceNames": [${services.map(s => s""" "$s" """).mkString(",")}] }""")
-      .header(HeaderNames.CONTENT_TYPE, "application/json").asString
-    Json.parse(createdResponse.body).as[TestOrganisationCreatedResponse]
+    val createdResponse = http(
+      basicRequest
+        .post(uri"$serviceUrl/organisations")
+        .body(s"""{ "serviceNames": [${services.map(s => s""" "$s" """).mkString(",")}] }""")
+        .contentType("application/json")
+    )
+    Json.parse(createdResponse.body.value).as[TestOrganisationCreatedResponse]
   }
 }
