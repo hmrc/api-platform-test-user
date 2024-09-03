@@ -18,11 +18,12 @@ object AppDependencies {
   )
 
   lazy val test: Seq[ModuleID] = Seq(
-    "uk.gov.hmrc"           %% "bootstrap-test-play-30"           % bootstrapVersion,
-    "uk.gov.hmrc.mongo"     %% "hmrc-mongo-test-play-30"          % mongoVersion,
-    "uk.gov.hmrc"           %% "api-platform-test-common-domain"  % commonDomainVersion,
-    "org.scalatestplus"     %% "scalacheck-1-15"                  % "3.2.11.0",
-    "org.pegdown"            % "pegdown"                          % "1.6.0",
-    "org.scalaj"            %% "scalaj-http"                      % "2.4.2"
+    "uk.gov.hmrc"                   %% "bootstrap-test-play-30"           % bootstrapVersion,
+    "uk.gov.hmrc.mongo"             %% "hmrc-mongo-test-play-30"          % mongoVersion,
+    "uk.gov.hmrc"                   %% "api-platform-test-common-domain"  % commonDomainVersion,
+    "org.scalatestplus"             %% "scalacheck-1-15"                  % "3.2.11.0",
+    "org.pegdown"                    % "pegdown"                          % "1.6.0",
+    "com.softwaremill.sttp.client3" %% "core"                             % "3.9.8"
+
   ).map(m => m % "test")
 }

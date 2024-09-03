@@ -25,8 +25,9 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, GivenWhenThen}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, EitherValues, GivenWhenThen}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import sttp.client3.{Request, Response, SimpleHttpClient}
 
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -34,8 +35,21 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
-trait BaseSpec extends AnyFeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with GuiceOneServerPerSuite
+trait BaseFeatureSpec
+    extends AnyFeatureSpec
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach
+    with Matchers
+    with GuiceOneServerPerSuite
+    with EitherValues
     with GivenWhenThen {
+
+  def http(request: => Request[Either[String, String], Any]): Response[Either[String, String]] = {
+    val httpClient = SimpleHttpClient()
+    val response   = httpClient.send(request.followRedirects(false))
+    httpClient.close()
+    response
+  }
 
   override def fakeApplication(): Application = GuiceApplicationBuilder().configure(
     "auditing.enabled"                          -> false,
