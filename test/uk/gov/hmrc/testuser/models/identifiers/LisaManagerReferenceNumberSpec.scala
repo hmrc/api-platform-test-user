@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.testuser.models.identifiers
 
-import uk.gov.hmrc.testuser.common.utils.HmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
+
 import uk.gov.hmrc.testuser.models.LisaManagerReferenceNumber
 
 class LisaManagerReferenceNumberSpec extends HmrcSpec {
