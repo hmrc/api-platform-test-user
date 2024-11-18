@@ -98,6 +98,6 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
   }
 
   "Services" should "get size equal to all services when length called" in {
-    Services.all.length shouldBe 18
+    Services.all.length shouldBe 19
   }
 }

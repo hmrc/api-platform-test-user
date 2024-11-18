@@ -42,6 +42,7 @@ object ServiceKey {
   case object CTC_LEGACY                  extends ServiceKey
   case object EMCS                        extends ServiceKey
   case object TAX_FREE_CHILDCARE_PAYMENTS extends ServiceKey
+  case object MA                          extends ServiceKey
 
   private def asText(serviceKey: ServiceKey): String = serviceKey match {
     case NATIONAL_INSURANCE          => "national-insurance"
@@ -63,6 +64,7 @@ object ServiceKey {
     case CTC_LEGACY                  => "common-transit-convention-traders-legacy"
     case EMCS                        => "excise-movement-control-system"
     case TAX_FREE_CHILDCARE_PAYMENTS => "tax-free-childcare-payments"
+    case MA                          => "modernisation-of-authorisations"
   }
 
   val values: Set[ServiceKey] = Set(
@@ -84,7 +86,8 @@ object ServiceKey {
     CTC,
     CTC_LEGACY,
     EMCS,
-    TAX_FREE_CHILDCARE_PAYMENTS
+    TAX_FREE_CHILDCARE_PAYMENTS,
+    MA
   )
 
   def apply(text: String): Option[ServiceKey] = ServiceKey.values.find(_.toString == text)
