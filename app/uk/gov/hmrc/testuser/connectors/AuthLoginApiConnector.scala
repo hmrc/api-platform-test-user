@@ -207,6 +207,7 @@ object GovernmentGatewayLogin {
           }
         case SAFETY_AND_SECURITY        => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-SS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case IMPORT_CONTROL_SYSTEM      => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber))) }
+        case MA                         => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-MA-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case _                          => None
       }
     }
