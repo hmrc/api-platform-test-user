@@ -119,7 +119,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       CTC_LEGACY,
       CTC,
       EMCS,
-      MA
+      MODERNISATION_OF_AUTHORISATIONS
     ),
     props = orgProps
   )
