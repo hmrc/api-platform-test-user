@@ -47,6 +47,7 @@ object Services {
     Service(ServiceKey.CTC_LEGACY, "Common Transit Convention Traders Legacy", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKey.CTC, "Common Transit Convention Traders", Seq(INDIVIDUAL, ORGANISATION)),
     Service(ServiceKey.SAFETY_AND_SECURITY, "Safety and Security", Seq(ORGANISATION)),
-    Service(ServiceKey.EMCS, "Excise Movement Control System", Seq(ORGANISATION))
+    Service(ServiceKey.EMCS, "Excise Movement Control System", Seq(ORGANISATION)),
+    Service(ServiceKey.MODERNISATION_OF_AUTHORISATIONS, "Modernisation of Authorisations", Seq(ORGANISATION))
   )
 }

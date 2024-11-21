@@ -94,6 +94,11 @@
             "title": "excise-movement-control-system",
             "enum": ["excise-movement-control-system"],
             "description": "Generates an Excise Number and enrols the user for Excise Movement Control System."
+          },
+          {
+            "title": "modernisation-of-authorisations",
+            "enum": ["modernisation-of-authorisations"],
+            "description": "Generates an EORI number and enrols the user for Modernisation of Authorisations."
           }
         ]
       },

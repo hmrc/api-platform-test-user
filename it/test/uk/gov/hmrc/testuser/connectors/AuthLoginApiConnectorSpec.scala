@@ -118,7 +118,8 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       SAFETY_AND_SECURITY,
       CTC_LEGACY,
       CTC,
-      EMCS
+      EMCS,
+      MODERNISATION_OF_AUTHORISATIONS
     ),
     props = orgProps
   )
@@ -443,6 +444,15 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
            |       {
            |         "key":"ExciseNumber",
            |         "value":"${testOrganisation.exciseNumber.get}"
+           |       }]
+           |     },
+           |     {
+           |       "key": "HMRC-MA-ORG",
+           |       "state": "Activated",
+           |       "identifiers": [
+           |       {
+           |         "key":"EORINumber",
+           |         "value":"${testOrganisation.eoriNumber.get}"
            |       }]
            |     }
            |   ],
