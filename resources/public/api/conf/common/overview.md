@@ -16,4 +16,8 @@ With this API you can create a wide range of test users, including individuals, 
 You can also use our [create a test user service](/api-test-user) to create test individuals or organisations with a simpler default set of enrolments.
 
 ###How long does a test user last?
-Test users and other test data are no longer cleared down every two weeks. 
+You can create multiple test users which will be generated in a default test state.
+
+Test users can be reused, so we recommend checking if you have any unused test users before creating a new one.
+
+Test users that have not been tested against within a 3-month period will be automatically deleted.
