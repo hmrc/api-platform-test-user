@@ -12,7 +12,7 @@ paths:
       tags:
       - create-test-user
       summary: Create a test user which is an individual
-      description: This resource creates and returns a test user which is an individual. The caller can specify the required service enrolments in the request body. If no request body is supplied, the test user is created with no service enrolments.
+      description: This resource creates and returns a test user which is an individual. The caller can specify the required service enrolments in the request body. If no request body is supplied, the test user is created with no service enrolments.  Test users that have not been tested against within a 3-month period will be automatically deleted.
       operationId: Createatestuserwhichisanindividual
       parameters: []
       requestBody:
@@ -39,7 +39,7 @@ paths:
       tags:
       - create-test-user
       summary: Create a test user which is an organisation
-      description: This resource creates and returns a test user which is an organisation. The caller can specify the required service enrolments in the request body. If no request body is supplied, the test user is created with no service enrolments.
+      description: This resource creates and returns a test user which is an organisation. The caller can specify the required service enrolments in the request body. If no request body is supplied, the test user is created with no service enrolments.  Test users that have not been tested against within a 3-month period will be automatically deleted.
       operationId: Createatestuserwhichisanorganisation
       parameters: []
       requestBody:
@@ -66,7 +66,7 @@ paths:
       tags:
       - create-test-user
       summary: Create a test user which is an agent
-      description: This resource creates and returns a test user which is an agent. The caller can specify the required service enrolments in the request body. If no request body is supplied, the test user is created with no service enrolments.
+      description: This resource creates and returns a test user which is an agent. The caller can specify the required service enrolments in the request body. If no request body is supplied, the test user is created with no service enrolments.  Test users that have not been tested against within a 3-month period will be automatically deleted.
       operationId: Createatestuserwhichisanagent
       parameters: []
       requestBody:
