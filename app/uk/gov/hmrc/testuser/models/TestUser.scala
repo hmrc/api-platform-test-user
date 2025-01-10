@@ -339,13 +339,13 @@ case class EoriNumber(override val value: String) extends TaxIdentifier with Sim
 
 object EoriNumber extends SimpleName {
   val validGBorXIEoriFormat = "^(GB|XI)[0-9]{12,15}$"
-  val validRoWEoriFormat    = "^[A-Z]{2}[0-9]{1,15}$"
+  val validEUEoriFormat    = "^[A-Z]{2}[0-9]{1,15}$"
 
   // Because Java doesn't allow conditional regex we need to use this rather clunky mechanism
   // rather than have a single regex.
   def isValid(eoriNumber: String): Boolean = {
     if (eoriNumber.startsWith("GB") || eoriNumber.startsWith("XI")) eoriNumber.matches(validGBorXIEoriFormat)
-    else eoriNumber.matches(validRoWEoriFormat)
+    else eoriNumber.matches(validEUEoriFormat)
   }
 
   override val name = "eoriNumber"
