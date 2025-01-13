@@ -17,6 +17,7 @@
 package uk.gov.hmrc.testuser.repository
 
 import java.time.Clock
+import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -170,6 +171,7 @@ class TestUserRepository @Inject() (config: TestUserRepository.Config, mongo: Mo
             .name("lastAccess-Index")
             .background(true)
             .sparse(true)
+            .expireAfter(90, TimeUnit.DAYS)
         )
       ),
       replaceIndexes = true
