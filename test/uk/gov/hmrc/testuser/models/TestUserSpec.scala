@@ -41,6 +41,41 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
     }
   }
 
+  "EoriNumber" should "validate" in {
+    EoriNumber.isValid("GB123456789012") shouldBe true
+    EoriNumber.isValid("GB123456789012345") shouldBe true
+
+    EoriNumber.isValid("XI123456789012") shouldBe true
+    EoriNumber.isValid("XI123456789012345") shouldBe true
+
+    EoriNumber.isValid("FR1") shouldBe true
+    EoriNumber.isValid("FR123456789012") shouldBe true
+    EoriNumber.isValid("FR123456789012345") shouldBe true
+
+    EoriNumber.isValid("DE1") shouldBe true
+    EoriNumber.isValid("DE123456789012") shouldBe true
+    EoriNumber.isValid("DE123456789012345") shouldBe true
+
+    EoriNumber.isValid("GB1") shouldBe false
+    EoriNumber.isValid("GB12") shouldBe false
+    EoriNumber.isValid("GB123") shouldBe false
+
+    EoriNumber.isValid("XI1") shouldBe false
+    EoriNumber.isValid("XI12") shouldBe false
+    EoriNumber.isValid("XI123") shouldBe false
+
+    EoriNumber.isValid("FR1234567890123456") shouldBe false
+    EoriNumber.isValid("DE1234567890123456") shouldBe false
+    EoriNumber.isValid("FR") shouldBe false
+    EoriNumber.isValid("DE") shouldBe false
+
+    EoriNumber.isValid("GB12345678901") shouldBe false
+    EoriNumber.isValid("GB1234567890123456") shouldBe false
+
+    EoriNumber.isValid("XI12345678901") shouldBe false
+    EoriNumber.isValid("XI1234567890123456") shouldBe false
+  }
+
   "TestOrganisationCreatedResponse" should "be properly constructed from a TestOrganisation" in {
     val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
     val testOrganisation    = TestOrganisation(

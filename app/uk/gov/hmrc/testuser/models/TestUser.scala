@@ -18,7 +18,7 @@ package uk.gov.hmrc.testuser.models
 
 import java.time.{Instant, LocalDate}
 
-import play.api.libs.json.{OFormat, Reads, Writes, _}
+import play.api.libs.json._
 import uk.gov.hmrc.domain._
 
 case class Address(line1: String, line2: String, postcode: String)
@@ -338,9 +338,15 @@ case class EoriNumber(override val value: String) extends TaxIdentifier with Sim
 }
 
 object EoriNumber extends SimpleName {
-  val validEoriFormat = "^(GB|XI)[0-9]{12,15}$"
+  val validGBorXIEoriFormat = "^(GB|XI)[0-9]{12,15}$"
+  val validEUEoriFormat    = "^[A-Z]{2}[0-9]{1,15}$"
 
-  def isValid(eoriNumber: String) = eoriNumber.matches(validEoriFormat)
+  // Because Java doesn't allow conditional regex we need to use this rather clunky mechanism
+  // rather than have a single regex.
+  def isValid(eoriNumber: String): Boolean = {
+    if (eoriNumber.startsWith("GB") || eoriNumber.startsWith("XI")) eoriNumber.matches(validGBorXIEoriFormat)
+    else eoriNumber.matches(validEUEoriFormat)
+  }
 
   override val name = "eoriNumber"
 }
