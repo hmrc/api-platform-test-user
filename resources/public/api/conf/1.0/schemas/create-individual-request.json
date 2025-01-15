@@ -61,10 +61,9 @@
     },
     "eoriNumber": {
       "type": "string",
-      "description": "Economic Operator Registration and Identification (EORI) number.",
-      "minLength": 14,
-      "maxLength": 17,
-      "pattern": "^(GB|XI)[0-9]{12,15}$"
+      "description": "Economic Operator Registration and Identification (EORI) number. Regular expressions:<br><code>^(GB|XI)[0-9]{12,15}$</code> A GB or XI EORI.<br><code>^[A-Z]{2}[0-9]{1,15}$</code> An EU EORI.",
+      "minLength": 3,
+      "maxLength": 17
     },
     "nino": {
       "type": "string",
