@@ -568,6 +568,15 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       org shouldHave (exciseNumberDefined = false)
     }
 
+    "do not generate Pillar 2 ID when Pillar 2 service is not included" in new Setup {
+      when(repository.identifierIsUnique(*)(*)).thenReturn(Future(true))
+      val pillar2IdToIgnore = pillar2IdGenerator.sample.get
+
+      val org = await(underTest.generateTestOrganisation(Seq.empty, None, None, None, None, Some(pillar2IdToIgnore)))
+
+      org shouldHave (pillar2IdDefined = false)
+    }
+
     "set the userFullName and emailAddress" in new Setup {
       when(repository.identifierIsUnique(*)(*)).thenReturn(Future(true))
 
@@ -586,6 +595,15 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
       val organisation = await(underTest.generateTestOrganisation(Seq(SUBMIT_VAT_RETURNS), None, None, None, None, None))
 
       organisation shouldHave (vrnDefined = true)
+      verify(repository, times(2)).identifierIsUnique(*)(*)
+    }
+
+    "regenerate Pillar 2 ID if it is a duplicate" in new Setup {
+      when(repository.identifierIsUnique(*)(*)).thenReturn(Future(false), Future(true))
+
+      val organisation = await(underTest.generateTestOrganisation(Seq(PILLAR_2), None, None, None, None, None))
+
+      organisation shouldHave (pillar2IdDefined = true)
       verify(repository, times(2)).identifierIsUnique(*)(*)
     }
 

@@ -19,7 +19,7 @@ package uk.gov.hmrc.testuser
 import play.api.mvc.PathBindable
 import uk.gov.hmrc.domain.{CtUtr, EmpRef, Nino, SaUtr, Vrn}
 
-import uk.gov.hmrc.testuser.models.{Crn, NinoNoSuffix}
+import uk.gov.hmrc.testuser.models.{Crn, NinoNoSuffix, Pillar2Id}
 
 class SimpleObjectBinder[T](bind: String => T, unbind: T => String)(implicit m: Manifest[T]) extends PathBindable[T] {
 
@@ -40,6 +40,7 @@ object EmpRefBinder       extends SimpleObjectBinder[EmpRef](EmpRef.fromIdentifi
 object VrnBinder          extends SimpleObjectBinder[Vrn](Vrn.apply, _.value)
 object CtUtrBinder        extends SimpleObjectBinder[CtUtr](CtUtr.apply, _.value)
 object CrnBinder          extends SimpleObjectBinder[Crn](Crn.apply, _.value)
+object Pillar2IdBinder    extends SimpleObjectBinder[Pillar2Id](Pillar2Id.apply, _.value)
 
 package object Binders {
   implicit val ninoNoSuffixBinder: NinoNoSuffixBinder.type = NinoNoSuffixBinder
@@ -49,4 +50,5 @@ package object Binders {
   implicit val vrnBinder: VrnBinder.type                   = VrnBinder
   implicit val ctUtrBinder: CtUtrBinder.type               = CtUtrBinder
   implicit val crnBinder: CrnBinder.type                   = CrnBinder
+  implicit val pilla2IdBinder: Pillar2IdBinder.type        = Pillar2IdBinder
 }

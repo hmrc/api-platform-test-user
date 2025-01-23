@@ -134,6 +134,12 @@ class TestUserController @Inject() (val testUserService: TestUserService, cc: Co
     } recover recovery
   }
 
+  def fetchOrganisationByPillar2Id(pillar2Id: Pillar2Id): Action[AnyContent] = Action.async { _ =>
+    testUserService.fetchOrganisationByPillar2Id(pillar2Id) map { organisation =>
+      Ok(toJson(FetchTestOrganisationResponse.from(organisation)))
+    } recover recovery
+  }
+
   private def recovery: PartialFunction[Throwable, Result] = {
     case UserNotFound(INDIVIDUAL)   => NotFound(toJson(individualNotFoundError))
     case UserNotFound(ORGANISATION) => NotFound(toJson(organisationNotFoundError))

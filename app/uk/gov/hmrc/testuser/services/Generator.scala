@@ -20,9 +20,12 @@ import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
+
 import com.typesafe.config.Config
 import org.scalacheck.Gen
+
 import uk.gov.hmrc.domain._
+
 import uk.gov.hmrc.testuser.models.ServiceKey._
 import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
