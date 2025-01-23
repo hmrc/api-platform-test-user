@@ -407,23 +407,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       val result = underTest.createOrganisation()(createOrganisationWithProvidedPillar2Id)
 
       status(result) shouldBe CREATED
-    } /*
-
-    "fail 400 (Bad Request) with the created organisation with service other than pillar-2 provided and pillar2Id providered" in new Setup {
-
-      when(underTest.testUserService.createTestOrganisation(
-        eqTo(createOrganisationServices),
-        eqTo(None),
-        eqTo(None),
-        eqTo(None),
-        eqTo(None),
-        eqTo(Some(pillar2Id))
-      )(*)).thenReturn(failed(new RuntimeException("expected test error")))
-
-      val result = underTest.createOrganisation()(createOrganisationWithProvidedPillar2Id)
-
-      status(result) shouldBe CREATED
-    }*/
+    }
 
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
       when(underTest.testUserService.createTestOrganisation(*, *, eqTo(None), eqTo(None), eqTo(None), eqTo(None))(*))
