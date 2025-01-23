@@ -80,10 +80,11 @@ class TestUserService @Inject() (
       eoriNumber: Option[EoriNumber],
       exciseNumber: Option[ExciseNumber],
       nino: Option[Nino],
-      taxpayerType: Option[TaxpayerType]
+      taxpayerType: Option[TaxpayerType],
+      pillar2Id: Option[Pillar2Id]
     )(implicit hc: HeaderCarrier
     ): Future[Either[CreateTestUserError, TestOrganisation]] = validateNinoRequest(nino) {
-    generator.generateTestOrganisation(serviceNames, eoriNumber, exciseNumber, nino, taxpayerType).flatMap { organisation =>
+    generator.generateTestOrganisation(serviceNames, eoriNumber, exciseNumber, nino, taxpayerType, pillar2Id).flatMap { organisation =>
       val hashedPassword = passwordService.hash(organisation.password)
 
       testUserRepository.createUser(organisation.copy(password = hashedPassword)) map {
@@ -137,5 +138,9 @@ class TestUserService @Inject() (
 
   def fetchOrganisationByCrn(crn: Crn): Future[TestOrganisation] = {
     testUserRepository.fetchOrganisationByCrn(crn) map (t => t.getOrElse(throw UserNotFound(ORGANISATION)))
+  }
+
+  def fetchOrganisationByPillar2Id(pillar2Id: Pillar2Id): Future[TestOrganisation] = {
+    testUserRepository.fetchOrganisationByPillar2Id(pillar2Id) map (t => t.getOrElse(throw UserNotFound(ORGANISATION)))
   }
 }
