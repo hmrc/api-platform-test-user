@@ -85,7 +85,6 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
     Pillar2Id.isValid("XY1234567890123") shouldBe false
   }
 
-
   "TestOrganisationCreatedResponse" should "be properly constructed from a TestOrganisation" in {
     val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
     val testOrganisation    = TestOrganisation(
