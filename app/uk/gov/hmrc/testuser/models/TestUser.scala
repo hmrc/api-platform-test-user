@@ -400,7 +400,7 @@ case class Pillar2Id(override val value: String) extends TaxIdentifier with Simp
 }
 
 object Pillar2Id extends SimpleName with (String => Pillar2Id) {
-  private val validPillar2IdFormat = "^X[DE]\\d{13}$"
+  private val validPillar2IdFormat = "^[A-Z0-9]{15}$" // TODO: check with PM
 
   def isValid(value: String) = value.matches(validPillar2IdFormat)
 

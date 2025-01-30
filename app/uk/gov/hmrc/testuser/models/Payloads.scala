@@ -43,15 +43,13 @@ object LegacySandboxUser {
   private val password             = "password1"
   private val userFullName         = "John Doe"
   private val emailAddress         = "john.doe@example.com"
-  private val pillar2Id            = "XE4444444444444"
   val sandboxAuthenticationRequest = AuthenticationRequest(userId, password)
   val individualDetails            = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
 
   val props = Map[TestUserPropKey, String](
     TestUserPropKey.saUtr           -> "1700000000",
     TestUserPropKey.nino            -> "AA000017A",
-    TestUserPropKey.groupIdentifier -> groupIdentifier,
-    TestUserPropKey.pillar2Id       -> pillar2Id
+    TestUserPropKey.groupIdentifier -> groupIdentifier
   )
 
   val sandboxUser = TestIndividual(

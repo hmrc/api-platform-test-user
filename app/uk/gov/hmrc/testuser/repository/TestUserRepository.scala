@@ -166,6 +166,13 @@ class TestUserRepository @Inject() (config: TestUserRepository.Config, mongo: Mo
             .sparse(true)
         ),
         IndexModel(
+          ascending("pillar2Id"),
+          IndexOptions()
+            .name("pillar2Id-Index")
+            .background(true)
+            .sparse(true)
+        ),
+        IndexModel(
           ascending("lastAccess"),
           IndexOptions()
             .name("lastAccess-Index")
