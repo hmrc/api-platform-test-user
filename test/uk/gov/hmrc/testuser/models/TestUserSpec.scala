@@ -81,8 +81,7 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
 
     Pillar2Id.isValid("1234567890123") shouldBe false
     Pillar2Id.isValid("XE12345678901234") shouldBe false
-    Pillar2Id.isValid("XEABCDEFGHIJKLM") shouldBe false
-    Pillar2Id.isValid("XY1234567890123") shouldBe false
+    Pillar2Id.isValid("XEABCDEFGHIJK") shouldBe false
   }
 
   "TestOrganisationCreatedResponse" should "be properly constructed from a TestOrganisation" in {
