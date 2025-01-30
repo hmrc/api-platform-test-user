@@ -47,7 +47,8 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     TestUserPropKey.vrn             -> "999902541",
     TestUserPropKey.mtdItId         -> "XGIT00000000054",
     TestUserPropKey.groupIdentifier -> "individualGroup",
-    TestUserPropKey.saUtr           -> "1555369052"
+    TestUserPropKey.saUtr           -> "1555369052",
+    TestUserPropKey.pillar2Id       -> "XE4444444444444"
   )
 
   val testIndividual = TestIndividual(
@@ -77,6 +78,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
   val exciseNumber                            = "GBWK254706100"
   val groupIdentifier                         = "organsiationGroup"
   val crn                                     = "12345678"
+  val pillar2Id                               = "XE4444444444444"
 
   val orgProps = Map[TestUserPropKey, String](
     TestUserPropKey.saUtr                                   -> saUtr,
@@ -91,7 +93,8 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     TestUserPropKey.eoriNumber                              -> eoriNumber,
     TestUserPropKey.exciseNumber                            -> exciseNumber,
     TestUserPropKey.groupIdentifier                         -> groupIdentifier,
-    TestUserPropKey.crn                                     -> crn
+    TestUserPropKey.crn                                     -> crn,
+    TestUserPropKey.pillar2Id                               -> pillar2Id
   )
 
   val testOrganisation = TestOrganisation(
@@ -119,7 +122,8 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       CTC_LEGACY,
       CTC,
       EMCS,
-      MODERNISATION_OF_AUTHORISATIONS
+      MODERNISATION_OF_AUTHORISATIONS,
+      PILLAR_2
     ),
     props = orgProps
   )
@@ -453,6 +457,15 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
            |       {
            |         "key":"EORINumber",
            |         "value":"${testOrganisation.eoriNumber.get}"
+           |       }]
+           |     },
+           |     {
+           |       "key": "HMRC-PILLAR2-ORG",
+           |       "state": "Activated",
+           |       "identifiers": [
+           |       {
+           |         "key":"PLRID",
+           |         "value":"${testOrganisation.pillar2Id.get}"
            |       }]
            |     }
            |   ],

@@ -31,7 +31,8 @@ case class CreateUserWithOptionalRequestParams(
     eoriNumber: Option[EoriNumber],
     exciseNumber: Option[ExciseNumber],
     nino: Option[Nino],
-    taxpayerType: Option[TaxpayerType]
+    taxpayerType: Option[TaxpayerType],
+    pillar2Id: Option[Pillar2Id]
   )
 
 case class CreateUserRequest(serviceNames: Option[Seq[ServiceKey]])

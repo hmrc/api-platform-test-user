@@ -44,7 +44,8 @@ class ServiceKeySpec extends BaseJsonFormattersSpec with TableDrivenPropertyChec
       (ServiceKey.CTC, "common-transit-convention-traders"),
       (ServiceKey.CTC_LEGACY, "common-transit-convention-traders-legacy"),
       (ServiceKey.EMCS, "excise-movement-control-system"),
-      (ServiceKey.MODERNISATION_OF_AUTHORISATIONS, "modernisation-of-authorisations")
+      (ServiceKey.MODERNISATION_OF_AUTHORISATIONS, "modernisation-of-authorisations"),
+      (ServiceKey.PILLAR_2, "pillar-2")
     )
 
   "ServiceKeys" when {

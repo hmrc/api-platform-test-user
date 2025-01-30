@@ -20,3 +20,4 @@ GET         /organisations/vrn/:vrn             uk.gov.hmrc.testuser.controllers
 GET         /organisations/ctutr/:ctUtr         uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationByCtUtr(ctUtr: uk.gov.hmrc.domain.CtUtr)
 GET         /organisations/sautr/:saUtr         uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationBySaUtr(saUtr: uk.gov.hmrc.domain.SaUtr)
 GET         /organisations/crn/:crn             uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationByCrn(crn: uk.gov.hmrc.testuser.models.Crn)
+GET         /organisations/pillar2Id/:pillar2Id uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationByPillar2Id(pillar2Id: uk.gov.hmrc.testuser.models.Pillar2Id)

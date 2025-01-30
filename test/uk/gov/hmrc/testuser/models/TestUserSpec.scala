@@ -76,6 +76,14 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
     EoriNumber.isValid("XI1234567890123456") shouldBe false
   }
 
+  "Pillar 2 ID" should "validate" in {
+    Pillar2Id.isValid("XE1261614875876") shouldBe true
+
+    Pillar2Id.isValid("1234567890123") shouldBe false
+    Pillar2Id.isValid("XE12345678901234") shouldBe false
+    Pillar2Id.isValid("XEABCDEFGHIJK") shouldBe false
+  }
+
   "TestOrganisationCreatedResponse" should "be properly constructed from a TestOrganisation" in {
     val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
     val testOrganisation    = TestOrganisation(
@@ -133,6 +141,6 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
   }
 
   "Services" should "get size equal to all services when length called" in {
-    Services.all.length shouldBe 19
+    Services.all.length shouldBe 20
   }
 }

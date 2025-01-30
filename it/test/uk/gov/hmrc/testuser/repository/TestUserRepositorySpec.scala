@@ -31,7 +31,7 @@ import uk.gov.hmrc.mongo.test.MongoSupport
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.testuser.helpers.GeneratorProvider
 import uk.gov.hmrc.testuser.models.ServiceKey._
-import uk.gov.hmrc.testuser.models.{Crn, NinoNoSuffix, TestUserPropKey}
+import uk.gov.hmrc.testuser.models.{Crn, NinoNoSuffix, Pillar2Id, TestUserPropKey}
 
 class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with BeforeAndAfterAll with MongoSupport with IndexVerification {
 
@@ -70,11 +70,12 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     val testOrganisation =
       await(
         generator.generateTestOrganisation(
-          Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT, LISA, CUSTOMS_SERVICES, CTC_LEGACY, CTC),
+          Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT, LISA, CUSTOMS_SERVICES, CTC_LEGACY, CTC, PILLAR_2),
           eoriNumber = None,
           exciseNumber = None,
           nino = None,
-          taxpayerType = None
+          taxpayerType = None,
+          pillar2Id = None
         )
       )
   }
@@ -414,6 +415,22 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     }
   }
 
+  "fetchOrganisationByPillar2Id" should {
+
+    "return the organisation" in new GeneratedTestOrganisation {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchOrganisationByPillar2Id(Pillar2Id(testOrganisation.pillar2Id.get)))
+
+      result shouldBe Some(testOrganisation)
+    }
+
+    "return None when there is no organisation matching" in new GeneratedTestOrganisation {
+      val result = await(repository.fetchOrganisationByPillar2Id(Pillar2Id(testOrganisation.pillar2Id.get)))
+      result shouldBe None
+    }
+  }
+
   "identifierIsUnique" should {
     "return false when individual identifiers already exist" in new GeneratedTestIndividual {
       val testUser = await(repository.createUser(testIndividual))
@@ -436,6 +453,7 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
       await(repository.identifierIsUnique(TestUserPropKey.mtdItId)(testUser.mtdItId.get)) shouldBe false
       await(repository.identifierIsUnique(TestUserPropKey.lisaManRefNum)(testUser.lisaManRefNum.get)) shouldBe false
       await(repository.identifierIsUnique(TestUserPropKey.eoriNumber)(testUser.eoriNumber.get)) shouldBe false
+      await(repository.identifierIsUnique(TestUserPropKey.pillar2Id)(testUser.pillar2Id.get)) shouldBe false
     }
   }
 }
