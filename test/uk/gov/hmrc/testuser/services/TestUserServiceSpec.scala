@@ -233,6 +233,36 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
       verify(underTest.testUserRepository, times(0)).createUser(any)
       verify(underTest.desSimulatorConnector, times(0)).createIndividual(any)(any)
     }
+
+    "fail when the pillar2Id validation fails" in new Setup {
+      val pillar2Id = Pillar2Id("XE4444444444444")
+      when(underTest.testUserRepository.fetchOrganisationByPillar2Id(eqTo(pillar2Id)))
+        .thenReturn(Future.successful(Some(testOrganisation)))
+
+      val result = await(underTest.createTestOrganisation(organisationServices, None, None, None, None, Some(pillar2Id)))
+
+      result shouldBe Left(Pillar2IdAlreadyUsed)
+
+      verify(underTest.testUserRepository, times(0)).createUser(any)
+    }
+
+    "allow duplicate creation when using an allowed duplicate pillar2Id" in new Setup {
+      val allowedPillar2Id = Pillar2Id(AllowedDuplicatePillar2Ids.BAD_REQUEST_ID.value)
+      val hashedPassword = "hashedPassword"
+      
+      when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None, None, Some(allowedPillar2Id)))
+        .thenReturn(successful(testOrganisation))
+      when(underTest.passwordService.hash(testOrganisation.password)).thenReturn(hashedPassword)
+      when(underTest.testUserRepository.fetchOrganisationByPillar2Id(eqTo(allowedPillar2Id)))
+        .thenReturn(Future.successful(Some(testOrganisation)))
+      
+      val result = await(underTest.createTestOrganisation(
+        organisationServices, None, None, None, None, Some(allowedPillar2Id)
+      ))
+
+      result shouldBe Right(testOrganisation)
+      verify(underTest.testUserRepository).createUser(any)
+    }
   }
 
   "createTestAgent" should {

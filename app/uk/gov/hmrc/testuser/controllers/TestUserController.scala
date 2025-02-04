@@ -63,6 +63,7 @@ class TestUserController @Inject() (val testUserService: TestUserService, cc: Co
         createUserRequest.pillar2Id
       ) map {
         case Left(NinoAlreadyUsed)            => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
+        case Left(Pillar2IdAlreadyUsed)       => BadRequest(toJson(ErrorResponse.pillar2IdAlreadyUsed))
         case Left(error: CreateTestUserError) => {
           logger.error(s"Unexpected error response from testUserService.createTestOrganisation: ${error.toString}")
           BadRequest

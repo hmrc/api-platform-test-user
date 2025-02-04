@@ -401,14 +401,14 @@ class SecureElectronicTransferReferenceNumberGenerator(random: Random = new Rand
   }
 }
 
-class Pillar2IdGenerator(random: Random = new Random) extends Modulus23Check {
+class Pillar2IdGenerator(random: Random = new Random) {
   def this(seed: Int) = this(new scala.util.Random(seed))
 
   def next: String = {
-    val random        = new Random()
-    val randomInteger = (0 to 12).map(_ => random.between(0, 9)).mkString
+    val randomLetter  = ('A' to 'Z')(random.nextInt(26))
+    val randomDigits  = (1 to 13).map(_ => random.nextInt(10)).mkString
 
-    s"XE$randomInteger"
+    s"X$randomLetter$randomDigits"
   }
 }
 
