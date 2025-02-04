@@ -46,9 +46,11 @@ class TestUserService @Inject() (
       isUnique: A => Future[Boolean],
       error: CreateTestUserError,
       allowDuplicate: A => Boolean = (_: A) => false
-    )(createTestUser: => Future[T]): Future[Either[CreateTestUserError, T]] = {
+    )(
+      createTestUser: => Future[T]
+    ): Future[Either[CreateTestUserError, T]] = {
     maybeValue
-      .fold(Future.successful(true))(value => 
+      .fold(Future.successful(true))(value =>
         if (allowDuplicate(value)) Future.successful(true)
         else isUnique(value)
       )

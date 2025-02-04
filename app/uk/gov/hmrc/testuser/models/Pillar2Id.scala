@@ -21,14 +21,13 @@ sealed trait AllowedDuplicatePillar2Ids {
 }
 
 object AllowedDuplicatePillar2Ids {
-  case object BAD_REQUEST_ID extends AllowedDuplicatePillar2Ids { val value = "XEPLR4000000000" }
+  case object BAD_REQUEST_ID           extends AllowedDuplicatePillar2Ids { val value = "XEPLR4000000000" }
   case object INTERNAL_SERVER_ERROR_ID extends AllowedDuplicatePillar2Ids { val value = "XEPLR5000000000" }
-  case object UNPROCESSABLE_ENTITY_ID extends AllowedDuplicatePillar2Ids { val value = "XEPLR4220000000" }
-
+  case object UNPROCESSABLE_ENTITY_ID  extends AllowedDuplicatePillar2Ids { val value = "XEPLR4220000000" }
 
   val values: Set[String] = Set(
     BAD_REQUEST_ID.value,
     INTERNAL_SERVER_ERROR_ID.value,
     UNPROCESSABLE_ENTITY_ID.value
   )
-} 
+}

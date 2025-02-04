@@ -248,14 +248,14 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
 
     "allow duplicate creation when using an allowed duplicate pillar2Id" in new Setup {
       val allowedPillar2Id = Pillar2Id(AllowedDuplicatePillar2Ids.BAD_REQUEST_ID.value)
-      val hashedPassword = "hashedPassword"
-      
+      val hashedPassword   = "hashedPassword"
+
       when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None, None, Some(allowedPillar2Id)))
         .thenReturn(successful(testOrganisation))
       when(underTest.passwordService.hash(testOrganisation.password)).thenReturn(hashedPassword)
       when(underTest.testUserRepository.fetchOrganisationByPillar2Id(eqTo(allowedPillar2Id)))
         .thenReturn(Future.successful(Some(testOrganisation)))
-      
+
       val result = await(underTest.createTestOrganisation(
         organisationServices, None, None, None, None, Some(allowedPillar2Id)
       ))

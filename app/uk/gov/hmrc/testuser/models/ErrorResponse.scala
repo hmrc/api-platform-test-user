@@ -27,7 +27,7 @@ object ErrorCode {
   case object NINO_ALREADY_USED       extends ErrorCode
   case object PILLAR2_ID_ALREADY_USED extends ErrorCode
 
-  val values: Set[ErrorCode] = Set(INTERNAL_SERVER_ERROR, INVALID_CREDENTIALS, USER_NOT_FOUND, NINO_ALREADY_USED,PILLAR2_ID_ALREADY_USED)
+  val values: Set[ErrorCode] = Set(INTERNAL_SERVER_ERROR, INVALID_CREDENTIALS, USER_NOT_FOUND, NINO_ALREADY_USED, PILLAR2_ID_ALREADY_USED)
 
   def apply(text: String): Option[ErrorCode] = ErrorCode.values.find(_.toString == text.toUpperCase)
 
