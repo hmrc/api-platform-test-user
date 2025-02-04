@@ -4,8 +4,8 @@ import play.core.PlayVersion
 object AppDependencies {
   def apply(): Seq[ModuleID] = compile ++ test
 
-  lazy val bootstrapVersion    = "9.5.0"
-  lazy val mongoVersion        = "2.2.0"
+  lazy val bootstrapVersion    = "9.7.0"
+  lazy val mongoVersion        = "2.4.0"
   lazy val commonDomainVersion = "0.17.0"
 
   lazy val compile: Seq[ModuleID] = Seq(
