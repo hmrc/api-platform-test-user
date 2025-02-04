@@ -246,22 +246,28 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
       verify(underTest.testUserRepository, times(0)).createUser(any)
     }
 
-    "allow duplicate creation when using an allowed duplicate pillar2Id" in new Setup {
-      val allowedPillar2Id = Pillar2Id(AllowedDuplicatePillar2Ids.BAD_REQUEST_ID.value)
-      val hashedPassword   = "hashedPassword"
+    "allow creation of duplicate Internal Server Error test ID for pillar 2 service " in new Setup {
+      val internalServerErrorId = Pillar2Id("XEPLR5000000000")
+      val hashedPassword        = "hashedPassword"
 
-      when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None, None, Some(allowedPillar2Id)))
-        .thenReturn(successful(testOrganisation))
-      when(underTest.passwordService.hash(testOrganisation.password)).thenReturn(hashedPassword)
-      when(underTest.testUserRepository.fetchOrganisationByPillar2Id(eqTo(allowedPillar2Id)))
+      when(underTest.testUserRepository.fetchOrganisationByPillar2Id(eqTo(internalServerErrorId)))
         .thenReturn(Future.successful(Some(testOrganisation)))
 
+      when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None, None, Some(internalServerErrorId)))
+        .thenReturn(successful(testOrganisation))
+      when(underTest.passwordService.hash(testOrganisation.password)).thenReturn(hashedPassword)
+
       val result = await(underTest.createTestOrganisation(
-        organisationServices, None, None, None, None, Some(allowedPillar2Id)
+        organisationServices,
+        None,
+        None,
+        None,
+        None,
+        Some(internalServerErrorId)
       ))
 
       result shouldBe Right(testOrganisation)
-      verify(underTest.testUserRepository).createUser(any)
+      verify(underTest.testUserRepository).createUser(any) // verify new organisation was created despite duplicate ID
     }
   }
 

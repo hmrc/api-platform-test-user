@@ -41,6 +41,8 @@ class TestUserService @Inject() (
   )(implicit ec: ExecutionContext
   ) {
 
+  private val InternalServerErrorPillar2Id = "XEPLR5000000000"
+
   private def validateField[A, T](
       maybeValue: Option[A],
       isUnique: A => Future[Boolean],
@@ -73,7 +75,7 @@ class TestUserService @Inject() (
       maybeValue = maybePillar2Id,
       isUnique = (pillar2Id: Pillar2Id) => testUserRepository.fetchOrganisationByPillar2Id(pillar2Id).map(_.fold(true)(_ => false)),
       error = Pillar2IdAlreadyUsed,
-      allowDuplicate = (pillar2Id: Pillar2Id) => AllowedDuplicatePillar2Ids.values.contains(pillar2Id.value)
+      allowDuplicate = (pillar2Id: Pillar2Id) => pillar2Id.value == InternalServerErrorPillar2Id
     )(createTestUser)
   }
 
