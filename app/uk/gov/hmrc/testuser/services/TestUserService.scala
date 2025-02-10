@@ -29,7 +29,8 @@ import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 trait CreateTestUserError
-object NinoAlreadyUsed extends CreateTestUserError
+object NinoAlreadyUsed      extends CreateTestUserError
+object Pillar2IdAlreadyUsed extends CreateTestUserError
 
 @Singleton
 class TestUserService @Inject() (
@@ -40,19 +41,42 @@ class TestUserService @Inject() (
   )(implicit ec: ExecutionContext
   ) {
 
-  private def validateNinoRequest[T](maybeNino: Option[Nino])(createTestUser: => Future[T]): Future[Either[CreateTestUserError, T]] = {
-    def isNinoUnique(nino: Nino): Future[Boolean] = {
-      testUserRepository
-        .fetchByNino(nino)
-        .map(maybeUser => maybeUser.fold(true)(_ => false))
-    }
+  private val InternalServerErrorPillar2Id = "XEPLR5000000000"
 
-    maybeNino
-      .fold(Future.successful(true))(nino => isNinoUnique(nino))
+  private def validateField[A, T](
+      maybeValue: Option[A],
+      isUnique: A => Future[Boolean],
+      error: CreateTestUserError,
+      allowDuplicate: A => Boolean = (_: A) => false
+    )(
+      createTestUser: => Future[T]
+    ): Future[Either[CreateTestUserError, T]] = {
+    maybeValue
+      .fold(Future.successful(true))(value =>
+        if (allowDuplicate(value)) Future.successful(true)
+        else isUnique(value)
+      )
       .flatMap(isValid => {
         if (isValid) createTestUser.map(Right(_))
-        else Future.successful(Left(NinoAlreadyUsed))
+        else Future.successful(Left(error))
       })
+  }
+
+  private def validateNinoRequest[T](maybeNino: Option[Nino])(createTestUser: => Future[T]): Future[Either[CreateTestUserError, T]] = {
+    validateField(
+      maybeValue = maybeNino,
+      isUnique = (nino: Nino) => testUserRepository.fetchByNino(nino).map(_.fold(true)(_ => false)),
+      error = NinoAlreadyUsed
+    )(createTestUser)
+  }
+
+  private def validatePillar2IdRequest[T](maybePillar2Id: Option[Pillar2Id])(createTestUser: => Future[T]): Future[Either[CreateTestUserError, T]] = {
+    validateField(
+      maybeValue = maybePillar2Id,
+      isUnique = (pillar2Id: Pillar2Id) => testUserRepository.fetchOrganisationByPillar2Id(pillar2Id).map(_.fold(true)(_ => false)),
+      error = Pillar2IdAlreadyUsed,
+      allowDuplicate = (pillar2Id: Pillar2Id) => pillar2Id.value == InternalServerErrorPillar2Id
+    )(createTestUser)
   }
 
   def createTestIndividual(
@@ -80,10 +104,12 @@ class TestUserService @Inject() (
       eoriNumber: Option[EoriNumber],
       exciseNumber: Option[ExciseNumber],
       nino: Option[Nino],
-      taxpayerType: Option[TaxpayerType]
+      taxpayerType: Option[TaxpayerType],
+      pillar2Id: Option[Pillar2Id]
     )(implicit hc: HeaderCarrier
-    ): Future[Either[CreateTestUserError, TestOrganisation]] = validateNinoRequest(nino) {
-    generator.generateTestOrganisation(serviceNames, eoriNumber, exciseNumber, nino, taxpayerType).flatMap { organisation =>
+    ): Future[Either[CreateTestUserError, TestOrganisation]] = {
+
+    def createOrg = generator.generateTestOrganisation(serviceNames, eoriNumber, exciseNumber, nino, taxpayerType, pillar2Id).flatMap { organisation =>
       val hashedPassword = passwordService.hash(organisation.password)
 
       testUserRepository.createUser(organisation.copy(password = hashedPassword)) map {
@@ -93,6 +119,24 @@ class TestUserService @Inject() (
       } map {
         _ => organisation
       }
+    }
+
+    (nino, pillar2Id) match {
+      case (Some(n), None) =>
+        validateNinoRequest(Some(n)) {
+          createOrg
+        }
+
+      case (None, Some(p)) =>
+        validatePillar2IdRequest(Some(p)) {
+          createOrg
+        }
+
+      case (None, None) => // Neither provided
+        createOrg.map(Right(_))
+
+      case (Some(_), Some(_)) =>
+        Future.successful(Left(NinoAlreadyUsed))
     }
   }
 
@@ -137,5 +181,9 @@ class TestUserService @Inject() (
 
   def fetchOrganisationByCrn(crn: Crn): Future[TestOrganisation] = {
     testUserRepository.fetchOrganisationByCrn(crn) map (t => t.getOrElse(throw UserNotFound(ORGANISATION)))
+  }
+
+  def fetchOrganisationByPillar2Id(pillar2Id: Pillar2Id): Future[TestOrganisation] = {
+    testUserRepository.fetchOrganisationByPillar2Id(pillar2Id) map (t => t.getOrElse(throw UserNotFound(ORGANISATION)))
   }
 }

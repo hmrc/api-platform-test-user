@@ -80,6 +80,7 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
   private val crnGenerator          = new CompanyReferenceNumberGenerator()
 
   private val agentCodeGenerator = Gen.listOfN(10, Gen.numChar).map(_.mkString)
+  private val pillar2IdGenerator = new Pillar2IdGenerator()
 
   def useProvidedOrGenerateEoriNumber(eoriNumber: Option[EoriNumber]): Future[String] = {
     eoriNumber.fold(generateEoriNumber)(provided => Future.successful(provided.value))
@@ -95,6 +96,10 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
 
   def useProvidedTaxpayerType(maybeString: Option[TaxpayerType]): Future[String] =
     Future.successful(maybeString.fold("Individual")(provided => provided.value))
+
+  def useProvidedOrGeneratedPillar2Id(pillar2Id: Option[Pillar2Id]): Future[String] = {
+    pillar2Id.fold(generatePillar2Id)(providedPillar2Id => Future.successful(providedPillar2Id.value))
+  }
 
   def generateTestIndividual(services: Seq[ServiceKey] = Seq.empty, eoriNumber: Option[EoriNumber], nino: Option[Nino]): Future[TestIndividual] = {
     def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
@@ -139,7 +144,8 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       eoriNumber: Option[EoriNumber],
       exciseNumber: Option[ExciseNumber],
       nino: Option[Nino],
-      taxpayerType: Option[TaxpayerType]
+      taxpayerType: Option[TaxpayerType],
+      pillar2Id: Option[Pillar2Id]
     ): Future[TestOrganisation] = {
 
     def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
@@ -168,6 +174,7 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       individualDetails   = Some(generateIndividualDetails(firstName, lastName))
       companyRegNo       <- whenF(CORPORATION_TAX)(generateCrn)
       taxpayerType       <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
+      pillar2Id          <- whenF(PILLAR_2)(useProvidedOrGeneratedPillar2Id(pillar2Id))
 
     } yield {
       val props = Map[TestUserPropKey, Option[String]](
@@ -184,7 +191,8 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
         TestUserPropKey.exciseNumber                            -> exciseNumber,
         TestUserPropKey.groupIdentifier                         -> groupIdentifier,
         TestUserPropKey.crn                                     -> companyRegNo,
-        TestUserPropKey.taxpayerType                            -> taxpayerType
+        TestUserPropKey.taxpayerType                            -> taxpayerType,
+        TestUserPropKey.pillar2Id                               -> pillar2Id
       ).collect {
         case (key, Some(value)) => key -> value
       }
@@ -323,6 +331,10 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
   private def generateArn: Future[String] = generateUniqueIdentifier(TestUserPropKey.arn)(() => {
     arnGenerator.next
   })
+
+  private def generatePillar2Id: Future[String] = generateUniqueIdentifier(TestUserPropKey.pillar2Id)(() => {
+    pillar2IdGenerator.next
+  })
 }
 
 class UtrGenerator(random: Random = new Random) extends Modulus11Check {
@@ -386,6 +398,17 @@ class SecureElectronicTransferReferenceNumberGenerator(random: Random = new Rand
     val initialDigit    = random.nextInt(9) + 1 // bug random.nextInt(8) -> random.nextInt(9)
     val remainingDigits = f"${random.nextInt(Int.MaxValue)}%011d"
     s"$initialDigit$remainingDigits"
+  }
+}
+
+class Pillar2IdGenerator(random: Random = new Random) {
+  def this(seed: Int) = this(new scala.util.Random(seed))
+
+  def next: String = {
+    val randomLetter = ('A' to 'Z')(random.nextInt(26))
+    val randomDigits = (1 to 13).map(_ => random.nextInt(10)).mkString
+
+    s"X$randomLetter$randomDigits"
   }
 }
 

@@ -115,7 +115,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
 
     val testIndividual = testIndividualWithNoServices.copy(services = individualServices)
 
-    val testOrganisationWithNoServices = await(generator.generateTestOrganisation(Seq.empty, None, None, None, None).map(a =>
+    val testOrganisationWithNoServices = await(generator.generateTestOrganisation(Seq.empty, None, None, None, None, None).map(a =>
       a.copy(
         userId = userId,
         password = password,
@@ -185,10 +185,10 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
     "Generate an organisation and save it in the database" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None, None)).thenReturn(successful(testOrganisation))
+      when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None, None, None)).thenReturn(successful(testOrganisation))
       when(underTest.passwordService.hash(testOrganisation.password)).thenReturn(hashedPassword)
 
-      val result = await(underTest.createTestOrganisation(organisationServices, None, None, None, None))
+      val result = await(underTest.createTestOrganisation(organisationServices, None, None, None, None, None))
 
       result shouldBe Right(testOrganisation)
 
@@ -200,10 +200,10 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
     "Not call the DES simulator when the organisation does not have the mtd-income-tax service" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      when(underTest.generator.generateTestOrganisation(Seq.empty, None, None, None, None)).thenReturn(successful(testOrganisationWithNoServices))
+      when(underTest.generator.generateTestOrganisation(Seq.empty, None, None, None, None, None)).thenReturn(successful(testOrganisationWithNoServices))
       when(underTest.passwordService.hash(testOrganisationWithNoServices.password)).thenReturn(hashedPassword)
 
-      val result = await(underTest.createTestOrganisation(Seq.empty, None, None, None, None))
+      val result = await(underTest.createTestOrganisation(Seq.empty, None, None, None, None, None))
 
       result shouldBe Right(testOrganisationWithNoServices)
 
@@ -213,12 +213,12 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
     }
 
     "fail when the repository fails" in new Setup {
-      when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None, None)).thenReturn(successful(testOrganisation))
+      when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None, None, None)).thenReturn(successful(testOrganisation))
       when(underTest.testUserRepository.createUser(*[TestUser]))
         .thenReturn(failed(new RuntimeException("expected test error")))
 
       intercept[RuntimeException] {
-        await(underTest.createTestOrganisation(organisationServices, None, None, None, None))
+        await(underTest.createTestOrganisation(organisationServices, None, None, None, None, None))
       }
     }
 
@@ -226,12 +226,48 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
       when(underTest.testUserRepository.fetchByNino(eqTo(Nino(nino))))
         .thenReturn(Future.successful(Some(testIndividual)))
 
-      val result = await(underTest.createTestOrganisation(organisationServices, None, None, Some(Nino(nino)), None))
+      val result = await(underTest.createTestOrganisation(organisationServices, None, None, Some(Nino(nino)), None, None))
 
       result shouldBe Left(NinoAlreadyUsed)
 
       verify(underTest.testUserRepository, times(0)).createUser(any)
       verify(underTest.desSimulatorConnector, times(0)).createIndividual(any)(any)
+    }
+
+    "fail when the pillar2Id validation fails" in new Setup {
+      val pillar2Id = Pillar2Id("XE4444444444444")
+      when(underTest.testUserRepository.fetchOrganisationByPillar2Id(eqTo(pillar2Id)))
+        .thenReturn(Future.successful(Some(testOrganisation)))
+
+      val result = await(underTest.createTestOrganisation(organisationServices, None, None, None, None, Some(pillar2Id)))
+
+      result shouldBe Left(Pillar2IdAlreadyUsed)
+
+      verify(underTest.testUserRepository, times(0)).createUser(any)
+    }
+
+    "allow creation of duplicate Internal Server Error test ID for pillar 2 service " in new Setup {
+      val internalServerErrorId = Pillar2Id("XEPLR5000000000")
+      val hashedPassword        = "hashedPassword"
+
+      when(underTest.testUserRepository.fetchOrganisationByPillar2Id(eqTo(internalServerErrorId)))
+        .thenReturn(Future.successful(Some(testOrganisation)))
+
+      when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None, None, Some(internalServerErrorId)))
+        .thenReturn(successful(testOrganisation))
+      when(underTest.passwordService.hash(testOrganisation.password)).thenReturn(hashedPassword)
+
+      val result = await(underTest.createTestOrganisation(
+        organisationServices,
+        None,
+        None,
+        None,
+        None,
+        Some(internalServerErrorId)
+      ))
+
+      result shouldBe Right(testOrganisation)
+      verify(underTest.testUserRepository).createUser(any) // verify new organisation was created despite duplicate ID
     }
   }
 

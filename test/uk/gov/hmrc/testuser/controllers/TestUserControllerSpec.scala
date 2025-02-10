@@ -50,6 +50,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val ctUtr                                   = "1555369053"
   val crn                                     = "12345678"
   val vrn                                     = "999902541"
+  val pillar2Id                               = Pillar2Id("XE4444444444444")
   val vatRegistrationDate                     = LocalDate.parse("2011-07-07")
   private val taxOfficeNum                    = "555"
   private val taxOfficeRef                    = "EIA000"
@@ -101,7 +102,8 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     TestUserPropKey.groupIdentifier                         -> groupIdentifier,
     TestUserPropKey.secureElectronicTransferReferenceNumber -> secureElectronicTransferReferenceNumber,
     TestUserPropKey.pensionSchemeAdministratorIdentifier    -> pensionSchemeAdministratorIdentifier,
-    TestUserPropKey.crn                                     -> crn
+    TestUserPropKey.crn                                     -> crn,
+    TestUserPropKey.pillar2Id                               -> pillar2Id.value
   )
 
   val testOrganisation = TestOrganisation(
@@ -134,6 +136,8 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val createIndividualServices   = Seq(NATIONAL_INSURANCE)
   val createOrganisationServices = Seq(NATIONAL_INSURANCE)
   val createAgentServices        = Seq(AGENT_SERVICES)
+
+  val createPillar2OrganisationServices = Seq(PILLAR_2)
 
   trait Setup {
     implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -178,6 +182,13 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
     def createOrganisationWithProvidedEoriRequestTaxpayerType = {
       val jsonPayload: JsValue = Json.parse(
         s"""{"serviceNames":["national-insurance"], "eoriNumber": "$rawEoriNumber", "taxpayerType": "$rawTaxpayerType"}"""
+      )
+      FakeRequest().withBody[JsValue](jsonPayload)
+    }
+
+    def createOrganisationWithProvidedPillar2Id = {
+      val jsonPayload: JsValue = Json.parse(
+        s"""{"serviceNames":["pillar-2"], "pillar2Id": "${pillar2Id.value}"}"""
       )
       FakeRequest().withBody[JsValue](jsonPayload)
     }
@@ -282,7 +293,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
 
     "return 201 (Created) with the created organisation" in new Setup {
 
-      when(underTest.testUserService.createTestOrganisation(eqTo(createOrganisationServices), eqTo(None), eqTo(None), eqTo(None), eqTo(None))(*))
+      when(underTest.testUserService.createTestOrganisation(eqTo(createOrganisationServices), eqTo(None), eqTo(None), eqTo(None), eqTo(None), eqTo(None))(*))
         .thenReturn(successful(Right(testOrganisation)))
 
       val result = underTest.createOrganisation()(createOrganisationRequest)
@@ -302,7 +313,8 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         "eoriNumber"                              -> rawEoriNumber,
         "exciseNumber"                            -> rawExciseNumber,
         "groupIdentifier"                         -> groupIdentifier,
-        "crn"                                     -> crn
+        "crn"                                     -> crn,
+        "pillar2Id"                               -> pillar2Id.value
       )
 
       contentAsJson(result) shouldBe toJson(TestOrganisationCreatedResponse(
@@ -324,6 +336,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         eqTo(Some(eoriNumber)),
         eqTo(None),
         eqTo(None),
+        eqTo(None),
         eqTo(None)
       )(*)).thenReturn(successful(Right(testOrganisation)))
 
@@ -338,6 +351,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         eqTo(createOrganisationServices),
         eqTo(None),
         eqTo(Some(exciseNumber)),
+        eqTo(None),
         eqTo(None),
         eqTo(None)
       )(*)).thenReturn(successful(Right(testOrganisation)))
@@ -354,6 +368,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         eqTo(None),
         eqTo(None),
         eqTo(Some(nino)),
+        eqTo(None),
         eqTo(None)
       )(*)).thenReturn(successful(Right(testOrganisation)))
 
@@ -369,7 +384,8 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
         eqTo(Some(eoriNumber)),
         eqTo(None),
         eqTo(None),
-        eqTo(Some(taxpayerType))
+        eqTo(Some(taxpayerType)),
+        eqTo(None)
       )(*)).thenReturn(successful(Right(testOrganisationTaxpayerType)))
 
       val result = underTest.createOrganisation()(createOrganisationWithProvidedEoriRequestTaxpayerType)
@@ -377,8 +393,24 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       status(result) shouldBe CREATED
     }
 
+    "return 201 (Created) with the created organisation with provided pillar2Id" in new Setup {
+
+      when(underTest.testUserService.createTestOrganisation(
+        eqTo(createPillar2OrganisationServices),
+        eqTo(None),
+        eqTo(None),
+        eqTo(None),
+        eqTo(None),
+        eqTo(Some(pillar2Id))
+      )(*)).thenReturn(successful(Right(testOrganisation)))
+
+      val result = underTest.createOrganisation()(createOrganisationWithProvidedPillar2Id)
+
+      status(result) shouldBe CREATED
+    }
+
     "fail with 500 (Internal Server Error) when the creation of the organisation failed" in new Setup {
-      when(underTest.testUserService.createTestOrganisation(*, *, eqTo(None), eqTo(None), eqTo(None))(*))
+      when(underTest.testUserService.createTestOrganisation(*, *, eqTo(None), eqTo(None), eqTo(None), eqTo(None))(*))
         .thenReturn(failed(new RuntimeException("expected test error")))
 
       val result = underTest.createOrganisation()(createOrganisationRequest)

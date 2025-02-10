@@ -166,6 +166,13 @@ class TestUserRepository @Inject() (config: TestUserRepository.Config, mongo: Mo
             .sparse(true)
         ),
         IndexModel(
+          ascending("pillar2Id"),
+          IndexOptions()
+            .name("pillar2Id-Index")
+            .background(true)
+            .sparse(true)
+        ),
+        IndexModel(
           ascending("lastAccess"),
           IndexOptions()
             .name("lastAccess-Index")
@@ -313,6 +320,15 @@ class TestUserRepository @Inject() (config: TestUserRepository.Config, mongo: Mo
     fetchMarkAccessAs[TestOrganisation](
       and(
         equal("crn", crn.value),
+        equal("userType", UserType.ORGANISATION.toString)
+      )
+    )
+  }
+
+  def fetchOrganisationByPillar2Id(pillar2Id: Pillar2Id): Future[Option[TestOrganisation]] = {
+    fetchMarkAccessAs[TestOrganisation](
+      and(
+        equal("pillar2Id", pillar2Id.value),
         equal("userType", UserType.ORGANISATION.toString)
       )
     )

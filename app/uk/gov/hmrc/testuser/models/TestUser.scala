@@ -58,6 +58,7 @@ object TestUserPropKey {
   case object taxpayerType                            extends TestUserPropKey
   case object arn                                     extends TestUserPropKey
   case object agentCode                               extends TestUserPropKey
+  case object pillar2Id                               extends TestUserPropKey
 
   val values: Set[TestUserPropKey] = Set(
     saUtr,
@@ -75,7 +76,8 @@ object TestUserPropKey {
     crn,
     taxpayerType,
     arn,
-    agentCode
+    agentCode,
+    pillar2Id
   )
 
   def apply(text: String): Option[TestUserPropKey] = TestUserPropKey.values.find(_.toString == text)
@@ -147,6 +149,8 @@ case class TestOrganisation(
   lazy val crn                                     = props.get(TestUserPropKey.crn)
   // O
   lazy val taxpayerType                            = props.get(TestUserPropKey.taxpayerType)
+  // O A
+  lazy val pillar2Id                               = props.get(TestUserPropKey.pillar2Id)
 }
 
 object TestOrganisation {
@@ -339,7 +343,7 @@ case class EoriNumber(override val value: String) extends TaxIdentifier with Sim
 
 object EoriNumber extends SimpleName {
   val validGBorXIEoriFormat = "^(GB|XI)[0-9]{12,15}$"
-  val validEUEoriFormat    = "^[A-Z]{2}[0-9]{1,15}$"
+  val validEUEoriFormat     = "^[A-Z]{2}[0-9]{1,15}$"
 
   // Because Java doesn't allow conditional regex we need to use this rather clunky mechanism
   // rather than have a single regex.
@@ -387,5 +391,19 @@ object Crn extends SimpleName with (String => Crn) {
   def isValid(value: String) = value.matches(validCrnFormat)
 
   override val name: String = "crn"
+
+}
+
+case class Pillar2Id(override val value: String) extends TaxIdentifier with SimpleName {
+  require(Pillar2Id.isValid(value), s"$value is not a valid Pillar 2 ID.")
+  override val name: String = Pillar2Id.name
+}
+
+object Pillar2Id extends SimpleName with (String => Pillar2Id) {
+  private val validPillar2IdFormat = "^[A-Z0-9]{15}$" // TODO: check with PM
+
+  def isValid(value: String) = value.matches(validPillar2IdFormat)
+
+  override val name: String = "pillar2Id"
 
 }

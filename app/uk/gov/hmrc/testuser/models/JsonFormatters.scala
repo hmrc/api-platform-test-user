@@ -50,6 +50,7 @@ object JsonFormatters {
   implicit val formatTaxpayerType: Format[TaxpayerType]                                              = Json.valueFormat[TaxpayerType]
   implicit val formatEoriNumber: Format[EoriNumber]                                                  = Json.valueFormat[EoriNumber]
   implicit val formatExciseNumber: Format[ExciseNumber]                                              = Json.valueFormat[ExciseNumber]
+  implicit val formatPillar2Id: Format[Pillar2Id]                                                    = Json.valueFormat[Pillar2Id]
   implicit val formatCreateUserWithOptionalEoriRequest: OFormat[CreateUserWithOptionalRequestParams] = Json.format[CreateUserWithOptionalRequestParams]
 
   implicit val formatErrorResponse: OFormat[ErrorResponse] = Json.format[ErrorResponse]

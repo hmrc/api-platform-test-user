@@ -230,6 +230,48 @@ class FetchUserSpec extends BaseFeatureSpec {
       """.stripMargin
       )
     }
+
+    Scenario("Fetch an organisation by Pillar 2 ID") {
+
+      Given("An organisation")
+      val organisation = createOrganisation("pillar-2")
+
+      When("I fetch the organisation by its pillar2Id")
+      val response = http(
+        basicRequest
+          .get(uri"$serviceUrl/organisations/pillar2Id/${organisation.props("pillar2Id")}")
+      )
+
+      Then("The organisation is returned along with Pillar 2 ID")
+      Json.parse(response.body.value) shouldBe Json.parse(
+        s"""{
+           |   "userId": "${organisation.userId}",
+           |   "userFullName": "${organisation.userFullName}",
+           |   "emailAddress": "${organisation.emailAddress}",
+           |   "organisationDetails": {
+           |     "name": "${organisation.organisationDetails.name}",
+           |     "address": {
+           |       "line1": "${organisation.organisationDetails.address.line1}",
+           |       "line2": "${organisation.organisationDetails.address.line2}",
+           |       "postcode": "${organisation.organisationDetails.address.postcode}"
+           |     }
+           |   },
+           |   "individualDetails": {
+           |     "firstName": "${organisation.individualDetails.get.firstName}",
+           |     "lastName": "${organisation.individualDetails.get.lastName}",
+           |     "dateOfBirth": "${organisation.individualDetails.get.dateOfBirth}",
+           |     "address": {
+           |       "line1": "${organisation.individualDetails.get.address.line1}",
+           |       "line2": "${organisation.individualDetails.get.address.line2}",
+           |       "postcode": "${organisation.individualDetails.get.address.postcode}"
+           |     }
+           |   },
+           |   "pillar2Id": "${organisation.props("pillar2Id")}",
+           |   "groupIdentifier": "${organisation.props("groupIdentifier")}"
+           |}
+      """.stripMargin
+      )
+    }
   }
 
   private def createIndividual(services: String*): TestIndividualCreatedResponse = {

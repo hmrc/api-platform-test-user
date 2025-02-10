@@ -43,7 +43,7 @@ class TestUserController @Inject() (val testUserService: TestUserService, cc: Co
       ) map {
         case Left(NinoAlreadyUsed)            => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
         case Left(error: CreateTestUserError) => {
-          logger.error(s"Unepected error response from testUserService.createTestIndividual: ${error.toString}")
+          logger.error(s"Unexpected error response from testUserService.createTestIndividual: ${error.toString}")
           BadRequest
         }
         case Right(createdIndividual)         =>
@@ -59,11 +59,13 @@ class TestUserController @Inject() (val testUserService: TestUserService, cc: Co
         createUserRequest.eoriNumber,
         createUserRequest.exciseNumber,
         createUserRequest.nino,
-        createUserRequest.taxpayerType
+        createUserRequest.taxpayerType,
+        createUserRequest.pillar2Id
       ) map {
         case Left(NinoAlreadyUsed)            => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
+        case Left(Pillar2IdAlreadyUsed)       => BadRequest(toJson(ErrorResponse.pillar2IdAlreadyUsed))
         case Left(error: CreateTestUserError) => {
-          logger.error(s"Unepected error response from testUserService.createTestOrganisation: ${error.toString}")
+          logger.error(s"Unexpected error response from testUserService.createTestOrganisation: ${error.toString}")
           BadRequest
         }
         case Right(organisation)              => Created(toJson(TestOrganisationCreatedResponse.from(organisation)))
@@ -129,6 +131,12 @@ class TestUserController @Inject() (val testUserService: TestUserService, cc: Co
 
   def fetchOrganisationByCrn(crn: Crn): Action[AnyContent] = Action.async { _ =>
     testUserService.fetchOrganisationByCrn(crn) map { organisation =>
+      Ok(toJson(FetchTestOrganisationResponse.from(organisation)))
+    } recover recovery
+  }
+
+  def fetchOrganisationByPillar2Id(pillar2Id: Pillar2Id): Action[AnyContent] = Action.async { _ =>
+    testUserService.fetchOrganisationByPillar2Id(pillar2Id) map { organisation =>
       Ok(toJson(FetchTestOrganisationResponse.from(organisation)))
     } recover recovery
   }
