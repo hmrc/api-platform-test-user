@@ -99,6 +99,11 @@
             "title": "modernisation-of-authorisations",
             "enum": ["modernisation-of-authorisations"],
             "description": "Generates an EORI number and enrols the user for Modernisation of Authorisations."
+          },
+          {
+            "title": "pillar-2",
+            "enum": ["pillar-2"],
+            "description": "Generates a Pillar 2 ID and enrols the user for Pillar 2."
           }
         ]
       },
@@ -124,6 +129,10 @@
     "taxPayerType": {
       "type": "string",
       "description": "Type of Self Assessment taxpayer One of 'Individual' or 'Partnership'"
+    },
+    "pillar2Id": {
+      "type": "string",
+      "description": "A Pillar 2 ID can be provided for the test organisation"
     }
   },
   "required": [
