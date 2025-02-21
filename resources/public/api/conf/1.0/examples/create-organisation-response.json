@@ -34,5 +34,6 @@
   "eoriNumber":"GB123456789012",
   "exciseNumber":"GBWK254706100",
   "crn": "12345678",
-  "taxPayerType":"Individual"
+  "taxPayerType":"Individual",
+  "pillar2Id":"XA1234567890123"
 }

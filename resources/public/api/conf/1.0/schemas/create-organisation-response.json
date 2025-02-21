@@ -156,6 +156,10 @@
     "taxPayerType": {
       "type": "string",
       "description": "Type of Self Assessment taxpayer One of 'Individual' or 'Partnership'"
+    },
+    "pillar2Id": {
+      "type": "string",
+      "description": "Pillar 2 ID"
     }
   },
   "required": [
