@@ -235,7 +235,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
     }
 
     "fail when the pillar2Id validation fails" in new Setup {
-      val pillar2Id = Pillar2Id("XE4444444444444")
+      val pillar2Id = Pillar2Id("XEPLR4444444444")
       when(underTest.testUserRepository.fetchOrganisationByPillar2Id(eqTo(pillar2Id)))
         .thenReturn(Future.successful(Some(testOrganisation)))
 
