@@ -50,7 +50,7 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val ctUtr                                   = "1555369053"
   val crn                                     = "12345678"
   val vrn                                     = "999902541"
-  val pillar2Id                               = Pillar2Id("XE4444444444444")
+  val pillar2Id                               = Pillar2Id("XEPLR4444444444")
   val vatRegistrationDate                     = LocalDate.parse("2011-07-07")
   private val taxOfficeNum                    = "555"
   private val taxOfficeRef                    = "EIA000"

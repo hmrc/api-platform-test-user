@@ -81,7 +81,10 @@ trait GeneratorProvider {
 
   val ninoGenerator = Gen.listOfN(6, Gen.numChar).map("PE" + _.mkString + "A")
 
-  val pillar2IdGenerator = Gen.stringOfN(13, Gen.numChar).map("XE" + _.mkString).map(Pillar2Id.apply)
+  val pillar2IdGenerator = for {
+    randomLetter <- Gen.alphaUpperChar
+    randomDigits <- Gen.listOfN(10, Gen.numChar)
+  } yield Pillar2Id(s"X${randomLetter}PLR${randomDigits.mkString}")
 }
 
 class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {

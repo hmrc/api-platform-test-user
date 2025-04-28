@@ -406,9 +406,9 @@ class Pillar2IdGenerator(random: Random = new Random) {
 
   def next: String = {
     val randomLetter = ('A' to 'Z')(random.nextInt(26))
-    val randomDigits = (1 to 13).map(_ => random.nextInt(10)).mkString
+    val randomDigits = (1 to 10).map(_ => random.nextInt(10)).mkString
 
-    s"X$randomLetter$randomDigits"
+    s"X${randomLetter}PLR$randomDigits"
   }
 }
 
