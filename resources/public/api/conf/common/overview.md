@@ -1,7 +1,7 @@
 Use this API to create test users for [testing in our sandbox](/api-documentation/docs/testing) with [user-restricted endpoints](/api-documentation/docs/authorisation/user-restricted-endpoints).
 
 ### What is a test user?
-A test user is a dummy HMRC online service user ID that you can use for testing in our sandbox.
+This is a temporary user ID you can use for testing in our sandbox environment.
 To access [user-restricted endpoints](/api-documentation/docs/authorisation/user-restricted-endpoints) your application’s users must complete the OAuth journey, which includes signing in using their HMRC sign in details.
 
 Each test user has a:
