@@ -115,7 +115,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
 
     val testIndividual = testIndividualWithNoServices.copy(services = individualServices)
 
-    val testOrganisationWithNoServices = await(generator.generateTestOrganisation(Seq.empty, None, None, None, None, None).map(a =>
+    val testOrganisationWithNoServices = await(generator.generateTestOrganisation(Seq.empty, None, None, None, None, None, None).map(a =>
       a.copy(
         userId = userId,
         password = password,
@@ -185,10 +185,10 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
     "Generate an organisation and save it in the database" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None, None, None)).thenReturn(successful(testOrganisation))
+      when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None, None, None, None)).thenReturn(successful(testOrganisation))
       when(underTest.passwordService.hash(testOrganisation.password)).thenReturn(hashedPassword)
 
-      val result = await(underTest.createTestOrganisation(organisationServices, None, None, None, None, None))
+      val result = await(underTest.createTestOrganisation(organisationServices, None, None, None, None, None, None))
 
       result shouldBe Right(testOrganisation)
 
@@ -200,10 +200,10 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
     "Not call the Mtd SA API Stub when the organisation does not have the mtd-income-tax service" in new Setup {
 
       val hashedPassword = "hashedPassword"
-      when(underTest.generator.generateTestOrganisation(Seq.empty, None, None, None, None, None)).thenReturn(successful(testOrganisationWithNoServices))
+      when(underTest.generator.generateTestOrganisation(Seq.empty, None, None, None, None, None, None)).thenReturn(successful(testOrganisationWithNoServices))
       when(underTest.passwordService.hash(testOrganisationWithNoServices.password)).thenReturn(hashedPassword)
 
-      val result = await(underTest.createTestOrganisation(Seq.empty, None, None, None, None, None))
+      val result = await(underTest.createTestOrganisation(Seq.empty, None, None, None, None, None, None))
 
       result shouldBe Right(testOrganisationWithNoServices)
 
@@ -213,12 +213,12 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
     }
 
     "fail when the repository fails" in new Setup {
-      when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None, None, None)).thenReturn(successful(testOrganisation))
+      when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None, None, None, None)).thenReturn(successful(testOrganisation))
       when(underTest.testUserRepository.createUser(*[TestUser]))
         .thenReturn(failed(new RuntimeException("expected test error")))
 
       intercept[RuntimeException] {
-        await(underTest.createTestOrganisation(organisationServices, None, None, None, None, None))
+        await(underTest.createTestOrganisation(organisationServices, None, None, None, None, None, None))
       }
     }
 
@@ -226,7 +226,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
       when(underTest.testUserRepository.fetchByNino(eqTo(Nino(nino))))
         .thenReturn(Future.successful(Some(testIndividual)))
 
-      val result = await(underTest.createTestOrganisation(organisationServices, None, None, Some(Nino(nino)), None, None))
+      val result = await(underTest.createTestOrganisation(organisationServices, None, None, Some(Nino(nino)), None, None, None))
 
       result shouldBe Left(NinoAlreadyUsed)
 
@@ -239,9 +239,21 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
       when(underTest.testUserRepository.fetchOrganisationByPillar2Id(eqTo(pillar2Id)))
         .thenReturn(Future.successful(Some(testOrganisation)))
 
-      val result = await(underTest.createTestOrganisation(organisationServices, None, None, None, None, Some(pillar2Id)))
+      val result = await(underTest.createTestOrganisation(organisationServices, None, None, None, None, Some(pillar2Id), None))
 
       result shouldBe Left(Pillar2IdAlreadyUsed)
+
+      verify(underTest.testUserRepository, times(0)).createUser(any)
+    }
+
+    "fail with zReferenceAlreadyUsed when the zReference already exists" in new Setup {
+      val zReference = ZReference("Z1234")
+      when(underTest.testUserRepository.fetchOrganisationByZReference(eqTo(zReference)))
+        .thenReturn(Future.successful(Some(testOrganisation)))
+
+      val result = await(underTest.createTestOrganisation(organisationServices, None, None, None, None, None, Some(zReference)))
+
+      result shouldBe Left(zReferenceAlreadyUsed)
 
       verify(underTest.testUserRepository, times(0)).createUser(any)
     }
@@ -253,7 +265,7 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
       when(underTest.testUserRepository.fetchOrganisationByPillar2Id(eqTo(internalServerErrorId)))
         .thenReturn(Future.successful(Some(testOrganisation)))
 
-      when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None, None, Some(internalServerErrorId)))
+      when(underTest.generator.generateTestOrganisation(organisationServices, None, None, None, None, Some(internalServerErrorId), None))
         .thenReturn(successful(testOrganisation))
       when(underTest.passwordService.hash(testOrganisation.password)).thenReturn(hashedPassword)
 
@@ -263,7 +275,8 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
         None,
         None,
         None,
-        Some(internalServerErrorId)
+        Some(internalServerErrorId),
+        None
       ))
 
       result shouldBe Right(testOrganisation)

@@ -60,7 +60,8 @@ class TestUserController @Inject() (val testUserService: TestUserService, cc: Co
         createUserRequest.exciseNumber,
         createUserRequest.nino,
         createUserRequest.taxpayerType,
-        createUserRequest.pillar2Id
+        createUserRequest.pillar2Id,
+        createUserRequest.zReference
       ) map {
         case Left(NinoAlreadyUsed)            => BadRequest(toJson(ErrorResponse.ninoAlreadyUsed))
         case Left(Pillar2IdAlreadyUsed)       => BadRequest(toJson(ErrorResponse.pillar2IdAlreadyUsed))

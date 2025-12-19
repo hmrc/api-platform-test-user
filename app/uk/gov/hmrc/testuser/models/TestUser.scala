@@ -59,6 +59,7 @@ object TestUserPropKey {
   case object arn                                     extends TestUserPropKey
   case object agentCode                               extends TestUserPropKey
   case object pillar2Id                               extends TestUserPropKey
+  case object zReference                              extends TestUserPropKey
 
   val values: Set[TestUserPropKey] = Set(
     saUtr,
@@ -77,7 +78,8 @@ object TestUserPropKey {
     taxpayerType,
     arn,
     agentCode,
-    pillar2Id
+    pillar2Id,
+    zReference
   )
 
   def apply(text: String): Option[TestUserPropKey] = TestUserPropKey.values.find(_.toString == text)
@@ -151,6 +153,8 @@ case class TestOrganisation(
   lazy val taxpayerType                            = props.get(TestUserPropKey.taxpayerType)
   // O A
   lazy val pillar2Id                               = props.get(TestUserPropKey.pillar2Id)
+  // 0
+  lazy val zReference                              = props.get(TestUserPropKey.zReference)
 }
 
 object TestOrganisation {
@@ -405,5 +409,19 @@ object Pillar2Id extends SimpleName with (String => Pillar2Id) {
   def isValid(value: String) = value.matches(validPillar2IdFormat)
 
   override val name: String = "pillar2Id"
+
+}
+
+case class ZReference(override val value: String) extends TaxIdentifier with SimpleName {
+  require(ZReference.isValid(value), s"$value is not a valid ISA Manager Reference.")
+  override val name: String = ZReference.name
+}
+
+object ZReference extends SimpleName with (String => ZReference) {
+  private val validZReferenceFormat = "^Z[0-9]{4}$"
+
+  def isValid(value: String) = value.matches(validZReferenceFormat)
+
+  override val name: String = "zReference"
 
 }

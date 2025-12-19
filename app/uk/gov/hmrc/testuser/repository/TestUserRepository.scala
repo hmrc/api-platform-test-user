@@ -334,6 +334,15 @@ class TestUserRepository @Inject() (config: TestUserRepository.Config, mongo: Mo
     )
   }
 
+  def fetchOrganisationByZReference(zReference: ZReference): Future[Option[TestOrganisation]] = {
+    fetchMarkAccessAs[TestOrganisation](
+      and(
+        equal("zReference", zReference.value),
+        equal("userType", UserType.ORGANISATION.toString)
+      )
+    )
+  }
+
   def identifierIsUnique(propKey: TestUserPropKey)(identifier: String): Future[Boolean] = {
     collection.find(equal(propKey.toString, identifier)).limit(1).headOption().map(_.isEmpty)
   }
