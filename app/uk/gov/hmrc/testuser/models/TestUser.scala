@@ -413,7 +413,7 @@ object Pillar2Id extends SimpleName with (String => Pillar2Id) {
 }
 
 case class ZReference(override val value: String) extends TaxIdentifier with SimpleName {
-  require(ZReference.isValid(value), s"$value is not a valid ISA Manager Reference.")
+  require(ZReference.isValid(value), s"$value is not a valid Z Reference.")
   override val name: String = ZReference.name
 }
 

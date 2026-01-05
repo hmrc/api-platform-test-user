@@ -442,11 +442,10 @@ class CompanyReferenceNumberGenerator(random: Random = new Random) {
   def next: String = (for (_ <- 1 to length) yield random.nextInt(maxNum)).mkString("")
 }
 
-class zReferenceGenerator(random: Random = new Random) extends Modulus23Check {
+class zReferenceGenerator(random: Random = new Random) {
   def this(seed: Int) = this(new scala.util.Random(seed))
 
   def next: String = f"Z${random.nextInt(9999)}%04d"
-
 }
 
 object VrnChecksum {
