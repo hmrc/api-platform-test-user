@@ -160,6 +160,10 @@
     "pillar2Id": {
       "type": "string",
       "description": "Pillar 2 ID"
+    },
+    "zReference": {
+      "type": "string",
+      "description": "ISA Manager Z Reference, in 4-digit format (Znnnn)."
     }
   },
   "required": [

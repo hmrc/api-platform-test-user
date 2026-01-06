@@ -104,6 +104,11 @@
             "title": "pillar-2",
             "enum": ["pillar-2"],
             "description": "Generates a Pillar 2 ID and enrols the user for Pillar 2."
+          },
+          {
+            "title": "disa",
+            "enum": ["disa"],
+            "description": "Generates a Z Reference and enrols the user for DISA."
           }
         ]
       },
@@ -133,6 +138,10 @@
     "pillar2Id": {
       "type": "string",
       "description": "A Pillar 2 ID can be provided for the test organisation"
+    },
+    "zReference": {
+      "type": "string",
+      "description": "An ISA Manager Z Reference can be provided for the test organisation"
     }
   },
   "required": [
