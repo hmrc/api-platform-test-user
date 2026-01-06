@@ -31,7 +31,7 @@ import uk.gov.hmrc.mongo.test.MongoSupport
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.testuser.helpers.GeneratorProvider
 import uk.gov.hmrc.testuser.models.ServiceKey._
-import uk.gov.hmrc.testuser.models.{Crn, NinoNoSuffix, Pillar2Id, TestUserPropKey}
+import uk.gov.hmrc.testuser.models.{Crn, NinoNoSuffix, Pillar2Id, TestUserPropKey, ZReference}
 
 class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with BeforeAndAfterAll with MongoSupport with IndexVerification {
 
@@ -70,12 +70,13 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     val testOrganisation =
       await(
         generator.generateTestOrganisation(
-          Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT, LISA, CUSTOMS_SERVICES, CTC_LEGACY, CTC, PILLAR_2),
+          Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT, LISA, CUSTOMS_SERVICES, CTC_LEGACY, CTC, PILLAR_2, DISA),
           eoriNumber = None,
           exciseNumber = None,
           nino = None,
           taxpayerType = None,
-          pillar2Id = None
+          pillar2Id = None,
+          zReference = None
         )
       )
   }
@@ -427,6 +428,22 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
 
     "return None when there is no organisation matching" in new GeneratedTestOrganisation {
       val result = await(repository.fetchOrganisationByPillar2Id(Pillar2Id(testOrganisation.pillar2Id.get)))
+      result shouldBe None
+    }
+  }
+
+  "fetchOrganisationByZReference" should {
+
+    "return the organisation" in new GeneratedTestOrganisation {
+      await(repository.createUser(testOrganisation))
+
+      val result = await(repository.fetchOrganisationByZReference(ZReference(testOrganisation.zReference.get)))
+
+      result shouldBe Some(testOrganisation)
+    }
+
+    "return None when there is no organisation matching" in new GeneratedTestOrganisation {
+      val result = await(repository.fetchOrganisationByZReference(ZReference(testOrganisation.zReference.get)))
       result shouldBe None
     }
   }

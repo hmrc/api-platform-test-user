@@ -29,8 +29,9 @@ import uk.gov.hmrc.testuser.models._
 import uk.gov.hmrc.testuser.repository.TestUserRepository
 
 trait CreateTestUserError
-object NinoAlreadyUsed      extends CreateTestUserError
-object Pillar2IdAlreadyUsed extends CreateTestUserError
+object NinoAlreadyUsed       extends CreateTestUserError
+object Pillar2IdAlreadyUsed  extends CreateTestUserError
+object zReferenceAlreadyUsed extends CreateTestUserError
 
 @Singleton
 class TestUserService @Inject() (
@@ -79,6 +80,14 @@ class TestUserService @Inject() (
     )(createTestUser)
   }
 
+  private def validateZReferenceRequest[T](zReference: Option[ZReference])(createTestUser: => Future[T]): Future[Either[CreateTestUserError, T]] = {
+    validateField(
+      maybeValue = zReference,
+      isUnique = (zReference: ZReference) => testUserRepository.fetchOrganisationByZReference(zReference).map(_.fold(true)(_ => false)),
+      error = zReferenceAlreadyUsed
+    )(createTestUser)
+  }
+
   def createTestIndividual(
       serviceNames: Seq[ServiceKey],
       eoriNumber: Option[EoriNumber] = None,
@@ -96,7 +105,6 @@ class TestUserService @Inject() (
         _ => individual
       }
     }
-
   }
 
   def createTestOrganisation(
@@ -105,11 +113,12 @@ class TestUserService @Inject() (
       exciseNumber: Option[ExciseNumber],
       nino: Option[Nino],
       taxpayerType: Option[TaxpayerType],
-      pillar2Id: Option[Pillar2Id]
+      pillar2Id: Option[Pillar2Id],
+      zReference: Option[ZReference]
     )(implicit hc: HeaderCarrier
     ): Future[Either[CreateTestUserError, TestOrganisation]] = {
 
-    def createOrg = generator.generateTestOrganisation(serviceNames, eoriNumber, exciseNumber, nino, taxpayerType, pillar2Id).flatMap { organisation =>
+    def createOrg = generator.generateTestOrganisation(serviceNames, eoriNumber, exciseNumber, nino, taxpayerType, pillar2Id, zReference).flatMap { organisation =>
       val hashedPassword = passwordService.hash(organisation.password)
 
       testUserRepository.createUser(organisation.copy(password = hashedPassword)) map {
@@ -121,21 +130,26 @@ class TestUserService @Inject() (
       }
     }
 
-    (nino, pillar2Id) match {
-      case (Some(n), None) =>
+    (nino, pillar2Id, zReference) match {
+      case (Some(n), None, None) =>
         validateNinoRequest(Some(n)) {
           createOrg
         }
 
-      case (None, Some(p)) =>
+      case (None, Some(p), None) =>
         validatePillar2IdRequest(Some(p)) {
           createOrg
         }
 
-      case (None, None) => // Neither provided
+      case (None, None, Some(ref)) =>
+        validateZReferenceRequest(Some(ref)) {
+          createOrg
+        }
+
+      case (None, None, None) => // Nothing provided
         createOrg.map(Right(_))
 
-      case (Some(_), Some(_)) =>
+      case (Some(_), Some(_), Some(_)) =>
         Future.successful(Left(NinoAlreadyUsed))
     }
   }

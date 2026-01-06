@@ -51,6 +51,7 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
   private val taxOfficeReference              = "EIA000"
   val empRef                                  = s"$taxOfficeNumber/$taxOfficeReference"
   val pillar2Id                               = "XE4444444444444"
+  val zReference                              = "Z1234"
 
   val agentEnrolment                 = Enrolment("HMRC-AS-AGENT", Seq(Identifier("AgentReferenceNumber", arn)))
   val saEnrolment                    = Enrolment("IR-SA", Seq(Identifier("UTR", saUtr.toString)))
@@ -70,6 +71,7 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
   val icsEnrolment                   = Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber)))
   val emcsEnrolment                  = Enrolment("HMRC-EMCS-ORG", Seq(Identifier("ExciseNumber", exciseNumber)))
   val pillar2Enrolment               = Enrolment("HMRC-PILLAR2-ORG", Seq(Identifier("PLRID", pillar2Id)))
+  val disaEnrolment                  = Enrolment("HMRC-DISA-ORG", Seq(Identifier("ZREF", zReference)))
 
   "A GovernmentGatewayLogin created from a TestAgent" should {
 
@@ -229,7 +231,8 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       TestUserPropKey.exciseNumber                            -> exciseNumber,
       TestUserPropKey.groupIdentifier                         -> groupIdentifier,
       TestUserPropKey.crn                                     -> crn,
-      TestUserPropKey.pillar2Id                               -> pillar2Id
+      TestUserPropKey.pillar2Id                               -> pillar2Id,
+      TestUserPropKey.zReference                              -> zReference
     )
     val organisation = TestOrganisation(
       userId = user,
@@ -257,7 +260,8 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
         CTC,
         IMPORT_CONTROL_SYSTEM,
         EMCS,
-        PILLAR_2
+        PILLAR_2,
+        DISA
       ),
       props = props
     )
@@ -289,7 +293,8 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
           ctcLegacyEnrolment,
           icsEnrolment,
           emcsEnrolment,
-          pillar2Enrolment
+          pillar2Enrolment,
+          disaEnrolment
         )
     }
 
@@ -353,6 +358,12 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       val login = GovernmentGatewayLogin(organisation.copy(services = Seq(PILLAR_2)))
 
       login.enrolments should contain theSameElementsAs Seq(pillar2Enrolment)
+    }
+
+    "contain the correct enrolment for disa" in {
+      val login = GovernmentGatewayLogin(organisation.copy(services = Seq(DISA)))
+
+      login.enrolments should contain theSameElementsAs Seq(disaEnrolment)
     }
 
     "not have the credential role populated" in {

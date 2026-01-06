@@ -209,6 +209,7 @@ object GovernmentGatewayLogin {
         case IMPORT_CONTROL_SYSTEM           => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber))) }
         case MODERNISATION_OF_AUTHORISATIONS => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-MA-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case PILLAR_2                        => organisation.pillar2Id map { pillar2Id => Enrolment("HMRC-PILLAR2-ORG", Seq(Identifier("PLRID", pillar2Id))) }
+        case DISA                            => organisation.zReference map { zReference => Enrolment("HMRC-DISA-ORG", Seq(Identifier("ZREF", zReference))) }
         case _                               => None
       }
     }

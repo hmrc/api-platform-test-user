@@ -79,6 +79,7 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
   val groupIdentifier                         = "organsiationGroup"
   val crn                                     = "12345678"
   val pillar2Id                               = "XE4444444444444"
+  val zReference                              = "Z1234"
 
   val orgProps = Map[TestUserPropKey, String](
     TestUserPropKey.saUtr                                   -> saUtr,
@@ -94,7 +95,8 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     TestUserPropKey.exciseNumber                            -> exciseNumber,
     TestUserPropKey.groupIdentifier                         -> groupIdentifier,
     TestUserPropKey.crn                                     -> crn,
-    TestUserPropKey.pillar2Id                               -> pillar2Id
+    TestUserPropKey.pillar2Id                               -> pillar2Id,
+    TestUserPropKey.zReference                              -> zReference
   )
 
   val testOrganisation = TestOrganisation(
@@ -123,7 +125,8 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       CTC,
       EMCS,
       MODERNISATION_OF_AUTHORISATIONS,
-      PILLAR_2
+      PILLAR_2,
+      DISA
     ),
     props = orgProps
   )
@@ -466,6 +469,15 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
            |       {
            |         "key":"PLRID",
            |         "value":"${testOrganisation.pillar2Id.get}"
+           |       }]
+           |     },
+           |     {
+           |       "key": "HMRC-DISA-ORG",
+           |       "state": "Activated",
+           |       "identifiers": [
+           |       {
+           |         "key":"ZREF",
+           |         "value":"${testOrganisation.zReference.get}"
            |       }]
            |     }
            |   ],
