@@ -108,7 +108,7 @@
           {
             "title": "disa",
             "enum": ["disa"],
-            "description": "Generates a Z Reference and enrols the user for DISA."
+            "description": "Generates an ISA Manager Z Reference and enrols the user for DISA."
           }
         ]
       },
