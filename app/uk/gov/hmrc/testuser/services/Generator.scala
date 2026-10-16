@@ -83,6 +83,26 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
   private val pillar2IdGenerator  = new Pillar2IdGenerator()
   private val zReferenceGenerator = new zReferenceGenerator()
 
+  private val capitalGainsTaxOnUKPropertyReferenceGenerator = for {
+    letter <- Gen.alphaUpperChar
+    digits <- Gen.listOfN(9, Gen.numChar)
+  } yield s"X${letter}CGTP${digits.mkString}"
+
+  private val plasticPackagingTaxRegistrationNumberGenerator = for {
+    letter <- Gen.alphaUpperChar
+    digits <- Gen.listOfN(7, Gen.numChar)
+  } yield s"X${letter}PPT000${digits.mkString}"
+
+  private val countryByCountryReportingIdGenerator = for {
+    letter <- Gen.alphaUpperChar
+    digits <- Gen.listOfN(10, Gen.numChar)
+  } yield s"X${letter}CBC${digits.mkString}"
+
+  private val trustsUniqueReferenceNumberGenerator = for {
+    letter <- Gen.alphaUpperChar
+    digits <- Gen.listOfN(8, Gen.numChar)
+  } yield s"X${letter}TRUST${digits.mkString}"
+
   def useProvidedOrGenerateEoriNumber(eoriNumber: Option[EoriNumber]): Future[String] = {
     eoriNumber.fold(generateEoriNumber)(provided => Future.successful(provided.value))
   }
@@ -110,24 +130,28 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
     def whenF[T](keys: ServiceKey*)(thenDo: => Future[T]): Future[Option[T]] = Generator.whenF(services)(keys)(thenDo)
 
     for {
-      saUtr              <- whenF(SELF_ASSESSMENT)(generateSaUtr)
-      nino               <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(useProvidedOrGeneratedNino(nino))
-      mtdItId            <- whenF(MTD_INCOME_TAX)(generateMtdId)
-      eoriNumber         <- whenF(CUSTOMS_SERVICES, CTC_LEGACY, CTC, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
-      vrn                <- whenF(MTD_VAT)(generateVrn)
-      vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1, 20).sample.get))
-      groupIdentifier     = Some(generateGroupIdentifier)
-      individualDetails   = generateIndividualDetails
-      userFullName        = generateUserFullName(individualDetails.firstName, individualDetails.lastName)
-      emailAddress        = generateEmailAddress(individualDetails.firstName, individualDetails.lastName)
+      saUtr                                 <- whenF(SELF_ASSESSMENT)(generateSaUtr)
+      nino                                  <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(useProvidedOrGeneratedNino(nino))
+      mtdItId                               <- whenF(MTD_INCOME_TAX)(generateMtdId)
+      eoriNumber                            <- whenF(CUSTOMS_SERVICES, CTC_LEGACY, CTC, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
+      vrn                                   <- whenF(MTD_VAT)(generateVrn)
+      capitalGainsTaxOnUKPropertyReference  <- whenF(CAPITAL_GAINS_TAX_UK_PROPERTY)(generateCapitalGainsTaxOnUKPropertyReference)
+      plasticPackagingTaxRegistrationNumber <- whenF(PLASTIC_PACKAGING_TAX)(generatePlasticPackagingTaxRegistrationNumber)
+      vatRegistrationDate                    = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1, 20).sample.get))
+      groupIdentifier                        = Some(generateGroupIdentifier)
+      individualDetails                      = generateIndividualDetails
+      userFullName                           = generateUserFullName(individualDetails.firstName, individualDetails.lastName)
+      emailAddress                           = generateEmailAddress(individualDetails.firstName, individualDetails.lastName)
     } yield {
       val props = Map[TestUserPropKey, Option[String]](
-        TestUserPropKey.saUtr           -> saUtr,
-        TestUserPropKey.nino            -> nino,
-        TestUserPropKey.mtdItId         -> mtdItId,
-        TestUserPropKey.vrn             -> vrn,
-        TestUserPropKey.eoriNumber      -> eoriNumber,
-        TestUserPropKey.groupIdentifier -> groupIdentifier
+        TestUserPropKey.saUtr                                 -> saUtr,
+        TestUserPropKey.nino                                  -> nino,
+        TestUserPropKey.mtdItId                               -> mtdItId,
+        TestUserPropKey.vrn                                   -> vrn,
+        TestUserPropKey.eoriNumber                            -> eoriNumber,
+        TestUserPropKey.groupIdentifier                       -> groupIdentifier,
+        TestUserPropKey.capitalGainsTaxOnUKPropertyReference  -> capitalGainsTaxOnUKPropertyReference,
+        TestUserPropKey.plasticPackagingTaxRegistrationNumber -> plasticPackagingTaxRegistrationNumber
       ).collect {
         case (key, Some(value)) => key -> value
       }
@@ -159,48 +183,60 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
     def when[T](keys: ServiceKey*)(thenDo: => T): Option[T] = Generator.when(services)(keys)(thenDo)
 
     for {
-      saUtr              <- whenF(SELF_ASSESSMENT)(generateSaUtr)
-      nino               <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(useProvidedOrGeneratedNino(nino))
-      mtdItId            <- whenF(MTD_INCOME_TAX)(generateMtdId)
-      empRef             <- whenF(PAYE_FOR_EMPLOYERS)(generateEmpRef)
-      ctUtr              <- whenF(CORPORATION_TAX)(generateCtUtr)
-      vrn                <- whenF(SUBMIT_VAT_RETURNS, MTD_VAT)(generateVrn)
-      vatRegistrationDate = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1, 20).sample.get))
-      lisaManRefNum      <- whenF(LISA)(generateLisaManRefNum)
-      setRefNum           = when(SECURE_ELECTRONIC_TRANSFER)(generateSetRefNum)
-      psaId               = when(RELIEF_AT_SOURCE)(generatePsaId)
-      eoriNumber         <- whenF(CUSTOMS_SERVICES, CTC_LEGACY, CTC, SAFETY_AND_SECURITY, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
-      exciseNumber       <- whenF(EMCS)(useProvidedOrGenerateExciseNumber(exciseNumber))
-      groupIdentifier     = Some(generateGroupIdentifier)
-      firstName           = generateFirstName
-      lastName            = generateLastName
-      userFullName        = generateUserFullName(firstName, lastName)
-      emailAddress        = generateEmailAddress(firstName, lastName)
-      organisationDetails = generateOrganisationDetails
-      individualDetails   = Some(generateIndividualDetails(firstName, lastName))
-      companyRegNo       <- whenF(CORPORATION_TAX)(generateCrn)
-      taxpayerType       <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
-      pillar2Id          <- whenF(PILLAR_2)(useProvidedOrGeneratedPillar2Id(pillar2Id))
-      zReference         <- whenF(DISA)(useProvidedOrGeneratedZReference(zReference))
+      saUtr                                            <- whenF(SELF_ASSESSMENT)(generateSaUtr)
+      nino                                             <- whenF(NATIONAL_INSURANCE, MTD_INCOME_TAX)(useProvidedOrGeneratedNino(nino))
+      mtdItId                                          <- whenF(MTD_INCOME_TAX)(generateMtdId)
+      empRef                                           <- whenF(PAYE_FOR_EMPLOYERS)(generateEmpRef)
+      ctUtr                                            <- whenF(CORPORATION_TAX)(generateCtUtr)
+      vrn                                              <- whenF(SUBMIT_VAT_RETURNS, MTD_VAT)(generateVrn)
+      vatRegistrationDate                               = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1, 20).sample.get))
+      lisaManRefNum                                    <- whenF(LISA)(generateLisaManRefNum)
+      setRefNum                                         = when(SECURE_ELECTRONIC_TRANSFER)(generateSetRefNum)
+      psaId                                             = when(RELIEF_AT_SOURCE)(generatePsaId)
+      eoriNumber                                       <- whenF(CUSTOMS_SERVICES, CTC_LEGACY, CTC, SAFETY_AND_SECURITY, GOODS_VEHICLE_MOVEMENTS)(useProvidedOrGenerateEoriNumber(eoriNumber))
+      exciseNumber                                     <- whenF(EMCS)(useProvidedOrGenerateExciseNumber(exciseNumber))
+      groupIdentifier                                   = Some(generateGroupIdentifier)
+      firstName                                         = generateFirstName
+      lastName                                          = generateLastName
+      userFullName                                      = generateUserFullName(firstName, lastName)
+      emailAddress                                      = generateEmailAddress(firstName, lastName)
+      organisationDetails                               = generateOrganisationDetails
+      individualDetails                                 = Some(generateIndividualDetails(firstName, lastName))
+      companyRegNo                                     <- whenF(CORPORATION_TAX)(generateCrn)
+      taxpayerType                                     <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
+      pillar2Id                                        <- whenF(PILLAR_2)(useProvidedOrGeneratedPillar2Id(pillar2Id))
+      zReference                                       <- whenF(DISA)(useProvidedOrGeneratedZReference(zReference))
+      capitalGainsTaxOnUKPropertyReference             <- whenF(CAPITAL_GAINS_TAX_UK_PROPERTY)(generateCapitalGainsTaxOnUKPropertyReference)
+      plasticPackagingTaxRegistrationNumber            <- whenF(PLASTIC_PACKAGING_TAX)(generatePlasticPackagingTaxRegistrationNumber)
+      countryByCountryReportingId                      <- whenF(COUNTRY_BY_COUNTRY_REPORTING)(generateCountryByCountryReportingId)
+      countryByCountryReportingUniqueTaxpayerReference <- whenF(COUNTRY_BY_COUNTRY_REPORTING)(generateCountryByCountryReportingUniqueTaxpayerReference)
+      trustsUniqueTaxpayerReference                    <- whenF(TRUSTS)(generateTrustsUniqueTaxpayerReference)
+      trustsUniqueReferenceNumber                      <- whenF(TRUSTS)(generateTrustsUniqueReferenceNumber)
 
     } yield {
       val props = Map[TestUserPropKey, Option[String]](
-        TestUserPropKey.saUtr                                   -> saUtr,
-        TestUserPropKey.nino                                    -> nino,
-        TestUserPropKey.mtdItId                                 -> mtdItId,
-        TestUserPropKey.empRef                                  -> empRef,
-        TestUserPropKey.ctUtr                                   -> ctUtr,
-        TestUserPropKey.vrn                                     -> vrn,
-        TestUserPropKey.lisaManRefNum                           -> lisaManRefNum,
-        TestUserPropKey.secureElectronicTransferReferenceNumber -> setRefNum,
-        TestUserPropKey.pensionSchemeAdministratorIdentifier    -> psaId,
-        TestUserPropKey.eoriNumber                              -> eoriNumber,
-        TestUserPropKey.exciseNumber                            -> exciseNumber,
-        TestUserPropKey.groupIdentifier                         -> groupIdentifier,
-        TestUserPropKey.crn                                     -> companyRegNo,
-        TestUserPropKey.taxpayerType                            -> taxpayerType,
-        TestUserPropKey.pillar2Id                               -> pillar2Id,
-        TestUserPropKey.zReference                              -> zReference
+        TestUserPropKey.saUtr                                            -> saUtr,
+        TestUserPropKey.nino                                             -> nino,
+        TestUserPropKey.mtdItId                                          -> mtdItId,
+        TestUserPropKey.empRef                                           -> empRef,
+        TestUserPropKey.ctUtr                                            -> ctUtr,
+        TestUserPropKey.vrn                                              -> vrn,
+        TestUserPropKey.lisaManRefNum                                    -> lisaManRefNum,
+        TestUserPropKey.secureElectronicTransferReferenceNumber          -> setRefNum,
+        TestUserPropKey.pensionSchemeAdministratorIdentifier             -> psaId,
+        TestUserPropKey.eoriNumber                                       -> eoriNumber,
+        TestUserPropKey.exciseNumber                                     -> exciseNumber,
+        TestUserPropKey.groupIdentifier                                  -> groupIdentifier,
+        TestUserPropKey.crn                                              -> companyRegNo,
+        TestUserPropKey.taxpayerType                                     -> taxpayerType,
+        TestUserPropKey.pillar2Id                                        -> pillar2Id,
+        TestUserPropKey.zReference                                       -> zReference,
+        TestUserPropKey.capitalGainsTaxOnUKPropertyReference             -> capitalGainsTaxOnUKPropertyReference,
+        TestUserPropKey.plasticPackagingTaxRegistrationNumber            -> plasticPackagingTaxRegistrationNumber,
+        TestUserPropKey.countryByCountryReportingId                      -> countryByCountryReportingId,
+        TestUserPropKey.countryByCountryReportingUniqueTaxpayerReference -> countryByCountryReportingUniqueTaxpayerReference,
+        TestUserPropKey.trustsUniqueTaxpayerReference                    -> trustsUniqueTaxpayerReference,
+        TestUserPropKey.trustsUniqueReferenceNumber                      -> trustsUniqueReferenceNumber
       ).collect {
         case (key, Some(value)) => key -> value
       }
@@ -347,10 +383,30 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
   private def generateZReference: Future[String] = generateUniqueIdentifier(TestUserPropKey.zReference)(() => {
     zReferenceGenerator.next
   })
+
+  private def generateCapitalGainsTaxOnUKPropertyReference: Future[String] =
+    generateUniqueIdentifier(TestUserPropKey.capitalGainsTaxOnUKPropertyReference)(() => capitalGainsTaxOnUKPropertyReferenceGenerator.sample.get)
+
+  private def generatePlasticPackagingTaxRegistrationNumber: Future[String] =
+    generateUniqueIdentifier(TestUserPropKey.plasticPackagingTaxRegistrationNumber)(() => plasticPackagingTaxRegistrationNumberGenerator.sample.get)
+
+  private def generateCountryByCountryReportingId: Future[String] =
+    generateUniqueIdentifier(TestUserPropKey.countryByCountryReportingId)(() => countryByCountryReportingIdGenerator.sample.get)
+
+  private def generateCountryByCountryReportingUniqueTaxpayerReference: Future[String] =
+    generateUniqueIdentifier(TestUserPropKey.countryByCountryReportingUniqueTaxpayerReference)(() => utrGenerator.next)
+
+  private def generateTrustsUniqueTaxpayerReference: Future[String] =
+    generateUniqueIdentifier(TestUserPropKey.trustsUniqueTaxpayerReference)(() => utrGenerator.next)
+
+  private def generateTrustsUniqueReferenceNumber: Future[String] =
+    generateUniqueIdentifier(TestUserPropKey.trustsUniqueReferenceNumber)(() => trustsUniqueReferenceNumberGenerator.sample.get)
 }
 
 class UtrGenerator(random: Random = new Random) extends Modulus11Check {
   def this(seed: Int) = this(new scala.util.Random(seed))
+
+  def isValid(utr: String): Boolean = utr.matches("^[0-9]{10}$") && isCheckCorrect(utr, 0)
 
   def next: String = {
     val randomCode     = f"${random.nextInt(1000000000)}%09d"

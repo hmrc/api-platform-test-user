@@ -115,12 +115,15 @@ class AuthenticationSpec extends BaseFeatureSpec {
   }
 
   private def createIndividual() = {
-    val individualCreatedResponse = createUser("individuals", Seq("national-insurance"))
+    val individualCreatedResponse = createUser("individuals", Seq("capital-gains-tax-uk-property", "plastic-packaging-tax"))
     Json.parse(individualCreatedResponse.body.value)
   }
 
   private def createOrganisation() = {
-    val organisationCreatedResponse = createUser("organisations", Seq("national-insurance", "mtd-income-tax"))
+    val organisationCreatedResponse = createUser(
+      "organisations",
+      Seq("capital-gains-tax-uk-property", "plastic-packaging-tax", "country-by-country-reporting", "trusts")
+    )
     Json.parse(organisationCreatedResponse.body.value)
   }
 

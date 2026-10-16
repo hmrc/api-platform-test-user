@@ -35,43 +35,58 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
   val individualDetails   = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
 
-  val arn                                     = "NARN0396245"
-  val saUtr                                   = "1555369052"
-  val nino                                    = "CC333333C"
-  val mtdItId                                 = "XGIT00000000054"
-  val ctUtr                                   = "1555369053"
-  val crn                                     = "12345678"
-  val vrn                                     = "999902541"
-  val lisaManRefNum                           = "Z123456"
-  val secureElectronicTransferReferenceNumber = "123456789012"
-  val pensionSchemeAdministratorIdentifier    = "A1234567"
-  val eoriNumber                              = "GB1234567890"
-  val exciseNumber                            = "GBWK254706100"
-  private val taxOfficeNumber                 = "555"
-  private val taxOfficeReference              = "EIA000"
-  val empRef                                  = s"$taxOfficeNumber/$taxOfficeReference"
-  val pillar2Id                               = "XE4444444444444"
-  val zReference                              = "Z1234"
+  val arn                                              = "NARN0396245"
+  val saUtr                                            = "1555369052"
+  val nino                                             = "CC333333C"
+  val mtdItId                                          = "XGIT00000000054"
+  val ctUtr                                            = "1555369053"
+  val crn                                              = "12345678"
+  val vrn                                              = "999902541"
+  val lisaManRefNum                                    = "Z123456"
+  val secureElectronicTransferReferenceNumber          = "123456789012"
+  val pensionSchemeAdministratorIdentifier             = "A1234567"
+  val eoriNumber                                       = "GB1234567890"
+  val exciseNumber                                     = "GBWK254706100"
+  private val taxOfficeNumber                          = "555"
+  private val taxOfficeReference                       = "EIA000"
+  val empRef                                           = s"$taxOfficeNumber/$taxOfficeReference"
+  val pillar2Id                                        = "XE4444444444444"
+  val zReference                                       = "Z1234"
+  val capitalGainsTaxOnUKPropertyReference             = "XACGTP123456789"
+  val plasticPackagingTaxRegistrationNumber            = "XAPPT0001234567"
+  val countryByCountryReportingId                      = "XACBC1234567890"
+  val countryByCountryReportingUniqueTaxpayerReference = "2234567890"
+  val trustsUniqueTaxpayerReference                    = "8876543210"
+  val trustsUniqueReferenceNumber                      = "XXTRUST12345678"
 
-  val agentEnrolment                 = Enrolment("HMRC-AS-AGENT", Seq(Identifier("AgentReferenceNumber", arn)))
-  val saEnrolment                    = Enrolment("IR-SA", Seq(Identifier("UTR", saUtr.toString)))
-  val mtdItEnrolment                 = Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId.toString)))
-  val mtdVatEnrolment                = Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString)))
-  val lisaEnrolment                  = Enrolment("HMRC-LISA-ORG", Seq(Identifier("ZREF", lisaManRefNum.toString)))
-  val setEnrolment                   = Enrolment("HMRC-SET-ORG", Seq(Identifier("SRN", secureElectronicTransferReferenceNumber.toString)))
-  val psaEnrolment                   = Enrolment("HMRC-PSA-ORG", Seq(Identifier("PSAID", pensionSchemeAdministratorIdentifier.toString))) // Used for Relief at Source
-  val ctEnrolment                    = Enrolment("IR-CT", Seq(Identifier("UTR", ctUtr.toString)))
-  val vatEnrolment                   = Enrolment("HMCE-VATDEC-ORG", Seq(Identifier("VATRegNo", vrn.toString)))
-  val payeEnrolment                  = Enrolment("IR-PAYE", Seq(Identifier("TaxOfficeNumber", taxOfficeNumber), Identifier("TaxOfficeReference", taxOfficeReference)))
-  val customsEnrolment               = Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
-  val ctcLegacyEnrolment             = Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber)))
-  val ctcEnrolment                   = Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber)))
-  val goodsVehicleMovementsEnrolment = Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
-  val ssEnrolment                    = Enrolment("HMRC-SS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
-  val icsEnrolment                   = Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber)))
-  val emcsEnrolment                  = Enrolment("HMRC-EMCS-ORG", Seq(Identifier("ExciseNumber", exciseNumber)))
-  val pillar2Enrolment               = Enrolment("HMRC-PILLAR2-ORG", Seq(Identifier("PLRID", pillar2Id)))
-  val disaEnrolment                  = Enrolment("HMRC-DISA-ORG", Seq(Identifier("ZREF", zReference)))
+  val agentEnrolment                       = Enrolment("HMRC-AS-AGENT", Seq(Identifier("AgentReferenceNumber", arn)))
+  val saEnrolment                          = Enrolment("IR-SA", Seq(Identifier("UTR", saUtr.toString)))
+  val mtdItEnrolment                       = Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId.toString)))
+  val mtdVatEnrolment                      = Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn.toString)))
+  val lisaEnrolment                        = Enrolment("HMRC-LISA-ORG", Seq(Identifier("ZREF", lisaManRefNum.toString)))
+  val setEnrolment                         = Enrolment("HMRC-SET-ORG", Seq(Identifier("SRN", secureElectronicTransferReferenceNumber.toString)))
+  val psaEnrolment                         = Enrolment("HMRC-PSA-ORG", Seq(Identifier("PSAID", pensionSchemeAdministratorIdentifier.toString))) // Used for Relief at Source
+  val ctEnrolment                          = Enrolment("IR-CT", Seq(Identifier("UTR", ctUtr.toString)))
+  val vatEnrolment                         = Enrolment("HMCE-VATDEC-ORG", Seq(Identifier("VATRegNo", vrn.toString)))
+  val payeEnrolment                        = Enrolment("IR-PAYE", Seq(Identifier("TaxOfficeNumber", taxOfficeNumber), Identifier("TaxOfficeReference", taxOfficeReference)))
+  val customsEnrolment                     = Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
+  val ctcLegacyEnrolment                   = Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber)))
+  val ctcEnrolment                         = Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber)))
+  val goodsVehicleMovementsEnrolment       = Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
+  val ssEnrolment                          = Enrolment("HMRC-SS-ORG", Seq(Identifier("EORINumber", eoriNumber)))
+  val icsEnrolment                         = Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber)))
+  val emcsEnrolment                        = Enrolment("HMRC-EMCS-ORG", Seq(Identifier("ExciseNumber", exciseNumber)))
+  val pillar2Enrolment                     = Enrolment("HMRC-PILLAR2-ORG", Seq(Identifier("PLRID", pillar2Id)))
+  val disaEnrolment                        = Enrolment("HMRC-DISA-ORG", Seq(Identifier("ZREF", zReference)))
+  val capitalGainsTaxOnUKPropertyEnrolment = Enrolment("HMRC-CGT-PD", Seq(Identifier("CGTPDRef", capitalGainsTaxOnUKPropertyReference)))
+  val plasticPackagingTaxEnrolment         = Enrolment("HMRC-PPT-ORG", Seq(Identifier("EtmpRegistrationNumber", plasticPackagingTaxRegistrationNumber)))
+
+  val countryByCountryReportingEnrolment = Enrolment(
+    "HMRC-CBC-ORG",
+    Seq(Identifier("cbcId", countryByCountryReportingId), Identifier("UTR", countryByCountryReportingUniqueTaxpayerReference))
+  )
+  val taxableTrustsEnrolment             = Enrolment("HMRC-TERS-ORG", Seq(Identifier("SAUTR", trustsUniqueTaxpayerReference)))
+  val nonTaxableTrustsEnrolment          = Enrolment("HMRC-TERSNT-ORG", Seq(Identifier("URN", trustsUniqueReferenceNumber)))
 
   "A GovernmentGatewayLogin created from a TestAgent" should {
 
@@ -123,12 +138,14 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       individualDetails = individualDetails,
       services = Seq(NATIONAL_INSURANCE, SELF_ASSESSMENT, MTD_INCOME_TAX, CUSTOMS_SERVICES, GOODS_VEHICLE_MOVEMENTS, MTD_VAT, CTC_LEGACY, CTC),
       props = Map(
-        TestUserPropKey.saUtr           -> saUtr,
-        TestUserPropKey.nino            -> nino,
-        TestUserPropKey.mtdItId         -> mtdItId,
-        TestUserPropKey.eoriNumber      -> eoriNumber,
-        TestUserPropKey.vrn             -> vrn,
-        TestUserPropKey.groupIdentifier -> groupIdentifier
+        TestUserPropKey.saUtr                                 -> saUtr,
+        TestUserPropKey.nino                                  -> nino,
+        TestUserPropKey.mtdItId                               -> mtdItId,
+        TestUserPropKey.eoriNumber                            -> eoriNumber,
+        TestUserPropKey.vrn                                   -> vrn,
+        TestUserPropKey.groupIdentifier                       -> groupIdentifier,
+        TestUserPropKey.capitalGainsTaxOnUKPropertyReference  -> capitalGainsTaxOnUKPropertyReference,
+        TestUserPropKey.plasticPackagingTaxRegistrationNumber -> plasticPackagingTaxRegistrationNumber
       )
     )
 
@@ -194,6 +211,18 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       login.enrolments should contain theSameElementsAs Seq(icsEnrolment)
     }
 
+    "contain the correct enrolment for Capital Gains Tax on UK Property" in {
+      val login = GovernmentGatewayLogin(individual.copy(services = Seq(CAPITAL_GAINS_TAX_UK_PROPERTY)))
+
+      login.enrolments should contain theSameElementsAs Seq(capitalGainsTaxOnUKPropertyEnrolment)
+    }
+
+    "contain the correct enrolment for Plastic Packaging Tax" in {
+      val login = GovernmentGatewayLogin(individual.copy(services = Seq(PLASTIC_PACKAGING_TAX)))
+
+      login.enrolments should contain theSameElementsAs Seq(plasticPackagingTaxEnrolment)
+    }
+
     "ignore services that are not applicable" in {
       val login = GovernmentGatewayLogin(individual.copy(services =
         Seq(
@@ -218,21 +247,27 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
 
   "A GovernmentGatewayLogin created from a TestOrganisation" should {
     val props        = Map[TestUserPropKey, String](
-      TestUserPropKey.saUtr                                   -> saUtr,
-      TestUserPropKey.nino                                    -> nino,
-      TestUserPropKey.mtdItId                                 -> mtdItId,
-      TestUserPropKey.empRef                                  -> empRef,
-      TestUserPropKey.ctUtr                                   -> ctUtr,
-      TestUserPropKey.vrn                                     -> vrn,
-      TestUserPropKey.lisaManRefNum                           -> lisaManRefNum,
-      TestUserPropKey.secureElectronicTransferReferenceNumber -> secureElectronicTransferReferenceNumber,
-      TestUserPropKey.pensionSchemeAdministratorIdentifier    -> pensionSchemeAdministratorIdentifier,
-      TestUserPropKey.eoriNumber                              -> eoriNumber,
-      TestUserPropKey.exciseNumber                            -> exciseNumber,
-      TestUserPropKey.groupIdentifier                         -> groupIdentifier,
-      TestUserPropKey.crn                                     -> crn,
-      TestUserPropKey.pillar2Id                               -> pillar2Id,
-      TestUserPropKey.zReference                              -> zReference
+      TestUserPropKey.saUtr                                            -> saUtr,
+      TestUserPropKey.nino                                             -> nino,
+      TestUserPropKey.mtdItId                                          -> mtdItId,
+      TestUserPropKey.empRef                                           -> empRef,
+      TestUserPropKey.ctUtr                                            -> ctUtr,
+      TestUserPropKey.vrn                                              -> vrn,
+      TestUserPropKey.lisaManRefNum                                    -> lisaManRefNum,
+      TestUserPropKey.secureElectronicTransferReferenceNumber          -> secureElectronicTransferReferenceNumber,
+      TestUserPropKey.pensionSchemeAdministratorIdentifier             -> pensionSchemeAdministratorIdentifier,
+      TestUserPropKey.eoriNumber                                       -> eoriNumber,
+      TestUserPropKey.exciseNumber                                     -> exciseNumber,
+      TestUserPropKey.groupIdentifier                                  -> groupIdentifier,
+      TestUserPropKey.crn                                              -> crn,
+      TestUserPropKey.pillar2Id                                        -> pillar2Id,
+      TestUserPropKey.zReference                                       -> zReference,
+      TestUserPropKey.capitalGainsTaxOnUKPropertyReference             -> capitalGainsTaxOnUKPropertyReference,
+      TestUserPropKey.plasticPackagingTaxRegistrationNumber            -> plasticPackagingTaxRegistrationNumber,
+      TestUserPropKey.countryByCountryReportingId                      -> countryByCountryReportingId,
+      TestUserPropKey.countryByCountryReportingUniqueTaxpayerReference -> countryByCountryReportingUniqueTaxpayerReference,
+      TestUserPropKey.trustsUniqueTaxpayerReference                    -> trustsUniqueTaxpayerReference,
+      TestUserPropKey.trustsUniqueReferenceNumber                      -> trustsUniqueReferenceNumber
     )
     val organisation = TestOrganisation(
       userId = user,
@@ -364,6 +399,30 @@ class GovernmentGatewayLoginSpec extends AsyncHmrcSpec {
       val login = GovernmentGatewayLogin(organisation.copy(services = Seq(DISA)))
 
       login.enrolments should contain theSameElementsAs Seq(disaEnrolment)
+    }
+
+    "contain the correct enrolment for Capital Gains Tax on UK Property" in {
+      val login = GovernmentGatewayLogin(organisation.copy(services = Seq(CAPITAL_GAINS_TAX_UK_PROPERTY)))
+
+      login.enrolments should contain theSameElementsAs Seq(capitalGainsTaxOnUKPropertyEnrolment)
+    }
+
+    "contain the correct enrolment for Plastic Packaging Tax" in {
+      val login = GovernmentGatewayLogin(organisation.copy(services = Seq(PLASTIC_PACKAGING_TAX)))
+
+      login.enrolments should contain theSameElementsAs Seq(plasticPackagingTaxEnrolment)
+    }
+
+    "contain the correct UK enrolment for Country-by-Country Reporting" in {
+      val login = GovernmentGatewayLogin(organisation.copy(services = Seq(COUNTRY_BY_COUNTRY_REPORTING)))
+
+      login.enrolments should contain theSameElementsAs Seq(countryByCountryReportingEnrolment)
+    }
+
+    "contain both taxable and non-taxable enrolments for the combined Trusts profile" in {
+      val login = GovernmentGatewayLogin(organisation.copy(services = Seq(TRUSTS)))
+
+      login.enrolments should contain theSameElementsAs Seq(taxableTrustsEnrolment, nonTaxableTrustsEnrolment)
     }
 
     "not have the credential role populated" in {

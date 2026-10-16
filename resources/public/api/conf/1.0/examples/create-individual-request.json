@@ -8,7 +8,9 @@
     "import-control-system",
     "mtd-vat",
     "common-transit-convention-traders",
-    "common-transit-convention-traders-legacy"
+    "common-transit-convention-traders-legacy",
+    "capital-gains-tax-uk-property",
+    "plastic-packaging-tax"
   ],
   "eoriNumber": "GB123456789012"
 }

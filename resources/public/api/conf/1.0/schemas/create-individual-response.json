@@ -89,6 +89,14 @@
       "type": "string",
       "format": "date",
       "description": "Date of registration for VAT."
+    },
+    "capitalGainsTaxOnUKPropertyReference": {
+      "type": "string",
+      "description": "Capital Gains Tax on UK Property reference."
+    },
+    "plasticPackagingTaxRegistrationNumber": {
+      "type": "string",
+      "description": "Plastic Packaging Tax registration number."
     }
   },
   "required": [

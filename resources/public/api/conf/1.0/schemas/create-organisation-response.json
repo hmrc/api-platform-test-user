@@ -164,6 +164,26 @@
     "zReference": {
       "type": "string",
       "description": "ISA Manager Z Reference, in 4-digit format (Znnnn)."
+    },
+    "capitalGainsTaxOnUKPropertyReference": {
+      "type": "string",
+      "description": "Capital Gains Tax on UK Property reference."
+    },
+    "plasticPackagingTaxRegistrationNumber": {
+      "type": "string",
+      "description": "Plastic Packaging Tax registration number."
+    },
+    "countryByCountryReportingId": {
+      "type": "string",
+      "description": "Country-by-Country Reporting ID."
+    },
+    "trustsUniqueTaxpayerReference": {
+      "type": "string",
+      "description": "Unique Taxpayer Reference for a taxable trust."
+    },
+    "trustsUniqueReferenceNumber": {
+      "type": "string",
+      "description": "Unique Reference Number for a non-taxable trust."
     }
   },
   "required": [

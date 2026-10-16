@@ -94,6 +94,8 @@ trait GeneratorProvider {
 
 class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
 
+  private val utrValidator = new UtrGenerator()
+
   trait Setup extends GeneratorProvider {
     val repository = mock[TestUserRepository]
     val underTest  = generator
@@ -162,14 +164,42 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
   "generateTestIndividual" should {
 
     implicit def individualChecker(individual: TestIndividual) = new Checker {
-      def shouldHave(ninoDefined: Boolean = false, vrnDefined: Boolean = false, saUtrDefined: Boolean = false, mtdItIdDefined: Boolean = false, eoriDefined: Boolean = false) = {
+      def shouldHave(
+          ninoDefined: Boolean = false,
+          vrnDefined: Boolean = false,
+          saUtrDefined: Boolean = false,
+          mtdItIdDefined: Boolean = false,
+          eoriDefined: Boolean = false,
+          capitalGainsTaxOnUKPropertyReferenceDefined: Boolean = false,
+          plasticPackagingTaxRegistrationNumberDefined: Boolean = false
+        ) = {
 
         check(individual.nino, ninoDefined)
         check(individual.saUtr, saUtrDefined)
         check(individual.mtdItId, mtdItIdDefined)
         check(individual.eoriNumber, eoriDefined)
         check(individual.vrn, vrnDefined)
+        check(individual.capitalGainsTaxOnUKPropertyReference, capitalGainsTaxOnUKPropertyReferenceDefined)
+        check(individual.plasticPackagingTaxRegistrationNumber, plasticPackagingTaxRegistrationNumberDefined)
       }
+    }
+
+    "generate a valid Capital Gains Tax on UK Property reference when the service is included" in new Setup {
+      when(repository.identifierIsUnique(*)(*)).thenReturn(Future(true))
+
+      val individual = await(underTest.generateTestIndividual(Seq(CAPITAL_GAINS_TAX_UK_PROPERTY), None, None))
+
+      individual shouldHave (capitalGainsTaxOnUKPropertyReferenceDefined = true)
+      individual.capitalGainsTaxOnUKPropertyReference.value should fullyMatch regex "^X[A-Z]CGTP[0-9]{9}$"
+    }
+
+    "generate a valid Plastic Packaging Tax registration number when the service is included" in new Setup {
+      when(repository.identifierIsUnique(*)(*)).thenReturn(Future(true))
+
+      val individual = await(underTest.generateTestIndividual(Seq(PLASTIC_PACKAGING_TAX), None, None))
+
+      individual shouldHave (plasticPackagingTaxRegistrationNumberDefined = true)
+      individual.plasticPackagingTaxRegistrationNumber.value should fullyMatch regex "^X[A-Z]PPT000[0-9]{7}$"
     }
 
     "generate a NINO and MTD IT ID when MTD_INCOME_TAX service is included" in new Setup {
@@ -324,7 +354,13 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
           crnDefined: Boolean = false,
           taxpayerTypeDefined: Boolean = false,
           pillar2IdDefined: Boolean = false,
-          zReferenceDefined: Boolean = false
+          zReferenceDefined: Boolean = false,
+          capitalGainsTaxOnUKPropertyReferenceDefined: Boolean = false,
+          plasticPackagingTaxRegistrationNumberDefined: Boolean = false,
+          countryByCountryReportingIdDefined: Boolean = false,
+          countryByCountryReportingUniqueTaxpayerReferenceDefined: Boolean = false,
+          trustsUniqueTaxpayerReferenceDefined: Boolean = false,
+          trustsUniqueReferenceNumberDefined: Boolean = false
         ) = {
 
         check(org.vrn, vrnDefined)
@@ -342,7 +378,61 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
         check(org.taxpayerType, taxpayerTypeDefined)
         check(org.pillar2Id, pillar2IdDefined)
         check(org.zReference, zReferenceDefined)
+        check(org.capitalGainsTaxOnUKPropertyReference, capitalGainsTaxOnUKPropertyReferenceDefined)
+        check(org.plasticPackagingTaxRegistrationNumber, plasticPackagingTaxRegistrationNumberDefined)
+        check(org.countryByCountryReportingId, countryByCountryReportingIdDefined)
+        check(org.countryByCountryReportingUniqueTaxpayerReference, countryByCountryReportingUniqueTaxpayerReferenceDefined)
+        check(org.trustsUniqueTaxpayerReference, trustsUniqueTaxpayerReferenceDefined)
+        check(org.trustsUniqueReferenceNumber, trustsUniqueReferenceNumberDefined)
       }
+    }
+
+    "generate a valid Capital Gains Tax on UK Property reference when the service is included" in new Setup {
+      when(repository.identifierIsUnique(*)(*)).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(CAPITAL_GAINS_TAX_UK_PROPERTY), None, None, None, None, None, None))
+
+      org shouldHave (capitalGainsTaxOnUKPropertyReferenceDefined = true)
+      org.capitalGainsTaxOnUKPropertyReference.value should fullyMatch regex "^X[A-Z]CGTP[0-9]{9}$"
+    }
+
+    "generate a valid Plastic Packaging Tax registration number when the service is included" in new Setup {
+      when(repository.identifierIsUnique(*)(*)).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(PLASTIC_PACKAGING_TAX), None, None, None, None, None, None))
+
+      org shouldHave (plasticPackagingTaxRegistrationNumberDefined = true)
+      org.plasticPackagingTaxRegistrationNumber.value should fullyMatch regex "^X[A-Z]PPT000[0-9]{7}$"
+    }
+
+    "generate valid Country-by-Country Reporting identifiers when the service is included" in new Setup {
+      when(repository.identifierIsUnique(*)(*)).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(COUNTRY_BY_COUNTRY_REPORTING), None, None, None, None, None, None))
+
+      org shouldHave (
+        countryByCountryReportingIdDefined = true,
+        countryByCountryReportingUniqueTaxpayerReferenceDefined = true
+      )
+      org.countryByCountryReportingId.value should fullyMatch regex "^X[A-Z]CBC[0-9]{10}$"
+      val utr = org.countryByCountryReportingUniqueTaxpayerReference.value
+      utr should fullyMatch regex "^[0-9]{10}$"
+      utrValidator.isValid(utr) shouldBe true
+    }
+
+    "generate both valid Trusts identifiers when the combined service is included" in new Setup {
+      when(repository.identifierIsUnique(*)(*)).thenReturn(Future(true))
+
+      val org = await(underTest.generateTestOrganisation(Seq(TRUSTS), None, None, None, None, None, None))
+
+      org shouldHave (
+        trustsUniqueTaxpayerReferenceDefined = true,
+        trustsUniqueReferenceNumberDefined = true
+      )
+      val utr = org.trustsUniqueTaxpayerReference.value
+      utr should fullyMatch regex "^[0-9]{10}$"
+      utrValidator.isValid(utr) shouldBe true
+      org.trustsUniqueReferenceNumber.value should fullyMatch regex "^[A-Z]{2}TRUST[0-9]{8}$"
     }
 
     "generate a NINO and MTD IT ID when MTD_INCOME_TAX service is included" in new Setup {

@@ -54,6 +54,16 @@
             "title": "common-transit-convention-traders-legacy",
             "enum": ["common-transit-convention-traders-legacy"],
             "description": "Generates an EORI number and enrols the user for legacy Common Transit Convention Traders."
+          },
+          {
+            "title": "capital-gains-tax-uk-property",
+            "enum": ["capital-gains-tax-uk-property"],
+            "description": "Generates a Capital Gains Tax on UK Property reference and enrols the user for Capital Gains Tax on UK Property."
+          },
+          {
+            "title": "plastic-packaging-tax",
+            "enum": ["plastic-packaging-tax"],
+            "description": "Generates a Plastic Packaging Tax registration number and enrols the user for Plastic Packaging Tax."
           }
         ]
       },

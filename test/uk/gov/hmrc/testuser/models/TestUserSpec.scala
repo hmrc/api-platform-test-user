@@ -86,6 +86,13 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
     Pillar2Id.isValid("DUXEPLR1234567890") shouldBe false
   }
 
+  "PropsRenamer" should "not surface the internal Country-by-Country Reporting UTR" in {
+    PropsRenamer.transform(Map(
+      TestUserPropKey.countryByCountryReportingId                      -> "XACBC1234567890",
+      TestUserPropKey.countryByCountryReportingUniqueTaxpayerReference -> "2234567890"
+    )) shouldBe Map("countryByCountryReportingId" -> "XACBC1234567890")
+  }
+
   "TestOrganisationCreatedResponse" should "be properly constructed from a TestOrganisation" in {
     val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
     val testOrganisation    = TestOrganisation(
@@ -143,6 +150,6 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
   }
 
   "Services" should "get size equal to all services when length called" in {
-    Services.all.length shouldBe 20
+    Services.all.length shouldBe 24
   }
 }
