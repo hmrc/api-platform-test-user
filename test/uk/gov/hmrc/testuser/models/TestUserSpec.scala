@@ -86,11 +86,19 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
     Pillar2Id.isValid("DUXEPLR1234567890") shouldBe false
   }
 
-  "PropsRenamer" should "not surface the internal Country-by-Country Reporting UTR" in {
+  "PropsRenamer" should "preserve existing properties while not surfacing the internal Country-by-Country Reporting UTR" in {
     PropsRenamer.transform(Map(
+      TestUserPropKey.arn                                              -> arn,
+      TestUserPropKey.lisaManRefNum                                    -> lisaRefNum,
+      TestUserPropKey.saUtr                                            -> "8876543210",
       TestUserPropKey.countryByCountryReportingId                      -> "XACBC1234567890",
       TestUserPropKey.countryByCountryReportingUniqueTaxpayerReference -> "2234567890"
-    )) shouldBe Map("countryByCountryReportingId" -> "XACBC1234567890")
+    )) shouldBe Map(
+      "agentServicesAccountNumber"  -> arn,
+      "lisaManagerReferenceNumber"  -> lisaRefNum,
+      "saUtr"                       -> "8876543210",
+      "countryByCountryReportingId" -> "XACBC1234567890"
+    )
   }
 
   "TestOrganisationCreatedResponse" should "be properly constructed from a TestOrganisation" in {

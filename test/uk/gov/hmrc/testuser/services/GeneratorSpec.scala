@@ -764,6 +764,16 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  "UtrGenerator" should {
+    "validate UTR format and checksum" in {
+      utrValidator.isValid("8876543210") shouldBe true
+      utrValidator.isValid("9876543210") shouldBe false
+      utrValidator.isValid("887654321") shouldBe false
+      utrValidator.isValid("887654321A") shouldBe false
+      utrValidator.isValid("") shouldBe false
+    }
+  }
+
   "VrnChecksum" should {
     "generate valid VRN checksum" in new Setup {
       forAll(Gen.choose(1000000, 1999999)) { vrnBase =>
