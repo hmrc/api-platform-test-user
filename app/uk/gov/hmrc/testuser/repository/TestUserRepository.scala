@@ -226,7 +226,7 @@ class TestUserRepository @Inject() (config: TestUserRepository.Config, mongo: Mo
   }
 
   private def markCreated(query: Bson): Future[Option[TestUser]] = {
-    val timestamp  = instant()
+    val timestamp  = instant
     val aggregates = Seq(Aggregates.set(Field("lastAccess", timestamp), Field("createdOn", timestamp)))
     collection.findOneAndUpdate(query, aggregates).headOption()
   }
