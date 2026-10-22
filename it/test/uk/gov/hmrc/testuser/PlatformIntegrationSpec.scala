@@ -16,14 +16,18 @@
 
 package uk.gov.hmrc.testuser
 
+import scala.util.Using
+
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.http.Status.OK
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.testuser.documentation.controllers.DocumentationController
+import uk.gov.hmrc.testuser.services.UtrGenerator
 
 /** Testcase to verify the capability of integration with the API platform. 1a, To expose API's to Third Party Developers, the service needs to make the API definition available
   * under api/definition GET endpoint 1b, The endpoints need to be defined in an application.raml file for all versions
@@ -47,6 +51,13 @@ class PlatformIntegrationSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
       val result = documentationController.specification("1.0", "application.yaml")(request)
       status(result) shouldBe OK
       contentAsString(result) should startWith("openapi:")
+    }
+
+    "provide a checksum-valid Trusts UTR in the organisation response example" in {
+      val example = Using.resource(getClass.getResourceAsStream("/public/api/conf/1.0/examples/create-organisation-response.json"))(Json.parse)
+      val utr     = (example \ "trustsUniqueTaxpayerReference").as[String]
+
+      new UtrGenerator().isValid(utr) shouldBe true
     }
   }
 }

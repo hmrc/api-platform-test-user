@@ -23,10 +23,11 @@ import play.api.libs.json._
 
 object PropsRenamer {
 
-  val transform: Map[TestUserPropKey, String] => Map[String, String] = _.map {
-    case (TestUserPropKey.arn, v)           => ("agentServicesAccountNumber" -> v)
-    case (TestUserPropKey.lisaManRefNum, v) => ("lisaManagerReferenceNumber" -> v)
-    case (k, v)                             => k.toString                    -> v
+  val transform: Map[TestUserPropKey, String] => Map[String, String] = _.collect {
+    case (TestUserPropKey.arn, v)                                                        => ("agentServicesAccountNumber" -> v)
+    case (TestUserPropKey.lisaManRefNum, v)                                              => ("lisaManagerReferenceNumber" -> v)
+    // The CBC UTR is required by the enrolment but is deliberately not part of the public test-user response.
+    case (k, v) if k != TestUserPropKey.countryByCountryReportingUniqueTaxpayerReference => k.toString                    -> v
   }
 }
 

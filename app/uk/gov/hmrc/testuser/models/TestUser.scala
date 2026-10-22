@@ -42,24 +42,30 @@ object OrganisationDetails {
 sealed trait TestUserPropKey
 
 object TestUserPropKey {
-  case object saUtr                                   extends TestUserPropKey
-  case object nino                                    extends TestUserPropKey
-  case object mtdItId                                 extends TestUserPropKey
-  case object empRef                                  extends TestUserPropKey
-  case object ctUtr                                   extends TestUserPropKey
-  case object vrn                                     extends TestUserPropKey
-  case object lisaManRefNum                           extends TestUserPropKey
-  case object secureElectronicTransferReferenceNumber extends TestUserPropKey
-  case object pensionSchemeAdministratorIdentifier    extends TestUserPropKey
-  case object eoriNumber                              extends TestUserPropKey
-  case object exciseNumber                            extends TestUserPropKey
-  case object groupIdentifier                         extends TestUserPropKey
-  case object crn                                     extends TestUserPropKey
-  case object taxpayerType                            extends TestUserPropKey
-  case object arn                                     extends TestUserPropKey
-  case object agentCode                               extends TestUserPropKey
-  case object pillar2Id                               extends TestUserPropKey
-  case object zReference                              extends TestUserPropKey
+  case object saUtr                                            extends TestUserPropKey
+  case object nino                                             extends TestUserPropKey
+  case object mtdItId                                          extends TestUserPropKey
+  case object empRef                                           extends TestUserPropKey
+  case object ctUtr                                            extends TestUserPropKey
+  case object vrn                                              extends TestUserPropKey
+  case object lisaManRefNum                                    extends TestUserPropKey
+  case object secureElectronicTransferReferenceNumber          extends TestUserPropKey
+  case object pensionSchemeAdministratorIdentifier             extends TestUserPropKey
+  case object eoriNumber                                       extends TestUserPropKey
+  case object exciseNumber                                     extends TestUserPropKey
+  case object groupIdentifier                                  extends TestUserPropKey
+  case object crn                                              extends TestUserPropKey
+  case object taxpayerType                                     extends TestUserPropKey
+  case object arn                                              extends TestUserPropKey
+  case object agentCode                                        extends TestUserPropKey
+  case object pillar2Id                                        extends TestUserPropKey
+  case object zReference                                       extends TestUserPropKey
+  case object capitalGainsTaxOnUKPropertyReference             extends TestUserPropKey
+  case object plasticPackagingTaxRegistrationNumber            extends TestUserPropKey
+  case object countryByCountryReportingId                      extends TestUserPropKey
+  case object countryByCountryReportingUniqueTaxpayerReference extends TestUserPropKey
+  case object trustsUniqueTaxpayerReference                    extends TestUserPropKey
+  case object trustsUniqueReferenceNumber                      extends TestUserPropKey
 
   val values: Set[TestUserPropKey] = Set(
     saUtr,
@@ -79,7 +85,13 @@ object TestUserPropKey {
     arn,
     agentCode,
     pillar2Id,
-    zReference
+    zReference,
+    capitalGainsTaxOnUKPropertyReference,
+    plasticPackagingTaxRegistrationNumber,
+    countryByCountryReportingId,
+    countryByCountryReportingUniqueTaxpayerReference,
+    trustsUniqueTaxpayerReference,
+    trustsUniqueReferenceNumber
   )
 
   def apply(text: String): Option[TestUserPropKey] = TestUserPropKey.values.find(_.toString == text)
@@ -124,37 +136,49 @@ case class TestOrganisation(
   val affinityGroup = "Organisation"
 
   // I O
-  lazy val saUtr                                   = props.get(TestUserPropKey.saUtr)
+  lazy val saUtr                                            = props.get(TestUserPropKey.saUtr)
   // I O
-  lazy val nino                                    = props.get(TestUserPropKey.nino)
+  lazy val nino                                             = props.get(TestUserPropKey.nino)
   // I O
-  lazy val mtdItId                                 = props.get(TestUserPropKey.mtdItId)
+  lazy val mtdItId                                          = props.get(TestUserPropKey.mtdItId)
   // O
-  lazy val empRef                                  = props.get(TestUserPropKey.empRef)
+  lazy val empRef                                           = props.get(TestUserPropKey.empRef)
   // O
-  lazy val ctUtr                                   = props.get(TestUserPropKey.ctUtr)
+  lazy val ctUtr                                            = props.get(TestUserPropKey.ctUtr)
   // I O
-  lazy val vrn                                     = props.get(TestUserPropKey.vrn)
+  lazy val vrn                                              = props.get(TestUserPropKey.vrn)
   // O
-  lazy val lisaManRefNum                           = props.get(TestUserPropKey.lisaManRefNum)
+  lazy val lisaManRefNum                                    = props.get(TestUserPropKey.lisaManRefNum)
   // O
-  lazy val secureElectronicTransferReferenceNumber = props.get(TestUserPropKey.secureElectronicTransferReferenceNumber)
+  lazy val secureElectronicTransferReferenceNumber          = props.get(TestUserPropKey.secureElectronicTransferReferenceNumber)
   // O
-  lazy val pensionSchemeAdministratorIdentifier    = props.get(TestUserPropKey.pensionSchemeAdministratorIdentifier)
+  lazy val pensionSchemeAdministratorIdentifier             = props.get(TestUserPropKey.pensionSchemeAdministratorIdentifier)
   // I O
-  lazy val eoriNumber                              = props.get(TestUserPropKey.eoriNumber)
+  lazy val eoriNumber                                       = props.get(TestUserPropKey.eoriNumber)
   // O
-  lazy val exciseNumber                            = props.get(TestUserPropKey.exciseNumber)
+  lazy val exciseNumber                                     = props.get(TestUserPropKey.exciseNumber)
   // I O A
-  lazy val groupIdentifier                         = props.get(TestUserPropKey.groupIdentifier)
+  lazy val groupIdentifier                                  = props.get(TestUserPropKey.groupIdentifier)
   // O
-  lazy val crn                                     = props.get(TestUserPropKey.crn)
+  lazy val crn                                              = props.get(TestUserPropKey.crn)
   // O
-  lazy val taxpayerType                            = props.get(TestUserPropKey.taxpayerType)
+  lazy val taxpayerType                                     = props.get(TestUserPropKey.taxpayerType)
   // O A
-  lazy val pillar2Id                               = props.get(TestUserPropKey.pillar2Id)
+  lazy val pillar2Id                                        = props.get(TestUserPropKey.pillar2Id)
   // 0
-  lazy val zReference                              = props.get(TestUserPropKey.zReference)
+  lazy val zReference                                       = props.get(TestUserPropKey.zReference)
+  // I O
+  lazy val capitalGainsTaxOnUKPropertyReference             = props.get(TestUserPropKey.capitalGainsTaxOnUKPropertyReference)
+  // I O
+  lazy val plasticPackagingTaxRegistrationNumber            = props.get(TestUserPropKey.plasticPackagingTaxRegistrationNumber)
+  // O
+  lazy val countryByCountryReportingId                      = props.get(TestUserPropKey.countryByCountryReportingId)
+  // O
+  lazy val countryByCountryReportingUniqueTaxpayerReference = props.get(TestUserPropKey.countryByCountryReportingUniqueTaxpayerReference)
+  // O - the combined test profile deliberately contains both taxable and non-taxable Trusts identifiers
+  lazy val trustsUniqueTaxpayerReference                    = props.get(TestUserPropKey.trustsUniqueTaxpayerReference)
+  // O - the combined test profile deliberately contains both taxable and non-taxable Trusts identifiers
+  lazy val trustsUniqueReferenceNumber                      = props.get(TestUserPropKey.trustsUniqueReferenceNumber)
 }
 
 object TestOrganisation {
@@ -198,13 +222,15 @@ case class TestIndividual(
     vatRegistrationDate: Option[LocalDate] = None,
     props: Map[TestUserPropKey, String] = Map.empty
   ) extends TestUser {
-  val affinityGroup                        = "Individual"
-  lazy val saUtr: Option[String]           = props.get(TestUserPropKey.saUtr)
-  lazy val nino: Option[String]            = props.get(TestUserPropKey.nino)
-  lazy val mtdItId: Option[String]         = props.get(TestUserPropKey.mtdItId)
-  lazy val vrn: Option[String]             = props.get(TestUserPropKey.vrn)
-  lazy val eoriNumber: Option[String]      = props.get(TestUserPropKey.eoriNumber)
-  lazy val groupIdentifier: Option[String] = props.get(TestUserPropKey.groupIdentifier)
+  val affinityGroup                                              = "Individual"
+  lazy val saUtr: Option[String]                                 = props.get(TestUserPropKey.saUtr)
+  lazy val nino: Option[String]                                  = props.get(TestUserPropKey.nino)
+  lazy val mtdItId: Option[String]                               = props.get(TestUserPropKey.mtdItId)
+  lazy val vrn: Option[String]                                   = props.get(TestUserPropKey.vrn)
+  lazy val eoriNumber: Option[String]                            = props.get(TestUserPropKey.eoriNumber)
+  lazy val groupIdentifier: Option[String]                       = props.get(TestUserPropKey.groupIdentifier)
+  lazy val capitalGainsTaxOnUKPropertyReference: Option[String]  = props.get(TestUserPropKey.capitalGainsTaxOnUKPropertyReference)
+  lazy val plasticPackagingTaxRegistrationNumber: Option[String] = props.get(TestUserPropKey.plasticPackagingTaxRegistrationNumber)
 }
 
 object TestIndividual {

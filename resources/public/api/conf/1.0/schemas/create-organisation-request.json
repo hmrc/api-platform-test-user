@@ -109,6 +109,26 @@
             "title": "disa",
             "enum": ["disa"],
             "description": "Generates an ISA Manager Z Reference and enrols the user for DISA."
+          },
+          {
+            "title": "capital-gains-tax-uk-property",
+            "enum": ["capital-gains-tax-uk-property"],
+            "description": "Generates a Capital Gains Tax on UK Property reference and enrols the user for Capital Gains Tax on UK Property."
+          },
+          {
+            "title": "plastic-packaging-tax",
+            "enum": ["plastic-packaging-tax"],
+            "description": "Generates a Plastic Packaging Tax registration number and enrols the user for Plastic Packaging Tax."
+          },
+          {
+            "title": "country-by-country-reporting",
+            "enum": ["country-by-country-reporting"],
+            "description": "Generates a Country-by-Country Reporting ID and Unique Taxpayer Reference and enrols the user for UK Country-by-Country Reporting."
+          },
+          {
+            "title": "trusts",
+            "enum": ["trusts"],
+            "description": "Generates a Unique Taxpayer Reference and Unique Reference Number and enrols the user for both taxable and non-taxable Trusts. This combined profile is intended for delegated-authorisation testing."
           }
         ]
       },

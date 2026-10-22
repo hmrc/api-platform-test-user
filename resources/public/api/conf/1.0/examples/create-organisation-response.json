@@ -36,5 +36,10 @@
   "crn": "12345678",
   "taxPayerType":"Individual",
   "pillar2Id":"XA1234567890123",
-  "zReference": "Z1234"
+  "zReference": "Z1234",
+  "capitalGainsTaxOnUKPropertyReference": "XACGTP123456789",
+  "plasticPackagingTaxRegistrationNumber": "XAPPT0001234567",
+  "countryByCountryReportingId": "XACBC1234567890",
+  "trustsUniqueTaxpayerReference": "8876543210",
+  "trustsUniqueReferenceNumber": "XATRUST12345678"
 }

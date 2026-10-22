@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequest
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
+import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -31,6 +32,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import uk.gov.hmrc.testuser.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.testuser.helpers.stubs.AuthLoginApiStub
+import uk.gov.hmrc.testuser.models.JsonFormatters._
 import uk.gov.hmrc.testuser.models.ServiceKey._
 import uk.gov.hmrc.testuser.models._
 
@@ -64,22 +66,28 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
 
   val taxOfficeNumber = "555"
 
-  val taxOfficeReference                      = "EIA000"
-  val saUtr                                   = "1555369052"
-  val nino                                    = "CC333333C"
-  val mtdItId                                 = "XGIT00000000054"
-  val empRef                                  = s"$taxOfficeNumber/$taxOfficeReference"
-  val ctUtr                                   = "1555369053"
-  val vrn                                     = "999902541"
-  val lisaManRefNum                           = "Z123456"
-  val secureElectronicTransferReferenceNumber = "123456789012"
-  val pensionSchemeAdministratorIdentifier    = "A1234567"
-  val eoriNumber                              = "GB1234567890"
-  val exciseNumber                            = "GBWK254706100"
-  val groupIdentifier                         = "organsiationGroup"
-  val crn                                     = "12345678"
-  val pillar2Id                               = "XE4444444444444"
-  val zReference                              = "Z1234"
+  val taxOfficeReference                               = "EIA000"
+  val saUtr                                            = "1555369052"
+  val nino                                             = "CC333333C"
+  val mtdItId                                          = "XGIT00000000054"
+  val empRef                                           = s"$taxOfficeNumber/$taxOfficeReference"
+  val ctUtr                                            = "1555369053"
+  val vrn                                              = "999902541"
+  val lisaManRefNum                                    = "Z123456"
+  val secureElectronicTransferReferenceNumber          = "123456789012"
+  val pensionSchemeAdministratorIdentifier             = "A1234567"
+  val eoriNumber                                       = "GB1234567890"
+  val exciseNumber                                     = "GBWK254706100"
+  val groupIdentifier                                  = "organsiationGroup"
+  val crn                                              = "12345678"
+  val pillar2Id                                        = "XE4444444444444"
+  val zReference                                       = "Z1234"
+  val capitalGainsTaxOnUKPropertyReference             = "XACGTP123456789"
+  val plasticPackagingTaxRegistrationNumber            = "XAPPT0001234567"
+  val countryByCountryReportingId                      = "XACBC1234567890"
+  val countryByCountryReportingUniqueTaxpayerReference = "2234567890"
+  val trustsUniqueTaxpayerReference                    = "8876543210"
+  val trustsUniqueReferenceNumber                      = "XXTRUST12345678"
 
   val orgProps = Map[TestUserPropKey, String](
     TestUserPropKey.saUtr                                   -> saUtr,
@@ -486,6 +494,58 @@ class AuthLoginApiConnectorSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
            |}
         """.stripMargin.replaceAll("\n", "")
       )))
+    }
+
+    "send the ASA enrolments when creating a session for an Individual" in new Setup {
+      AuthLoginApiStub.willReturnTheSession(authSession)
+      val asaIndividual = testIndividual.copy(
+        services = Seq(CAPITAL_GAINS_TAX_UK_PROPERTY, PLASTIC_PACKAGING_TAX),
+        props = Map(
+          TestUserPropKey.groupIdentifier                       -> "individualGroup",
+          TestUserPropKey.capitalGainsTaxOnUKPropertyReference  -> capitalGainsTaxOnUKPropertyReference,
+          TestUserPropKey.plasticPackagingTaxRegistrationNumber -> plasticPackagingTaxRegistrationNumber
+        )
+      )
+
+      await(underTest.createSession(asaIndividual)) shouldBe authSession
+
+      val requests = AuthLoginApiStub.server.findAll(postRequestedFor(urlPathEqualTo("/government-gateway/session/login")))
+      val request  = requests.get(requests.size() - 1)
+      Json.parse(request.getBodyAsString).as[GovernmentGatewayLogin].enrolments should contain theSameElementsInOrderAs Seq(
+        Enrolment("HMRC-CGT-PD", Seq(Identifier("CGTPDRef", capitalGainsTaxOnUKPropertyReference))),
+        Enrolment("HMRC-PPT-ORG", Seq(Identifier("EtmpRegistrationNumber", plasticPackagingTaxRegistrationNumber)))
+      )
+    }
+
+    "send all ASA enrolments when creating a session for an Organisation" in new Setup {
+      AuthLoginApiStub.willReturnTheSession(authSession)
+      val asaOrganisation = testOrganisation.copy(
+        services = Seq(CAPITAL_GAINS_TAX_UK_PROPERTY, PLASTIC_PACKAGING_TAX, COUNTRY_BY_COUNTRY_REPORTING, TRUSTS),
+        props = Map(
+          TestUserPropKey.groupIdentifier                                  -> groupIdentifier,
+          TestUserPropKey.capitalGainsTaxOnUKPropertyReference             -> capitalGainsTaxOnUKPropertyReference,
+          TestUserPropKey.plasticPackagingTaxRegistrationNumber            -> plasticPackagingTaxRegistrationNumber,
+          TestUserPropKey.countryByCountryReportingId                      -> countryByCountryReportingId,
+          TestUserPropKey.countryByCountryReportingUniqueTaxpayerReference -> countryByCountryReportingUniqueTaxpayerReference,
+          TestUserPropKey.trustsUniqueTaxpayerReference                    -> trustsUniqueTaxpayerReference,
+          TestUserPropKey.trustsUniqueReferenceNumber                      -> trustsUniqueReferenceNumber
+        )
+      )
+
+      await(underTest.createSession(asaOrganisation)) shouldBe authSession
+
+      val requests = AuthLoginApiStub.server.findAll(postRequestedFor(urlPathEqualTo("/government-gateway/session/login")))
+      val request  = requests.get(requests.size() - 1)
+      Json.parse(request.getBodyAsString).as[GovernmentGatewayLogin].enrolments should contain theSameElementsInOrderAs Seq(
+        Enrolment("HMRC-CGT-PD", Seq(Identifier("CGTPDRef", capitalGainsTaxOnUKPropertyReference))),
+        Enrolment("HMRC-PPT-ORG", Seq(Identifier("EtmpRegistrationNumber", plasticPackagingTaxRegistrationNumber))),
+        Enrolment(
+          "HMRC-CBC-ORG",
+          Seq(Identifier("cbcId", countryByCountryReportingId), Identifier("UTR", countryByCountryReportingUniqueTaxpayerReference))
+        ),
+        Enrolment("HMRC-TERS-ORG", Seq(Identifier("SAUTR", trustsUniqueTaxpayerReference))),
+        Enrolment("HMRC-TERSNT-ORG", Seq(Identifier("URN", trustsUniqueReferenceNumber)))
+      )
     }
 
     "create a session for an Agent" in new Setup {

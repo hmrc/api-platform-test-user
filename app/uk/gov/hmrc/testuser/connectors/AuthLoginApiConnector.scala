@@ -149,16 +149,22 @@ object GovernmentGatewayLogin {
 
     def asEnrolment(serviceName: ServiceKey) = {
       serviceName match {
-        case SELF_ASSESSMENT             => individual.saUtr map { saUtr => Enrolment("IR-SA", Seq(Identifier("UTR", saUtr))) }
-        case MTD_INCOME_TAX              => individual.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId))) }
-        case CUSTOMS_SERVICES            => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
-        case GOODS_VEHICLE_MOVEMENTS     => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
-        case MTD_VAT                     => individual.vrn map { vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn))) }
-        case CTC_LEGACY                  => individual.eoriNumber map { eoriNumber => Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber))) }
-        case CTC                         => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
-        case IMPORT_CONTROL_SYSTEM       => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber))) }
-        case TAX_FREE_CHILDCARE_PAYMENTS => individual.nino map { nino => Enrolment("HMRC-TFCP-ORG", Seq(Identifier("nino", nino))) }
-        case _                           => None
+        case SELF_ASSESSMENT               => individual.saUtr map { saUtr => Enrolment("IR-SA", Seq(Identifier("UTR", saUtr))) }
+        case MTD_INCOME_TAX                => individual.mtdItId map { mtdItId => Enrolment("HMRC-MTD-IT", Seq(Identifier("MTDITID", mtdItId))) }
+        case CUSTOMS_SERVICES              => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CUS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
+        case GOODS_VEHICLE_MOVEMENTS       => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-GVMS-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
+        case MTD_VAT                       => individual.vrn map { vrn => Enrolment("HMRC-MTD-VAT", Seq(Identifier("VRN", vrn))) }
+        case CTC_LEGACY                    => individual.eoriNumber map { eoriNumber => Enrolment("HMCE-NCTS-ORG", Seq(Identifier("VATRegNoTURN", eoriNumber))) }
+        case CTC                           => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-CTC-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
+        case IMPORT_CONTROL_SYSTEM         => individual.eoriNumber map { eoriNumber => Enrolment("HMRC-ICS-ORG", Seq(Identifier("EoriTin", eoriNumber))) }
+        case TAX_FREE_CHILDCARE_PAYMENTS   => individual.nino map { nino => Enrolment("HMRC-TFCP-ORG", Seq(Identifier("nino", nino))) }
+        case CAPITAL_GAINS_TAX_UK_PROPERTY => individual.capitalGainsTaxOnUKPropertyReference map {
+            reference => Enrolment("HMRC-CGT-PD", Seq(Identifier("CGTPDRef", reference)))
+          }
+        case PLASTIC_PACKAGING_TAX         => individual.plasticPackagingTaxRegistrationNumber map {
+            registrationNumber => Enrolment("HMRC-PPT-ORG", Seq(Identifier("EtmpRegistrationNumber", registrationNumber)))
+          }
+        case _                             => None
       }
     }
 
@@ -177,6 +183,16 @@ object GovernmentGatewayLogin {
   }
 
   private def fromOrganisation(organisation: TestOrganisation)(implicit hc: HeaderCarrier): GovernmentGatewayLogin = {
+
+    val trustsEnrolments =
+      if (organisation.services.contains(TRUSTS)) {
+        Seq(
+          organisation.trustsUniqueTaxpayerReference.map(reference => Enrolment("HMRC-TERS-ORG", Seq(Identifier("SAUTR", reference)))),
+          organisation.trustsUniqueReferenceNumber.map(reference => Enrolment("HMRC-TERSNT-ORG", Seq(Identifier("URN", reference))))
+        ).flatten
+      } else {
+        Seq.empty
+      }
 
     def asEnrolment(serviceName: ServiceKey) = {
       serviceName match {
@@ -210,6 +226,16 @@ object GovernmentGatewayLogin {
         case MODERNISATION_OF_AUTHORISATIONS => organisation.eoriNumber map { eoriNumber => Enrolment("HMRC-MA-ORG", Seq(Identifier("EORINumber", eoriNumber))) }
         case PILLAR_2                        => organisation.pillar2Id map { pillar2Id => Enrolment("HMRC-PILLAR2-ORG", Seq(Identifier("PLRID", pillar2Id))) }
         case DISA                            => organisation.zReference map { zReference => Enrolment("HMRC-DISA-ORG", Seq(Identifier("ZREF", zReference))) }
+        case CAPITAL_GAINS_TAX_UK_PROPERTY   => organisation.capitalGainsTaxOnUKPropertyReference map {
+            reference => Enrolment("HMRC-CGT-PD", Seq(Identifier("CGTPDRef", reference)))
+          }
+        case PLASTIC_PACKAGING_TAX           => organisation.plasticPackagingTaxRegistrationNumber map {
+            registrationNumber => Enrolment("HMRC-PPT-ORG", Seq(Identifier("EtmpRegistrationNumber", registrationNumber)))
+          }
+        case COUNTRY_BY_COUNTRY_REPORTING    => for {
+            id  <- organisation.countryByCountryReportingId
+            utr <- organisation.countryByCountryReportingUniqueTaxpayerReference
+          } yield Enrolment("HMRC-CBC-ORG", Seq(Identifier("cbcId", id), Identifier("UTR", utr)))
         case _                               => None
       }
     }
@@ -218,7 +244,7 @@ object GovernmentGatewayLogin {
       credId = organisation.userId,
       affinityGroup = organisation.affinityGroup,
       nino = organisation.nino,
-      enrolments = organisation.services.flatMap(asEnrolment),
+      enrolments = organisation.services.flatMap(asEnrolment) ++ trustsEnrolments,
       usersName = organisation.userFullName,
       email = organisation.emailAddress,
       confidenceLevel = confidenceLevel,

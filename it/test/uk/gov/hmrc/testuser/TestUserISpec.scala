@@ -72,6 +72,56 @@ class TestUserISpec extends BaseFeatureSpec {
       organisationFromMongo.services shouldBe Seq(NATIONAL_INSURANCE, MTD_INCOME_TAX, LISA)
     }
 
+    Scenario("Create an individual with the new individual services") {
+
+      When("I request the creation of an individual with Capital Gains Tax on UK Property and Plastic Packaging Tax")
+      val createdResponse = createIndividual(Seq("capital-gains-tax-uk-property", "plastic-packaging-tax"))
+
+      Then("The generated identifiers are returned and stored in Mongo")
+      createdResponse.code shouldBe StatusCode.Created
+      val individualCreated   = Json.parse(createdResponse.body.value).as[TestIndividualCreatedResponse]
+      val individualFromMongo = result(mongoRepository.fetchByUserId(individualCreated.userId), timeout).get.asInstanceOf[TestIndividual]
+
+      individualCreated.props("capitalGainsTaxOnUKPropertyReference") should fullyMatch regex "^X[A-Z]CGTP[0-9]{9}$"
+      individualCreated.props("plasticPackagingTaxRegistrationNumber") should fullyMatch regex "^X[A-Z]PPT000[0-9]{7}$"
+      individualFromMongo.capitalGainsTaxOnUKPropertyReference shouldBe individualCreated.props.get("capitalGainsTaxOnUKPropertyReference")
+      individualFromMongo.plasticPackagingTaxRegistrationNumber shouldBe individualCreated.props.get("plasticPackagingTaxRegistrationNumber")
+      individualFromMongo.services shouldBe Seq(CAPITAL_GAINS_TAX_UK_PROPERTY, PLASTIC_PACKAGING_TAX)
+    }
+
+    Scenario("Create an organisation with all new organisation services") {
+
+      When("I request the creation of an organisation with all new organisation services")
+      val createdResponse = createOrganisation(
+        Seq("capital-gains-tax-uk-property", "plastic-packaging-tax", "country-by-country-reporting", "trusts")
+      )
+
+      Then("The public identifiers are returned and all generated identifiers are stored in Mongo")
+      createdResponse.code shouldBe StatusCode.Created
+      val responseJson          = Json.parse(createdResponse.body.value)
+      val organisationCreated   = responseJson.as[TestOrganisationCreatedResponse]
+      val organisationFromMongo = result(mongoRepository.fetchByUserId(organisationCreated.userId), timeout).get.asInstanceOf[TestOrganisation]
+
+      organisationCreated.props("capitalGainsTaxOnUKPropertyReference") should fullyMatch regex "^X[A-Z]CGTP[0-9]{9}$"
+      organisationCreated.props("plasticPackagingTaxRegistrationNumber") should fullyMatch regex "^X[A-Z]PPT000[0-9]{7}$"
+      organisationCreated.props("countryByCountryReportingId") should fullyMatch regex "^X[A-Z]CBC[0-9]{10}$"
+      (responseJson \ "countryByCountryReportingUniqueTaxpayerReference").toOption shouldBe None
+      organisationCreated.props("trustsUniqueTaxpayerReference") should fullyMatch regex "^[0-9]{10}$"
+      organisationCreated.props("trustsUniqueReferenceNumber") should fullyMatch regex "^[A-Z]{2}TRUST[0-9]{8}$"
+      organisationFromMongo.capitalGainsTaxOnUKPropertyReference shouldBe organisationCreated.props.get("capitalGainsTaxOnUKPropertyReference")
+      organisationFromMongo.plasticPackagingTaxRegistrationNumber shouldBe organisationCreated.props.get("plasticPackagingTaxRegistrationNumber")
+      organisationFromMongo.countryByCountryReportingId shouldBe organisationCreated.props.get("countryByCountryReportingId")
+      organisationFromMongo.countryByCountryReportingUniqueTaxpayerReference.get should fullyMatch regex "^[0-9]{10}$"
+      organisationFromMongo.trustsUniqueTaxpayerReference shouldBe organisationCreated.props.get("trustsUniqueTaxpayerReference")
+      organisationFromMongo.trustsUniqueReferenceNumber shouldBe organisationCreated.props.get("trustsUniqueReferenceNumber")
+      organisationFromMongo.services shouldBe Seq(
+        CAPITAL_GAINS_TAX_UK_PROPERTY,
+        PLASTIC_PACKAGING_TAX,
+        COUNTRY_BY_COUNTRY_REPORTING,
+        TRUSTS
+      )
+    }
+
     Scenario("Create an agent") {
 
       When("I request the creation of an agent")

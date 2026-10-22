@@ -49,6 +49,10 @@ object Services {
     Service(ServiceKey.SAFETY_AND_SECURITY, "Safety and Security", Seq(ORGANISATION)),
     Service(ServiceKey.EMCS, "Excise Movement Control System", Seq(ORGANISATION)),
     Service(ServiceKey.MODERNISATION_OF_AUTHORISATIONS, "Modernisation of Authorisations", Seq(ORGANISATION)),
-    Service(ServiceKey.PILLAR_2, "Pillar 2", Seq(ORGANISATION, AGENT))
+    Service(ServiceKey.PILLAR_2, "Pillar 2", Seq(ORGANISATION, AGENT)),
+    Service(ServiceKey.CAPITAL_GAINS_TAX_UK_PROPERTY, "Capital Gains Tax on UK Property", Seq(INDIVIDUAL, ORGANISATION)),
+    Service(ServiceKey.PLASTIC_PACKAGING_TAX, "Plastic Packaging Tax", Seq(INDIVIDUAL, ORGANISATION)),
+    Service(ServiceKey.COUNTRY_BY_COUNTRY_REPORTING, "Country-by-Country Reporting", Seq(ORGANISATION)),
+    Service(ServiceKey.TRUSTS, "Trusts", Seq(ORGANISATION))
   )
 }
