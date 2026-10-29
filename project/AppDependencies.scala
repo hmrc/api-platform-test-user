@@ -4,9 +4,9 @@ import play.core.PlayVersion
 object AppDependencies {
   def apply(): Seq[ModuleID] = compile ++ test
 
-  lazy val bootstrapVersion    = "9.14.0"
-  lazy val mongoVersion        = "2.6.0"
-  lazy val commonDomainVersion = "0.18.0"
+  lazy val bootstrapVersion    = "10.8.0"
+  lazy val mongoVersion        = "2.14.0"
+  lazy val commonDomainVersion = "1.4.0"
 
   lazy val compile: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"       %% "bootstrap-backend-play-30"  % bootstrapVersion,
