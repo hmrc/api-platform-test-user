@@ -84,8 +84,10 @@ class TestUserISpec extends BaseFeatureSpec {
 
       individualCreated.props("capitalGainsTaxOnUKPropertyReference") should fullyMatch regex "^X[A-Z]CGTP[0-9]{9}$"
       individualCreated.props("plasticPackagingTaxRegistrationNumber") should fullyMatch regex "^X[A-Z]PPT000[0-9]{7}$"
+      individualCreated.props("plasticPackagingTaxRegistrationDate") should fullyMatch regex "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
       individualFromMongo.capitalGainsTaxOnUKPropertyReference shouldBe individualCreated.props.get("capitalGainsTaxOnUKPropertyReference")
       individualFromMongo.plasticPackagingTaxRegistrationNumber shouldBe individualCreated.props.get("plasticPackagingTaxRegistrationNumber")
+      individualFromMongo.plasticPackagingTaxRegistrationDate shouldBe individualCreated.props.get("plasticPackagingTaxRegistrationDate")
       individualFromMongo.services shouldBe Seq(CAPITAL_GAINS_TAX_UK_PROPERTY, PLASTIC_PACKAGING_TAX)
     }
 
@@ -104,12 +106,14 @@ class TestUserISpec extends BaseFeatureSpec {
 
       organisationCreated.props("capitalGainsTaxOnUKPropertyReference") should fullyMatch regex "^X[A-Z]CGTP[0-9]{9}$"
       organisationCreated.props("plasticPackagingTaxRegistrationNumber") should fullyMatch regex "^X[A-Z]PPT000[0-9]{7}$"
+      organisationCreated.props("plasticPackagingTaxRegistrationDate") should fullyMatch regex "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
       organisationCreated.props("countryByCountryReportingId") should fullyMatch regex "^X[A-Z]CBC[0-9]{10}$"
       (responseJson \ "countryByCountryReportingUniqueTaxpayerReference").toOption shouldBe None
       organisationCreated.props("trustsUniqueTaxpayerReference") should fullyMatch regex "^[0-9]{10}$"
       organisationCreated.props("trustsUniqueReferenceNumber") should fullyMatch regex "^[A-Z]{2}TRUST[0-9]{8}$"
       organisationFromMongo.capitalGainsTaxOnUKPropertyReference shouldBe organisationCreated.props.get("capitalGainsTaxOnUKPropertyReference")
       organisationFromMongo.plasticPackagingTaxRegistrationNumber shouldBe organisationCreated.props.get("plasticPackagingTaxRegistrationNumber")
+      organisationFromMongo.plasticPackagingTaxRegistrationDate shouldBe organisationCreated.props.get("plasticPackagingTaxRegistrationDate")
       organisationFromMongo.countryByCountryReportingId shouldBe organisationCreated.props.get("countryByCountryReportingId")
       organisationFromMongo.countryByCountryReportingUniqueTaxpayerReference.get should fullyMatch regex "^[0-9]{10}$"
       organisationFromMongo.trustsUniqueTaxpayerReference shouldBe organisationCreated.props.get("trustsUniqueTaxpayerReference")

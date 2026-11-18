@@ -98,6 +98,9 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
     digits <- Gen.listOfN(10, Gen.numChar)
   } yield s"X${letter}CBC${digits.mkString}"
 
+  private def generatePastDate: String =
+    LocalDate.now.minusYears(Gen.chooseNum(1, 20).sample.get).toString
+
   private val trustsUniqueReferenceNumberGenerator = for {
     letter <- Gen.alphaUpperChar
     digits <- Gen.listOfN(8, Gen.numChar)
@@ -137,6 +140,7 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       vrn                                   <- whenF(MTD_VAT)(generateVrn)
       capitalGainsTaxOnUKPropertyReference  <- whenF(CAPITAL_GAINS_TAX_UK_PROPERTY)(generateCapitalGainsTaxOnUKPropertyReference)
       plasticPackagingTaxRegistrationNumber <- whenF(PLASTIC_PACKAGING_TAX)(generatePlasticPackagingTaxRegistrationNumber)
+      plasticPackagingTaxRegistrationDate    = plasticPackagingTaxRegistrationNumber.map(_ => generatePastDate)
       vatRegistrationDate                    = vrn.map(_ => LocalDate.now.minusYears(Gen.chooseNum(1, 20).sample.get))
       groupIdentifier                        = Some(generateGroupIdentifier)
       individualDetails                      = generateIndividualDetails
@@ -151,7 +155,8 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
         TestUserPropKey.eoriNumber                            -> eoriNumber,
         TestUserPropKey.groupIdentifier                       -> groupIdentifier,
         TestUserPropKey.capitalGainsTaxOnUKPropertyReference  -> capitalGainsTaxOnUKPropertyReference,
-        TestUserPropKey.plasticPackagingTaxRegistrationNumber -> plasticPackagingTaxRegistrationNumber
+        TestUserPropKey.plasticPackagingTaxRegistrationNumber -> plasticPackagingTaxRegistrationNumber,
+        TestUserPropKey.plasticPackagingTaxRegistrationDate   -> plasticPackagingTaxRegistrationDate
       ).collect {
         case (key, Some(value)) => key -> value
       }
@@ -208,6 +213,7 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       zReference                                       <- whenF(DISA)(useProvidedOrGeneratedZReference(zReference))
       capitalGainsTaxOnUKPropertyReference             <- whenF(CAPITAL_GAINS_TAX_UK_PROPERTY)(generateCapitalGainsTaxOnUKPropertyReference)
       plasticPackagingTaxRegistrationNumber            <- whenF(PLASTIC_PACKAGING_TAX)(generatePlasticPackagingTaxRegistrationNumber)
+      plasticPackagingTaxRegistrationDate               = plasticPackagingTaxRegistrationNumber.map(_ => generatePastDate)
       countryByCountryReportingId                      <- whenF(COUNTRY_BY_COUNTRY_REPORTING)(generateCountryByCountryReportingId)
       countryByCountryReportingUniqueTaxpayerReference <- whenF(COUNTRY_BY_COUNTRY_REPORTING)(generateCountryByCountryReportingUniqueTaxpayerReference)
       trustsUniqueTaxpayerReference                    <- whenF(TRUSTS)(generateTrustsUniqueTaxpayerReference)
@@ -233,6 +239,7 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
         TestUserPropKey.zReference                                       -> zReference,
         TestUserPropKey.capitalGainsTaxOnUKPropertyReference             -> capitalGainsTaxOnUKPropertyReference,
         TestUserPropKey.plasticPackagingTaxRegistrationNumber            -> plasticPackagingTaxRegistrationNumber,
+        TestUserPropKey.plasticPackagingTaxRegistrationDate              -> plasticPackagingTaxRegistrationDate,
         TestUserPropKey.countryByCountryReportingId                      -> countryByCountryReportingId,
         TestUserPropKey.countryByCountryReportingUniqueTaxpayerReference -> countryByCountryReportingUniqueTaxpayerReference,
         TestUserPropKey.trustsUniqueTaxpayerReference                    -> trustsUniqueTaxpayerReference,

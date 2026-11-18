@@ -62,6 +62,7 @@ object TestUserPropKey {
   case object zReference                                       extends TestUserPropKey
   case object capitalGainsTaxOnUKPropertyReference             extends TestUserPropKey
   case object plasticPackagingTaxRegistrationNumber            extends TestUserPropKey
+  case object plasticPackagingTaxRegistrationDate              extends TestUserPropKey
   case object countryByCountryReportingId                      extends TestUserPropKey
   case object countryByCountryReportingUniqueTaxpayerReference extends TestUserPropKey
   case object trustsUniqueTaxpayerReference                    extends TestUserPropKey
@@ -88,6 +89,7 @@ object TestUserPropKey {
     zReference,
     capitalGainsTaxOnUKPropertyReference,
     plasticPackagingTaxRegistrationNumber,
+    plasticPackagingTaxRegistrationDate,
     countryByCountryReportingId,
     countryByCountryReportingUniqueTaxpayerReference,
     trustsUniqueTaxpayerReference,
@@ -171,6 +173,8 @@ case class TestOrganisation(
   lazy val capitalGainsTaxOnUKPropertyReference             = props.get(TestUserPropKey.capitalGainsTaxOnUKPropertyReference)
   // I O
   lazy val plasticPackagingTaxRegistrationNumber            = props.get(TestUserPropKey.plasticPackagingTaxRegistrationNumber)
+  // I O
+  lazy val plasticPackagingTaxRegistrationDate              = props.get(TestUserPropKey.plasticPackagingTaxRegistrationDate)
   // O
   lazy val countryByCountryReportingId                      = props.get(TestUserPropKey.countryByCountryReportingId)
   // O
@@ -231,6 +235,7 @@ case class TestIndividual(
   lazy val groupIdentifier: Option[String]                       = props.get(TestUserPropKey.groupIdentifier)
   lazy val capitalGainsTaxOnUKPropertyReference: Option[String]  = props.get(TestUserPropKey.capitalGainsTaxOnUKPropertyReference)
   lazy val plasticPackagingTaxRegistrationNumber: Option[String] = props.get(TestUserPropKey.plasticPackagingTaxRegistrationNumber)
+  lazy val plasticPackagingTaxRegistrationDate: Option[String]   = props.get(TestUserPropKey.plasticPackagingTaxRegistrationDate)
 }
 
 object TestIndividual {

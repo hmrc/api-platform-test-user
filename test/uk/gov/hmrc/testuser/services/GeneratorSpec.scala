@@ -171,7 +171,8 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
           mtdItIdDefined: Boolean = false,
           eoriDefined: Boolean = false,
           capitalGainsTaxOnUKPropertyReferenceDefined: Boolean = false,
-          plasticPackagingTaxRegistrationNumberDefined: Boolean = false
+          plasticPackagingTaxRegistrationNumberDefined: Boolean = false,
+          plasticPackagingTaxRegistrationDateDefined: Boolean = false
         ) = {
 
         check(individual.nino, ninoDefined)
@@ -181,6 +182,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
         check(individual.vrn, vrnDefined)
         check(individual.capitalGainsTaxOnUKPropertyReference, capitalGainsTaxOnUKPropertyReferenceDefined)
         check(individual.plasticPackagingTaxRegistrationNumber, plasticPackagingTaxRegistrationNumberDefined)
+        check(individual.plasticPackagingTaxRegistrationDate, plasticPackagingTaxRegistrationDateDefined)
       }
     }
 
@@ -198,8 +200,12 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
 
       val individual = await(underTest.generateTestIndividual(Seq(PLASTIC_PACKAGING_TAX), None, None))
 
-      individual shouldHave (plasticPackagingTaxRegistrationNumberDefined = true)
+      individual shouldHave (
+        plasticPackagingTaxRegistrationNumberDefined = true,
+        plasticPackagingTaxRegistrationDateDefined = true
+      )
       individual.plasticPackagingTaxRegistrationNumber.value should fullyMatch regex "^X[A-Z]PPT000[0-9]{7}$"
+      LocalDate.parse(individual.plasticPackagingTaxRegistrationDate.value) should be < LocalDate.now.plusDays(1)
     }
 
     "generate a NINO and MTD IT ID when MTD_INCOME_TAX service is included" in new Setup {
@@ -357,6 +363,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
           zReferenceDefined: Boolean = false,
           capitalGainsTaxOnUKPropertyReferenceDefined: Boolean = false,
           plasticPackagingTaxRegistrationNumberDefined: Boolean = false,
+          plasticPackagingTaxRegistrationDateDefined: Boolean = false,
           countryByCountryReportingIdDefined: Boolean = false,
           countryByCountryReportingUniqueTaxpayerReferenceDefined: Boolean = false,
           trustsUniqueTaxpayerReferenceDefined: Boolean = false,
@@ -380,6 +387,7 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
         check(org.zReference, zReferenceDefined)
         check(org.capitalGainsTaxOnUKPropertyReference, capitalGainsTaxOnUKPropertyReferenceDefined)
         check(org.plasticPackagingTaxRegistrationNumber, plasticPackagingTaxRegistrationNumberDefined)
+        check(org.plasticPackagingTaxRegistrationDate, plasticPackagingTaxRegistrationDateDefined)
         check(org.countryByCountryReportingId, countryByCountryReportingIdDefined)
         check(org.countryByCountryReportingUniqueTaxpayerReference, countryByCountryReportingUniqueTaxpayerReferenceDefined)
         check(org.trustsUniqueTaxpayerReference, trustsUniqueTaxpayerReferenceDefined)
@@ -401,8 +409,12 @@ class GeneratorSpec extends AsyncHmrcSpec with ScalaCheckPropertyChecks {
 
       val org = await(underTest.generateTestOrganisation(Seq(PLASTIC_PACKAGING_TAX), None, None, None, None, None, None))
 
-      org shouldHave (plasticPackagingTaxRegistrationNumberDefined = true)
+      org shouldHave (
+        plasticPackagingTaxRegistrationNumberDefined = true,
+        plasticPackagingTaxRegistrationDateDefined = true
+      )
       org.plasticPackagingTaxRegistrationNumber.value should fullyMatch regex "^X[A-Z]PPT000[0-9]{7}$"
+      LocalDate.parse(org.plasticPackagingTaxRegistrationDate.value) should be < LocalDate.now.plusDays(1)
     }
 
     "generate valid Country-by-Country Reporting identifiers when the service is included" in new Setup {
