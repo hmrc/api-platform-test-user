@@ -200,4 +200,19 @@ class TestUserService @Inject() (
   def fetchOrganisationByPillar2Id(pillar2Id: Pillar2Id): Future[TestOrganisation] = {
     testUserRepository.fetchOrganisationByPillar2Id(pillar2Id) map (t => t.getOrElse(throw UserNotFound(ORGANISATION)))
   }
+
+  def fetchOrganisationByCbcId(cbcId: String): Future[TestOrganisation] =
+    testUserRepository.fetchOrganisationByCbcId(cbcId).map(_.getOrElse(throw UserNotFound(ORGANISATION)))
+
+  def fetchOrganisationByTrustUtr(utr: String): Future[TestOrganisation] =
+    testUserRepository.fetchOrganisationByTrustUtr(utr).map(_.getOrElse(throw UserNotFound(ORGANISATION)))
+
+  def fetchOrganisationByTrustsUrn(urn: String): Future[TestOrganisation] =
+    testUserRepository.fetchOrganisationByTrustsUrn(urn).map(_.getOrElse(throw UserNotFound(ORGANISATION)))
+
+  def fetchOrganisationByPptRef(pptRef: String): Future[TestOrganisation] =
+    testUserRepository.fetchOrganisationByPptRef(pptRef).map(_.getOrElse(throw UserNotFound(ORGANISATION)))
+
+  def fetchOrganisationByCgtpdref(cgtpdref: String): Future[TestOrganisation] =
+    testUserRepository.fetchOrganisationByCgtpdref(cgtpdref).map(_.getOrElse(throw UserNotFound(ORGANISATION)))
 }

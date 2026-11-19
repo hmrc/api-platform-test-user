@@ -210,6 +210,7 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
       companyRegNo                                     <- whenF(CORPORATION_TAX)(generateCrn)
       taxpayerType                                     <- whenF(SELF_ASSESSMENT)(useProvidedTaxpayerType(taxpayerType).map(maybeVal => maybeVal.trim))
       pillar2Id                                        <- whenF(PILLAR_2)(useProvidedOrGeneratedPillar2Id(pillar2Id))
+      pillar2RegistrationDate                           = pillar2Id.map(_ => generatePastDate)
       zReference                                       <- whenF(DISA)(useProvidedOrGeneratedZReference(zReference))
       capitalGainsTaxOnUKPropertyReference             <- whenF(CAPITAL_GAINS_TAX_UK_PROPERTY)(generateCapitalGainsTaxOnUKPropertyReference)
       plasticPackagingTaxRegistrationNumber            <- whenF(PLASTIC_PACKAGING_TAX)(generatePlasticPackagingTaxRegistrationNumber)
@@ -236,6 +237,7 @@ class Generator @Inject() (val testUserRepository: TestUserRepository, val confi
         TestUserPropKey.crn                                              -> companyRegNo,
         TestUserPropKey.taxpayerType                                     -> taxpayerType,
         TestUserPropKey.pillar2Id                                        -> pillar2Id,
+        TestUserPropKey.pillar2RegistrationDate                          -> pillar2RegistrationDate,
         TestUserPropKey.zReference                                       -> zReference,
         TestUserPropKey.capitalGainsTaxOnUKPropertyReference             -> capitalGainsTaxOnUKPropertyReference,
         TestUserPropKey.plasticPackagingTaxRegistrationNumber            -> plasticPackagingTaxRegistrationNumber,

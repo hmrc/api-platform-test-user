@@ -70,7 +70,24 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     val testOrganisation =
       await(
         generator.generateTestOrganisation(
-          Seq(MTD_INCOME_TAX, SELF_ASSESSMENT, NATIONAL_INSURANCE, CORPORATION_TAX, PAYE_FOR_EMPLOYERS, MTD_VAT, LISA, CUSTOMS_SERVICES, CTC_LEGACY, CTC, PILLAR_2, DISA),
+          Seq(
+            MTD_INCOME_TAX,
+            SELF_ASSESSMENT,
+            NATIONAL_INSURANCE,
+            CORPORATION_TAX,
+            PAYE_FOR_EMPLOYERS,
+            MTD_VAT,
+            LISA,
+            CUSTOMS_SERVICES,
+            CTC_LEGACY,
+            CTC,
+            PILLAR_2,
+            DISA,
+            COUNTRY_BY_COUNTRY_REPORTING,
+            TRUSTS,
+            PLASTIC_PACKAGING_TAX,
+            CAPITAL_GAINS_TAX_UK_PROPERTY
+          ),
           eoriNumber = None,
           exciseNumber = None,
           nino = None,
@@ -429,6 +446,26 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
     "return None when there is no organisation matching" in new GeneratedTestOrganisation {
       val result = await(repository.fetchOrganisationByPillar2Id(Pillar2Id(testOrganisation.pillar2Id.get)))
       result shouldBe None
+    }
+  }
+
+  "fetch an organisation by an ASA identifier" should {
+    "return the matching organisation for every supported identifier" in new GeneratedTestOrganisation {
+      await(repository.createUser(testOrganisation))
+
+      await(repository.fetchOrganisationByCbcId(testOrganisation.countryByCountryReportingId.get)) shouldBe Some(testOrganisation)
+      await(repository.fetchOrganisationByTrustUtr(testOrganisation.trustsUniqueTaxpayerReference.get)) shouldBe Some(testOrganisation)
+      await(repository.fetchOrganisationByTrustsUrn(testOrganisation.trustsUniqueReferenceNumber.get)) shouldBe Some(testOrganisation)
+      await(repository.fetchOrganisationByPptRef(testOrganisation.plasticPackagingTaxRegistrationNumber.get)) shouldBe Some(testOrganisation)
+      await(repository.fetchOrganisationByCgtpdref(testOrganisation.capitalGainsTaxOnUKPropertyReference.get)) shouldBe Some(testOrganisation)
+    }
+
+    "return None when no organisation matches" in new GeneratedTestOrganisation {
+      await(repository.fetchOrganisationByCbcId(testOrganisation.countryByCountryReportingId.get)) shouldBe None
+      await(repository.fetchOrganisationByTrustUtr(testOrganisation.trustsUniqueTaxpayerReference.get)) shouldBe None
+      await(repository.fetchOrganisationByTrustsUrn(testOrganisation.trustsUniqueReferenceNumber.get)) shouldBe None
+      await(repository.fetchOrganisationByPptRef(testOrganisation.plasticPackagingTaxRegistrationNumber.get)) shouldBe None
+      await(repository.fetchOrganisationByCgtpdref(testOrganisation.capitalGainsTaxOnUKPropertyReference.get)) shouldBe None
     }
   }
 

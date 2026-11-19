@@ -20,5 +20,6 @@
   "vatRegistrationDate":"2001-11-02",
   "eoriNumber":"GB123456789012",
   "capitalGainsTaxOnUKPropertyReference":"XACGTP123456789",
-  "plasticPackagingTaxRegistrationNumber":"XAPPT0001234567"
+  "plasticPackagingTaxRegistrationNumber":"XAPPT0001234567",
+  "plasticPackagingTaxRegistrationDate":"2020-01-01"
 }

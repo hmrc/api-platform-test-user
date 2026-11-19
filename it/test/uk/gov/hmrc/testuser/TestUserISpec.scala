@@ -95,7 +95,7 @@ class TestUserISpec extends BaseFeatureSpec {
 
       When("I request the creation of an organisation with all new organisation services")
       val createdResponse = createOrganisation(
-        Seq("capital-gains-tax-uk-property", "plastic-packaging-tax", "country-by-country-reporting", "trusts")
+        Seq("capital-gains-tax-uk-property", "plastic-packaging-tax", "country-by-country-reporting", "trusts", "pillar-2")
       )
 
       Then("The public identifiers are returned and all generated identifiers are stored in Mongo")
@@ -111,6 +111,7 @@ class TestUserISpec extends BaseFeatureSpec {
       (responseJson \ "countryByCountryReportingUniqueTaxpayerReference").toOption shouldBe None
       organisationCreated.props("trustsUniqueTaxpayerReference") should fullyMatch regex "^[0-9]{10}$"
       organisationCreated.props("trustsUniqueReferenceNumber") should fullyMatch regex "^[A-Z]{2}TRUST[0-9]{8}$"
+      organisationCreated.props("pillar2RegistrationDate") should fullyMatch regex "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
       organisationFromMongo.capitalGainsTaxOnUKPropertyReference shouldBe organisationCreated.props.get("capitalGainsTaxOnUKPropertyReference")
       organisationFromMongo.plasticPackagingTaxRegistrationNumber shouldBe organisationCreated.props.get("plasticPackagingTaxRegistrationNumber")
       organisationFromMongo.plasticPackagingTaxRegistrationDate shouldBe organisationCreated.props.get("plasticPackagingTaxRegistrationDate")
@@ -118,11 +119,13 @@ class TestUserISpec extends BaseFeatureSpec {
       organisationFromMongo.countryByCountryReportingUniqueTaxpayerReference.get should fullyMatch regex "^[0-9]{10}$"
       organisationFromMongo.trustsUniqueTaxpayerReference shouldBe organisationCreated.props.get("trustsUniqueTaxpayerReference")
       organisationFromMongo.trustsUniqueReferenceNumber shouldBe organisationCreated.props.get("trustsUniqueReferenceNumber")
+      organisationFromMongo.pillar2RegistrationDate shouldBe organisationCreated.props.get("pillar2RegistrationDate")
       organisationFromMongo.services shouldBe Seq(
         CAPITAL_GAINS_TAX_UK_PROPERTY,
         PLASTIC_PACKAGING_TAX,
         COUNTRY_BY_COUNTRY_REPORTING,
-        TRUSTS
+        TRUSTS,
+        PILLAR_2
       )
     }
 

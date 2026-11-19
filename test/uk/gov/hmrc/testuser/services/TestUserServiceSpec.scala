@@ -44,6 +44,11 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
   val nino            = "CC333333C"
   val shortNino       = "CC333333"
   val empRef          = "555/EIA000"
+  val cbcId           = "XACBC1234567890"
+  val trustUtr        = "8876543210"
+  val trustsUrn       = "XATRUST12345678"
+  val pptRef          = "XAPPT0001234567"
+  val cgtpdref        = "XACGTP123456789"
 
   val individualServices = Seq(NATIONAL_INSURANCE, MTD_INCOME_TAX)
 
@@ -481,6 +486,22 @@ class TestUserServiceSpec extends AsyncHmrcSpec {
       intercept[RuntimeException] {
         await(underTest.fetchOrganisationByEmpRef(EmpRef.fromIdentifiers(empRef)))
       }
+    }
+  }
+
+  "fetch an organisation by an ASA identifier" should {
+    "return the organisation for every supported identifier" in new Setup {
+      when(underTest.testUserRepository.fetchOrganisationByCbcId(cbcId)).thenReturn(successful(Some(testOrganisation)))
+      when(underTest.testUserRepository.fetchOrganisationByTrustUtr(trustUtr)).thenReturn(successful(Some(testOrganisation)))
+      when(underTest.testUserRepository.fetchOrganisationByTrustsUrn(trustsUrn)).thenReturn(successful(Some(testOrganisation)))
+      when(underTest.testUserRepository.fetchOrganisationByPptRef(pptRef)).thenReturn(successful(Some(testOrganisation)))
+      when(underTest.testUserRepository.fetchOrganisationByCgtpdref(cgtpdref)).thenReturn(successful(Some(testOrganisation)))
+
+      await(underTest.fetchOrganisationByCbcId(cbcId)) shouldBe testOrganisation
+      await(underTest.fetchOrganisationByTrustUtr(trustUtr)) shouldBe testOrganisation
+      await(underTest.fetchOrganisationByTrustsUrn(trustsUrn)) shouldBe testOrganisation
+      await(underTest.fetchOrganisationByPptRef(pptRef)) shouldBe testOrganisation
+      await(underTest.fetchOrganisationByCgtpdref(cgtpdref)) shouldBe testOrganisation
     }
   }
 }

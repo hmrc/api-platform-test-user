@@ -142,6 +142,26 @@ class TestUserController @Inject() (val testUserService: TestUserService, cc: Co
     } recover recovery
   }
 
+  def fetchOrganisationByCbcId(cbcId: String): Action[AnyContent] = Action.async { _ =>
+    testUserService.fetchOrganisationByCbcId(cbcId).map(organisation => Ok(toJson(FetchTestOrganisationResponse.from(organisation)))).recover(recovery)
+  }
+
+  def fetchOrganisationByTrustUtr(utr: String): Action[AnyContent] = Action.async { _ =>
+    testUserService.fetchOrganisationByTrustUtr(utr).map(organisation => Ok(toJson(FetchTestOrganisationResponse.from(organisation)))).recover(recovery)
+  }
+
+  def fetchOrganisationByTrustsUrn(urn: String): Action[AnyContent] = Action.async { _ =>
+    testUserService.fetchOrganisationByTrustsUrn(urn).map(organisation => Ok(toJson(FetchTestOrganisationResponse.from(organisation)))).recover(recovery)
+  }
+
+  def fetchOrganisationByPptRef(pptRef: String): Action[AnyContent] = Action.async { _ =>
+    testUserService.fetchOrganisationByPptRef(pptRef).map(organisation => Ok(toJson(FetchTestOrganisationResponse.from(organisation)))).recover(recovery)
+  }
+
+  def fetchOrganisationByCgtpdref(cgtpdref: String): Action[AnyContent] = Action.async { _ =>
+    testUserService.fetchOrganisationByCgtpdref(cgtpdref).map(organisation => Ok(toJson(FetchTestOrganisationResponse.from(organisation)))).recover(recovery)
+  }
+
   private def recovery: PartialFunction[Throwable, Result] = {
     case UserNotFound(INDIVIDUAL)   => NotFound(toJson(individualNotFoundError))
     case UserNotFound(ORGANISATION) => NotFound(toJson(organisationNotFoundError))

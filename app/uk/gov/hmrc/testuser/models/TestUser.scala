@@ -59,6 +59,7 @@ object TestUserPropKey {
   case object arn                                              extends TestUserPropKey
   case object agentCode                                        extends TestUserPropKey
   case object pillar2Id                                        extends TestUserPropKey
+  case object pillar2RegistrationDate                          extends TestUserPropKey
   case object zReference                                       extends TestUserPropKey
   case object capitalGainsTaxOnUKPropertyReference             extends TestUserPropKey
   case object plasticPackagingTaxRegistrationNumber            extends TestUserPropKey
@@ -86,6 +87,7 @@ object TestUserPropKey {
     arn,
     agentCode,
     pillar2Id,
+    pillar2RegistrationDate,
     zReference,
     capitalGainsTaxOnUKPropertyReference,
     plasticPackagingTaxRegistrationNumber,
@@ -167,6 +169,8 @@ case class TestOrganisation(
   lazy val taxpayerType                                     = props.get(TestUserPropKey.taxpayerType)
   // O A
   lazy val pillar2Id                                        = props.get(TestUserPropKey.pillar2Id)
+  // O A
+  lazy val pillar2RegistrationDate                          = props.get(TestUserPropKey.pillar2RegistrationDate)
   // 0
   lazy val zReference                                       = props.get(TestUserPropKey.zReference)
   // I O

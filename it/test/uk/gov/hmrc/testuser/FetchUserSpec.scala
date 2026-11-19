@@ -266,11 +266,42 @@ class FetchUserSpec extends BaseFeatureSpec {
            |       "postcode": "${organisation.individualDetails.get.address.postcode}"
            |     }
            |   },
+           |   "pillar2RegistrationDate": "${organisation.props("pillar2RegistrationDate")}",
            |   "pillar2Id": "${organisation.props("pillar2Id")}",
            |   "groupIdentifier": "${organisation.props("groupIdentifier")}"
            |}
       """.stripMargin
       )
+    }
+
+    Scenario("Fetch an organisation by each ASA identifier") {
+
+      Given("An organisation with all ASA profiles")
+      val organisation = createOrganisation(
+        "country-by-country-reporting",
+        "trusts",
+        "plastic-packaging-tax",
+        "capital-gains-tax-uk-property"
+      )
+
+      val lookups = Seq(
+        ("cbc", "countryByCountryReportingId"),
+        ("trustUtr", "trustsUniqueTaxpayerReference"),
+        ("trustsUrn", "trustsUniqueReferenceNumber"),
+        ("ppt", "plasticPackagingTaxRegistrationNumber"),
+        ("cgtpdref", "capitalGainsTaxOnUKPropertyReference")
+      )
+
+      lookups.foreach { case (path, property) =>
+        val identifier = organisation.props(property)
+        When(s"I fetch the organisation using $path")
+        val response   = http(basicRequest.get(uri"$serviceUrl/organisations/$path/$identifier"))
+
+        Then("the same organisation is returned")
+        val json = Json.parse(response.body.value)
+        (json \ "userId").as[String] shouldBe organisation.userId
+        (json \ property).as[String] shouldBe identifier
+      }
     }
   }
 

@@ -21,3 +21,8 @@ GET         /organisations/ctutr/:ctUtr         uk.gov.hmrc.testuser.controllers
 GET         /organisations/sautr/:saUtr         uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationBySaUtr(saUtr: uk.gov.hmrc.domain.SaUtr)
 GET         /organisations/crn/:crn             uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationByCrn(crn: uk.gov.hmrc.testuser.models.Crn)
 GET         /organisations/pillar2Id/:pillar2Id uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationByPillar2Id(pillar2Id: uk.gov.hmrc.testuser.models.Pillar2Id)
+GET         /organisations/cbc/:cbcId            uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationByCbcId(cbcId: String)
+GET         /organisations/trustUtr/:utr         uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationByTrustUtr(utr: String)
+GET         /organisations/trustsUrn/:urn        uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationByTrustsUrn(urn: String)
+GET         /organisations/ppt/:pptRef           uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationByPptRef(pptRef: String)
+GET         /organisations/cgtpdref/:cgtpdref    uk.gov.hmrc.testuser.controllers.TestUserController.fetchOrganisationByCgtpdref(cgtpdref: String)
