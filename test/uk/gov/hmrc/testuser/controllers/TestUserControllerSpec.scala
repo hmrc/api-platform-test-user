@@ -67,6 +67,11 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
   val taxpayerType                            = TaxpayerType("Individual")
   val rawTaxpayerType                         = "Individual"
   val zReference                              = ZReference("Z1234")
+  val cbcId                                   = "XACBC1234567890"
+  val trustUtr                                = "8876543210"
+  val trustUrn                                = "XATRUST12345678"
+  val pptRef                                  = "XAPPT0001234567"
+  val cgtPdRef                                = "XACGTP123456789"
 
   val individualDetails   = IndividualDetails("John", "Doe", LocalDate.parse("1980-01-10"), Address("221b Baker St", "Marylebone", "NW1 6XE"))
   val organisationDetails = OrganisationDetails("Company ABCDEF", Address("225 Baker St", "Marylebone", "NW1 6XE"))
@@ -714,6 +719,29 @@ class TestUserControllerSpec extends AsyncHmrcSpec with LogSuppressing {
       val result = underTest.getServices()(request)
 
       contentAsJson(result) shouldBe Json.toJson(Services.all)
+    }
+  }
+
+  "fetch an organisation by an ASA identifier" should {
+    "return 200 with the organisation for every supported identifier" in new Setup {
+      when(underTest.testUserService.fetchOrganisationByCbcId(cbcId)).thenReturn(successful(testOrganisation))
+      when(underTest.testUserService.fetchOrganisationByTrustUtr(trustUtr)).thenReturn(successful(testOrganisation))
+      when(underTest.testUserService.fetchOrganisationByTrustUrn(trustUrn)).thenReturn(successful(testOrganisation))
+      when(underTest.testUserService.fetchOrganisationByPptRef(pptRef)).thenReturn(successful(testOrganisation))
+      when(underTest.testUserService.fetchOrganisationByCgtPdRef(cgtPdRef)).thenReturn(successful(testOrganisation))
+
+      val results = Seq(
+        underTest.fetchOrganisationByCbcId(cbcId)(request),
+        underTest.fetchOrganisationByTrustUtr(trustUtr)(request),
+        underTest.fetchOrganisationByTrustUrn(trustUrn)(request),
+        underTest.fetchOrganisationByPptRef(pptRef)(request),
+        underTest.fetchOrganisationByCgtPdRef(cgtPdRef)(request)
+      )
+
+      results.foreach { result =>
+        status(result) shouldBe OK
+        contentAsJson(result) shouldBe Json.toJson(FetchTestOrganisationResponse.from(testOrganisation))
+      }
     }
   }
 }
