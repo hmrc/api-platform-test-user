@@ -455,17 +455,17 @@ class TestUserRepositorySpec extends AsyncHmrcSpec with BeforeAndAfterEach with 
 
       await(repository.fetchOrganisationByCbcId(testOrganisation.countryByCountryReportingId.get)) shouldBe Some(testOrganisation)
       await(repository.fetchOrganisationByTrustUtr(testOrganisation.trustsUniqueTaxpayerReference.get)) shouldBe Some(testOrganisation)
-      await(repository.fetchOrganisationByTrustsUrn(testOrganisation.trustsUniqueReferenceNumber.get)) shouldBe Some(testOrganisation)
+      await(repository.fetchOrganisationByTrustUrn(testOrganisation.trustsUniqueReferenceNumber.get)) shouldBe Some(testOrganisation)
       await(repository.fetchOrganisationByPptRef(testOrganisation.plasticPackagingTaxRegistrationNumber.get)) shouldBe Some(testOrganisation)
-      await(repository.fetchOrganisationByCgtpdref(testOrganisation.capitalGainsTaxOnUKPropertyReference.get)) shouldBe Some(testOrganisation)
+      await(repository.fetchOrganisationByCgtPdRef(testOrganisation.capitalGainsTaxOnUKPropertyReference.get)) shouldBe Some(testOrganisation)
     }
 
     "return None when no organisation matches" in new GeneratedTestOrganisation {
       await(repository.fetchOrganisationByCbcId(testOrganisation.countryByCountryReportingId.get)) shouldBe None
       await(repository.fetchOrganisationByTrustUtr(testOrganisation.trustsUniqueTaxpayerReference.get)) shouldBe None
-      await(repository.fetchOrganisationByTrustsUrn(testOrganisation.trustsUniqueReferenceNumber.get)) shouldBe None
+      await(repository.fetchOrganisationByTrustUrn(testOrganisation.trustsUniqueReferenceNumber.get)) shouldBe None
       await(repository.fetchOrganisationByPptRef(testOrganisation.plasticPackagingTaxRegistrationNumber.get)) shouldBe None
-      await(repository.fetchOrganisationByCgtpdref(testOrganisation.capitalGainsTaxOnUKPropertyReference.get)) shouldBe None
+      await(repository.fetchOrganisationByCgtPdRef(testOrganisation.capitalGainsTaxOnUKPropertyReference.get)) shouldBe None
     }
   }
 

@@ -287,7 +287,7 @@ class FetchUserSpec extends BaseFeatureSpec {
       val lookups = Seq(
         ("cbc", "countryByCountryReportingId"),
         ("trustUtr", "trustsUniqueTaxpayerReference"),
-        ("trustsUrn", "trustsUniqueReferenceNumber"),
+        ("trustUrn", "trustsUniqueReferenceNumber"),
         ("ppt", "plasticPackagingTaxRegistrationNumber"),
         ("cgtpdref", "capitalGainsTaxOnUKPropertyReference")
       )

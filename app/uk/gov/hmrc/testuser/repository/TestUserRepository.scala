@@ -368,14 +368,14 @@ class TestUserRepository @Inject() (config: TestUserRepository.Config, mongo: Mo
   def fetchOrganisationByTrustUtr(utr: String): Future[Option[TestOrganisation]] =
     fetchOrganisationByProperty("trustsUniqueTaxpayerReference", utr)
 
-  def fetchOrganisationByTrustsUrn(urn: String): Future[Option[TestOrganisation]] =
+  def fetchOrganisationByTrustUrn(urn: String): Future[Option[TestOrganisation]] =
     fetchOrganisationByProperty("trustsUniqueReferenceNumber", urn)
 
   def fetchOrganisationByPptRef(pptRef: String): Future[Option[TestOrganisation]] =
     fetchOrganisationByProperty("plasticPackagingTaxRegistrationNumber", pptRef)
 
-  def fetchOrganisationByCgtpdref(cgtpdref: String): Future[Option[TestOrganisation]] =
-    fetchOrganisationByProperty("capitalGainsTaxOnUKPropertyReference", cgtpdref)
+  def fetchOrganisationByCgtPdRef(cgtPdRef: String): Future[Option[TestOrganisation]] =
+    fetchOrganisationByProperty("capitalGainsTaxOnUKPropertyReference", cgtPdRef)
 
   def fetchOrganisationByZReference(zReference: ZReference): Future[Option[TestOrganisation]] = {
     fetchMarkAccessAs[TestOrganisation](
