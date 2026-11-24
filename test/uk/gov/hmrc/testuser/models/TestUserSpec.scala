@@ -92,12 +92,14 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
       TestUserPropKey.lisaManRefNum                                    -> lisaRefNum,
       TestUserPropKey.saUtr                                            -> "8876543210",
       TestUserPropKey.countryByCountryReportingId                      -> "XACBC1234567890",
+      TestUserPropKey.plasticPackagingTaxRegistrationDate              -> "2021-03-04",
       TestUserPropKey.countryByCountryReportingUniqueTaxpayerReference -> "2234567890"
     )) shouldBe Map(
-      "agentServicesAccountNumber"  -> arn,
-      "lisaManagerReferenceNumber"  -> lisaRefNum,
-      "saUtr"                       -> "8876543210",
-      "countryByCountryReportingId" -> "XACBC1234567890"
+      "agentServicesAccountNumber"          -> arn,
+      "lisaManagerReferenceNumber"          -> lisaRefNum,
+      "saUtr"                               -> "8876543210",
+      "countryByCountryReportingId"         -> "XACBC1234567890",
+      "plasticPackagingTaxRegistrationDate" -> "2021-03-04"
     )
   }
 
@@ -111,8 +113,9 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
       organisationDetails = organisationDetails,
       individualDetails = None,
       props = Map(
-        TestUserPropKey.lisaManRefNum   -> lisaRefNum,
-        TestUserPropKey.groupIdentifier -> groupIdentifier
+        TestUserPropKey.lisaManRefNum                       -> lisaRefNum,
+        TestUserPropKey.groupIdentifier                     -> groupIdentifier,
+        TestUserPropKey.plasticPackagingTaxRegistrationDate -> "2021-03-04"
       )
     )
 
@@ -125,8 +128,9 @@ class TestUserSpec extends AnyFlatSpec with Matchers {
         organisationDetails = organisationDetails,
         individualDetails = None,
         props = Map(
-          "lisaManagerReferenceNumber" -> lisaRefNum,
-          "groupIdentifier"            -> groupIdentifier
+          "lisaManagerReferenceNumber"          -> lisaRefNum,
+          "groupIdentifier"                     -> groupIdentifier,
+          "plasticPackagingTaxRegistrationDate" -> "2021-03-04"
         )
       )
   }

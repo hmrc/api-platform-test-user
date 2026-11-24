@@ -173,6 +173,26 @@ class TestUserRepository @Inject() (config: TestUserRepository.Config, mongo: Mo
             .sparse(true)
         ),
         IndexModel(
+          ascending("countryByCountryReportingId"),
+          IndexOptions().name("countryByCountryReportingId-Index").background(true).sparse(true)
+        ),
+        IndexModel(
+          ascending("trustsUniqueTaxpayerReference"),
+          IndexOptions().name("trustsUniqueTaxpayerReference-Index").background(true).sparse(true)
+        ),
+        IndexModel(
+          ascending("trustsUniqueReferenceNumber"),
+          IndexOptions().name("trustsUniqueReferenceNumber-Index").background(true).sparse(true)
+        ),
+        IndexModel(
+          ascending("plasticPackagingTaxRegistrationNumber"),
+          IndexOptions().name("plasticPackagingTaxRegistrationNumber-Index").background(true).sparse(true)
+        ),
+        IndexModel(
+          ascending("capitalGainsTaxOnUKPropertyReference"),
+          IndexOptions().name("capitalGainsTaxOnUKPropertyReference-Index").background(true).sparse(true)
+        ),
+        IndexModel(
           ascending("lastAccess"),
           IndexOptions()
             .name("lastAccess-Index")
@@ -333,6 +353,29 @@ class TestUserRepository @Inject() (config: TestUserRepository.Config, mongo: Mo
       )
     )
   }
+
+  private def fetchOrganisationByProperty(property: String, value: String): Future[Option[TestOrganisation]] =
+    fetchMarkAccessAs[TestOrganisation](
+      and(
+        equal(property, value),
+        equal("userType", UserType.ORGANISATION.toString)
+      )
+    )
+
+  def fetchOrganisationByCbcId(cbcId: String): Future[Option[TestOrganisation]] =
+    fetchOrganisationByProperty("countryByCountryReportingId", cbcId)
+
+  def fetchOrganisationByTrustUtr(utr: String): Future[Option[TestOrganisation]] =
+    fetchOrganisationByProperty("trustsUniqueTaxpayerReference", utr)
+
+  def fetchOrganisationByTrustUrn(urn: String): Future[Option[TestOrganisation]] =
+    fetchOrganisationByProperty("trustsUniqueReferenceNumber", urn)
+
+  def fetchOrganisationByPptRef(pptRef: String): Future[Option[TestOrganisation]] =
+    fetchOrganisationByProperty("plasticPackagingTaxRegistrationNumber", pptRef)
+
+  def fetchOrganisationByCgtPdRef(cgtPdRef: String): Future[Option[TestOrganisation]] =
+    fetchOrganisationByProperty("capitalGainsTaxOnUKPropertyReference", cgtPdRef)
 
   def fetchOrganisationByZReference(zReference: ZReference): Future[Option[TestOrganisation]] = {
     fetchMarkAccessAs[TestOrganisation](

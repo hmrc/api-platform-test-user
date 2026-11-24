@@ -97,6 +97,11 @@
     "plasticPackagingTaxRegistrationNumber": {
       "type": "string",
       "description": "Plastic Packaging Tax registration number."
+    },
+    "plasticPackagingTaxRegistrationDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Plastic Packaging Tax registration date."
     }
   },
   "required": [
